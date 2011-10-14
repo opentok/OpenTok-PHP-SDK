@@ -26,41 +26,116 @@
 assert_options(ASSERT_ACTIVE, 1);
 assert_options(ASSERT_WARNING, 0);
 assert_options(ASSERT_QUIET_EVAL, 0);
+$passed = true;
 
-// Create a handler function
 function my_assert_handler($file, $line, $code)
 {
     echo "<hr>Assertion Failed:
         File '$file'<br />
         Line '$line'<br />
         Code '$code'<br /><hr />";
+	global $passed;
+	$passed = false;
+}
+function exception_handler($exception) {
+	global $passed;
+	$passed = false;
 }
 
-// Set up the callback
+function validate_token($token) {
+	if (empty($token) || !is_string($token)) {
+		return false;
+	}
+	$url = API_Config::API_SERVER . "/token/validate";
+	$ch = curl_init($url);
+
+	curl_setopt($ch, CURLOPT_HEADER, 1);
+	curl_setopt($ch, CURLOPT_VERBOSE, TRUE);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, Array('Content-type: application/x-www-form-urlencoded'));
+	curl_setopt($ch, CURLOPT_HTTPHEADER, Array("X-TB-TOKEN-ATUH: $token"));
+
+	$result = curl_exec($ch);
+	echo $result;
+	//echo curl_getinfo($ch, CURLINFO_HTTP_CODE); 
+	curl_close($ch);
+	
+}
 assert_options(ASSERT_CALLBACK, 'my_assert_handler');
+set_exception_handler('exception_handler');
 
 require_once 'OpenTokSDK.php';
 $a = new OpenTokSDK(API_Config::API_KEY,API_Config::API_SECRET);
 $token = $a->generate_token();
-$token = $a->generate_token("mysession", RoleConstants::MODERATOR, 2);
 assert('$token');
-$a->validate_token($token);
-//phpinfo();
-//die();
 $token = $a->generate_token("mysession");
+assert('$token');
 $token = $a->generate_token("mysession", RoleConstants::SUBSCRIBER);
+assert('$token');
 $token = $a->generate_token("mysession", RoleConstants::PUBLISHER);
+assert('$token');
 $token = $a->generate_token("mysession", RoleConstants::MODERATOR);
-$token = $a->generate_token("mysession", "randomString");
-$token = $a->generate_token("mysession", RoleConstants::MODERATOR, gmmktime() - 100000);
-$token = $a->generate_token("mysession", RoleConstants::MODERATOR, gmmktime() + 100000);
-$token = $a->generate_token("mysession", RoleConstants::MODERATOR, gmmktime() + 1000000);
+assert('$token');
 
 try {
-	assert('$a->create_session("127.0.0.1")->getSessionId()');
-}catch(OpenTokException $e) {
-	print $e->getMessage();
+	$token = $a->generate_token("mysession", "randomString");
 	assert(false);
+} catch (Exception $e) {
+	assert('$e');
 }
 
+try {
+	$token = $a->generate_token("mysession", RoleConstants::MODERATOR, gmmktime() - 100000);
+	assert(false);
+} catch (Exception $e) {
+	assert('$e');
+}
 
+$token = $a->generate_token("mysession", RoleConstants::MODERATOR, gmmktime() + 100000);
+assert('$token');
+
+$token = $a->generate_token("mysession", RoleConstants::MODERATOR, gmmktime());
+assert('$token');
+
+try {
+	$token = $a->generate_token("mysession", RoleConstants::MODERATOR, gmmktime() + 1000000);
+	assert(false);
+} catch (Exception $e) {
+	assert('$e');
+}
+
+$sessionId = $a->create_session("127.0.0.1")->getSessionId();
+assert('$sessionId');
+
+$sessionId = $a->create_session("8.8.8.8")->getSessionId();
+assert('$sessionId');
+
+$sessionId = $a->create_session()->getSessionId();
+assert('$sessionId');
+
+$sessionId = $a->create_session('127.0.0.1', array("multiplexer.numOutputStreams" => 0))->getSessionId();
+assert('$sessionId');
+
+$sessionId = $a->create_session('127.0.0.1', array("multiplexer.switchTimeout" => 2000))->getSessionId();
+assert('$sessionId');
+
+$sessionId = $a->create_session('127.0.0.1', array("p2p.preference" => "enable"))->getSessionId();
+assert('$sessionId');
+
+$sessionId = $a->create_session('127.0.0.1', array("echoSuppression.enabled" => "false"))->getSessionId();
+assert('$sessionId');
+
+// try {
+// 	
+// 	assert(false);
+// } catch(OpenTokException $e) {
+// 	assert('$e');
+// }
+
+if ($passed) {
+	echo '<h1>A OK!<h1/>';
+	echo "<img src='http://i.imgur.com/36bNO.png' />";
+} else {
+	echo "<h1>Tests failed :(</h1>";
+}
+?>
