@@ -64,6 +64,9 @@ class OpenTokSDK {
 
 		if(!$role) {
 			$role = RoleConstants::PUBLISHER;
+		} else if (!in_array($role, array(RoleConstants::SUBSCRIBER, 
+				RoleConstants::PUBLISHER, RoleConstants::MODERATOR))) {
+			throw new OpenTokException("unknown role $role");
 		}
 
 		$data_string = "session_id=$session_id&create_time=$create_time&role=$role&nonce=$nonce";
@@ -93,7 +96,7 @@ class OpenTokSDK {
 	 * $location - IP address to geolocate the call around.
 	 * $properties - Optional array, keys are defined in SessionPropertyConstants
 	 */
-    public function create_session($location, $properties=array()) {
+    public function create_session($location='', $properties=array()) {
 		$properties["location"] = $location;
 		$properties["api_key"] = $this->api_key;
 
