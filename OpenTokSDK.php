@@ -52,9 +52,18 @@ class OpenTokSDK {
 		}
 
 		$data_string = "session_id=$session_id&create_time=$create_time&role=$role&nonce=$nonce";
-        if(!is_null($expire_time))
+        if(!is_null($expire_time)) {
+            if(!is_numeric($expire_time))
+                throw new OpenTokException("Expire time must be a number");
+            if($expire_time < $create_time)
+                throw new OpenTokException("Expire time must be in the future");
+            if($expire_time > $create_time + 604800)
+                throw new OpenTokException("Expire time must be in the next 7 days");
 			$data_string .= "&expire_time=$expire_time";
+        }
 		if($connection_data != '') {
+            if(strlen($connection_data) > 1000)
+                throw new OpenTokException("Connection data must be less than 1000 characters");
 			$data_string .= "&connection_data=" . urlencode($connection_data);
 		}
 
