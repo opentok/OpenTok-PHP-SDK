@@ -36,3 +36,4 @@ class API_Config {
 	//const API_SERVER = "https://api.opentok.com/hl";
 
 }
+?>
