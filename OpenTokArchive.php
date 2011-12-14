@@ -1,5 +1,7 @@
 <?php
 
+require_once 'API_Config.php';
+
 class OpenTokArchive {
 
     private $archiveId;
@@ -19,6 +21,17 @@ class OpenTokArchive {
         $this->timeline = $timeline;
     }
 
+    /*************/
+    ////Getters///
+    /*************/
+    public function getId() {
+        return $this->archiveId;
+    }
+
+    public function getTitle() {
+        return $this->archiveTitle;
+    }
+
     public function getResources() {
         return $this->resources;
     }
@@ -27,6 +40,16 @@ class OpenTokArchive {
         return $this->timeline;
     }
 
+    /*************/
+    ////Public FNs/
+    /*************/
+    public function downloadArchiveURL($videoId) {
+        return API_Config::API_SERVER . '/archive/url/'.$this->archiveId.'/'.$videoId;
+    }
+
+    /*************/
+    ////Parser/////
+    /*************/
     public static function parseXML($manifest) {
         $archiveId = $manifest['archiveid'];
         $title = $manifest['title'];
