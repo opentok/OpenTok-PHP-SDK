@@ -83,6 +83,10 @@ class OpenTokArchiveVideoResource {
         return $this->id;
     }
 
+    public function getLength() {
+        return $this->length;
+    }
+
     public static function parseXML($videoResourceItem) {
         return new OpenTokArchiveVideoResource($videoResourceItem['id'], $videoResourceItem['length']);
     }
@@ -97,6 +101,18 @@ class OpenTokArchiveTimelineEvent {
         $this->eventType = $eventType;
         $this->resourceId = $resourceId;
         $this->offset = $offset;
+    }
+
+    public function getEventType() {
+        return $this->eventType;
+    }
+
+    public function getResourceId() {
+        return $this->resourceId;
+    }
+
+    public function getOffset() {
+        return $this->offset;
     }
 
     public static function parseXML($timelineItem) {
