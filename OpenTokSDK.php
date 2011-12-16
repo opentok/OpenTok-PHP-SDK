@@ -135,7 +135,7 @@ class OpenTokSDK {
             throw new OpenTokException("Failed to load manifest file associated with archive $archiveId");
         }
 
-        return OpenTokArchive::parseXML($archiveManifestXML);
+        return OpenTokArchive::parseManifest($archiveManifestXML);
     }
 
     //////////////////////////////////////////////

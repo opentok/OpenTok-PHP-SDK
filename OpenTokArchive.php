@@ -50,7 +50,7 @@ class OpenTokArchive {
     /*************/
     ////Parser/////
     /*************/
-    public static function parseXML($manifest) {
+    public static function parseManifest($manifest) {
         $archiveId = $manifest['archiveid'];
         $title = $manifest['title'];
         $resources = array();
