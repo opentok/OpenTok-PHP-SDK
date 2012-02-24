@@ -64,7 +64,7 @@ function validate_token($token) {
 assert_options(ASSERT_CALLBACK, 'my_assert_handler');
 set_exception_handler('exception_handler');
 
-require_once 'OpenTokSDK.php';
+require_once '../OpenTokSDK.php';
 $a = new OpenTokSDK(API_Config::API_KEY,API_Config::API_SECRET);
 $token = $a->generate_token();
 assert('$token');
