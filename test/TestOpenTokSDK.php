@@ -113,16 +113,7 @@ assert('$sessionId');
 $sessionId = $a->create_session()->getSessionId();
 assert('$sessionId');
 
-$sessionId = $a->create_session('127.0.0.1', array("multiplexer.numOutputStreams" => 0))->getSessionId();
-assert('$sessionId');
-
-$sessionId = $a->create_session('127.0.0.1', array("multiplexer.switchTimeout" => 2000))->getSessionId();
-assert('$sessionId');
-
 $sessionId = $a->create_session('127.0.0.1', array("p2p.preference" => "enabled"))->getSessionId();
-assert('$sessionId');
-
-$sessionId = $a->create_session('127.0.0.1', array("echoSuppression.enabled" => "false"))->getSessionId();
 assert('$sessionId');
 
 // try {
