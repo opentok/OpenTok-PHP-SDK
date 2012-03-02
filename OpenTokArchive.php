@@ -56,11 +56,11 @@ class OpenTokArchive {
         $resources = array();
         $timeline = array();
 
-        foreach($manifest->resources as $videoResourceItem) {
+        foreach($manifest->resources->video as $videoResourceItem) {
             $resources[] = OpenTokArchiveVideoResource::parseXML($videoResourceItem); 
         }
 
-        foreach($manifest->timeline as $timelineItem) {
+        foreach($manifest->timeline->event as $timelineItem) {
             $timeline[] = OpenTokArchiveTimelineEvent::parseXML($timelineItem);
         }
 

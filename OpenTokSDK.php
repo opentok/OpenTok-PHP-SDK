@@ -195,10 +195,7 @@ class OpenTokSDK {
             if (function_exists("file_get_contents")) {
                 $context_source = array ('http' => array (
                                         'method' => 'POST',
-                                        'header'=> "Content-type: application/x-www-form-urlencoded\n"
-                                        ."$authString\n"
-                                        . "Content-Length: " . strlen($dataString) . "\n",
-                                        'content' => $dataString
+                                        'header'=> Array("Content-type: application/x-www-form-urlencoded", $authString, "Content-Length: " . strlen($dataString), 'content' => $dataString)
                                         )
                                     );
                 $context = stream_context_create($context_source);
