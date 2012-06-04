@@ -32,7 +32,6 @@ class API_Config {
 	// Replace this value with your TokBox API Partner Secret
 	const API_SECRET = "8f5cde4ade6b11ea22cfd73ea345c64b4e423d29";
 
-	const API_SERVER = "http://staging.tokbox.com/hl";
-	//const API_SERVER = "https://api.opentok.com/hl";
+	const API_SERVER = "https://api.opentok.com/hl";
 
 }
