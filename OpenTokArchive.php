@@ -43,8 +43,38 @@ class OpenTokArchive {
     /*************/
     ////Public FNs/
     /*************/
-    public function downloadArchiveURL($videoId) {
-        return API_Config::API_SERVER . '/archive/url/'.$this->archiveId.'/'.$videoId;
+    public function downloadArchiveURL($videoId, $token) {
+        $url = API_Config::API_SERVER . '/archive/url/' .$this->archiveId.'/'.$videoId;
+        $authString = "X-TB-TOKEN-AUTH: ".$token;
+
+        if(function_exists("curl_init")) {            
+            $ch = curl_init();
+
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, Array($authString));   
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_HEADER, 0);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+            $res = curl_exec($ch);
+            if(curl_errno($ch)) {
+                throw new RequestException('Request error: ' . curl_error($ch));
+            }
+
+            curl_close($ch);
+        }
+        else {        
+            if (function_exists("file_get_contents")) {
+                $context_source = array ('http' => array ( 'method' => 'GET', 'header'=> Array($authString) ) );
+                $context = stream_context_create($context_source);
+                $res = @file_get_contents( $url ,false, $context);                
+            }
+            else{
+                throw new RequestException("Your PHP installion neither supports the file_get_contents method nor cURL. Please enable one of these functions so that you can make API calls.");
+            }        
+        }
+
+        return $res;
     }
 
     /*************/

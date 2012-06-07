@@ -27,12 +27,13 @@
 require_once '../API_Config.php';
 require_once '../OpenTokSDK.php';
 
-$apiObj = new OpenTokSDK(API_Config::API_KEY, API_Config::API_SECRET);
+$apiObj = new OpenTokSDK('11421872', '296cebc2fc4104cd348016667ffa2a3909ec636f');
 
-$session = $apiObj->create_session($_SERVER["REMOTE_ADDR"]);
+$session = $apiObj->createSession();
+$sessionId = $session->getSessionId();
+$token = $apiObj->generateToken($sessionId, RoleConstants::MODERATOR);
 
-echo $session->getSessionId();
-echo "<br/>";
-echo $apiObj->generate_token();
+echo $sessionId;
+echo $token;
 
 ?>

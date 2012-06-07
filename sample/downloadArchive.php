@@ -1,4 +1,4 @@
-<?PHP
+<?php
 
 /**
 * OpenTok PHP Library
@@ -24,16 +24,20 @@
 * THE SOFTWARE.
 */
 
-class API_Config {
+require_once '../API_Config.php';
+require_once '../OpenTokSDK.php';
 
-	// Replace this value with your TokBox API Partner Key
-	const API_KEY = "5875231";
+$apiObj = new OpenTokSDK('11421872', '296cebc2fc4104cd348016667ffa2a3909ec636f');
 
-	// Replace this value with your TokBox API Partner Secret
-	const API_SECRET = "8f5cde4ade6b11ea22cfd73ea345c64b4e423d29";
+$archiveId = '5f74aee5-ab3f-421b-b124-ed2a698ee939';
+$sessionId = '1_MX4xNDk3MTI5Mn5-MjAxMi0wNS0yMCAwMTowMzozMS41MDEzMDArMDA6MDB-MC40NjI0MjI4MjU1MDF-';
+$token = $apiObj->generateToken($sessionId, RoleConstants::MODERATOR);
 
-	//const API_SERVER = "http://staging.tokbox.com/hl";
-	const API_SERVER = "https://api.opentok.com/hl";
+$archive = $apiObj->getArchiveManifest($archiveId, $token);
+$resources = $archive->getResources();
 
-}
+$vid = $resources[0]->getId();
+$url = $archive->downloadArchiveURL($vid, $token);
+echo $url;
+
 ?>

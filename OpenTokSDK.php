@@ -58,7 +58,7 @@ class OpenTokSDK {
      * $role        - One of the constants defined in RoleConstants. Default is publisher, look in the documentation to learn more about roles.
      * $expire_time - Optional timestamp to change when the token expires. See documentation on token for details.
      */
-    public function generate_token($session_id='', $role='', $expire_time=NULL, $connection_data='') {
+    public function generateToken($session_id='', $role='', $expire_time=NULL, $connection_data='') {
         $create_time = time();
 
         $nonce = microtime(true) . mt_rand();
@@ -97,7 +97,7 @@ class OpenTokSDK {
      * $location - IP address to geolocate the call around.
      * $properties - Optional array, keys are defined in SessionPropertyConstants
      */
-    public function create_session($location='', $properties=array()) {
+    public function createSession($location='', $properties=array()) {
         $properties["location"] = $location;
         $properties["api_key"] = $this->api_key;
 
@@ -126,7 +126,7 @@ class OpenTokSDK {
         return new OpenTokSession($sessionId, null);
     }
 
-    public function get_archive_manifest($archiveId, $token) {
+    public function getArchiveManifest($archiveId, $token) {
         $auth = array('type' => 'token', 'token' => $token);
 
         $archiveManifestResult = $this->_do_request("/archive/getmanifest/$archiveId", array(), $auth);
