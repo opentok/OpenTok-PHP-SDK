@@ -5,18 +5,16 @@ This is the official OpenTok PHP Server SDK for generating Sessions, Tokens, and
 
 # Installation
 
-Download these php files  
+Download the php files  
 `git clone https://github.com/opentok/Opentok-PHP-SDK.git`
 
 Include these files in your site.  
-<pre>
-<?php
-    require_once 'SDK/OpenTokSDK.php';
-    require_once 'SDK/OpenTokArchive.php';
-    require_once 'SDK/OpenTokSession.php';
-?>
-</pre>
 
+    <?php
+        require_once 'SDK/OpenTokSDK.php';
+        require_once 'SDK/OpenTokArchive.php';
+        require_once 'SDK/OpenTokSession.php';
+    ?>
 
 # Requirements
 
@@ -43,7 +41,7 @@ $apiObj = new OpenTokSDK('1127', 'your app secret', TRUE);
 Use your `OpenTokSDK` object to create `session_id`  
 `createSession` takes 1-2 parameters:
 > location (string) -  give Opentok a hint on where you are running your application  
-> properties (object) - OPTIONAL. Set peer to peer as `enabled` or `disabled`
+> properties (object) - OPTIONAL. Set peer-to-peer as `enabled` or `disabled`. Disabled by default  
 
 <pre>
 // Creating Simple Session object, passing IP address to determine closest production server
@@ -56,19 +54,7 @@ $session = $apiObj->createSession( $_SERVER["REMOTE_ADDR"], array(SessionPropert
 </pre>
 
 
-Example: P2P disabled by default
-<pre>
-@location = 'localhost'
-session_id = @opentok.create_session(@location)
-</pre>
-
-Example: P2P enabled
-<pre>
-session_properties = {OpenTok::SessionPropertyConstants::P2P_PREFERENCE => "enabled"}    # or disabled
-session_id = @opentok.create_session( @location, session_properties )
-</pre>
-
-### Generating Token
+# Generating Token
 With the generated session_id, you can start generating tokens for each user.
 `generate_token` takes in hash with 1-4 properties:
 > session_id (string) - REQUIRED  
@@ -76,43 +62,60 @@ With the generated session_id, you can start generating tokens for each user.
 > expire_time (int) - OPTIONAL. Time when token will expire in unix timestamp  
 > connection_data (string) - OPTIONAL. Metadata to store data (names, user id, etc)
 
-Example:
 <pre>
-token = @opentok.generate_token :session_id => session, :role => OpenTok::RoleConstants::PUBLISHER, :connection_data => "username=Bob,level=4"
+// You must have a valid sessionId and an OpenTokSDK object
+$apiObj = new OpenTokSDK('11421872', '296cebc2fc4104cd348016667ffa2a3909ec636f');
+$sessionId = '1_MX4xMTQyMTg3Mn5-MjAxMi0wNi0wOCAwMTowNjo1MC40NTMxMzIrMDA6MDB-MC40OTY0OTM3NjIzMjh';
+
+// After creating a session, call generateToken(). Require parameter: SessionId
+$token = $apiObj->generateToken($sessionId);
+
+// Giving the token a moderator role, expire time 5 days from now, and connectionData to pass to other users in the session
+$token = $apiObj->generateToken($sessionId, RoleConstants::MODERATOR, time() + (5*24*60*60), "hello world!" );
+echo $token;
 </pre>
 
-### Downloading Archive Videos
-To Download archived video, you must have an Archive ID which you get from the javascript library
+# Downloading Archive Videos
+To Download archived video, you must have an Archive ID which you get from the javascript library  
+If You don't know how to get an Archive ID, please refer to the [documentation](http://www.tokbox.com/opentok/api/tools/js/documentation/api/Session.html#createArchive) or our [quick tutorial](http://www.tokbox.com/blog/how-i-built-minute-grams-3-minute-tutorial/)  
 
-#### Quick Overview of the javascript library: <http://www.tokbox.com/opentok/api/tools/js/documentation/api/Session.html#createArchive>
-1. Create an event listener on `archiveCreated` event: `session.addEventListener('archiveCreated', archiveCreatedHandler);`  
-2. Create an archive: `archive = session.createArchive(...);`  
-3. When archive is successfully created `archiveCreatedHandler` would be triggered. An Archive object containing `archiveId` property is passed into your function. Save this in your database, this archiveId is what you use to reference the archive for playbacks and download videos  
-4. After your archive has been created, you can start recording videos into it by calling `session.startRecording(archive)`  
- Optionally, you can also use the standalone archiving, which means that each archive would have only 1 video: <http://www.tokbox.com/opentok/api/tools/js/documentation/api/RecorderManager.html>
-
-### Get Archive Manifest
-With your **moderator token** and OpentokSDK Object, you can generate OpenTokArchive Object, which contains information for all videos in the Archive  
+# OpenTokArchive
+Make sure you have a valid *moderator token* and an OpenTokSDK object  
+getArchiveManifest(...) creates an OpenTokArchive Object, which contains information for all videos in the Archive  
 `get_archive_manifest()` takes in 2 parameters: **archiveId** and **moderator token**  
 > archive_id (string) - REQUIRED. 
 > **returns** an `OpenTokArchive` object. The *resources* property of this object is array of `OpenTokArchiveVideoResource` objects, and each `OpenTokArchiveVideoResource` object represents a video in the archive.
 
-Example:(Make sure you have the OpentokSDK Object)
 <pre>
-@token = 'moderator_token'
-@archiveId = '5f74aee5-ab3f-421b-b124-ed2a698ee939' #Obtained from Javascript Library
-otArchive = @opentok.get_archive_manifest(@archiveId, @token)
+// To download, you need an OpenTokSDK object
+$apiObj = new OpenTokSDK('yourKey', 'yourSecret', TRUE);
+$sessionId = 'yourSessionId';
+
+// Make sure token has the moderator role
+$token = $apiObj->generateToken($sessionId, RoleConstants::MODERATOR);
+
+// This archiveId is generated from your javascript library after you record something
+$archiveId = '5f74aee5-ab3f-421b-b124-ed2a698ee939';
+
+// Create an archive object
+$archive = $apiObj->getArchiveManifest($archiveId, $token);
 </pre>
 
-### Get video ID
-`OpenTokArchive.resources` is an array of `OpenTokArchiveVideoResource` objects. OpenTokArchiveVideoResource has `getId()` method that returns the videoId
-`getId()` will return the video ID (a String)
+# OpenTokArchiveVideoResource
+The OpenTokArchive has a getResources() function that returns and array of `OpenTokArchiveVideoResource` object.  
+
+<pre>
+$resources = $archive->getResources();
+</pre>
+
+
+# Video Id
+OpenTokArchiveVideoResource has `getId()` method that returns the videoId, which you can use to get the video file  
+`getId()` will return the video ID (String)
 
 Example:
 <pre>
-otArchive = @opentok.get_archive_manifest(@archiveId, @token)
-otVideoResource = otArchive.resources[0]
-videoId = otVideoResource.getId()
+$vid = $resources[0]->getId();  
 </pre>
 
 ### Get Download Url
@@ -123,5 +126,6 @@ videoId = otVideoResource.getId()
 
 Example:
 <pre>
-url = otArchive.downloadArchiveURL(video_id, token)
+$url = $archive->downloadArchiveURL($vid, $token);
 </pre>
+
