@@ -138,6 +138,6 @@ $vid = $resources[0]->getId();
 $url = $archive->downloadArchiveURL($vid, $token);
 </pre>
 
-# Updates
+# Updates/Changes
 * Production apps are set by Boolean parameter when initializing OpenTokSDK  
 * downloadArchiveURL now takes in 2 parameters, and returns the file URL  
