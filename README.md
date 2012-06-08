@@ -123,7 +123,7 @@ $resources = $archive->getResources();
 $vid = $resources[0]->getId();  
 </pre>
 
-### Get Download Url
+# Get Download Url
 `OpenTokArchive` has `downloadArchiveURL` that will return an url string for downloading the video in the archive. You must call this function every time you want the file, because this url expires after 24 hours
 > video_id (string) - REQUIRED  
 > token (string) - REQUIRED  
@@ -138,3 +138,6 @@ $vid = $resources[0]->getId();
 $url = $archive->downloadArchiveURL($vid, $token);
 </pre>
 
+# Updates
+* Production apps are set by Boolean parameter when initializing OpenTokSDK  
+* downloadArchiveURL now takes in 2 parameters, and returns the file URL  
