@@ -24,7 +24,6 @@
 * THE SOFTWARE.
 */
 
-require_once 'API_Config.php';
 require_once 'OpenTokSession.php';
 require_once 'OpenTokArchive.php';
 
@@ -35,6 +34,11 @@ class AuthException extends OpenTokException { };
 //OpenTok exception related to the HTTP request. Most likely due to a server error. (HTTP 500 error)
 class RequestException extends OpenTokException { };
 
+class OpenTokConstants {
+	const API_STAGING_SERVER = "http://staging.tokbox.com/hl";
+	const API_SERVER = "https://api.opentok.com/hl";
+};
+
 class RoleConstants {
     const SUBSCRIBER = "subscriber"; //Can only subscribe
     const PUBLISHER = "publisher";   //Can publish, subscribe, and signal
@@ -44,12 +48,17 @@ class RoleConstants {
 class OpenTokSDK {
 
     private $api_key;
-
     private $api_secret;
+    private $server_url;
 
-    public function __construct($api_key, $api_secret) {
+    public function __construct($api_key, $api_secret, $production=FALSE) {
         $this->api_key = $api_key;
         $this->api_secret = trim($api_secret);
+        if($production){
+          $this->server_url= OpenTokConstants::API_SERVER;
+        }else{
+          $this->server_url= OpenTokConstants::API_STAGING_SERVER;
+        }
     }
 
     /** - Generate a token
@@ -135,7 +144,7 @@ class OpenTokSDK {
             throw new OpenTokException("Failed to load manifest file associated with archive $archiveId");
         }
 
-        return OpenTokArchive::parseManifest($archiveManifestXML);
+        return OpenTokArchive::parseManifest($archiveManifestXML,$this->server_url);
     }
 
     //////////////////////////////////////////////
@@ -148,7 +157,7 @@ class OpenTokSDK {
     }
 
     protected function _do_request($url, $data, $auth = array('type' => 'partner')) {
-        $url = API_Config::API_SERVER . $url;
+        $url = $this->server_url . $url;
 
         $dataString = "";
         foreach($data as $key => $value){

@@ -1,12 +1,10 @@
 <?php
 
-require_once 'API_Config.php';
-
 class OpenTokArchive {
 
     private $archiveId;
-
     private $archiveTitle;
+    private $server_url;
 
     //Array of resources listed in this Manifest
     private $resources = array();
@@ -14,11 +12,12 @@ class OpenTokArchive {
     //Array of the timeline from the Manifest file
     private $timeline = array();
 
-    public function __construct($archiveId, $archiveTitle, $resources, $timeline) {
+    public function __construct($archiveId, $archiveTitle, $resources, $timeline, $server_url) {
         $this->archiveId = $archiveId;
         $this->archiveTitle = $archiveTitle;
         $this->resources = $resources;
         $this->timeline = $timeline;
+        $this->server_url = $server_url;
     }
 
     /*************/
@@ -44,7 +43,7 @@ class OpenTokArchive {
     ////Public FNs/
     /*************/
     public function downloadArchiveURL($videoId, $token) {
-        $url = API_Config::API_SERVER . '/archive/url/' .$this->archiveId.'/'.$videoId;
+        $url = $this->server_url . '/archive/url/' .$this->archiveId.'/'.$videoId;
         $authString = "X-TB-TOKEN-AUTH: ".$token;
 
         if(function_exists("curl_init")) {            
@@ -80,7 +79,7 @@ class OpenTokArchive {
     /*************/
     ////Parser/////
     /*************/
-    public static function parseManifest($manifest) {
+    public static function parseManifest($manifest, $server_url) {
         $archiveId = $manifest['archiveid'];
         $title = $manifest['title'];
         $resources = array();
@@ -94,7 +93,7 @@ class OpenTokArchive {
             $timeline[] = OpenTokArchiveTimelineEvent::parseXML($timelineItem);
         }
 
-        return new OpenTokArchive($archiveId, $title, $resources, $timeline);
+        return new OpenTokArchive($archiveId, $title, $resources, $timeline, $server_url);
     }
 
 }

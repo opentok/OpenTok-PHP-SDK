@@ -24,16 +24,27 @@
 * THE SOFTWARE.
 */
 
-require_once '../API_Config.php';
 require_once '../OpenTokSDK.php';
 
+// Creating an OpenTok Object in Staging
 $apiObj = new OpenTokSDK('11421872', '296cebc2fc4104cd348016667ffa2a3909ec636f');
 
-$session = $apiObj->createSession();
-$sessionId = $session->getSessionId();
-$token = $apiObj->generateToken($sessionId, RoleConstants::MODERATOR);
+// Creating an OpenTok Object in Production
+$apiObj = new OpenTokSDK('11421872', '296cebc2fc4104cd348016667ffa2a3909ec636f', TRUE); 
 
+// Creating Simple Session object, passing IP address to determine closest production server
+// Passing IP address to determine closest production server
+$session = $apiObj->createSession( $_SERVER["REMOTE_ADDR"] );
+
+// Creating Simple Session object 
+// Enable p2p connections
+$session = $apiObj->createSession( $_SERVER["REMOTE_ADDR"], array(SessionPropertyConstants::P2P_PREFERENCE=> "enabled") );
+
+// Getting sessionId from Sessions
+// Option 1: Call getSessionId()
+$sessionId = $session->getSessionId();
 echo $sessionId;
-echo $token;
+// Option 2: Return the object itself
+echo $session;
 
 ?>
