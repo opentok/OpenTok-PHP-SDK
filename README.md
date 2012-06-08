@@ -83,14 +83,11 @@ If You don't know how to get an Archive ID, please refer to the [documentation](
 Make sure you have a valid *moderator token* and an OpenTokSDK object  
 getArchiveManifest(...) creates an OpenTokArchive Object, which contains information for all videos in the Archive  
 `get_archive_manifest()` takes in 2 parameters: **archiveId** and **moderator token**  
-> archive_id (string) - REQUIRED. 
+> archive_id (string) - REQUIRED.  
+> token (string) - REQUIRED.   
 > **returns** an `OpenTokArchive` object. The *resources* property of this object is array of `OpenTokArchiveVideoResource` objects, and each `OpenTokArchiveVideoResource` object represents a video in the archive.
 
 <pre>
-// To download, you need an OpenTokSDK object
-$apiObj = new OpenTokSDK('yourKey', 'yourSecret', TRUE);
-$sessionId = 'yourSessionId';
-
 // Make sure token has the moderator role
 $token = $apiObj->generateToken($sessionId, RoleConstants::MODERATOR);
 
@@ -105,6 +102,10 @@ $archive = $apiObj->getArchiveManifest($archiveId, $token);
 The OpenTokArchive has a getResources() function that returns and array of `OpenTokArchiveVideoResource` object.  
 
 <pre>
+// Create an archive object
+$archive = $apiObj->getArchiveManifest($archiveId, $token);
+
+// Get the array of video sources
 $resources = $archive->getResources();
 </pre>
 
@@ -115,6 +116,10 @@ OpenTokArchiveVideoResource has `getId()` method that returns the videoId, which
 
 Example:
 <pre>
+// Get the array of video sources
+$resources = $archive->getResources();
+
+// Get video Id
 $vid = $resources[0]->getId();  
 </pre>
 
@@ -126,6 +131,10 @@ $vid = $resources[0]->getId();
 
 Example:
 <pre>
+// Get video Id
+$vid = $resources[0]->getId();  
+
+// Get file URL
 $url = $archive->downloadArchiveURL($vid, $token);
 </pre>
 
