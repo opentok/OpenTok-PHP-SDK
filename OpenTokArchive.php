@@ -46,7 +46,27 @@ class OpenTokArchive {
         $url = $this->server_url . '/archive/url/' .$this->archiveId.'/'.$videoId;
         $authString = "X-TB-TOKEN-AUTH: ".$token;
 
-        if(function_exists("curl_init")) {            
+        $res=$this->doApiCall($url,$authString);
+		
+        return $res;
+    }
+
+	/**
+	 * This function deletes an archive. It was added by Tobias Nyholm
+	 */
+	public function deleteArchive($token) {
+        $url = $this->server_url . '/archive/delete/' .$this->archiveId.'/';
+        $authString = "X-TB-TOKEN-AUTH: ".$token;
+
+        $this->doApiCall($url,$authString);
+
+    }
+
+	/**
+	 * This function does the actuall call and return the result
+	 */
+	private function doApiCall($url, $authString){
+		if(function_exists("curl_init")) {            
             $ch = curl_init();
 
             curl_setopt($ch, CURLOPT_URL, $url);
@@ -72,9 +92,9 @@ class OpenTokArchive {
                 throw new RequestException("Your PHP installion neither supports the file_get_contents method nor cURL. Please enable one of these functions so that you can make API calls.");
             }        
         }
-
-        return $res;
-    }
+		
+		return $res;
+	}
 
     /*************/
     ////Parser/////
