@@ -61,15 +61,6 @@ class OpenTokSDK {
         }
     }
     
-    /** - Old functions to be depreciated...
-     */
-    public function generate_token($session_id='', $role='', $expire_time=NULL, $connection_data='') {
-      return generateToken($session_id, $role, $expire_time, $connection_data) 
-    } 
-    public function create_session($location='', $properties=array()) {
-      return createSession($location, $properties);
-    }
-    
 
     /** - Generate a token
      *
@@ -227,4 +218,15 @@ class OpenTokSDK {
         }        
         return $res;
     }
+    
+    
+    /** - Old functions to be depreciated...
+     */
+    public function generate_token($session_id='', $role='', $expire_time=NULL, $connection_data='') {
+      return $this->generateToken($session_id, $role, $expire_time, $connection_data);
+    } 
+    public function create_session($location='', $properties=array()) {
+      return $this->createSession($location, $properties);
+    }
+    
 }
