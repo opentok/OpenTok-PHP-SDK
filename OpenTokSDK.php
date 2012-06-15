@@ -60,12 +60,23 @@ class OpenTokSDK {
           $this->server_url= OpenTokConstants::API_STAGING_SERVER;
         }
     }
+    
+    /** - Old functions to be depreciated...
+     */
+    public function generate_token($session_id='', $role='', $expire_time=NULL, $connection_data='') {
+      return generateToken($session_id, $role, $expire_time, $connection_data) 
+    } 
+    public function create_session($location='', $properties=array()) {
+      return createSession($location, $properties);
+    }
+    
 
     /** - Generate a token
      *
      * $session_id  - If session_id is not blank, this token can only join the call with the specified session_id.
      * $role        - One of the constants defined in RoleConstants. Default is publisher, look in the documentation to learn more about roles.
      * $expire_time - Optional timestamp to change when the token expires. See documentation on token for details.
+     * $connection_data - Optional string data to pass into the stream. See documentation on token for details.
      */
     public function generateToken($session_id='', $role='', $expire_time=NULL, $connection_data='') {
         $create_time = time();
