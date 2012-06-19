@@ -64,7 +64,7 @@ function validate_token($token) {
 assert_options(ASSERT_CALLBACK, 'my_assert_handler');
 set_exception_handler('exception_handler');
 
-require_once 'OpenTokSDK.php';
+require_once '../OpenTokSDK.php';
 $a = new OpenTokSDK(API_Config::API_KEY,API_Config::API_SECRET);
 $token = $a->generate_token();
 assert('$token');
@@ -113,16 +113,7 @@ assert('$sessionId');
 $sessionId = $a->create_session()->getSessionId();
 assert('$sessionId');
 
-$sessionId = $a->create_session('127.0.0.1', array("multiplexer.numOutputStreams" => 0))->getSessionId();
-assert('$sessionId');
-
-$sessionId = $a->create_session('127.0.0.1', array("multiplexer.switchTimeout" => 2000))->getSessionId();
-assert('$sessionId');
-
 $sessionId = $a->create_session('127.0.0.1', array("p2p.preference" => "enabled"))->getSessionId();
-assert('$sessionId');
-
-$sessionId = $a->create_session('127.0.0.1', array("echoSuppression.enabled" => "false"))->getSessionId();
 assert('$sessionId');
 
 // try {
