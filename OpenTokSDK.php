@@ -76,8 +76,8 @@ class OpenTokSDK {
                 throw new OpenTokException("Expire time must be a number");
             if($expire_time < $create_time)
                 throw new OpenTokException("Expire time must be in the future");
-            if($expire_time > $create_time + 604800)
-                throw new OpenTokException("Expire time must be in the next 7 days");
+            if($expire_time > $create_time + 2592000)
+                throw new OpenTokException("Expire time must be in the next 30 days");
             $data_string .= "&expire_time=$expire_time";
         }
         if($connection_data != '') {
