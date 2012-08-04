@@ -24,6 +24,7 @@
 * THE SOFTWARE.
 */
 
+require_once 'API_Config.php';
 require_once 'OpenTokSession.php';
 require_once 'OpenTokArchive.php';
 

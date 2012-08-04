@@ -1,5 +1,7 @@
 <?php
 
+require_once 'API_Config.php';
+
 class OpenTokArchive {
 
     private $archiveId;

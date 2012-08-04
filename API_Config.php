@@ -1,4 +1,4 @@
-<?php
+<?PHP
 
 /**
 * OpenTok PHP Library
@@ -24,28 +24,18 @@
 * THE SOFTWARE.
 */
 
-require_once '../API_Config.php';
-require_once '../OpenTokSDK.php';
+class API_Config {
 
-// Creating an OpenTok Object in Staging
-$apiObj = new OpenTokSDK( API_Config::API_KEY, API_Config::API_SECRET );
+	// Replace this value with your TokBox API Partner Key
+	const API_KEY = "11421872";
 
-// Creating an OpenTok Object in Production
-$apiObj = new OpenTokSDK( API_Config::API_KEY, API_Config::API_SECRET, TRUE); 
+	// Replace this value with your TokBox API Partner Secret
+	const API_SECRET = "296cebc2fc4104cd348016667ffa2a3909ec636f";
 
-// Creating Simple Session object, passing IP address to determine closest production server
-// Passing IP address to determine closest production server
-$session = $apiObj->createSession( $_SERVER["REMOTE_ADDR"] );
+  // No need to specify
+	//const API_SERVER = "http://staging.tokbox.com/hl";
+	//const API_SERVER = "https://api.opentok.com/hl";
 
-// Creating Simple Session object 
-// Enable p2p connections
-$session = $apiObj->createSession( $_SERVER["REMOTE_ADDR"], array(SessionPropertyConstants::P2P_PREFERENCE=> "enabled") );
-
-// Getting sessionId from Sessions
-// Option 1: Call getSessionId()
-$sessionId = $session->getSessionId();
-echo $sessionId;
-// Option 2: Return the object itself
-echo $session;
-
+}
 ?>
+
