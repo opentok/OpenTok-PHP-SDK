@@ -24,28 +24,28 @@
 * THE SOFTWARE.
 */
 
-require_once '../API_Config.php';
 require_once '../OpenTokSDK.php';
 
-// Creating an OpenTok Object in Staging
-$apiObj = new OpenTokSDK( API_Config::API_KEY, API_Config::API_SECRET );
+// To download, you need a 
+$apiObj = new OpenTokSDK('11421872', '296cebc2fc4104cd348016667ffa2a3909ec636f', TRUE);
+$sessionId = '1_MX4xNDk3MTI5Mn5-MjAxMi0wNS0yMCAwMTowMzozMS41MDEzMDArMDA6MDB-MC40NjI0MjI4MjU1MDF-';
 
-// Creating an OpenTok Object in Production
-$apiObj = new OpenTokSDK( API_Config::API_KEY, API_Config::API_SECRET, TRUE); 
+// Make sure token has the moderator role
+$token = $apiObj->generateToken($sessionId, RoleConstants::MODERATOR);
 
-// Creating Simple Session object, passing IP address to determine closest production server
-// Passing IP address to determine closest production server
-$session = $apiObj->createSession( $_SERVER["REMOTE_ADDR"] );
+// This archiveId is generated from your javascript library after you record something
+$archiveId = '5f74aee5-ab3f-421b-b124-ed2a698ee939';
 
-// Creating Simple Session object 
-// Enable p2p connections
-$session = $apiObj->createSession( $_SERVER["REMOTE_ADDR"], array(SessionPropertyConstants::P2P_PREFERENCE=> "enabled") );
+// Create an archive object
+$archive = $apiObj->getArchiveManifest($archiveId, $token);
+$resources = $archive->getResources();
 
-// Getting sessionId from Sessions
-// Option 1: Call getSessionId()
-$sessionId = $session->getSessionId();
-echo $sessionId;
-// Option 2: Return the object itself
-echo $session;
+// To get all videos, loop through the resources array
+$vid = $resources[0]->getId();
+
+// $url contains the file
+$url = $archive->downloadArchiveURL($vid, $token);
+
+echo $url;
 
 ?>

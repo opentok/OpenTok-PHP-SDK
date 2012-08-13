@@ -66,54 +66,54 @@ set_exception_handler('exception_handler');
 
 require_once '../OpenTokSDK.php';
 $a = new OpenTokSDK(API_Config::API_KEY,API_Config::API_SECRET);
-$token = $a->generate_token();
+$token = $a->generateToken();
 assert('$token');
-$token = $a->generate_token("mysession");
+$token = $a->generateToken("mysession");
 assert('$token');
-$token = $a->generate_token("mysession", RoleConstants::SUBSCRIBER);
+$token = $a->generateToken("mysession", RoleConstants::SUBSCRIBER);
 assert('$token');
-$token = $a->generate_token("mysession", RoleConstants::PUBLISHER);
+$token = $a->generateToken("mysession", RoleConstants::PUBLISHER);
 assert('$token');
-$token = $a->generate_token("mysession", RoleConstants::MODERATOR);
+$token = $a->generateToken("mysession", RoleConstants::MODERATOR);
 assert('$token');
 
 try {
-	$token = $a->generate_token("mysession", "randomString");
+	$token = $a->generateToken("mysession", "randomString");
 	assert(false);
 } catch (Exception $e) {
 	assert('$e');
 }
 
 try {
-	$token = $a->generate_token("mysession", RoleConstants::MODERATOR, gmmktime() - 100000);
+	$token = $a->generateToken("mysession", RoleConstants::MODERATOR, gmmktime() - 100000);
 	assert(false);
 } catch (Exception $e) {
 	assert('$e');
 }
 
-$token = $a->generate_token("mysession", RoleConstants::MODERATOR, gmmktime() + 100000);
+$token = $a->generateToken("mysession", RoleConstants::MODERATOR, gmmktime() + 100000);
 assert('$token');
 
-$token = $a->generate_token("mysession", RoleConstants::MODERATOR, gmmktime());
+$token = $a->generateToken("mysession", RoleConstants::MODERATOR, gmmktime());
 assert('$token');
 
 try {
-	$token = $a->generate_token("mysession", RoleConstants::MODERATOR, gmmktime() + 1000000);
+	$token = $a->generateToken("mysession", RoleConstants::MODERATOR, gmmktime() + 1000000);
 	assert(false);
 } catch (Exception $e) {
 	assert('$e');
 }
 
-$sessionId = $a->create_session("127.0.0.1")->getSessionId();
+$sessionId = $a->createSession("127.0.0.1")->getSessionId();
 assert('$sessionId');
 
-$sessionId = $a->create_session("8.8.8.8")->getSessionId();
+$sessionId = $a->createSession("8.8.8.8")->getSessionId();
 assert('$sessionId');
 
-$sessionId = $a->create_session()->getSessionId();
+$sessionId = $a->createSession()->getSessionId();
 assert('$sessionId');
 
-$sessionId = $a->create_session('127.0.0.1', array("p2p.preference" => "enabled"))->getSessionId();
+$sessionId = $a->createSession('127.0.0.1', array("p2p.preference" => "enabled"))->getSessionId();
 assert('$sessionId');
 
 // try {

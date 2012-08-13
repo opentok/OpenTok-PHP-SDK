@@ -1,4 +1,4 @@
-<?PHP
+<?php
 
 /**
 * OpenTok PHP Library
@@ -24,7 +24,18 @@
 * THE SOFTWARE.
 */
 
+require_once '../OpenTokSDK.php';
 
-class SessionPropertyConstants {
-	const P2P_PREFERENCE = "p2p.preference"; //String
-}
+// You must have a valid sessionId and an OpenTokSDK object
+$apiObj = new OpenTokSDK('11421872', '296cebc2fc4104cd348016667ffa2a3909ec636f');
+$sessionId = '1_MX4xMTQyMTg3Mn5-MjAxMi0wNi0wOCAwMTowNjo1MC40NTMxMzIrMDA6MDB-MC40OTY0OTM3NjIzMjh';
+
+// After creating a session, call generateToken(). Require parameter: SessionId
+$token = $apiObj->generateToken($sessionId);
+
+// Giving the token a moderator role, expire time 5 days from now, and connectionData to pass to other users in the session
+$token = $apiObj->generateToken($sessionId, RoleConstants::MODERATOR, time() + (5*24*60*60), "hello world!" );
+echo $token;
+
+
+?>

@@ -35,6 +35,11 @@ class AuthException extends OpenTokException { };
 //OpenTok exception related to the HTTP request. Most likely due to a server error. (HTTP 500 error)
 class RequestException extends OpenTokException { };
 
+class OpenTokConstants {
+	const API_STAGING_SERVER = "http://staging.tokbox.com/hl";
+	const API_SERVER = "https://api.opentok.com/hl";
+};
+
 class RoleConstants {
     const SUBSCRIBER = "subscriber"; //Can only subscribe
     const PUBLISHER = "publisher";   //Can publish, subscribe, and signal
@@ -44,21 +49,28 @@ class RoleConstants {
 class OpenTokSDK {
 
     private $api_key;
-
     private $api_secret;
+    private $server_url;
 
-    public function __construct($api_key, $api_secret) {
+    public function __construct($api_key, $api_secret, $production=FALSE) {
         $this->api_key = $api_key;
         $this->api_secret = trim($api_secret);
+        if($production){
+          $this->server_url= OpenTokConstants::API_SERVER;
+        }else{
+          $this->server_url= OpenTokConstants::API_STAGING_SERVER;
+        }
     }
+    
 
     /** - Generate a token
      *
      * $session_id  - If session_id is not blank, this token can only join the call with the specified session_id.
      * $role        - One of the constants defined in RoleConstants. Default is publisher, look in the documentation to learn more about roles.
      * $expire_time - Optional timestamp to change when the token expires. See documentation on token for details.
+     * $connection_data - Optional string data to pass into the stream. See documentation on token for details.
      */
-    public function generate_token($session_id='', $role='', $expire_time=NULL, $connection_data='') {
+    public function generateToken($session_id='', $role='', $expire_time=NULL, $connection_data='') {
         $create_time = time();
 
         $nonce = microtime(true) . mt_rand();
@@ -97,7 +109,7 @@ class OpenTokSDK {
      * $location - IP address to geolocate the call around.
      * $properties - Optional array, keys are defined in SessionPropertyConstants
      */
-    public function create_session($location='', $properties=array()) {
+    public function createSession($location='', $properties=array()) {
         $properties["location"] = $location;
         $properties["api_key"] = $this->api_key;
 
@@ -126,7 +138,7 @@ class OpenTokSDK {
         return new OpenTokSession($sessionId, null);
     }
 
-    public function get_archive_manifest($archiveId, $token) {
+    public function getArchiveManifest($archiveId, $token) {
         $auth = array('type' => 'token', 'token' => $token);
 
         $archiveManifestResult = $this->_do_request("/archive/getmanifest/$archiveId", array(), $auth);
@@ -135,7 +147,7 @@ class OpenTokSDK {
             throw new OpenTokException("Failed to load manifest file associated with archive $archiveId");
         }
 
-        return OpenTokArchive::parseManifest($archiveManifestXML);
+        return OpenTokArchive::parseManifest($archiveManifestXML,$this->server_url);
     }
 
     //////////////////////////////////////////////
@@ -148,7 +160,7 @@ class OpenTokSDK {
     }
 
     protected function _do_request($url, $data, $auth = array('type' => 'partner')) {
-        $url = API_Config::API_SERVER . $url;
+        $url = $this->server_url . $url;
 
         $dataString = "";
         foreach($data as $key => $value){
@@ -207,4 +219,15 @@ class OpenTokSDK {
         }        
         return $res;
     }
+    
+    
+    /** - Old functions to be depreciated...
+     */
+    public function generate_token($session_id='', $role='', $expire_time=NULL, $connection_data='') {
+      return $this->generateToken($session_id, $role, $expire_time, $connection_data);
+    } 
+    public function create_session($location='', $properties=array()) {
+      return $this->createSession($location, $properties);
+    }
+    
 }
