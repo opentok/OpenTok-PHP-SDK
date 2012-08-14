@@ -26,7 +26,7 @@ In order to use any of the server side functions, you must first create an `Open
 `OpenTokSDK` takes 2-3 parameters:
 > key (string) - Given to you when you register  
 > secret (string) - Given to you when you register  
-> Production (Boolean) - OPTIONAL. Puts your app in staging or production environment. Default falue is `FALSE`  
+> Production (Boolean) - OPTIONAL. Puts your app in staging or production environment. Default value is `false`  
 For more information about production apps, check out <http://www.tokbox.com/opentok/api/tools/js/launch>
 
 <pre>
@@ -45,7 +45,6 @@ Use your `OpenTokSDK` object to create `session_id`
 
 <pre>
 // Creating Simple Session object, passing IP address to determine closest production server
-// Passing IP address to determine closest production server
 $session = $apiObj->createSession( $_SERVER["REMOTE_ADDR"] );
 
 // Creating Simple Session object 
