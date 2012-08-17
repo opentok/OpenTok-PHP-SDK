@@ -78,6 +78,11 @@ echo $token;
 To Download archived video, you must have an Archive ID which you get from the javascript library  
 If You don't know how to get an Archive ID, please refer to the [documentation](http://www.tokbox.com/opentok/api/tools/js/documentation/api/Session.html#createArchive) or our [quick tutorial](http://www.tokbox.com/blog/how-i-built-minute-grams-3-minute-tutorial/)  
 
+# Delete Archive
+Delete a achive, you must have an Archive ID which you get from the javascript library  
+If You don't know how to get an Archive ID, please refer to the [documentation](http://www.tokbox.com/opentok/api/tools/js/documentation/api/Session.html#createArchive) or our [quick tutorial](http://www.tokbox.com/blog/how-i-built-minute-grams-3-minute-tutorial/)  
+
+
 # OpenTokArchive
 Make sure you have a valid *moderator token* and an OpenTokSDK object  
 getArchiveManifest(...) creates an OpenTokArchive Object, which contains information for all videos in the Archive  
