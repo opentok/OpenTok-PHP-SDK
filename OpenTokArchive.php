@@ -26,7 +26,7 @@ class OpenTokArchive {
     ////Getters///
     /*************/
     public function getId() {
-        return $this->archiveId;
+        return ((string) $this->archiveId);
     }
 
     public function getTitle() {
