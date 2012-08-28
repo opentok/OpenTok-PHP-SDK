@@ -27,11 +27,8 @@
 require_once '../API_Config.php';
 require_once '../OpenTokSDK.php';
 
-// Creating an OpenTok Object in Staging
+// Creating an OpenTok Object
 $apiObj = new OpenTokSDK( API_Config::API_KEY, API_Config::API_SECRET );
-
-// Creating an OpenTok Object in Production
-$apiObj = new OpenTokSDK( API_Config::API_KEY, API_Config::API_SECRET, TRUE); 
 
 // Creating Simple Session object, passing IP address to determine closest production server
 // Passing IP address to determine closest production server

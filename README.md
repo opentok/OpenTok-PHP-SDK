@@ -26,15 +26,10 @@ In order to use any of the server side functions, you must first create an `Open
 `OpenTokSDK` takes 2-3 parameters:
 > key (string) - Given to you when you register  
 > secret (string) - Given to you when you register  
-> Production (Boolean) - OPTIONAL. Puts your app in staging or production environment. Default value is `false`  
-For more information about production apps, check out <http://www.tokbox.com/opentok/api/tools/js/launch>
 
 <pre>
-// Creating an OpenTok Object in Staging Environment
+// Creating an OpenTok Object
 $apiObj = new OpenTokSDK('1127', 'your app secret');
-
-// Creating an OpenTok Object in Production Environment
-$apiObj = new OpenTokSDK('1127', 'your app secret', TRUE); 
 </pre>
 
 # Creating Sessions

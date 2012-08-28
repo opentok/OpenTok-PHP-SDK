@@ -36,7 +36,6 @@ class AuthException extends OpenTokException { };
 class RequestException extends OpenTokException { };
 
 class OpenTokConstants {
-	const API_STAGING_SERVER = "http://staging.tokbox.com/hl";
 	const API_SERVER = "https://api.opentok.com/hl";
 };
 
@@ -52,14 +51,10 @@ class OpenTokSDK {
     private $api_secret;
     private $server_url;
 
-    public function __construct($api_key, $api_secret, $production=FALSE) {
+    public function __construct($api_key, $api_secret) {
         $this->api_key = $api_key;
         $this->api_secret = trim($api_secret);
-        if($production){
-          $this->server_url= OpenTokConstants::API_SERVER;
-        }else{
-          $this->server_url= OpenTokConstants::API_STAGING_SERVER;
-        }
+        $this->server_url= OpenTokConstants::API_SERVER;
     }
     
 
