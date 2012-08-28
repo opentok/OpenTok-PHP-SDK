@@ -1,5 +1,4 @@
-<?PHP
-
+<?PHP 
 /**
 * OpenTok PHP Library
 * http://www.tokbox.com/
@@ -24,17 +23,13 @@
 * THE SOFTWARE.
 */
 
-class API_Config {
-
-	// Replace this value with your TokBox API Partner Key
+class API_Config { // Replace this value with your TokBox API Partner Key
 	const API_KEY = "11421872";
 
 	// Replace this value with your TokBox API Partner Secret
 	const API_SECRET = "296cebc2fc4104cd348016667ffa2a3909ec636f";
 
-  // No need to specify
-	//const API_SERVER = "http://staging.tokbox.com/hl";
-	//const API_SERVER = "https://api.opentok.com/hl";
+	const API_SERVER = "https://api.opentok.com/hl";
 
 }
 ?>
