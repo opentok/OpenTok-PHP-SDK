@@ -50,5 +50,3 @@ class OpenTokSession {
 class SessionPropertyConstants {
   const P2P_PREFERENCE = 'p2p.preference';
 }
-
-?>
