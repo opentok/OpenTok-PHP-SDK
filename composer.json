@@ -1,0 +1,20 @@
+{
+    "name": "opentok/Opentok-PHP-SDK",
+    "type": "library",
+    "description": "PHP library for TokBox OpenTok",
+    "keywords": ["TokBox", "OpenTok", "PHP"],
+    "homepage": "https://github.com/opentok/Opentok-PHP-SDK",
+    "authors": [
+        {
+            "name": "TokBox",
+            "homepage": "http://www.tokbox.com"
+        },
+        {
+            "name": "Community contributors",
+            "homepage": "https://github.com/opentok/Opentok-PHP-SDK/graphs/contributors"
+        }
+    ],
+    "autoload": {
+        "files": ["OpenTokSDK.php", "OpenTokArchive.php", "OpenTokSession.php"]
+    }
+}
