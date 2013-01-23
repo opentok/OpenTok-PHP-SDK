@@ -15,6 +15,6 @@
         }
     ],
     "autoload": {
-        "files": ["OpenTokSDK.php", "OpenTokArchive.php", "OpenTokSession.php"]
+        "files": ["OpenTokSDK.php"]
     }
 }
