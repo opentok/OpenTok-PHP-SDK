@@ -1,5 +1,5 @@
 {
-    "name": "opentok/Opentok-PHP-SDK",
+    "name": "opentok/opentok",
     "type": "library",
     "description": "PHP library for TokBox OpenTok",
     "keywords": ["TokBox", "OpenTok", "PHP"],
@@ -16,5 +16,8 @@
     ],
     "autoload": {
         "files": ["OpenTokSDK.php"]
+    },
+    "require": {
+      "php" : ">=5.0.0"
     }
 }
