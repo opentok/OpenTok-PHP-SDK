@@ -22,7 +22,7 @@ You need an api-key and secret. Request them at <http://www.tokbox.com/opentok/t
 
 # API_Config
 
-Replace these two values with your TokBox API Key and API Secret.
+Replace these two values in `API_Config.php` with your TokBox API Key and API Secret.
 
     const API_KEY = "";
     const API_SECRET = "";
