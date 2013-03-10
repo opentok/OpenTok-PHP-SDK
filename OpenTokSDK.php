@@ -35,10 +35,6 @@ class AuthException extends OpenTokException { };
 //OpenTok exception related to the HTTP request. Most likely due to a server error. (HTTP 500 error)
 class RequestException extends OpenTokException { };
 
-class OpenTokConstants {
-	const API_SERVER = "https://api.opentok.com/hl";
-};
-
 class RoleConstants {
     const SUBSCRIBER = "subscriber"; //Can only subscribe
     const PUBLISHER = "publisher";   //Can publish, subscribe, and signal
@@ -51,10 +47,10 @@ class OpenTokSDK {
     private $api_secret;
     private $server_url;
 
-    public function __construct($api_key, $api_secret) {
+    public function __construct($api_key = API_Config::API_KEY, $api_secret = API_Config::API_SECRET) {
         $this->api_key = $api_key;
-        $this->api_secret = trim($api_secret);
-        $this->server_url= OpenTokConstants::API_SERVER;
+        $this->api_secret = $api_secret;
+        $this->server_url= API_Config::API_SERVER;
     }
     
 
