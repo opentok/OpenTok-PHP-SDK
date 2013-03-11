@@ -20,16 +20,20 @@ Include these files in your site.
 
 You need an api-key and secret. Request them at <http://www.tokbox.com/opentok/tools/js/apikey>.  
 
+# API_Config
+
+Replace these two values in `API_Config.php` with your TokBox API Key and API Secret.
+
+    const API_KEY = "";
+    const API_SECRET = "";
+
 # OpenTokSDK
 
-In order to use any of the server side functions, you must first create an `OpenTokSDK` object with your developer credentials.  
-`OpenTokSDK` takes 2-3 parameters:
-> key (string) - Given to you when you register  
-> secret (string) - Given to you when you register  
+In order to use any of the server side functions, you must first create an `OpenTokSDK` object.
 
 <pre>
 // Creating an OpenTok Object
-$apiObj = new OpenTokSDK('1127', 'your app secret');
+$apiObj = new OpenTokSDK();
 </pre>
 
 # Creating Sessions
