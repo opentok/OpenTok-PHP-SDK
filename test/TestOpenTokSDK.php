@@ -66,16 +66,41 @@ set_exception_handler('exception_handler');
 
 require_once '../OpenTokSDK.php';
 $a = new OpenTokSDK(API_Config::API_KEY,API_Config::API_SECRET);
+
+try{
 $token = $a->generateToken();
 assert('$token');
+
 $token = $a->generateToken("mysession");
 assert('$token');
+
 $token = $a->generateToken("mysession", RoleConstants::SUBSCRIBER);
 assert('$token');
+
 $token = $a->generateToken("mysession", RoleConstants::PUBLISHER);
 assert('$token');
+
 $token = $a->generateToken("mysession", RoleConstants::MODERATOR);
 assert('$token');
+}
+catch (Exception $e){
+	assert('$e');
+}
+
+try{
+	$token = $a->generateToken("");
+	assert(false);
+} catch(Exception $e){
+	assert('$e');
+}
+
+try{
+	$differentSessionId = "1_MX4yMDc1MjM4MX5-V2VkIEp1bCAxNyAxMDozMjoyMCBQRFQgMjAxM34wLjUyNTU2Mzd-";
+	$token = $a->generateToken($differentSessionId);
+	assert(false);
+} catch(Exception $e){
+	assert('$e');
+}
 
 try {
 	$token = $a->generateToken("mysession", "randomString");
@@ -90,16 +115,24 @@ try {
 } catch (Exception $e) {
 	assert('$e');
 }
+try {
+	$token = $a->generateToken("mysession", RoleConstants::MODERATOR, gmmktime() + 100000);
+	assert('$token');
+} catch (Exception $e){
+	assert('$e');
+}
 
-$token = $a->generateToken("mysession", RoleConstants::MODERATOR, gmmktime() + 100000);
-assert('$token');
+try{
+	$token = $a->generateToken("mysession", RoleConstants::MODERATOR, gmmktime());
+	assert('$token');
+} catch (Exception $e){
+	assert('$e');
+}
 
-$token = $a->generateToken("mysession", RoleConstants::MODERATOR, gmmktime());
-assert('$token');
 
 try {
 	$token = $a->generateToken("mysession", RoleConstants::MODERATOR, gmmktime() + 1000000);
-	assert(false);
+	assert('$token');
 } catch (Exception $e) {
 	assert('$e');
 }

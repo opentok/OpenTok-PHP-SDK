@@ -66,6 +66,30 @@ class OpenTokSDK {
 
         $nonce = microtime(true) . mt_rand();
 
+        if(is_null($session_id) || strlen($session_id) == 0){
+            throw new OpenTokException("Null or empty session ID are not valid");
+        }
+
+        $sub_session_id = substr($session_id, 2);
+        $decoded_session_id="";
+        for($i=0;$i<3;$i++){
+            $new_session_id = $sub_session_id.str_repeat("=",$i);
+            $new_session_id = str_replace("-", "+",$new_session_id);
+            $new_session_id = str_replace("_", "/",$new_session_id);
+            $decoded_session_id = base64_decode($new_session_id);
+            if($decoded_session_id){
+                break;
+            }
+        }
+        if (strpos($decoded_session_id, "~")===false){
+            throw new OpenTokException("An invalid session ID was passed");
+        }else{
+            $arr=explode("~",$decoded_session_id);
+            if($arr[1]!=$this->api_key){
+                throw new OpenTokException("An invalid session ID was passed");
+            }
+        }
+
         if(!$role) {
             $role = RoleConstants::PUBLISHER;
         } else if (!in_array($role, array(RoleConstants::SUBSCRIBER, 
