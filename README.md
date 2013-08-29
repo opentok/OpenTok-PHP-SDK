@@ -1,7 +1,7 @@
-# OpenTok
+# OpenTok PHP Server SDK
 
-OpenTok is a free set of APIs from TokBox that enables websites to weave live group video communication into their online experience. Check out <http://www.tokbox.com/> for more information.  
-This is the official OpenTok PHP Server SDK for generating Sessions, Tokens, and retriving Archives. Please visit our [getting started page](http://www.tokbox.com/opentok/tools/js/gettingstarted) if you are unfamiliar with these concepts.  
+OpenTok is a free set of APIs from TokBox that enables websites to weave live group video communication into their online experience. Check out <http://tokbox.com/> for more information.  
+This is the official OpenTok PHP Server SDK for generating Sessions, Tokens, and retriving Archives. Please visit our [list of tutorials](http://tokbox.com/opentok/tutorials/) if you are unfamiliar with these concepts.  
 
 # Installation
 
@@ -75,11 +75,11 @@ echo $token;
 
 # Downloading Archive Videos
 To Download archived video, you must have an Archive ID which you get from the javascript library  
-If You don't know how to get an Archive ID, please refer to the [documentation](http://www.tokbox.com/opentok/api/tools/js/documentation/api/Session.html#createArchive) or our [quick tutorial](http://www.tokbox.com/blog/how-i-built-minute-grams-3-minute-tutorial/)  
+If You don't know how to get an Archive ID, please refer to the [documentation](http://tokbox.com/opentok/libraries/client/js/reference/Session.html#createArchive) or our [quick tutorial](http://www.tokbox.com/blog/how-i-built-minute-grams-3-minute-tutorial/)  
 
 # Delete Archive
 Delete a achive, you must have an Archive ID which you get from the javascript library  
-If You don't know how to get an Archive ID, please refer to the [documentation](http://www.tokbox.com/opentok/api/tools/js/documentation/api/Session.html#createArchive) or our [quick tutorial](http://www.tokbox.com/blog/how-i-built-minute-grams-3-minute-tutorial/)  
+If You don't know how to get an Archive ID, please refer to the [documentation](http://tokbox.com/opentok/libraries/client/js/reference/Session.html#createArchive) or our [quick tutorial](http://www.tokbox.com/blog/how-i-built-minute-grams-3-minute-tutorial/)  
 
 
 # OpenTokArchive
