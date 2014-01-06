@@ -153,6 +153,35 @@ class OpenTokSDK {
         return new OpenTokSession($sessionId, null);
     }
 
+    /**
+     * Starts archiving a session
+     * $session_id - Session to archive
+     * $name - Optional name for this archive
+     */
+    public function startArchive($session_id=null, $name=null) {
+        $ar = new OpenTokArchivingInterface($this->api_key, $this->api_secret, $this->server_url);
+        return $ar->startArchive($session_id, $name);
+    }
+
+    /**
+     * Gets an archive
+     * $archive_id - The ID of the archive (returned from startArchive)
+     */
+    public function getArchive($archive_id) {
+        $ar = new OpenTokArchivingInterface($this->api_key, $this->api_secret, $this->server_url);
+        return $ar->getArchive($archive_id);
+    }
+
+    /**
+     * Get a list of archives
+     * $offset - Optional, defaults to 0
+     * $count - Optional limit of number archives to return
+     */
+    public function listArchives($offset=0, $count=null) {
+        $ar = new OpenTokArchivingInterface($this->api_key, $this->api_secret, $this->server_url);
+        return $ar->listArchives($offset, $count);
+    }
+
     //////////////////////////////////////////////
     //Signing functions, request functions, and other utility functions needed for the OpenTok
     //Server API. Developers should not edit below this line. Do so at your own risk.
