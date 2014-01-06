@@ -153,18 +153,6 @@ class OpenTokSDK {
         return new OpenTokSession($sessionId, null);
     }
 
-    public function getArchiveManifest($archiveId, $token) {
-        $auth = array('type' => 'token', 'token' => $token);
-
-        $archiveManifestResult = $this->_do_request("/archive/getmanifest/$archiveId", array(), $auth);
-        $archiveManifestXML = @simplexml_load_string($archiveManifestResult, 'SimpleXMLElement', LIBXML_NOCDATA);
-        if(!$archiveManifestXML) {
-            throw new OpenTokException("Failed to load manifest file associated with archive $archiveId");
-        }
-
-        return OpenTokArchive::parseManifest($archiveManifestXML,$this->server_url);
-    }
-
     //////////////////////////////////////////////
     //Signing functions, request functions, and other utility functions needed for the OpenTok
     //Server API. Developers should not edit below this line. Do so at your own risk.
