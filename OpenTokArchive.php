@@ -48,60 +48,138 @@ class OpenTokArchivingInterface {
         $this->apiSecret = $apiSecret;
         $this->endpoint = $endpoint . "/v2/partner/" . $apiKey;
     }
+
+    protected function http_parse_headers($raw_headers) {
+        $headers = array();
+        $key = '';
+
+        foreach(explode("\n", $raw_headers) as $i => $h) {
+            $h = explode(':', $h, 2);
+
+            if (isset($h[1])) {
+                $h[0] = strtolower($h[0]);
+                if (!isset($headers[$h[0]])){
+                    $headers[$h[0]] = trim($h[1]);
+                } elseif (is_array($headers[$h[0]])) {
+                    $headers[$h[0]] = array_merge($headers[$h[0]], array(trim($h[1])));
+                } else {
+                    $headers[$h[0]] = array_merge(array($headers[$h[0]]), array(trim($h[1])));
+                }
+
+                $key = $h[0];
+            } else {
+                if (substr($h[0], 0, 1) == "\t")
+                    $headers[$key] .= "\r\n\t".trim($h[0]);
+                elseif (!$key)
+                    $headers[0] = trim($h[0]);
+            }
+        }
+
+        return $headers;
+    }
+
+    protected function curl_request($headers, $method, $url, $opts) {
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $url); // "http://localhost:9919/?=" . 
+
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_HEADER, 1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_VERBOSE, 1);
+
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+
+        if($method == "POST" || $method == "PUT") {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $opts->dataString());
+        }
+
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+
+        $res = curl_exec($ch);
+        if(curl_errno($ch)) {
+            throw new RequestException('Request error: ' . curl_error($ch));
+        }
+
+        // Then, after your curl_exec call:
+        $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+        $header = substr($res, 0, $header_size);
+        $headers = $this->http_parse_headers($header);
+        $body = substr($res, $header_size);
+
+        $statusarr = explode(" ", explode("\r\n", $header)[0]);
+        $status = $statusarr[1];
+
+        $response = (object)array(
+            "status" => $status
+        );
   
+        if(strtolower($headers["content-type"]) == "application/json") {
+            $response->body = json_decode($body);
+        } else {
+            $response->body = $body;
+        }
+
+        return $response;
+    }
+    
+    protected function file_request($headers, $method, $url, $opts) {
+        $http = array(
+            'method' => $method
+        );
+
+        $http["header"] = $headers;
+
+        if($method == "POST" || $method == "PUT") {
+            $http["content"] = $opts->dataString();
+        }
+
+        $context_source = array ('http' =>$http);
+        $context = stream_context_create($context_source);
+
+        $res = file_get_contents( $url ,false, $context);
+
+        $statusarr = explode(" ", $http_response_header[0]);
+        $status = $statusarr[1];
+
+        $headers = $this->http_parse_headers(implode("\r\n", $http_response_header));
+  
+        $response = (object)array(
+            "status" => $status
+        );
+  
+        if(strtolower($headers["content-type"]) == "application/json") {
+            $response->body = json_decode($res);
+        } else {
+            $response->body = $res;
+        }
+
+        return $response;
+    }
+
     protected function request($method, $url, $opts = null) {
         $url = $this->endpoint . $url;
 
         if(($method == 'PUT' || $method == 'POST') && $opts) {
             $bodyFormat = $opts->contentType();
-            $dataString = $opts->dataString();
         }
     
         $authString = "X-TB-PARTNER-AUTH: $this->apiKey:$this->apiSecret";
 
-        if (function_exists("file_get_contents")) {
-            $http = array(
-                'method' => $method
-            );
-            $headers = array($authString);
-      
-            if($method == "POST" || $method == "PUT") {
-                $headers[1] = "Content-type: " . $bodyFormat;
-                $headers[2] = "Content-Length: " . strlen($dataString);
-                $http["content"] = $dataString;
-            }
+        $headers = array($authString);
+  
+        if($method == "POST" || $method == "PUT") {
+            $headers[1] = "Content-type: " . $opts->contentType();
+            $headers[2] = "Content-Length: " . strlen($opts->dataString());
+        }
 
-            $http["header"] = $headers;
-            $context_source = array ('http' =>$http);
-            $context = stream_context_create($context_source);
-
-            $res = file_get_contents( $url ,false, $context);
-
-            $statusarr = explode(" ", $http_response_header[0]);
-            $status = $statusarr[1];
-            $headers = array();
-
-            foreach($http_response_header as $header) {
-                if(strpos($header, "HTTP/") !== 0) {
-                    $split = strpos($header, ":");
-                    $key = strtolower(substr($header, 0, $split));
-                    $val = trim(substr($header, $split + 1));
-                    $headers[$key] = $val;
-                }
-            }
-      
-            $response = (object)array(
-                "status" => $status
-            );
-      
-            if(strtolower($headers["content-type"]) == "application/json") {
-                $response->body = json_decode($res);
-            } else {
-                $response->body = $res;
-            }
-      
-        } else{
-            throw new OpenTokArchivingRequestException("Your PHP installion doesn't support file_get_contents. Please enable it so that you can make API calls.");
+        if (function_exists("curl_init")) {
+            $response = $this->curl_request($headers, $method, $url, $opts);
+        } else if (function_exists("file_get_contents")) {
+            $response = $this->file_request($headers, $method, $url, $opts);
+        } else {
+            throw new OpenTokArchivingRequestException("Your PHP installion doesn't support curl or file_get_contents. Please enable one of these so that you can make API calls.");
         }
         
         return $response;
