@@ -164,12 +164,31 @@ class OpenTokSDK {
     }
 
     /**
+     * Stops an archive
+     * $archive_id - The ID of the archive (returned from startArchive)
+     */
+    public function stopArchive($archive_id) {
+        $ar = new OpenTokArchivingInterface($this->api_key, $this->api_secret, $this->server_url);
+        $archive = $ar->stopArchive($archive_id);
+        return new OpenTokArchive($archive, $ar);
+    }
+
+    /**
      * Gets an archive
      * $archive_id - The ID of the archive (returned from startArchive)
      */
     public function getArchive($archive_id) {
         $ar = new OpenTokArchivingInterface($this->api_key, $this->api_secret, $this->server_url);
         return $ar->getArchive($archive_id);
+    }
+
+    /**
+     * Deletes an archive
+     * $archive_id - The ID of the archive (returned from startArchive)
+     */
+    public function deleteArchive($archive_id) {
+        $ar = new OpenTokArchivingInterface($this->api_key, $this->api_secret, $this->server_url);
+        return $ar->deleteArchive($archive_id);
     }
 
     /**
