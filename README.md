@@ -17,7 +17,7 @@ Include the OpenTok PHP SDK files in your site, and add the OpenTokSDK.php file 
 
 # Requirements
 
-The OpenTok PHP SDK requires PHP 5.3 or greater.
+The OpenTok PHP SDK requires PHP 5.4 or greater.
 
 You need an OpenTok API key and API secret, which you can obtain at <https://dashboard.tokbox.com>.
 
@@ -26,7 +26,7 @@ You need an OpenTok API key and API secret, which you can obtain at <https://das
 This version of the SDK includes support for working with OpenTok 2.0 archives. (This API does not work
 with OpenTok 1.0 archives.)
 
-Note that this version of the OpenTok PHP SDK requires PHP 5.3 or greater.
+Note that this version of the OpenTok PHP SDK requires PHP 5.4 or greater.
 
 # API_Config
 
