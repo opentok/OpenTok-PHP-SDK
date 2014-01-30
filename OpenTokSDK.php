@@ -154,9 +154,17 @@ class OpenTokSDK {
     }
 
     /**
-     * Starts archiving a session
-     * $session_id - Session to archive
-     * $name - Optional name for this archive
+     * Starts archiving an OpenTok 2.0 session.
+     * <p>
+     * Clients must be actively connected to the OpenTok session for you to successfully start recording an archive.
+     * <p>
+     * You can only record one archive at a time for a given session. You can only record archives of OpenTok
+     * server-enabled sessions; you cannot archive peer-to-peer sessions.
+     *
+     * @param String $session_id The session ID of the OpenTok session to archive.
+     * @param String $name The name of the archive. You can use this name to identify the archive. It is a property
+     * of the Archive object, and it is a property of archive-related events in the OpenTok JavaScript SDK.
+     * @return OpenTokArchive The Archive object, which includes properties defining the archive, including the archive ID.
      */
     public function startArchive($session_id=null, $name=null) {
         $ar = new OpenTokArchivingInterface($this->api_key, $this->api_secret, $this->server_url);
@@ -164,8 +172,13 @@ class OpenTokSDK {
     }
 
     /**
-     * Stops an archive
-     * $archive_id - The ID of the archive (returned from startArchive)
+     * Stops an OpenTok archive that is being recorded.
+     * <p>
+     * Archives automatically stop recording after 90 minutes or when all clients have disconnected from the
+     * session being archived.
+     *
+     * @param String $archive_id The archive ID of the archive you want to stop recording.
+     * @return The Archive object corresponding to the archive being stopped.
      */
     public function stopArchive($archive_id) {
         $ar = new OpenTokArchivingInterface($this->api_key, $this->api_secret, $this->server_url);
@@ -174,8 +187,10 @@ class OpenTokSDK {
     }
 
     /**
-     * Gets an archive
-     * $archive_id - The ID of the archive (returned from startArchive)
+     * Gets an OpenTokArchive object for the given archive ID.
+     *
+     * @param String $archive_id The archive ID.
+     * @return OpenTokArchive The OpenTokArchive object.
      */
     public function getArchive($archive_id) {
         $ar = new OpenTokArchivingInterface($this->api_key, $this->api_secret, $this->server_url);
@@ -183,8 +198,13 @@ class OpenTokSDK {
     }
 
     /**
-     * Deletes an archive
-     * $archive_id - The ID of the archive (returned from startArchive)
+     * Deletes an OpenTok archive.
+     * <p>
+     * You can only delete an archive which has a status of "available" or "uploaded". Deleting an archive
+     * removes its record from the list of archives. For an "available" archive, it also removes the archive
+     * file, making it unavailable for download.
+     *
+     * @param String $archive_id The archive ID of the archive you want to delete.
      */
     public function deleteArchive($archive_id) {
         $ar = new OpenTokArchivingInterface($this->api_key, $this->api_secret, $this->server_url);
@@ -192,9 +212,16 @@ class OpenTokSDK {
     }
 
     /**
-     * Get a list of archives
-     * $offset - Optional, defaults to 0
-     * $count - Optional limit of number archives to return
+     * Returns an OpenTokArchiveList. The <code>items()</code> method of this object returns a list of
+     * archives that are completed and in-progress, for your API key.
+     *
+     * @param integer $offset Optional. The index offset of the first archive. 0 is offset of the most recently
+     * started archive. 1 is the offset of the archive that started prior to the most recent archive. If you do not
+     * specify an offset, 0 is used.
+     * @param integer $count Optional. The number of archives to be returned. The maximum number of archives returned
+     * is 1000.
+     * @return OpenTokArchiveList An OpenTokArchiveList object. Call the items() method of the OpenTokArchiveList object
+     * to return an array of Archive objects.
      */
     public function listArchives($offset=0, $count=null) {
         $ar = new OpenTokArchivingInterface($this->api_key, $this->api_secret, $this->server_url);
@@ -206,10 +233,12 @@ class OpenTokSDK {
     //Server API. Developers should not edit below this line. Do so at your own risk.
     //////////////////////////////////////////////
 
+    /** @internal */
     protected function _sign_string($string, $secret) {
         return hash_hmac("sha1", $string, $secret);
     }
 
+    /** @internal */
     protected function _do_request($url, $data, $auth = array('type' => 'partner')) {
         $url = $this->server_url . $url;
 
