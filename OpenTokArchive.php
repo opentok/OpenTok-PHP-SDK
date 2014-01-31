@@ -435,7 +435,9 @@ class OpenTokArchive implements JsonSerializable {
      *   <li> "failed" -- The archive recording failed.</li>
      *   <li> "started" -- The archive started and is in the process of being recorded.</li>
      *   <li> "stopped" -- The archive stopped recording.</li>
-     *   <li> "uploaded" -- The archive is available for download from the S3 bucket specified.</li>
+     *   <li> "uploaded" -- The archive is available for download from the the upload target
+     *        S3 bucket. For information on specifying an upload target S3 bucket, see the
+     *        REST API documentation.</li>
      * </ul>
      */
     public function status() {
