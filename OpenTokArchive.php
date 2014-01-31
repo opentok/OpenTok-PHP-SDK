@@ -2,17 +2,34 @@
 
 require_once 'API_Config.php';
 
+
+/**
+* Defines an exception thrown when you pass invalid arguments to a method.
+*/
 class OpenTokArgumentException extends Exception {};
+
+/**
+* Defines an exception thrown when you use an invalid OpenTok API key or API secret.
+*/
 class OpenTokAuthException extends Exception {
 
     public function __construct() {
-        parent::__construct("Invalid Partner ID or Secret", 403, null);
+        parent::__construct("Invalid API key or secret", 403, null);
     }
 
 };
+/**
+* Defines an exception thrown when you a call to an archiving method fails.
+*/
 class OpenTokArchiveException extends Exception {};
+/**
+* Defines an exception thrown when you a call to an archiving method fails.
+*/
 class OpenTokRequestException extends Exception {};
 
+/**
+* For internal use by the OpenTok SDK.
+*/
 class OpenTokArchivingRequestOptions {
   
   private $value;
@@ -41,6 +58,9 @@ class OpenTokArchivingRequestOptions {
   
 }
 
+/**
+* For internal use by the OpenTok SDK.
+*/
 class OpenTokArchivingInterface {
 
     function __construct($apiKey, $apiSecret, $endpoint = "https://api.opentok.com") {
@@ -337,73 +357,141 @@ class OpenTokArchivingInterface {
     }
 }
 
+/**
+* Represents an archive of an OpenTok session.
+*/
 class OpenTokArchive implements JsonSerializable {
+	/** @internal */
     private $source;
+	/** @internal */
     private $api;
 
+	/** @internal */
     public function __construct($source, $api) {
         $this->source = $source;
         $this->api = $api;
     }
 
+    /**
+     * The time at which the archive was created, in milliseconds since the UNIX epoch.
+     */
     public function createdAt() {
         return $this->source->createdAt / 1000;
     }
 
+    /**
+     * The duration of the archive, in milliseconds.
+     */
     public function duration() {
         return $this->source->duration;
     }
 
+    /**
+     * The archive ID.
+     */
     public function id() {
         return $this->source->id;
     }
 
+    /**
+     * The name of the archive.
+     */
     public function name() {
         return $this->source->name;
     }
 
+    /**
+     * For archives with the status "stopped", this can be set to "90 mins exceeded", "failure", "session ended",
+     * or "user initiated". For archives with the status "failed", this can be set to "system failure".
+     */
     public function reason() {
         return $this->source->reason;
     }
 
+    /**
+     * The session ID of the OpenTok session associated with this archive.
+     */
     public function sessionId() {
         return $this->source->sessionId;
     }
 
+    /**
+     * The size of the MP4 file. For archives that have not been generated, this value is set to 0.
+     */
     public function size() {
         return $this->source->size;
     }
 
+    /**
+     * The status of the archive, which can be one of the following:
+     *
+     * <ul>
+     *   <li> "available" -- The archive is available for download from the OpenTok cloud.</li>
+     *   <li> "failed" -- The archive recording failed.</li>
+     *   <li> "started" -- The archive started and is in the process of being recorded.</li>
+     *   <li> "stopped" -- The archive stopped recording.</li>
+     *   <li> "uploaded" -- The archive is available for download from the S3 bucket you specified.</li>
+     * </ul>
+     */
     public function status() {
         return $this->source->status;
     }
 
+    /**
+     * The download URL of the available MP4 file. This is only set for an archive with the status set to "available";
+     * for other archives, (including archives wit the status "uploaded") this method returns null. The download URL is
+     * obfuscated, and the file is only available from the URL for 10 minutes. To generate a new URL, call
+     * the OpenTokArchive.listArchives() or OpenTokSDK.getArchive() method.
+     */
     public function url() {
         return $this->source->url;
     }
 
+    /**
+     * Stops the OpenTok archive, if it is being recorded.
+     * <p>
+     * Archives automatically stop recording after 90 minutes or when all clients have disconnected from the
+     * session being archived.
+     */
     public function stop() {
         $this->source = $this->api->stopArchive($this->source->id);
         return $this;
     }
 
+    /**
+     * Deletes the OpenTok archive.
+     * <p>
+     * You can only delete an archive which has a status of "available" or "uploaded". Deleting an archive
+     * removes its record from the list of archives. For an "available" archive, it also removes the archive
+     * file, making it unavailable for download.
+     */
     public function delete() {
         $this->api->deleteArchive($this->source->id);
         $this->source->status = 'deleted';
         return $this;
     }
 
+    /**
+     * @internal
+     */
     public function jsonSerialize() {
         return $this->source;
     }
 }
 
+/**
+* A class for accessing an array of OpenTokArchive objects.
+*/
 class OpenTokArchiveList implements JsonSerializable {
 
+    /** @internal */
     private $_total;
+    /** @internal */
     private $_items;
+    /** @internal */
     private $_api;
 
+    /** @internal */
     public function __construct($source, $api) {
         $this->_total = $source->count;
         $items = array();
@@ -416,14 +504,23 @@ class OpenTokArchiveList implements JsonSerializable {
         $this->_api = $api;
     }
 
+    /**
+     * Returns the number of total archives for the API key.
+     */
     public function totalCount() {
         return $this->_total;
     }
 
+    /**
+     * Returns an array of OpenTokArchive objects.
+     */
     public function items() {
         return $this->_items;
     }
 
+    /**
+     * @internal
+     */
     public function jsonSerialize() {
         return array(
             "total" => $this->totalCount(),

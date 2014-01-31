@@ -19,6 +19,12 @@ Then instantiate your SDK:
     $apiObj = new OpenTokSDK();
 
 
+Working with OpenTok 2.0 archives
+---------------------------------
+
+See the main README.md file.
+
+
 create_session() method
 -----------------------
 The `create_session()` method of the OpenTokSDK object to create a new OpenTok
