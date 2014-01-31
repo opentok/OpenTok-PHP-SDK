@@ -4,12 +4,14 @@ require_once 'API_Config.php';
 
 
 /**
-* Defines an exception thrown when you pass invalid arguments to a method.
+* The OpenTokArgumentException class defines an exception thrown when you pass invalid arguments to
+* a method.
 */
 class OpenTokArgumentException extends Exception {};
 
 /**
-* Defines an exception thrown when you use an invalid OpenTok API key or API secret.
+* The OpenTokAuthException class defines an exception thrown when you use an invalid
+* OpenTok API key or API secret.
 */
 class OpenTokAuthException extends Exception {
 
@@ -19,11 +21,13 @@ class OpenTokAuthException extends Exception {
 
 };
 /**
-* Defines an exception thrown when you a call to an archiving method fails.
+* The OpenTokArchiveException class defines an exception thrown when a call to an archiving
+* method fails.
 */
 class OpenTokArchiveException extends Exception {};
 /**
-* Defines an exception thrown when you a call to an archiving method fails.
+* The OpenTokArchiveException class defines an exception thrown when a call to an archiving
+* method fails.
 */
 class OpenTokRequestException extends Exception {};
 
@@ -394,7 +398,8 @@ class OpenTokArchive implements JsonSerializable {
     }
 
     /**
-     * The name of the archive.
+     * The name of the archive. If no name was provided when the archive was created, this is set
+     * to null.
      */
     public function name() {
         return $this->source->name;
@@ -430,7 +435,7 @@ class OpenTokArchive implements JsonSerializable {
      *   <li> "failed" -- The archive recording failed.</li>
      *   <li> "started" -- The archive started and is in the process of being recorded.</li>
      *   <li> "stopped" -- The archive stopped recording.</li>
-     *   <li> "uploaded" -- The archive is available for download from the S3 bucket you specified.</li>
+     *   <li> "uploaded" -- The archive is available for download from the S3 bucket specified.</li>
      * </ul>
      */
     public function status() {
@@ -439,7 +444,7 @@ class OpenTokArchive implements JsonSerializable {
 
     /**
      * The download URL of the available MP4 file. This is only set for an archive with the status set to "available";
-     * for other archives, (including archives wit the status "uploaded") this method returns null. The download URL is
+     * for other archives, (including archives with the status "uploaded") this method returns null. The download URL is
      * obfuscated, and the file is only available from the URL for 10 minutes. To generate a new URL, call
      * the OpenTokArchive.listArchives() or OpenTokSDK.getArchive() method.
      */
@@ -452,6 +457,8 @@ class OpenTokArchive implements JsonSerializable {
      * <p>
      * Archives automatically stop recording after 90 minutes or when all clients have disconnected from the
      * session being archived.
+     *
+     * @throws OpenTokArchiveException The archive is not being recorded.
      */
     public function stop() {
         $this->source = $this->api->stopArchive($this->source->id);
@@ -459,11 +466,17 @@ class OpenTokArchive implements JsonSerializable {
     }
 
     /**
-     * Deletes the OpenTok archive.
+     * Deletes an OpenTok archive.
      * <p>
-     * You can only delete an archive which has a status of "available" or "uploaded". Deleting an archive
-     * removes its record from the list of archives. For an "available" archive, it also removes the archive
-     * file, making it unavailable for download.
+     * You can only delete an archive which has a status of "available", "uploaded", or "deleted". 
+     * Deleting an archive removes its record from the list of archives. For an "available" archive, 
+     * it also removes the archive file, making it unavailable for download. For a "deleted"
+     * archive, the archive remains deleted.
+     *
+     * @param String $archive_id The archive ID of the archive you want to delete.
+     *
+     * @throws OpenTokArchiveException There archive status is not "available", "updated",
+     * or "deleted".
      */
     public function delete() {
         $this->api->deleteArchive($this->source->id);

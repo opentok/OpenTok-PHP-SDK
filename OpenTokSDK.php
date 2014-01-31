@@ -164,7 +164,7 @@ class OpenTokSDK {
      * @param String $session_id The session ID of the OpenTok session to archive.
      * @param String $name The name of the archive. You can use this name to identify the archive. It is a property
      * of the Archive object, and it is a property of archive-related events in the OpenTok JavaScript SDK.
-     * @return OpenTokArchive The Archive object, which includes properties defining the archive, including the archive ID.
+     * @return OpenTokArchive The OpenTokArchive object, which includes properties defining the archive, including the archive ID.
      */
     public function startArchive($session_id=null, $name=null) {
         $ar = new OpenTokArchivingInterface($this->api_key, $this->api_secret, $this->server_url);
@@ -178,7 +178,7 @@ class OpenTokSDK {
      * session being archived.
      *
      * @param String $archive_id The archive ID of the archive you want to stop recording.
-     * @return The Archive object corresponding to the archive being stopped.
+     * @return The OpenTokArchive object corresponding to the archive being stopped.
      */
     public function stopArchive($archive_id) {
         $ar = new OpenTokArchivingInterface($this->api_key, $this->api_secret, $this->server_url);
@@ -190,6 +190,10 @@ class OpenTokSDK {
      * Gets an OpenTokArchive object for the given archive ID.
      *
      * @param String $archive_id The archive ID.
+     *
+     * @throws OpenTokArchiveException There is no archive with the specified ID.
+     * @throws OpenTokArgumentException The archive ID provided is null or an empty string.
+     *
      * @return OpenTokArchive The OpenTokArchive object.
      */
     public function getArchive($archive_id) {
@@ -200,11 +204,17 @@ class OpenTokSDK {
     /**
      * Deletes an OpenTok archive.
      * <p>
-     * You can only delete an archive which has a status of "available" or "uploaded". Deleting an archive
-     * removes its record from the list of archives. For an "available" archive, it also removes the archive
-     * file, making it unavailable for download.
+     * You can only delete an archive which has a status of "available", "uploaded", or "deleted". 
+     * Deleting an archive removes its record from the list of archives. For an "available" archive, 
+     * it also removes the archive file, making it unavailable for download. For a "deleted"
+     * archive, the archive remains deleted.
      *
      * @param String $archive_id The archive ID of the archive you want to delete.
+     *
+     * @return Boolean Returns true on success.
+     *
+     * @throws OpenTokArchiveException There archive status is not "available", "updated",
+     * or "deleted".
      */
     public function deleteArchive($archive_id) {
         $ar = new OpenTokArchivingInterface($this->api_key, $this->api_secret, $this->server_url);

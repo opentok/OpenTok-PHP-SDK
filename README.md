@@ -2,6 +2,7 @@
 
 The OpenTok PHP SDK lets you generate [sessions](http://tokbox.com/opentok/tutorials/create-session/) and
 [tokens](http://tokbox.com/opentok/tutorials/create-token/) for [OpenTok](http://www.tokbox.com/) applications.
+This version of the SDK also includes support for working with OpenTok 2.0 archives.
 
 # Installation
 
@@ -125,13 +126,13 @@ $archive_id = ""; // Replace with a valid archive ID.
 
 try {
   $archive = $apiObj->getArchive($archive_id);
-  echo "createdAt: ", $archive->createdAt(), "\n";
-  echo "duration: ", $archive->duration(), "\n";
-  echo "id: ", $archive->id(), "\n";
-  echo "name: ", $archive->name(), "\n";
-  echo "reason: ", $archive->reason(), "\n";
-  echo "sessionId: ", $archive->sessionId(), "\n";
-  echo "size: ", $archive->size(), "\n";
+  echo "createdAt: ", $archive->createdAt(), "<br>\n";
+  echo "duration: ", $archive->duration(), "<br>\n";
+  echo "id: ", $archive->id(), "<br>\n";
+  echo "name: ", $archive->name(), "<br>\n";
+  echo "reason: ", $archive->reason(), "<br>\n";
+  echo "sessionId: ", $archive->sessionId(), "<br>\n";
+  echo "size: ", $archive->size(), "<br>\n";
 } catch (Exception $error) {
   echo $error->getMessage();
 }
@@ -145,9 +146,9 @@ $apiObj = new OpenTokSDK();
 try {
   $archive_list = $apiObj->listArchives();
   $count = $archive_list->totalCount();
-  echo("Number of archives: {$count}\n");
+  echo("Number of archives: {$count}<br>\n");
   foreach ($archive_list->items() as $archive) {
-      echo $archive->id(), "\n";
+      echo $archive->id(), "<br>\n";
   }
 } catch (Exception $error) {
   echo $error->getMessage();
@@ -159,7 +160,7 @@ try {
 
 See the [reference documentation](docs/reference.md).
 
-For details on the API, see the comments in Java files in src/main/java/com/opentok.
+For details on the API, see the comments in PHP files in src/main/java/com/opentok.
 
 
 For more information on OpenTok, go to <http://www.tokbox.com/>.
