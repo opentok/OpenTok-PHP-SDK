@@ -158,7 +158,7 @@ class OpenTokSDK {
      * $session_id - Session to archive
      * $name - Optional name for this archive
      */
-    public function startArchive($session_id=null, $name=null) {
+    public function startArchive($session_id, $name=null) {
         $ar = new OpenTokArchivingInterface($this->api_key, $this->api_secret, $this->server_url);
         return $ar->startArchive($session_id, $name);
     }
