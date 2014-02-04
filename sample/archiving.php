@@ -29,7 +29,7 @@ require_once '../OpenTokSDK.php';
 $apiObj = new OpenTokSDK();
 
 // The following method starts recording an archive of an OpenTok 2.0 session
-// and returns the archive ID (on success). Note that you can only start an archive 
+// and returns an Archive object (on success). Note that you can only start an archive
 // on a session that has clients connected.
 
 $session_id = ""; // Replace this with an OpenTok session ID.
@@ -59,7 +59,7 @@ function stopArchive($archive_id) {
   }
 }
 
-// The following method logs information on a given archive.
+// The following method deletes an archive.
 
 $archive_id = ""; // Replace with a valid archive ID.
 
@@ -81,13 +81,13 @@ function getArchive($archive_id) {
   global $apiObj;
   try {
     $archive = $apiObj->getArchive($archive_id);
-    echo "createdAt: ", $archive->createdAt(), "\n";
-    echo "duration: ", $archive->duration(), "\n";
-    echo "id: ", $archive->id(), "\n";
-    echo "name: ", $archive->name(), "\n";
-    echo "reason: ", $archive->reason(), "\n";
-    echo "sessionId: ", $archive->sessionId(), "\n";
-    echo "size: ", $archive->size(), "\n";
+    echo "createdAt: ", $archive->createdAt(), "<br>\n";
+    echo "duration: ", $archive->duration(), "<br>\n";
+    echo "id: ", $archive->id(), "<br>\n";
+    echo "name: ", $archive->name(), "<br>\n";
+    echo "reason: ", $archive->reason(), "<br>\n";
+    echo "sessionId: ", $archive->sessionId(), "<br>\n";
+    echo "size: ", $archive->size(), "<br>\n";
   } catch (Exception $error) {
     echo $error->getMessage();
   }
@@ -101,9 +101,9 @@ function listArchives() {
   try {
     $archive_list = $apiObj->listArchives();
     $count = $archive_list->totalCount();
-    echo("Number of archives: {$count}\n");
+    echo("Number of archives: {$count}<br>\n");
     foreach ($archive_list->items() as $archive) {
-        echo $archive->id(), "\n";
+        echo $archive->id(), "<br>\n";
     } 
   } catch (Exception $error) {
     echo $error->getMessage();
