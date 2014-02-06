@@ -135,7 +135,7 @@ class OpenTokArchivingInterface {
             "status" => $status
         );
   
-        if(strtolower($headers["content-type"]) == "application/json") {
+        if(isset($headers["content-type"]) && strtolower($headers["content-type"]) == "application/json") {
             $response->body = json_decode($body);
         } else {
             $response->body = $body;
@@ -169,7 +169,7 @@ class OpenTokArchivingInterface {
             "status" => $status
         );
   
-        if(strtolower($headers["content-type"]) == "application/json") {
+        if(isset($headers["content-type"]) && strtolower($headers["content-type"]) == "application/json") {
             $response->body = json_decode($res);
         } else {
             $response->body = $res;
