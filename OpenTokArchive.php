@@ -105,13 +105,12 @@ class OpenTokArchivingInterface {
     protected function curl_request($headers, $method, $url, $opts) {
         $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_URL, $url); // "http://localhost:9919/?=" . 
-
+        curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_HEADER, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
-
+        curl_setopt($ch, CURLOPT_USERAGENT, OPENTOK_SDK_USER_AGENT);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
 
         if($method == "POST" || $method == "PUT") {
@@ -150,7 +149,8 @@ class OpenTokArchivingInterface {
     
     protected function file_request($headers, $method, $url, $opts) {
         $http = array(
-            'method' => $method
+            'method' => $method,
+            'user_agent' => OPENTOK_SDK_USER_AGENT
         );
 
         $http["header"] = $headers;
@@ -162,7 +162,7 @@ class OpenTokArchivingInterface {
         $context_source = array ('http' =>$http);
         $context = stream_context_create($context_source);
 
-        $res = file_get_contents( $url ,false, $context);
+        $res = @file_get_contents($url ,false, $context);
 
         $statusarr = explode(" ", $http_response_header[0]);
         $status = $statusarr[1];
@@ -216,7 +216,6 @@ class OpenTokArchivingInterface {
         }
 
         $startArchive = array(
-            "action" => "start",
             "sessionId" => $session_id,
             "name" => $name
         );
@@ -311,7 +310,7 @@ class OpenTokArchivingInterface {
             "action" => "stop"
         );
 
-        $result = $this->request("POST", "/archive/" . $archive_id, new OpenTokArchivingRequestOptions("json", $stopArchive));
+        $result = $this->request("POST", "/archive/" . $archive_id . "/stop", new OpenTokArchivingRequestOptions("json", $stopArchive));
 
         if($result->status < 300) {
             return $result->body;

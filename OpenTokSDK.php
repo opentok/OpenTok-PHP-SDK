@@ -6,27 +6,30 @@
 *
 * Copyright (c) 2011, TokBox, Inc.
 * Permission is hereby granted, free of charge, to any person obtaining
-* a copy of this software and associated documentation files (the "Software"), 
-* to deal in the Software without restriction, including without limitation 
-* the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+* a copy of this software and associated documentation files (the "Software"),
+* to deal in the Software without restriction, including without limitation
+* the rights to use, copy, modify, merge, publish, distribute, sublicense,
 * and/or sell copies of the Software, and to permit persons to whom the
 * Software is furnished to do so, subject to the following conditions:
-* 
+*
 * The above copyright notice and this permission notice shall be included
 * in all copies or substantial portions of the Software.
 *
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-* OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
+* OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
 * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
+* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
 
 require_once 'API_Config.php';
 require_once 'OpenTokSession.php';
 require_once 'OpenTokArchive.php';
+
+define('OPENTOK_SDK_VERSION', '2.0.0-beta');
+define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
 
 //Generic OpenTok exception. Read the message to get more details
 class OpenTokException extends Exception { };
@@ -92,7 +95,7 @@ class OpenTokSDK {
 
         if(!$role) {
             $role = RoleConstants::PUBLISHER;
-        } else if (!in_array($role, array(RoleConstants::SUBSCRIBER, 
+        } else if (!in_array($role, array(RoleConstants::SUBSCRIBER,
                 RoleConstants::PUBLISHER, RoleConstants::MODERATOR))) {
             throw new OpenTokException("unknown role $role");
         }
@@ -204,8 +207,8 @@ class OpenTokSDK {
     /**
      * Deletes an OpenTok archive.
      * <p>
-     * You can only delete an archive which has a status of "available", "uploaded", or "deleted". 
-     * Deleting an archive removes its record from the list of archives. For an "available" archive, 
+     * You can only delete an archive which has a status of "available", "uploaded", or "deleted".
+     * Deleting an archive removes its record from the list of archives. For an "available" archive,
      * it also removes the archive file, making it unavailable for download. For a "deleted"
      * archive, the archive remains deleted.
      *
@@ -271,15 +274,16 @@ class OpenTokSDK {
         }
 
         //Use file_get_contents if curl is not available for PHP
-        if(function_exists("curl_init")) {            
+        if(function_exists("curl_init")) {
             $ch = curl_init();
 
             $api_key = $this->api_key;
             $api_secret = $this->api_secret;
 
             curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_USERAGENT, OPENTOK_SDK_USER_AGENT);
             curl_setopt($ch, CURLOPT_HTTPHEADER, Array('Content-type: application/x-www-form-urlencoded'));
-            curl_setopt($ch, CURLOPT_HTTPHEADER, Array($authString));   
+            curl_setopt($ch, CURLOPT_HTTPHEADER, Array($authString));
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($ch, CURLOPT_HEADER, 0);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -287,26 +291,32 @@ class OpenTokSDK {
             curl_setopt($ch, CURLOPT_POSTFIELDS, $dataString);
 
             $res = curl_exec($ch);
-            if(curl_errno($ch)) {
+            if (curl_errno($ch)) {
                 throw new RequestException('Request error: ' . curl_error($ch));
             }
 
             curl_close($ch);
-        }
-        else {        
-            if (function_exists("file_get_contents")) {
-                $context_source = array ('http' => array (
-                                        'method' => 'POST',
-                                        'header'=> Array("Content-type: application/x-www-form-urlencoded", $authString, "Content-Length: " . strlen($dataString), 'content' => $dataString)
-                                        )
-                                    );
+
+        } else {
+            if(function_exists("file_get_contents")) {
+                $context_source = array (
+                    'http' => array (
+                        'method' => 'POST',
+                        'header'=> Array(
+                            "Content-type: application/x-www-form-urlencoded",
+                            $authString,
+                            "Content-Length: " . strlen($dataString),
+                            'content' => $dataString
+                        )
+                        'user_agent' => OPENTOK_SDK_USER_AGENT
+                    )
+                );
                 $context = stream_context_create($context_source);
-                $res = @file_get_contents( $url ,false, $context);                
-            }
-            else{
+                $res = @file_get_contents( $url ,false, $context);
+            } else {
                 throw new RequestException("Your PHP installion neither supports the file_get_contents method nor cURL. Please enable one of these functions so that you can make API calls.");
-            }        
-        }        
+            }
+        }
         return $res;
     }
     
@@ -315,7 +325,7 @@ class OpenTokSDK {
      */
     public function generate_token($session_id='', $role='', $expire_time=NULL, $connection_data='') {
       return $this->generateToken($session_id, $role, $expire_time, $connection_data);
-    } 
+    }
     public function create_session($location='', $properties=array()) {
       return $this->createSession($location, $properties);
     }

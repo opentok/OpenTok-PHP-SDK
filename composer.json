@@ -1,5 +1,6 @@
 {
     "name": "opentok/opentok",
+    "version": "2.0.0-beta",
     "type": "library",
     "description": "PHP library for TokBox OpenTok",
     "keywords": ["TokBox", "OpenTok", "PHP"],
