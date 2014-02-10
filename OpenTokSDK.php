@@ -307,7 +307,7 @@ class OpenTokSDK {
                             $authString,
                             "Content-Length: " . strlen($dataString),
                             'content' => $dataString
-                        )
+                        ),
                         'user_agent' => OPENTOK_SDK_USER_AGENT
                     )
                 );
