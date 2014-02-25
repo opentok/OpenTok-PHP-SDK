@@ -29,7 +29,6 @@
     "autoload": {
       "psr-4": {
         "OpenTok\\" : "src/OpenTok"
-      },
-      "files": ["OpenTokSDK.php"]
+      }
     }
 }
