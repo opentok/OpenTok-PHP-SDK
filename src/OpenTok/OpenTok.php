@@ -33,7 +33,7 @@ define('OPENTOK_SDK_VERSION', '2.0.0-beta');
 define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
 
 //Generic OpenTok exception. Read the message to get more details
-class OpenTokException extends Exception { };
+class OpenTokException extends \Exception { };
 //OpenTok exception related to authentication. Most likely an issue with your API key or secret
 class AuthException extends OpenTokException { };
 //OpenTok exception related to the HTTP request. Most likely due to a server error. (HTTP 500 error)
