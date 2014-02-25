@@ -1,4 +1,4 @@
-<?PHP
+<?php
 
 /**
 * OpenTok PHP Library
@@ -24,9 +24,10 @@
 * THE SOFTWARE.
 */
 
-require_once 'API_Config.php';
-require_once 'OpenTokSession.php';
-require_once 'OpenTokArchive.php';
+namespace OpenTok;
+
+use OpenTok\Session;
+use OpenTok\Archive;
 
 define('OPENTOK_SDK_VERSION', '2.0.0-beta');
 define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
@@ -44,18 +45,17 @@ class RoleConstants {
     const MODERATOR = "moderator";   //Can do the above along with  forceDisconnect and forceUnpublish
 };
 
-class OpenTokSDK {
+class OpenTok {
 
     private $api_key;
     private $api_secret;
     private $server_url;
 
-    public function __construct($api_key = API_Config::API_KEY, $api_secret = API_Config::API_SECRET) {
+    public function __construct($api_key, $api_secret) {
         $this->api_key = $api_key;
         $this->api_secret = $api_secret;
-        $this->server_url= API_Config::API_SERVER;
+        $this->server_url= 'https://api.opentok.com';
     }
-    
 
     /** - Generate a token
      *
@@ -121,7 +121,7 @@ class OpenTokSDK {
 
         return "T1==" . base64_encode("partner_id=$api_key&sig=$sig:$data_string");
     }
-    
+
     /**
      * Creates a new session.
      * $location - IP address to geolocate the call around.
@@ -153,7 +153,7 @@ class OpenTokSDK {
         }
         $sessionId = $createSessionXML->Session->session_id;
 
-        return new OpenTokSession($sessionId, null);
+        return new Session($sessionId, null);
     }
 
     /**
@@ -186,7 +186,7 @@ class OpenTokSDK {
     public function stopArchive($archive_id) {
         $ar = new OpenTokArchivingInterface($this->api_key, $this->api_secret, $this->server_url);
         $archive = $ar->stopArchive($archive_id);
-        return new OpenTokArchive($archive, $ar);
+        return new Archive($archive, $ar);
     }
 
     /**

@@ -164,3 +164,29 @@ For details on the API, see the comments in PHP files in src/main/java/com/opent
 
 
 For more information on OpenTok, go to <http://www.tokbox.com/>.
+
+# Composer
+
+It is best practice to not specify a version in the composer.json. The versions are automatically generated
+from tags. Packagist will scan the git repo to retrieve this information.
+
+TODO: before checking in the composer.json, you always want to run `composer validate`. Make this part of the build
+process.
+
+TODO: look into using fabpot/PHP-CS-Fixer as a require-dev dependency. use it as part of the build process to ensure
+that coding style standards are being met.
+
+TODO: `composer run-script` can be used to launch tests or builds. we can use 'extra' key to store data that needs to
+be accessed in scripts
+
+TODO: `composer archive` can be used to zip up a build and create a release artifact. this should package up
+dependencies too so user that aren't utilizing composer have a way to get a self-contained SDK. there is an 'exclude'
+key for keeping things out of this archive.
+
+TODO: get phpunit into require-dev
+
+TODO: is monolog a require or require-dev? or suggest?
+
+TODO: do we want psr-4, classmap, and files autoload definitions?
+
+TODO: change the homepage of the project once we have a github.io URL

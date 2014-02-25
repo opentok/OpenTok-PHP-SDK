@@ -1,7 +1,6 @@
 <?php
 
-require_once 'API_Config.php';
-
+namespace OpenTok;
 
 /**
 * The OpenTokArgumentException class defines an exception thrown when you pass invalid arguments to
@@ -223,7 +222,7 @@ class OpenTokArchivingInterface {
         $result = $this->request("POST", "/archive", new OpenTokArchivingRequestOptions("json", $startArchive));
 
         if($result->status < 300) {
-            $archive = new OpenTokArchive($result->body, $this);
+            $archive = new Archive($result->body, $this);
             return $archive;
         } else if($result->status == 403) {
             throw new OpenTokAuthException();
@@ -249,7 +248,7 @@ class OpenTokArchivingInterface {
         $result = $this->request("GET", "/archive/" . $archive_id);
 
         if($result->status < 300) {
-            $archive = new OpenTokArchive($result->body, $this);
+            $archive = new Archive($result->body, $this);
             return $archive;
 
         } else if($result->status == 403) {
@@ -363,7 +362,7 @@ class OpenTokArchivingInterface {
 /**
 * Represents an archive of an OpenTok session.
 */
-class OpenTokArchive implements JsonSerializable {
+class Archive implements JsonSerializable {
 	/** @internal */
     private $source;
 	/** @internal */
@@ -511,7 +510,7 @@ class OpenTokArchiveList implements JsonSerializable {
         $items = array();
 
         foreach ($source->items as $item) {
-            array_push($items, new OpenTokArchive($item, $api));
+            array_push($items, new Archive($item, $api));
         }
 
         $this->_items = $items;
