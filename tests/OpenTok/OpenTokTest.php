@@ -4,8 +4,8 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
     public function testCanBeInitialized()
     {
         // Arrange
-        // TODO: read an apikey and apisecret from config
-        $opentok = new OpenTok\OpenTok('apikey', 'apisecret');
+        // TODO: separate test suites or groups for integration tests and unit tests
+        $opentok = new OpenTok\OpenTok(API_KEY, API_SECRET);
 
         // Act
 
@@ -40,8 +40,11 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $session = $opentok->createSession('127.0.0.1');
 
         // Assert
-        $this->assertInstanceOf('OpenTok\Session', $session);
         // TODO: assert that a POST request matching the expectations was sent
+        $this->assertInstanceOf('OpenTok\Session', $session);
+        // TODO: assert that $session->sessionId matches the format of a sessionId
+        // TODO: assert that the length for the $session-sessionId is reasonable
+        // TODO: decode the $sessionId and look for the correct parameters (apiKey, apiSecret, etc)
 
         return $session;
     }
@@ -57,7 +60,9 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $token = $opentok->generateToken($session->sessionId);
 
         // Assert
-        $this->assertInstanceOf('string', $token);
+        $this->assertInternalType('string', $token);
+        // TODO: assert the length of the token is correct
+        // TODO: decode the token and verify its parts (including its signature)
     }
 }
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/
