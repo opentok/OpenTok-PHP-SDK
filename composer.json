@@ -22,7 +22,8 @@
       "irc": "irc://irc.freenode.org/opentok"
     },
     "require": {
-      "php" : ">=5.0.0"
+      "php" : ">=5.0.0",
+        "guzzle/guzzle": "~3.7"
     },
     "require-dev" : {
       "phpunit/phpunit": "3.7.*"
