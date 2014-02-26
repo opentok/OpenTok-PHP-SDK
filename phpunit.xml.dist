@@ -12,5 +12,10 @@
             <directory suffix=".php">src/OpenTok/</directory>
         </whitelist>
     </filter>
+
+    <php>
+      <const name="API_KEY" value="" />
+      <const name="API_SECRET" value="" />
+    </php>
 </phpunit>
 
