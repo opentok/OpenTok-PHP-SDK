@@ -2,8 +2,11 @@
 
 use Guzzle\Plugin\Mock\MockPlugin;
 use Guzzle\Http\Client;
+
 use OpenTok\OpenTok;
 use OpenTok\Session;
+
+use OpenTok\TestHelpers;
 
 class OpenTokTest extends PHPUnit_Framework_TestCase
 {
@@ -21,8 +24,8 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
     public function setUp()
     {
         // TODO: define the fake credentials somewhere outside the test code
-        $this->API_KEY = API_KEY || '12345678';
-        $this->API_SECRET = API_SECRET || '0123456789abcdef0123456789abcdef0123456789';
+        $this->API_KEY = (null !== API_KEY) ? API_KEY : '12345678';
+        $this->API_SECRET = (null !== API_SECRET) ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
 
         $this->client = new Client();
         $this->opentok = new OpenTok($this->API_KEY, $this->API_SECRET, array('client' => $this->client));
@@ -99,19 +102,32 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         return $session;
     }
 
-    /**
-     * @depends testCreatesSession
-     */
-    public function testGeneratesToken(Session $session) {
+    public function testGeneratesToken() {
         // Arrange
+        // This sessionId is a fixture designed by using a known but bogus apiKey and apiSecret
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $bogusApiKey = '12345678';
+        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
         // Act
-        $token = $this->opentok->generateToken($session->sessionId);
+        $token = $opentok->generateToken($sessionId);
 
         // Assert
         $this->assertInternalType('string', $token);
-        // TODO: assert the length of the token is correct
-        // TODO: decode the token and verify its parts (including its signature)
+
+        $decodedToken = TestHelpers::decodeToken($token);
+        $this->assertEquals($sessionId, $decodedToken['session_id']);
+        $this->assertEquals($bogusApiKey, $decodedToken['partner_id']);
+        $this->assertNotEmpty($decodedToken['nonce']);
+        $this->assertNotEmpty($decodedToken['create_time']);
+        // TODO: should all tokens have a role of publisher even if this wasn't specified?
+        //$this->assertNotEmpty($decodedToken['role']);
+        // TODO: should all tokens have a default expire time even if it wasn't specified?
+        //$this->assertNotEmpty($decodedToken['expire_time']);
+
+        $this->assertNotEmpty($decodedToken['sig']);
+        $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
     }
 }
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/

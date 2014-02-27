@@ -93,6 +93,7 @@ class OpenTok {
             throw new OpenTokException("Null or empty session ID are not valid");
         }
 
+        // TODO: write tests for this decoding, fix errors;
         $sub_session_id = substr($session_id, 2);
         $decoded_session_id="";
         for($i=0;$i<3;$i++){
