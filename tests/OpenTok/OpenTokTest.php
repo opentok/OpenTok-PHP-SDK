@@ -1,27 +1,28 @@
 <?php
-class OpenTokTest extends PHPUnit_Framework_TestCase
+class OpenTokTest extends Guzzle\Tests\GuzzleTestCase
 {
-    protected static $mock;
+    protected $API_KEY;
+    protected $API_SECRET;
+    protected $opentok;
+    protected $client;
+
+    public function setUp()
+    {
+        // TODO: define the fake credentials somewhere outside the test code
+        $this->API_KEY = API_KEY || '12345678';
+        $this->API_SECRET = API_SECRET || '0123456789abcdef0123456789abcdef0123456789';
+
+        $this->client = new Guzzle\Http\Client();
+        $this->opentok = new OpenTok\OpenTok($this->API_KEY, $this->API_SECRET, array('client' => $this->client));
+
+    }
 
     public function testCanBeInitialized()
     {
         // Arrange
-        // TODO: separate test suites or groups for integration tests and unit tests
-        //$opentok = new OpenTok\OpenTok(API_KEY, API_SECRET);
-
-        // Initialize mocked client
-        self::$mock = new Guzzle\Plugin\Mock\MockPlugin();
-        self::$mock->addResponse(new Guzzle\Http\Message\Response(200));
-        $client = new Guzzle\Http\Client();
-        $client->addSubscriber(self::$mock);
-        $opentok = new OpenTok\OpenTok('API_KEY', 'API_SECRET', array('client' => $client));
-
         // Act
-
         // Assert
-        $this->assertInstanceOf('OpenTok\OpenTok', $opentok);
-
-        return $opentok;
+        $this->assertInstanceOf('OpenTok\OpenTok', $this->opentok);
     }
 
     /**
@@ -31,34 +32,39 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
     {
         // Arrange
         $opentok = new OpenTok\OpenTok();
-
         // Act
-
         // Assert
     }
 
-    /**
-     * @depends testCanBeInitialized
-     */
-    public function testCreatesSession(OpenTok\OpenTok $opentok)
+    public function testCreatesSession()
     {
         // Arrange
+        $this->setMockResponse($this->client, '/session/create/no-p2p_location-127.0.0.1');
 
         // Act
-        // TODO: decouple from actually making a web request
-        try {
-            $session = $opentok->createSession('127.0.0.1');
-        } catch (OpenTok\OpenTokException $e) {
-            $this->assertEquals('Failed to create session: Invalid response from server', $e->getMessage());
-        }
+        $session = $this->opentok->createSession('127.0.0.1', array( 'p2p.preference' => 'disabled' ) );
 
         // Assert
-        // TODO: assert that a POST request matching the expectations was sent
         $requests = self::$mock->getReceivedRequests();
         $this->assertCount(1, $requests);
+
         $request = $requests[0];
-        echo $request->__toString();
-        //$this->assertInstanceOf('OpenTok\Session', $session);
+        $this->assertEqual('POST', strtoupper($request->getMethod()));
+        $this->assertEqual('/session/create', $request->getPath());
+        $this->assertEqual('api.opentok.com', $request->getHost());
+        $this->assertEqual('https', $request->getScheme());
+
+        $authString = $request->getHeader('X-TB-PARTNER-AUTH');
+        $this->assertNotEmpty($authString);
+        $this->assertEquals($this->API_KEY.':'.$this->API_SECRET, $authString);
+
+        $location = $request->getPostField('location');
+        $this->assertEquals('127.0.0.1', $location);
+
+        $p2p_preference = $request->getPostField('p2p.preference');
+        $this->assertEquals('disabled', $p2p_preference);
+
+        $this->assertInstanceOf('OpenTok\Session', $session);
         // TODO: assert that $session->sessionId matches the format of a sessionId
         // TODO: assert that the length for the $session-sessionId is reasonable
         // TODO: decode the $sessionId and look for the correct parameters (apiKey, apiSecret, etc)
@@ -67,14 +73,13 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @depends testCanBeInitialized
      * @depends testCreatesSession
      */
-    public function testGeneratesToken(OpenTok\OpenTok $opentok, OpenTok\Session $session) {
+    public function testGeneratesToken(OpenTok\Session $session) {
         // Arrange
 
         // Act
-        $token = $opentok->generateToken($session->sessionId);
+        $token = $this->opentok->generateToken($session->sessionId);
 
         // Assert
         $this->assertInternalType('string', $token);
