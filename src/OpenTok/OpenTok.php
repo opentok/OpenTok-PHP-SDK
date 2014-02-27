@@ -30,6 +30,7 @@ use OpenTok\Session;
 use OpenTok\Archive;
 
 use Guzzle\Http\Client;
+use Guzzle\Http\ClientInterface;
 use Guzzle\Http\Exception\ClientErrorResponseException;
 
 define('OPENTOK_SDK_VERSION', '2.0.0-beta');
@@ -53,13 +54,21 @@ class OpenTok {
     private $api_key;
     private $api_secret;
     private $server_url;
-    private $client;
 
-    public function __construct($api_key, $api_secret) {
-        $this->api_key = $api_key;
-        $this->api_secret = $api_secret;
-        $this->client = new Client('https://api.opentok.com');
-        $this->client->setUserAgent(OPENTOK_SDK_USER_AGENT, true);
+    /** @var ClientInterface Guzzle client */
+    private static $client;
+
+    public function __construct($apiKey, $apiSecret, $apiUrl = 'https://api.opentok.com', ClientInterface $client = null) {
+        $this->api_key = $apiKey;
+        $this->api_secret = $apiSecret;
+
+        self::$client = isset($client) ? $client : self::initializeDefaultClient($apiUrl);
+    }
+
+    private static function initializeDefaultClient($apiUrl) {
+        $client = new Client($apiUrl);
+        $client->setUserAgent(OPENTOK_SDK_USER_AGENT, true);
+        return $client;
     }
 
     /** - Generate a token
@@ -270,7 +279,7 @@ class OpenTok {
                 break;
         }
 
-        $request = $this->client->post($url);
+        $request = self::$client->post($url);
         $request->addPostFields($data);
         $request->addHeader($authHeaderName, $authHeaderValue);
         try {
