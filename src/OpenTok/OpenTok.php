@@ -58,15 +58,20 @@ class OpenTok {
     /** @var ClientInterface Guzzle client */
     private static $client;
 
-    public function __construct($apiKey, $apiSecret, $apiUrl = 'https://api.opentok.com', ClientInterface $client = null) {
+    public function __construct($apiKey, $apiSecret, $options = array()) {
+        // unpack optional arguments (merging with default values) into named variables
+        $defaults = array('apiUrl' => 'https://api.opentok.com', 'client' => null);
+        $options = array_merge($defaults, array_intersect_key($options, $defaults));
+        list($apiUrl, $client) = array_values($options);
+
         $this->api_key = $apiKey;
         $this->api_secret = $apiSecret;
 
-        self::$client = isset($client) ? $client : self::initializeDefaultClient($apiUrl);
+        self::$client = self::configureClient(( isset($client) ? $client : new Client()), $apiUrl);
     }
 
-    private static function initializeDefaultClient($apiUrl) {
-        $client = new Client($apiUrl);
+    private static function configureClient(ClientInterface $client, $apiUrl) {
+        $client->setBaseUrl($apiUrl);
         $client->setUserAgent(OPENTOK_SDK_USER_AGENT, true);
         return $client;
     }
