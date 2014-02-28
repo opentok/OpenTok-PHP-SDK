@@ -189,7 +189,7 @@ class OpenTok {
     /**
      * Creates a new session.
      * $location - IP address to geolocate the call around.
-     * $properties - Optional array, keys are defined in SessionPropertyConstants
+     * $properties - Optional array
      */
     public function createSession($location='', $properties=array()) {
         $properties["location"] = $location;
