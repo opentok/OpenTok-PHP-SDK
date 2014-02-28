@@ -96,7 +96,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // the API Key and API Secret used to create the session.
         $this->assertEquals(
             '2_MX4xNzAxMjYzMX4xMjcuMC4wLjF-V2VkIEZlYiAyNiAxODo1NzoyNCBQU1QgMjAxNH4wLjU0MDU4ODc0fg',
-            $session->sessionId
+            $session->getSessionId()
         );
 
         return $session;

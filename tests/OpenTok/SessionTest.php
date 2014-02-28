@@ -7,19 +7,11 @@ class SessionTest extends PHPUnit_Framework_TestCase
 
     protected $session;
     protected $sessionId;
-    protected $properties;
 
     public function setUp()
     {
-        $this->sessionId = '';
-        $this->properties = array();
-        $this->session = new Session($this->sessionId, $this->properties);
-    }
-
-    public function testPropertiesExist()
-    {
-        $this->assertEquals($this->sessionId, $this->session->sessionId);
-        $this->assertEquals($this->properties, $this->session->sessionProperties);
+        $this->sessionId = 'SESSIONID';
+        $this->session = new Session($this->sessionId);
     }
 
     public function testGettingSessionId()

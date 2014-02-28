@@ -217,7 +217,7 @@ class OpenTok {
         }
         $sessionId = $createSessionXML->Session->session_id;
 
-        return new Session($sessionId, null);
+        return new Session($sessionId);
     }
 
     /**
@@ -354,5 +354,7 @@ class OpenTok {
     public function create_session($location='', $properties=array()) {
       return $this->createSession($location, $properties);
     }
-    
+
 }
+
+/* vim: set ts=4 sw=4 tw=100 sts=4 et :*/

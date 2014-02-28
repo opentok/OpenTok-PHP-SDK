@@ -26,27 +26,31 @@
 
 namespace OpenTok;
 
-class Session {
+class Session
+{
+    protected $sessionId;
 
-    public $sessionId;
-
-    public $sessionProperties;
-
-    function __construct($sessionId, $properties) {
-        $this->sessionId = $sessionId . '';
-        $this->sessionProperties = $properties;
+    function __construct($sessionId)
+    {
+        // TODO: validate args
+        $this->sessionId = $sessionId;
     }
 
-    public function __toString(){
-      return $this->sessionId;
-    }
-
-    public function getSessionId() {
+    function getSessionId()
+    {
         return $this->sessionId;
     }
+
+    public function __toString()
+    {
+        return $this->sessionId;
+    }
+
 }
 
 
 class SessionPropertyConstants {
   const P2P_PREFERENCE = 'p2p.preference';
 }
+
+/* vim: set ts=4 sw=4 tw=100 sts=4 et :*/
