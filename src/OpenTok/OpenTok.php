@@ -47,9 +47,8 @@ class RoleConstants {
 
 class OpenTok {
 
-    private $api_key;
-    private $api_secret;
-    private $server_url;
+    private $apiKey;
+    private $apiSecret;
 
     /** @var ClientInterface Guzzle client */
     private static $client;
@@ -83,8 +82,8 @@ class OpenTok {
             );
         }
 
-        $this->api_key = $apiKey;
-        $this->api_secret = $apiSecret;
+        $this->apiKey = $apiKey;
+        $this->apiSecret = $apiSecret;
 
         self::$client = self::configureClient(( isset($client) ? $client : new Client()), $apiUrl);
     }
@@ -133,11 +132,11 @@ class OpenTok {
             );
         }else{
             $arr=explode("~",$decoded_session_id);
-            if($arr[1]!=$this->api_key){
+            if($arr[1]!=$this->apiKey){
                 throw new InvalidArgumentException(
                     'The apiKey for the given sessionId does not match this instance: { '.
                         'sessionId: "'.$session_id.'", '.
-                        'apiKey: "'.$this->api_key.'" '.
+                        'apiKey: "'.$this->apiKey.'" '.
                     '}',
                     606
                 );
@@ -181,10 +180,10 @@ class OpenTok {
             $data_string .= "&connection_data=" . urlencode($connection_data);
         }
 
-        $sig = $this->_sign_string($data_string, $this->api_secret);
-        $api_key = $this->api_key;
+        $sig = $this->_sign_string($data_string, $this->apiSecret);
+        $apiKey = $this->apiKey;
 
-        return "T1==" . base64_encode("partner_id=$api_key&sig=$sig:$data_string");
+        return "T1==" . base64_encode("partner_id=$apiKey&sig=$sig:$data_string");
     }
 
     /**
@@ -194,7 +193,7 @@ class OpenTok {
      */
     public function createSession($location='', $properties=array()) {
         $properties["location"] = $location;
-        $properties["api_key"] = $this->api_key;
+        $properties["api_key"] = $this->apiKey;
 
         $createSessionResult = $this->_do_request("/session/create", $properties);
         $createSessionXML = @simplexml_load_string($createSessionResult, 'SimpleXMLElement', LIBXML_NOCDATA);
@@ -239,7 +238,7 @@ class OpenTok {
      * @return OpenTokArchive The OpenTokArchive object, which includes properties defining the archive, including the archive ID.
      */
     public function startArchive($session_id, $name=null) {
-        $ar = new OpenTokArchivingInterface($this->api_key, $this->api_secret, $this->server_url);
+        $ar = new OpenTokArchivingInterface($this->apiKey, $this->apiSecret, $this->server_url);
         return $ar->startArchive($session_id, $name);
     }
 
@@ -253,7 +252,7 @@ class OpenTok {
      * @return The OpenTokArchive object corresponding to the archive being stopped.
      */
     public function stopArchive($archive_id) {
-        $ar = new OpenTokArchivingInterface($this->api_key, $this->api_secret, $this->server_url);
+        $ar = new OpenTokArchivingInterface($this->apiKey, $this->apiSecret, $this->server_url);
         $archive = $ar->stopArchive($archive_id);
         return new Archive($archive, $ar);
     }
@@ -269,7 +268,7 @@ class OpenTok {
      * @return OpenTokArchive The OpenTokArchive object.
      */
     public function getArchive($archive_id) {
-        $ar = new OpenTokArchivingInterface($this->api_key, $this->api_secret, $this->server_url);
+        $ar = new OpenTokArchivingInterface($this->apiKey, $this->apiSecret, $this->server_url);
         return $ar->getArchive($archive_id);
     }
 
@@ -289,7 +288,7 @@ class OpenTok {
      * or "deleted".
      */
     public function deleteArchive($archive_id) {
-        $ar = new OpenTokArchivingInterface($this->api_key, $this->api_secret, $this->server_url);
+        $ar = new OpenTokArchivingInterface($this->apiKey, $this->apiSecret, $this->server_url);
         return $ar->deleteArchive($archive_id);
     }
 
@@ -306,7 +305,7 @@ class OpenTok {
      * to return an array of Archive objects.
      */
     public function listArchives($offset=0, $count=null) {
-        $ar = new OpenTokArchivingInterface($this->api_key, $this->api_secret, $this->server_url);
+        $ar = new OpenTokArchivingInterface($this->apiKey, $this->apiSecret, $this->server_url);
         return $ar->listArchives($offset, $count);
     }
 
@@ -330,7 +329,7 @@ class OpenTok {
             case 'partner':
             default:
                 $authHeaderName = 'X-TB-PARTNER-AUTH';
-                $authHeaderValue = $this->api_key . ':' . $this->api_secret;
+                $authHeaderValue = $this->apiKey . ':' . $this->apiSecret;
                 break;
         }
 
@@ -341,6 +340,7 @@ class OpenTok {
             $response = $request->send();
             return $response->getBody();
         } catch (ClientErrorResponseException $e) {
+            // TODO: test coverage
             echo 'Uh oh! ' . $e->getMessage();
             echo 'HTTP request URL: ' . $e->getRequest()->getUrl() . "\n";
             echo 'HTTP request: ' . $e->getRequest() . "\n";
