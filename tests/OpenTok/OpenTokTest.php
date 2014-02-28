@@ -5,6 +5,7 @@ use Guzzle\Http\Client;
 
 use OpenTok\OpenTok;
 use OpenTok\Session;
+use OpenTok\Role;
 
 use OpenTok\TestHelpers;
 
@@ -128,6 +129,41 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
 
         $this->assertNotEmpty($decodedToken['sig']);
         $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
+    }
+
+    public function testGeneratesTokenWithRole() {
+        // Arrange
+        // This sessionId is a fixture designed by using a known but bogus apiKey and apiSecret
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $bogusApiKey = '12345678';
+        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+
+        // Act
+        $token = $opentok->generateToken($sessionId, Role::MODERATOR);
+
+        // Assert
+        $this->assertInternalType('string', $token);
+
+        $decodedToken = TestHelpers::decodeToken($token);
+        $this->assertEquals($sessionId, $decodedToken['session_id']);
+        $this->assertEquals($bogusApiKey, $decodedToken['partner_id']);
+        $this->assertNotEmpty($decodedToken['nonce']);
+        $this->assertNotEmpty($decodedToken['create_time']);
+        $this->assertEquals('moderator', $decodedToken['role']);
+        // TODO: should all tokens have a default expire time even if it wasn't specified?
+        //$this->assertNotEmpty($decodedToken['expire_time']);
+
+        $this->assertNotEmpty($decodedToken['sig']);
+        $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testFailsWhenGeneratingTokenUsingInvalidRole()
+    {
+        $token = $this->opentok->generateToken('SESSIONID', 'notarole');
     }
 }
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/

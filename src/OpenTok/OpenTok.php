@@ -28,6 +28,7 @@ namespace OpenTok;
 
 use OpenTok\Session;
 use OpenTok\Archive;
+use OpenTok\Role;
 use OpenTok\Exception\InvalidArgumentException;
 use OpenTok\Exception\UnexpectedResponseException;
 
@@ -144,9 +145,8 @@ class OpenTok {
         }
 
         if(!$role) {
-            $role = RoleConstants::PUBLISHER;
-        } else if (!in_array($role, array(RoleConstants::SUBSCRIBER,
-                RoleConstants::PUBLISHER, RoleConstants::MODERATOR))) {
+            $role = Role::PUBLISHER;
+        } else if (!Role::isValidValue($role)) {
             throw new InvalidArgumentException('Unknown role: '.$role, 607);
         }
 
