@@ -10,15 +10,15 @@ use OpenTok\Exception\ArchivingException;
 * For internal use by the OpenTok SDK.
 */
 class OpenTokArchivingRequestOptions {
-  
+
   private $value;
   private $mode;
-  
+
   function __construct($mode, $value) {
     $this->mode = $mode;
     $this->value = $value;
   }
-  
+
   function dataString() {
     if($this->mode == 'json') {
       return json_encode($this->value);
@@ -26,7 +26,7 @@ class OpenTokArchivingRequestOptions {
       return $this->value;
     }
   }
-  
+
   function contentType() {
     if($this->mode == 'json') {
       return "application/json";
@@ -34,7 +34,7 @@ class OpenTokArchivingRequestOptions {
       return "application/x-www-form-urlencoded";
     }
   }
-  
+
 }
 
 /**
@@ -112,7 +112,7 @@ class OpenTokArchivingInterface {
         $response = (object)array(
             "status" => $status
         );
-  
+
         if(isset($headers["content-type"]) && strtolower($headers["content-type"]) == "application/json") {
             $response->body = json_decode($body);
         } else {
@@ -121,7 +121,7 @@ class OpenTokArchivingInterface {
 
         return $response;
     }
-    
+
     protected function file_request($headers, $method, $url, $opts) {
         $http = array(
             'method' => $method,
@@ -143,11 +143,11 @@ class OpenTokArchivingInterface {
         $status = $statusarr[1];
 
         $headers = $this->http_parse_headers(implode("\r\n", $http_response_header));
-  
+
         $response = (object)array(
             "status" => $status
         );
-  
+
         if(isset($headers["content-type"]) && strtolower($headers["content-type"]) == "application/json") {
             $response->body = json_decode($res);
         } else {
@@ -163,11 +163,11 @@ class OpenTokArchivingInterface {
         if(($method == 'PUT' || $method == 'POST') && $opts) {
             $bodyFormat = $opts->contentType();
         }
-    
+
         $authString = "X-TB-PARTNER-AUTH: $this->apiKey:$this->apiSecret";
 
         $headers = array($authString);
-  
+
         if($method == "POST" || $method == "PUT") {
             $headers[1] = "Content-type: " . $opts->contentType();
             $headers[2] = "Content-Length: " . strlen($opts->dataString());
@@ -180,7 +180,7 @@ class OpenTokArchivingInterface {
         } else {
             throw new OpenTokArchivingRequestException("Your PHP installion doesn't support curl or file_get_contents. Please enable one of these so that you can make API calls.");
         }
-        
+
         return $response;
     }
 
@@ -344,12 +344,12 @@ class OpenTokArchivingInterface {
 * Represents an archive of an OpenTok session.
 */
 class Archive implements JsonSerializable {
-	/** @internal */
+    /** @internal */
     private $source;
-	/** @internal */
+    /** @internal */
     private $api;
 
-	/** @internal */
+    /** @internal */
     public function __construct($source, $api) {
         $this->source = $source;
         $this->api = $api;
@@ -524,4 +524,3 @@ class OpenTokArchiveList implements JsonSerializable {
 
 }
 
-?>
