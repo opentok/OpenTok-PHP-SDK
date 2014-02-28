@@ -28,6 +28,8 @@ namespace OpenTok;
 
 use OpenTok\Session;
 use OpenTok\Archive;
+use OpenTok\Exception\InvalidArgumentException;
+use OpenTok\Exception\UnexpectedResponseException;
 
 use Guzzle\Http\Client;
 use Guzzle\Http\ClientInterface;
@@ -36,13 +38,6 @@ use Guzzle\Http\Exception\ClientErrorResponseException;
 // TODO: build this dynamically
 define('OPENTOK_SDK_VERSION', '2.0.0-beta');
 define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
-
-//Generic OpenTok exception. Read the message to get more details
-class OpenTokException extends \Exception { };
-//OpenTok exception related to authentication. Most likely an issue with your API key or secret
-class AuthException extends OpenTokException { };
-//OpenTok exception related to the HTTP request. Most likely due to a server error. (HTTP 500 error)
-class RequestException extends OpenTokException { };
 
 class RoleConstants {
     const SUBSCRIBER = "subscriber"; //Can only subscribe
@@ -64,6 +59,29 @@ class OpenTok {
         $defaults = array('apiUrl' => 'https://api.opentok.com', 'client' => null);
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
         list($apiUrl, $client) = array_values($options);
+
+        // validate arguments
+        if (!(is_string($apiKey) || is_int($apiKey))) {
+            throw new InvalidArgumentException(
+                'The apiKey was not a string nor an integer: '.$apiKey,
+                600
+            );
+        }
+        if (!(is_string($apiSecret))) {
+            throw new InvalidArgumentException('The apiSecret was not a string: '.$apiSecret, 601);
+        }
+        if (!(is_string($apiUrl))) {
+            throw new InvalidArgumentException(
+                'The optional apiUrl was not a string: '.$apiUrl,
+                602
+            );
+        }
+        if (isset($client) && !($client instanceof ClientInterface)) {
+            throw new InvalidArgumentException(
+                'The optional client was not an instance of Guzzle\Http\ClientInterface: '.$client,
+                603
+            );
+        }
 
         $this->api_key = $apiKey;
         $this->api_secret = $apiSecret;
@@ -90,7 +108,10 @@ class OpenTok {
         $nonce = microtime(true) . mt_rand();
 
         if(is_null($session_id) || strlen($session_id) == 0){
-            throw new OpenTokException("Null or empty session ID are not valid");
+            throw new InvalidArgumentException(
+                'Null or empty session ID are not valid: '.$session_id,
+                604
+            );
         }
 
         // TODO: write tests for this decoding, fix errors;
@@ -106,11 +127,20 @@ class OpenTok {
             }
         }
         if (strpos($decoded_session_id, "~")===false){
-            throw new OpenTokException("An invalid session ID was passed");
+            throw new InvalidArgumentException(
+                'An invalid session ID was passed: '.$session_id,
+                605
+            );
         }else{
             $arr=explode("~",$decoded_session_id);
             if($arr[1]!=$this->api_key){
-                throw new OpenTokException("An invalid session ID was passed");
+                throw new InvalidArgumentException(
+                    'The apiKey for the given sessionId does not match this instance: { '.
+                        'sessionId: "'.$session_id.'", '.
+                        'apiKey: "'.$this->api_key.'" '.
+                    '}',
+                    606
+                );
             }
         }
 
@@ -118,22 +148,36 @@ class OpenTok {
             $role = RoleConstants::PUBLISHER;
         } else if (!in_array($role, array(RoleConstants::SUBSCRIBER,
                 RoleConstants::PUBLISHER, RoleConstants::MODERATOR))) {
-            throw new OpenTokException("unknown role $role");
+            throw new InvalidArgumentException('Unknown role: '.$role, 607);
         }
 
         $data_string = "session_id=$session_id&create_time=$create_time&role=$role&nonce=$nonce";
         if(!is_null($expire_time)) {
             if(!is_numeric($expire_time))
-                throw new OpenTokException("Expire time must be a number");
+                throw new InvalidArgumentException(
+                    'Expire time must be a number: '.$expire_time,
+                    608
+                );
             if($expire_time < $create_time)
-                throw new OpenTokException("Expire time must be in the future");
-            if($expire_time > $create_time + 2592000)
-                throw new OpenTokException("Expire time must be in the next 30 days");
+                throw new InvalidArgumentException(
+                    'Expire time must be in the future: '.$expire_time.'<'.$create_time,
+                    609
+                );
+            $in30Days = $create_time + 2592000;
+            if($expire_time > $in30Days)
+                throw new InvalidArgumentException(
+                    'Expire time must be in the next 30 days: '.$expire_time.'>'.$in30Days,
+                    610
+                );
             $data_string .= "&expire_time=$expire_time";
         }
         if($connection_data != '') {
-            if(strlen($connection_data) > 1000)
-                throw new OpenTokException("Connection data must be less than 1000 characters");
+            $connDataLength = strlen($connection_data);
+            if($connDataLength > 1000)
+                throw new InvalidArgumentException(
+                    'Connection data must be less than 1000 characters. Length: '.$connDataLength,
+                    611
+                );
             $data_string .= "&connection_data=" . urlencode($connection_data);
         }
 
@@ -155,22 +199,21 @@ class OpenTok {
         $createSessionResult = $this->_do_request("/session/create", $properties);
         $createSessionXML = @simplexml_load_string($createSessionResult, 'SimpleXMLElement', LIBXML_NOCDATA);
         if(!$createSessionXML) {
-            throw new OpenTokException("Failed to create session: Invalid response from server");
+            throw new UnexpectedResponseException(
+                'Failed to create session: response was not valid XML',
+                501,
+                $createSessionResult
+            );
         }
 
-        $errors = $createSessionXML->xpath("//error");
-        if($errors) {
-            $errMsg = $errors[0]->xpath("//@message");
-            if($errMsg) {
-                $errMsg = (string)$errMsg[0]['message'];
-            } else {
-                $errMsg = "Unknown error";
-            }
-            throw new AuthException("Error " . $createSessionXML->error['code'] ." ". $createSessionXML->error->children()->getName() . ": " . $errMsg );
-        }
+        // TODO: check for 403 for invalid api credentials
+
         if(!isset($createSessionXML->Session->session_id)) {
-            echo"<pre>";print_r($createSessionXML);echo"</pre>";
-            throw new OpenTokException("Failed to create session.");
+            throw new UnexpectedResponseException(
+                'Failed to create session: XML did not contain a session_id',
+                502,
+                $createSessionXML
+            );
         }
         $sessionId = $createSessionXML->Session->session_id;
 

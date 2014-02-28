@@ -2,33 +2,9 @@
 
 namespace OpenTok;
 
-/**
-* The OpenTokArgumentException class defines an exception thrown when you pass invalid arguments to
-* a method.
-*/
-class OpenTokArgumentException extends Exception {};
-
-/**
-* The OpenTokAuthException class defines an exception thrown when you use an invalid
-* OpenTok API key or API secret.
-*/
-class OpenTokAuthException extends Exception {
-
-    public function __construct() {
-        parent::__construct("Invalid API key or secret", 403, null);
-    }
-
-};
-/**
-* The OpenTokArchiveException class defines an exception thrown when a call to an archiving
-* method fails.
-*/
-class OpenTokArchiveException extends Exception {};
-/**
-* The OpenTokArchiveException class defines an exception thrown when a call to an archiving
-* method fails.
-*/
-class OpenTokRequestException extends Exception {};
+use OpenTok\Exception\InvalidArgumentException;
+use OpenTok\Exception\AuthException;
+use OpenTok\Exception\ArchivingException;
 
 /**
 * For internal use by the OpenTok SDK.
@@ -211,7 +187,7 @@ class OpenTokArchivingInterface {
     public function startArchive($session_id, $name) {
 
         if(is_null($session_id) || $session_id == "") {
-            throw new OpenTokArgumentException("Session ID is invalid");
+            throw new InvalidArgumentException('Session ID is invalid: '.$session_id, 612);
         }
 
         $startArchive = array(
@@ -225,24 +201,25 @@ class OpenTokArchivingInterface {
             $archive = new Archive($result->body, $this);
             return $archive;
         } else if($result->status == 403) {
-            throw new OpenTokAuthException();
+            // TODO: pass in the credentials that failed
+            throw new AuthException('The operation was not authorizied', 403);
         } else if($result->status == 400) {
-            throw new OpenTokArchiveException("Session ID is invalid");
+            throw new ArchiveException("Session ID is invalid");
         } else if($result->status == 404) {
-            throw new OpenTokArchiveException("Session not found");
+            throw new ArchiveException("Session not found");
         } else if($result->status == 409) {
-            throw new OpenTokArchiveException($result->body["message"]);
+            throw new ArchiveException($result->body["message"]);
         } else if(!is_null($result->body)) {
-            throw new OpenTokArchiveException($result->body["message"], $result->status);
+            throw new ArchiveException($result->body["message"], $result->status);
         } else {
-            throw new OpenTokArchiveException("An unexpected error occurred", $result->status);
+            throw new ArchiveException("An unexpected error occurred", $result->status);
         }
     }
 
     public function getArchive($archive_id) {
 
         if(is_null($archive_id) || $archive_id == "") {
-            throw new OpenTokArgumentException("Archive ID is invalid");
+            throw new InvalidArgumentException('Archive ID is invalid: '.$archive_id, 613);
         }
 
         $result = $this->request("GET", "/archive/" . $archive_id);
@@ -252,16 +229,17 @@ class OpenTokArchivingInterface {
             return $archive;
 
         } else if($result->status == 403) {
-            throw new OpenTokAuthException();
+            // TODO: pass in the credentials that failed
+            throw new AuthException('The operation was not authorized.', 403);
 
         } else if($result->status == 404) {
-            throw new OpenTokArchiveException("Archive not found");
+            throw new ArchiveException("Archive not found");
 
         } else if(!is_null($result->body)) {
-            throw new OpenTokArchiveException($result->body["message"], $result->status);
+            throw new ArchiveException($result->body["message"], $result->status);
 
         } else {
-            throw new OpenTokArchiveException("An unexpected error occurred", $result->status);
+            throw new ArchiveException("An unexpected error occurred", $result->status);
         }
 
     }
@@ -269,14 +247,17 @@ class OpenTokArchivingInterface {
     public function listArchives($offset, $count) {
 
         if(!(is_numeric($offset))) {
-            throw new OpenTokArgumentException("Offset must (if present) be numeric");
+            throw new InvalidArgumentException(
+                "Offset must (if present) be numeric: ".$offset,
+                614
+            );
         }
 
         $args = "offset=" . ($offset ? $offset : 0);
 
         if(!is_null($count)) {
             if(!(is_numeric($count) && $count > 0 && $count < 1000)) {
-                throw new OpenTokArgumentException("Count is invalid");
+                throw new InvalidArgumentException('Count is invalid'.$count, 615);
             }
             $args = $args . "&count=" . $count;
         }
@@ -288,13 +269,13 @@ class OpenTokArchivingInterface {
             return $archive;
 
         } else if($result->status == 403) {
-            throw new OpenTokAuthException();
- 
+            // TODO: pass in the credentials that failed
+            throw new AuthException('The operation was not authorized.', 403);
         } else if(!is_null($result->body)) {
-            throw new OpenTokArchiveException($result->body["message"], $result->status);
+            throw new ArchiveException($result->body["message"], $result->status);
 
         } else {
-            throw new OpenTokArchiveException("An unexpected error occurred", $result->status);
+            throw new ArchiveException("An unexpected error occurred", $result->status);
         }
 
     }
@@ -302,7 +283,7 @@ class OpenTokArchivingInterface {
     public function stopArchive($archive_id) {
 
         if(is_null($archive_id) || $archive_id == "") {
-            throw new OpenTokArgumentException("Archive ID is invalid");
+            throw new InvalidArgumentException('Archive ID is invalid: '.$archive_id, 616);
         }
 
         $stopArchive = array(
@@ -315,19 +296,19 @@ class OpenTokArchivingInterface {
             return $result->body;
 
         } else if($result->status == 403) {
-            throw new OpenTokAuthException();
-
+            // TODO: pass in the credentials that failed
+            throw new AuthException('The operation was not authorized.', 403);
         } else if($result->status == 404) {
-            throw new OpenTokArchiveException("Archive not found");
+            throw new ArchiveException("Archive not found");
 
         } else if($result->status == 409) {
-            throw new OpenTokArchiveException("Archive is not in started state");
+            throw new ArchiveException("Archive is not in started state");
 
         } else if(!is_null($result->body)) {
-            throw new OpenTokArchiveException($result->body["message"], $result->status);
+            throw new ArchiveException($result->body["message"], $result->status);
 
         } else {
-            throw new OpenTokArchiveException("An unexpected error occurred", $result->status);
+            throw new ArchiveException("An unexpected error occurred", $result->status);
         }
 
     }
@@ -335,7 +316,7 @@ class OpenTokArchivingInterface {
     public function deleteArchive($archive_id) {
 
         if(is_null($archive_id) || $archive_id == "") {
-            throw new OpenTokArgumentException("Archive ID is invalid");
+            throw new InvalidArgumentException('Archive ID is invalid: '.$archive_id, 617);
         }
 
         $result = $this->request("DELETE", "/archive/" . $archive_id);
@@ -344,16 +325,16 @@ class OpenTokArchivingInterface {
             return true;
 
         } else if($result->status == 403) {
-            throw new OpenTokAuthException();
-
+            // TODO: pass in the credentials that failed
+            throw new AuthException('The operation was not authorized.', 403);
         } else if($result->status == 404) {
-            throw new OpenTokArchiveException("Archive not found");
+            throw new ArchiveException("Archive not found");
 
         } else if(!is_null($result->body)) {
-            throw new OpenTokArchiveException($result->body["message"], $result->status);
+            throw new ArchiveException($result->body["message"], $result->status);
 
         } else {
-            throw new OpenTokArchiveException("An unexpected error occurred", $result->status);
+            throw new ArchiveException("An unexpected error occurred", $result->status);
         }
 
     }
@@ -458,7 +439,7 @@ class Archive implements JsonSerializable {
      * Archives automatically stop recording after 90 minutes or when all clients have disconnected from the
      * session being archived.
      *
-     * @throws OpenTokArchiveException The archive is not being recorded.
+     * @throws ArchiveException The archive is not being recorded.
      */
     public function stop() {
         $this->source = $this->api->stopArchive($this->source->id);
@@ -475,7 +456,7 @@ class Archive implements JsonSerializable {
      *
      * @param String $archive_id The archive ID of the archive you want to delete.
      *
-     * @throws OpenTokArchiveException There archive status is not "available", "updated",
+     * @throws ArchiveException There archive status is not "available", "updated",
      * or "deleted".
      */
     public function delete() {
