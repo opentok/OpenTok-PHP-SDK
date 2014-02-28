@@ -217,7 +217,12 @@ class OpenTok {
         }
         $sessionId = $createSessionXML->Session->session_id;
 
-        return new Session($sessionId);
+        $p2p = ($properties['p2p.preference'] == 'enabled');
+
+        return new Session((string)$sessionId, array(
+            'location' => $location, 
+            'p2p' => $p2p
+        ));
     }
 
     /**

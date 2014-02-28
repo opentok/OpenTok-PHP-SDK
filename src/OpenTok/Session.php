@@ -26,19 +26,60 @@
 
 namespace OpenTok;
 
+use OpenTok\Exception\InvalidArgumentException;
+
 class Session
 {
     protected $sessionId;
+    protected $location;
+    protected $p2p;
 
-    function __construct($sessionId)
+    function __construct($sessionId, $properties = array())
     {
-        // TODO: validate args
-        $this->sessionId = $sessionId;
+        // unpack arguments
+        $defaults = array('p2p' => false, 'location' => null);
+        $properties = array_merge($defaults, array_intersect_key($properties, $defaults));
+        list($p2p, $location) = array_values($properties);
+
+        if (is_string($sessionId) && !empty($sessionId)) {
+            $this->sessionId = $sessionId;
+        } else {
+            throw new InvalidArgumentException();
+        }
+
+        if (!empty($location)) { // leaving the location property empty is okay
+            if (is_string($location) && self::isValidLocation($location)) {
+                $this->location = $location;
+            } else {
+                throw new InvalidArgumentException();
+            }
+        }
+
+        if (is_bool($p2p)) {
+            $this->p2p = $p2p;
+        } else {
+            throw new InvalidArgumentException();
+        }
     }
 
-    function getSessionId()
+    public function getSessionId()
     {
         return $this->sessionId;
+    }
+
+    public function getLocation()
+    {
+        return $this->location;
+    }
+
+    public function getP2p()
+    {
+        return $this->p2p;
+    }
+
+    public static function isValidLocation($location)
+    {
+        return (bool)filter_var($location, FILTER_VALIDATE_IP);
     }
 
     public function __toString()
