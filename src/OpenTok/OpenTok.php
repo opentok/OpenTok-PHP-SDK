@@ -40,12 +40,6 @@ use Guzzle\Http\Exception\ClientErrorResponseException;
 define('OPENTOK_SDK_VERSION', '2.0.0-beta');
 define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
 
-class RoleConstants {
-    const SUBSCRIBER = "subscriber"; //Can only subscribe
-    const PUBLISHER = "publisher";   //Can publish, subscribe, and signal
-    const MODERATOR = "moderator";   //Can do the above along with  forceDisconnect and forceUnpublish
-};
-
 class OpenTok {
 
     private $apiKey;
@@ -102,18 +96,62 @@ class OpenTok {
      * $expire_time - Optional timestamp to change when the token expires. See documentation on token for details.
      * $connection_data - Optional string data to pass into the stream. See documentation on token for details.
      */
-    public function generateToken($session_id='', $role='', $expire_time=NULL, $connection_data='') {
-        $create_time = time();
+    public function generateToken($session_id, $options = array()) {
+        // unpack optional arguments (merging with default values) into named variables
+        $defaults = array(
+            'role' => Role::PUBLISHER,
+            'expireTime' => null,
+            'data' => null
+        );
+        $options = array_merge($defaults, array_intersect_key($options, $defaults));
+        list($role, $expireTime, $data) = array_values($options);
 
+        // additional token data
+        $createTime = time();
         $nonce = microtime(true) . mt_rand();
 
-        if(is_null($session_id) || strlen($session_id) == 0){
+        // validate arguments
+        if(!is_string($session_id) || empty($session_id)){
             throw new InvalidArgumentException(
                 'Null or empty session ID are not valid: '.$session_id,
                 604
             );
         }
+        if (!Role::isValidValue($role)) {
+            throw new InvalidArgumentException('Unknown role: '.$role, 607);
+        }
+        if(!is_null($expireTime)) {
+            if(!is_numeric($expireTime)) {
+                throw new InvalidArgumentException(
+                    'Expire time must be a number: '.$expireTime,
+                    608
+                );
+            }
+            if($expireTime < $createTime) {
+                throw new InvalidArgumentException(
+                    'Expire time must be in the future: '.$expire_time.'<'.$create_time,
+                    609
+                );
+            }
+            $in30Days = $createTime + 2592000;
+            if($expireTime > $in30Days) {
+                throw new InvalidArgumentException(
+                    'Expire time must be in the next 30 days: '.$expire_time.'>'.$in30Days,
+                    610
+                );
+            }
+        }
+        if(!empty($data)) {
+            $dataLength = strlen($data);
+            if($dataLength > 1000) {
+                throw new InvalidArgumentException(
+                    'Connection data must be less than 1000 characters. Length: '.$dataLength,
+                    611
+                );
+            }
+        }
 
+        // validate session id
         // TODO: write tests for this decoding, fix errors;
         $sub_session_id = substr($session_id, 2);
         $decoded_session_id="";
@@ -144,46 +182,12 @@ class OpenTok {
             }
         }
 
-        if(!$role) {
-            $role = Role::PUBLISHER;
-        } else if (!Role::isValidValue($role)) {
-            throw new InvalidArgumentException('Unknown role: '.$role, 607);
-        }
+        $dataString = "session_id=$session_id&create_time=$createTime&role=$role&nonce=$nonce" .
+            (($expireTime) ? "&expire_time=$expireTime" : '') .
+            (($data) ? "&connection_data=" . urlencode($data) : '');
+        $sig = $this->_sign_string($dataString, $this->apiSecret);
 
-        $data_string = "session_id=$session_id&create_time=$create_time&role=$role&nonce=$nonce";
-        if(!is_null($expire_time)) {
-            if(!is_numeric($expire_time))
-                throw new InvalidArgumentException(
-                    'Expire time must be a number: '.$expire_time,
-                    608
-                );
-            if($expire_time < $create_time)
-                throw new InvalidArgumentException(
-                    'Expire time must be in the future: '.$expire_time.'<'.$create_time,
-                    609
-                );
-            $in30Days = $create_time + 2592000;
-            if($expire_time > $in30Days)
-                throw new InvalidArgumentException(
-                    'Expire time must be in the next 30 days: '.$expire_time.'>'.$in30Days,
-                    610
-                );
-            $data_string .= "&expire_time=$expire_time";
-        }
-        if($connection_data != '') {
-            $connDataLength = strlen($connection_data);
-            if($connDataLength > 1000)
-                throw new InvalidArgumentException(
-                    'Connection data must be less than 1000 characters. Length: '.$connDataLength,
-                    611
-                );
-            $data_string .= "&connection_data=" . urlencode($connection_data);
-        }
-
-        $sig = $this->_sign_string($data_string, $this->apiSecret);
-        $apiKey = $this->apiKey;
-
-        return "T1==" . base64_encode("partner_id=$apiKey&sig=$sig:$data_string");
+        return "T1==" . base64_encode("partner_id=$this->apiKey&sig=$sig:$dataString");
     }
 
     /**

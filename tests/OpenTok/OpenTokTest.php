@@ -122,6 +122,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($bogusApiKey, $decodedToken['partner_id']);
         $this->assertNotEmpty($decodedToken['nonce']);
         $this->assertNotEmpty($decodedToken['create_time']);
+        $this->assertArrayNotHasKey('connection_data', $decodedToken);
         // TODO: should all tokens have a role of publisher even if this wasn't specified?
         //$this->assertNotEmpty($decodedToken['role']);
         // TODO: should all tokens have a default expire time even if it wasn't specified?
@@ -140,7 +141,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
         // Act
-        $token = $opentok->generateToken($sessionId, Role::MODERATOR);
+        $token = $opentok->generateToken($sessionId, array('role' => Role::MODERATOR));
 
         // Assert
         $this->assertInternalType('string', $token);
@@ -150,6 +151,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($bogusApiKey, $decodedToken['partner_id']);
         $this->assertNotEmpty($decodedToken['nonce']);
         $this->assertNotEmpty($decodedToken['create_time']);
+        $this->assertArrayNotHasKey('connection_data', $decodedToken);
         $this->assertEquals('moderator', $decodedToken['role']);
         // TODO: should all tokens have a default expire time even if it wasn't specified?
         //$this->assertNotEmpty($decodedToken['expire_time']);
@@ -158,12 +160,73 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
     }
 
+    public function testGeneratesTokenWithExpireTime() {
+        // Arrange
+        // This sessionId is a fixture designed by using a known but bogus apiKey and apiSecret
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $bogusApiKey = '12345678';
+        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+
+        // Act
+        // expires in one hour (60 seconds * 60 minutes)
+        $inOneHour = time() + (60 * 60);
+        $token = $opentok->generateToken($sessionId, array('expireTime' => $inOneHour ));
+
+        // Assert
+        $this->assertInternalType('string', $token);
+
+        $decodedToken = TestHelpers::decodeToken($token);
+        $this->assertEquals($sessionId, $decodedToken['session_id']);
+        $this->assertEquals($bogusApiKey, $decodedToken['partner_id']);
+        $this->assertNotEmpty($decodedToken['nonce']);
+        $this->assertNotEmpty($decodedToken['create_time']);
+        $this->assertArrayNotHasKey('connection_data', $decodedToken);
+        $this->assertNotEmpty($decodedToken['role']);
+        $this->assertEquals($inOneHour, $decodedToken['expire_time']);
+
+        $this->assertNotEmpty($decodedToken['sig']);
+        $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
+    }
+
+    public function testGeneratesTokenWithData() {
+        // Arrange
+        // This sessionId is a fixture designed by using a known but bogus apiKey and apiSecret
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $bogusApiKey = '12345678';
+        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+
+        // Act
+        $userStatus = '{nick:"johnny",status:"hey there fellas!"}';
+        $token = $opentok->generateToken($sessionId, array('data' => $userStatus ));
+
+        // Assert
+        $this->assertInternalType('string', $token);
+
+        $decodedToken = TestHelpers::decodeToken($token);
+        $this->assertEquals($sessionId, $decodedToken['session_id']);
+        $this->assertEquals($bogusApiKey, $decodedToken['partner_id']);
+        $this->assertNotEmpty($decodedToken['nonce']);
+        $this->assertNotEmpty($decodedToken['create_time']);
+        $this->assertEquals($userStatus, $decodedToken['connection_data']);
+        $this->assertNotEmpty($decodedToken['role']);
+        // TODO: should all tokens have a default expire time even if it wasn't specified?
+        //$this->assertNotEmpty($decodedToken['expire_time']);
+
+        $this->assertNotEmpty($decodedToken['sig']);
+        $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
+    }
+
+    // TODO: write tests for passing invalid $expireTime and $data to generateToken
+    // TODO: write tests for passing extraneous properties to generateToken
+
     /**
      * @expectedException InvalidArgumentException
      */
     public function testFailsWhenGeneratingTokenUsingInvalidRole()
     {
-        $token = $this->opentok->generateToken('SESSIONID', 'notarole');
+        $token = $this->opentok->generateToken('SESSIONID', array('role' => 'notarole'));
     }
 }
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/
