@@ -1,9 +1,23 @@
 <?php
 
+use OpenTok\OpenTok;
 use OpenTok\Session;
+
+use OpenTok\TestHelpers;
 
 class SessionTest extends PHPUnit_Framework_TestCase
 {
+
+    protected $API_KEY;
+    protected $API_SECRET;
+    protected $opentok;
+
+    public function setUp()
+    {
+        $this->API_KEY = (null !== API_KEY) ? API_KEY : '12345678';
+        $this->API_SECRET = (null !== API_SECRET) ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
+        $this->opentok = new OpenTok($this->API_KEY, $this->API_SECRET);
+    }
 
     public function testIsValidLocation()
     {
@@ -14,7 +28,7 @@ class SessionTest extends PHPUnit_Framework_TestCase
     public function testSessionWithId()
     {
         $sessionId = 'SESSIONID';
-        $session = new Session($sessionId);
+        $session = new Session($this->opentok, $sessionId);
         $this->assertEquals($sessionId, $session->getSessionId());
         $this->assertEquals(false, $session->getP2p());
         $this->assertEmpty($session->getLocation());
@@ -24,7 +38,7 @@ class SessionTest extends PHPUnit_Framework_TestCase
     {
         $sessionId = 'SESSIONID';
         $location = '12.34.56.78';
-        $session = new Session($sessionId, array( 'location' => $location ));
+        $session = new Session($this->opentok, $sessionId, array( 'location' => $location ));
         $this->assertEquals($sessionId, $session->getSessionId());
         $this->assertEquals(false, $session->getP2p());
         $this->assertEquals($location, $session->getLocation());
@@ -34,13 +48,13 @@ class SessionTest extends PHPUnit_Framework_TestCase
     {
         $sessionId = 'SESSIONID';
         $p2p = true;
-        $session = new Session($sessionId, array( 'p2p' => $p2p ));
+        $session = new Session($this->opentok, $sessionId, array( 'p2p' => $p2p ));
         $this->assertEquals($sessionId, $session->getSessionId());
         $this->assertEquals($p2p, $session->getP2p());
         $this->assertEmpty($session->getLocation());
 
         $p2p = false;
-        $session = new Session($sessionId, array( 'p2p' => $p2p ));
+        $session = new Session($this->opentok, $sessionId, array( 'p2p' => $p2p ));
         $this->assertEquals($sessionId, $session->getSessionId());
         $this->assertEquals($p2p, $session->getP2p());
         $this->assertEmpty($session->getLocation());
@@ -51,13 +65,13 @@ class SessionTest extends PHPUnit_Framework_TestCase
         $sessionId = 'SESSIONID';
         $location = '12.34.56.78';
         $p2p = true;
-        $session = new Session($sessionId, array( 'location' => $location, 'p2p' => $p2p ));
+        $session = new Session($this->opentok, $sessionId, array( 'location' => $location, 'p2p' => $p2p ));
         $this->assertEquals($sessionId, $session->getSessionId());
         $this->assertEquals($p2p, $session->getP2p());
         $this->assertEquals($location, $session->getLocation());
 
         $p2p = false;
-        $session = new Session($sessionId, array( 'location' => $location, 'p2p' => $p2p ));
+        $session = new Session($this->opentok, $sessionId, array( 'location' => $location, 'p2p' => $p2p ));
         $this->assertEquals($sessionId, $session->getSessionId());
         $this->assertEquals($p2p, $session->getP2p());
         $this->assertEquals($location, $session->getLocation());
@@ -69,9 +83,9 @@ class SessionTest extends PHPUnit_Framework_TestCase
     public function testInitializationWithBadParams($sessionId, $props)
     {
         if (!$props || empty($props)) {
-            $session = new Session($sessionId);
+            $session = new Session($this->opentok, $sessionId);
         } else {
-            $session = new Session($sessionId, $props);
+            $session = new Session($this->opentok, $sessionId, $props);
         }
     }
 
@@ -89,7 +103,7 @@ class SessionTest extends PHPUnit_Framework_TestCase
     public function testInitializationWithExtraneousParams()
     {
         $sessionId = 'SESSIONID';
-        $session = new Session($sessionId, array( 'notrealproperty' => 'notrealvalue' ));
+        $session = new Session($this->opentok, $sessionId, array( 'notrealproperty' => 'notrealvalue' ));
         $this->assertEquals($sessionId, $session->getSessionId());
         $this->assertEmpty($session->getLocation());
         $this->assertEmpty($session->getP2p());
@@ -98,7 +112,33 @@ class SessionTest extends PHPUnit_Framework_TestCase
     public function testCastingToString()
     {
         $sessionId = 'SESSIONID';
-        $session = new Session($sessionId);
+        $session = new Session($this->opentok, $sessionId);
         $this->assertEquals($sessionId, (string)$session);
+    }
+
+    public function testGeneratesToken()
+    {
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $bogusApiKey = '12345678';
+        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+        $session = new Session($opentok, $sessionId);
+
+        $token = $session->generateToken();
+
+        $this->assertInternalType('string', $token);
+        $decodedToken = TestHelpers::decodeToken($token);
+        $this->assertEquals($sessionId, $decodedToken['session_id']);
+        $this->assertEquals($bogusApiKey, $decodedToken['partner_id']);
+        $this->assertNotEmpty($decodedToken['nonce']);
+        $this->assertNotEmpty($decodedToken['create_time']);
+        $this->assertArrayNotHasKey('connection_data', $decodedToken);
+        // TODO: should all tokens have a role of publisher even if this wasn't specified?
+        //$this->assertNotEmpty($decodedToken['role']);
+        // TODO: should all tokens have a default expire time even if it wasn't specified?
+        //$this->assertNotEmpty($decodedToken['expire_time']);
+
+        $this->assertNotEmpty($decodedToken['sig']);
+        $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
     }
 }

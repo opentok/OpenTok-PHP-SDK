@@ -26,6 +26,7 @@
 
 namespace OpenTok;
 
+use OpenTok\OpenTok;
 use OpenTok\Exception\InvalidArgumentException;
 
 class Session
@@ -33,13 +34,20 @@ class Session
     protected $sessionId;
     protected $location;
     protected $p2p;
+    protected $opentok;
 
-    function __construct($sessionId, $properties = array())
+    function __construct($opentok, $sessionId, $properties = array())
     {
         // unpack arguments
         $defaults = array('p2p' => false, 'location' => null);
         $properties = array_merge($defaults, array_intersect_key($properties, $defaults));
         list($p2p, $location) = array_values($properties);
+
+        if ($opentok instanceof OpenTok) {
+            $this->opentok = $opentok;
+        } else {
+            throw new InvalidArgumentException();
+        }
 
         if (is_string($sessionId) && !empty($sessionId)) {
             $this->sessionId = $sessionId;
@@ -85,6 +93,11 @@ class Session
     public function __toString()
     {
         return $this->sessionId;
+    }
+
+    public function generateToken($options = array())
+    {
+        return $this->opentok->generateToken($this->sessionId, $options);
     }
 
 }

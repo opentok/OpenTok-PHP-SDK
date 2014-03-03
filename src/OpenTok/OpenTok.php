@@ -256,7 +256,7 @@ class OpenTok {
             );
         }
 
-        return new Session((string)$sessionId, array(
+        return new Session($this, (string)$sessionId, array(
             'location' => $location, 
             'p2p' => $p2p
         ));
