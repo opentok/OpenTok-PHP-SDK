@@ -63,8 +63,9 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->client->addSubscriber($mock);
 
         // Act
-        $session = $this->opentok->createSession('127.0.0.1', array(
-            'p2p.preference' => 'disabled'
+        $session = $this->opentok->createSession(array(
+            'location' => '12.34.56.78',
+            'p2p' => false
         ));
 
         // Assert
@@ -87,7 +88,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertStringStartsWith('OpenTok-PHP-SDK/2.0.0-beta', $userAgent->__toString());
 
         $location = $request->getPostField('location');
-        $this->assertEquals('127.0.0.1', $location);
+        $this->assertEquals('12.34.56.78', $location);
 
         $p2p_preference = $request->getPostField('p2p.preference');
         $this->assertEquals('disabled', $p2p_preference);

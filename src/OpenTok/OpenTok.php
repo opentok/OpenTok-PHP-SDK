@@ -35,6 +35,7 @@ use OpenTok\Exception\UnexpectedResponseException;
 use Guzzle\Http\Client;
 use Guzzle\Http\ClientInterface;
 use Guzzle\Http\Exception\ClientErrorResponseException;
+use Guzzle\Http\Exception\ServerErrorResponseException;
 
 // TODO: build this dynamically
 define('OPENTOK_SDK_VERSION', '2.0.0-beta');
@@ -190,37 +191,70 @@ class OpenTok {
         return "T1==" . base64_encode("partner_id=$this->apiKey&sig=$sig:$dataString");
     }
 
+    private function postFieldsForOptions($options) {
+        if (!isset($options['p2p'])) {
+            unset($options['p2p']);
+        } else {
+            $options['p2p.preference'] = $options['p2p'] ? 'enabled' : 'disabled';
+        }
+        if (empty($options['location'])) {
+            unset($options['location']);
+        }
+        $options['api_key'] = $this->apiKey;
+        return $options;
+    }
+
     /**
      * Creates a new session.
      * $location - IP address to geolocate the call around.
      * $properties - Optional array
      */
-    public function createSession($location='', $properties=array()) {
-        $properties["location"] = $location;
-        $properties["api_key"] = $this->apiKey;
+    public function createSession($options=array()) {
+        // unpack optional arguments (merging with default values) into named variables
+        $defaults = array('p2p' => null, 'location' => null);
+        $options = array_merge($defaults, array_intersect_key($options, $defaults));
+        list($p2p, $location) = array_values($options);
 
-        $createSessionResult = $this->_do_request("/session/create", $properties);
-        $createSessionXML = @simplexml_load_string($createSessionResult, 'SimpleXMLElement', LIBXML_NOCDATA);
-        if(!$createSessionXML) {
-            throw new UnexpectedResponseException(
-                'Failed to create session: response was not valid XML',
-                501,
-                $createSessionResult
-            );
+        $request = self::$client->post('/session/create');
+        $request->addPostFields($this->postFieldsForOptions($options));
+        $request->addHeader('X-TB-PARTNER-AUTH', $this->apiKey.':'.$this->apiSecret);
+        try {
+            $sessionXml = $request->send()->xml();
+        } catch (ClientErrorResponseException $e) {
+            // will catch all 4xx errors
+            // TODO: test coverage
+            // TODO: logging
+            // TODO: exception handling
+            echo 'Uh oh! ' . $e->getMessage();
+            echo 'HTTP request URL: ' . $e->getRequest()->getUrl() . "\n";
+            echo 'HTTP request: ' . $e->getRequest() . "\n";
+            echo 'HTTP response status: ' . $e->getResponse()->getStatusCode() . "\n";
+            echo 'HTTP response: ' . $e->getResponse() . "\n";
+            return;
+        } catch (ServerErrorResponseException $e) {
+            // will catch all 5xx errors
+            // TODO: test coverage
+            // TODO: logging
+            // TODO: exception handling
+            echo 'Uh oh! ' . $e->getMessage();
+            echo 'HTTP request URL: ' . $e->getRequest()->getUrl() . "\n";
+            echo 'HTTP request: ' . $e->getRequest() . "\n";
+            echo 'HTTP response status: ' . $e->getResponse()->getStatusCode() . "\n";
+            echo 'HTTP response: ' . $e->getResponse() . "\n";
+            return;
+        } catch (Exception $e) {
+            // will catch XML parse errors
+            return;
         }
 
-        // TODO: check for 403 for invalid api credentials
-
-        if(!isset($createSessionXML->Session->session_id)) {
+        $sessionId = $sessionXml->Session->session_id;
+        if (!$sessionId) {
             throw new UnexpectedResponseException(
-                'Failed to create session: XML did not contain a session_id',
+                'Failed to create session: XML response did not contain a session_id',
                 502,
                 $createSessionXML
             );
         }
-        $sessionId = $createSessionXML->Session->session_id;
-
-        $p2p = ($properties['p2p.preference'] == 'enabled');
 
         return new Session((string)$sessionId, array(
             'location' => $location, 
@@ -313,57 +347,10 @@ class OpenTok {
         return $ar->listArchives($offset, $count);
     }
 
-    //////////////////////////////////////////////
-    //Signing functions, request functions, and other utility functions needed for the OpenTok
-    //Server API. Developers should not edit below this line. Do so at your own risk.
-    //////////////////////////////////////////////
-
     /** @internal */
-    protected function _sign_string($string, $secret) {
+    private function _sign_string($string, $secret) {
         return hash_hmac("sha1", $string, $secret);
     }
-
-    /** @internal */
-    protected function _do_request($url, $data, $auth = array('type' => 'partner')) {
-        switch($auth['type']) {
-            case 'token':
-                $authHeaderName = 'X-TB-TOKEN-AUTH';
-                $authHeaderValue = $auth['token'];
-                break;
-            case 'partner':
-            default:
-                $authHeaderName = 'X-TB-PARTNER-AUTH';
-                $authHeaderValue = $this->apiKey . ':' . $this->apiSecret;
-                break;
-        }
-
-        $request = self::$client->post($url);
-        $request->addPostFields($data);
-        $request->addHeader($authHeaderName, $authHeaderValue);
-        try {
-            $response = $request->send();
-            return $response->getBody();
-        } catch (ClientErrorResponseException $e) {
-            // TODO: test coverage
-            echo 'Uh oh! ' . $e->getMessage();
-            echo 'HTTP request URL: ' . $e->getRequest()->getUrl() . "\n";
-            echo 'HTTP request: ' . $e->getRequest() . "\n";
-            echo 'HTTP response status: ' . $e->getResponse()->getStatusCode() . "\n";
-            echo 'HTTP response: ' . $e->getResponse() . "\n";
-            return;
-        }
-    }
-
-
-    /** - Old functions to be depreciated...
-     */
-    public function generate_token($session_id='', $role='', $expire_time=NULL, $connection_data='') {
-      return $this->generateToken($session_id, $role, $expire_time, $connection_data);
-    }
-    public function create_session($location='', $properties=array()) {
-      return $this->createSession($location, $properties);
-    }
-
 }
 
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/
