@@ -49,7 +49,8 @@ class OpenTok {
     /** @var ClientInterface Guzzle client */
     private static $client;
 
-    public function __construct($apiKey, $apiSecret, $options = array()) {
+    public function __construct($apiKey, $apiSecret, $options = array())
+    {
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array('apiUrl' => 'https://api.opentok.com', 'client' => null);
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
@@ -84,7 +85,8 @@ class OpenTok {
         self::$client = self::configureClient(( isset($client) ? $client : new Client()), $apiUrl);
     }
 
-    private static function configureClient(ClientInterface $client, $apiUrl) {
+    private static function configureClient(ClientInterface $client, $apiUrl)
+    {
         $client->setBaseUrl($apiUrl);
         $client->setUserAgent(OPENTOK_SDK_USER_AGENT, true);
         return $client;
@@ -97,7 +99,8 @@ class OpenTok {
      * $expire_time - Optional timestamp to change when the token expires. See documentation on token for details.
      * $connection_data - Optional string data to pass into the stream. See documentation on token for details.
      */
-    public function generateToken($session_id, $options = array()) {
+    public function generateToken($session_id, $options = array())
+    {
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array(
             'role' => Role::PUBLISHER,
@@ -191,7 +194,8 @@ class OpenTok {
         return "T1==" . base64_encode("partner_id=$this->apiKey&sig=$sig:$dataString");
     }
 
-    private function postFieldsForOptions($options) {
+    private function postFieldsForOptions($options)
+    {
         if (!isset($options['p2p'])) {
             unset($options['p2p']);
         } else {
@@ -209,7 +213,8 @@ class OpenTok {
      * $location - IP address to geolocate the call around.
      * $properties - Optional array
      */
-    public function createSession($options=array()) {
+    public function createSession($options=array())
+    {
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array('p2p' => null, 'location' => null);
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
@@ -275,7 +280,8 @@ class OpenTok {
      * of the Archive object, and it is a property of archive-related events in the OpenTok JavaScript SDK.
      * @return OpenTokArchive The OpenTokArchive object, which includes properties defining the archive, including the archive ID.
      */
-    public function startArchive($session_id, $name=null) {
+    public function startArchive($session_id, $name=null)
+    {
         $ar = new OpenTokArchivingInterface($this->apiKey, $this->apiSecret, $this->server_url);
         return $ar->startArchive($session_id, $name);
     }
@@ -289,7 +295,8 @@ class OpenTok {
      * @param String $archive_id The archive ID of the archive you want to stop recording.
      * @return The OpenTokArchive object corresponding to the archive being stopped.
      */
-    public function stopArchive($archive_id) {
+    public function stopArchive($archive_id)
+    {
         $ar = new OpenTokArchivingInterface($this->apiKey, $this->apiSecret, $this->server_url);
         $archive = $ar->stopArchive($archive_id);
         return new Archive($archive, $ar);
@@ -305,7 +312,8 @@ class OpenTok {
      *
      * @return OpenTokArchive The OpenTokArchive object.
      */
-    public function getArchive($archive_id) {
+    public function getArchive($archive_id)
+    {
         $ar = new OpenTokArchivingInterface($this->apiKey, $this->apiSecret, $this->server_url);
         return $ar->getArchive($archive_id);
     }
@@ -325,7 +333,8 @@ class OpenTok {
      * @throws OpenTokArchiveException There archive status is not "available", "updated",
      * or "deleted".
      */
-    public function deleteArchive($archive_id) {
+    public function deleteArchive($archive_id)
+    {
         $ar = new OpenTokArchivingInterface($this->apiKey, $this->apiSecret, $this->server_url);
         return $ar->deleteArchive($archive_id);
     }
@@ -342,13 +351,15 @@ class OpenTok {
      * @return OpenTokArchiveList An OpenTokArchiveList object. Call the items() method of the OpenTokArchiveList object
      * to return an array of Archive objects.
      */
-    public function listArchives($offset=0, $count=null) {
+    public function listArchives($offset=0, $count=null)
+    {
         $ar = new OpenTokArchivingInterface($this->apiKey, $this->apiSecret, $this->server_url);
         return $ar->listArchives($offset, $count);
     }
 
     /** @internal */
-    private function _sign_string($string, $secret) {
+    private function _sign_string($string, $secret)
+    {
         return hash_hmac("sha1", $string, $secret);
     }
 }
