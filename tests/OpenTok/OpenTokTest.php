@@ -100,8 +100,6 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
             '2_MX4xNzAxMjYzMX4xMjcuMC4wLjF-V2VkIEZlYiAyNiAxODo1NzoyNCBQU1QgMjAxNH4wLjU0MDU4ODc0fg',
             $session->getSessionId()
         );
-
-        return $session;
     }
 
     public function testGeneratesToken() {
