@@ -47,7 +47,7 @@ class OpenTok {
     private $apiSecret;
 
     /** @var ClientInterface Guzzle client */
-    private static $client;
+    private $client;
 
     public function __construct($apiKey, $apiSecret, $options = array())
     {
@@ -82,7 +82,7 @@ class OpenTok {
         $this->apiKey = $apiKey;
         $this->apiSecret = $apiSecret;
 
-        self::$client = self::configureClient(( isset($client) ? $client : new Client()), $apiUrl);
+        $this->client = self::configureClient(( isset($client) ? $client : new Client()), $apiUrl);
     }
 
     private static function configureClient(ClientInterface $client, $apiUrl)
@@ -220,7 +220,7 @@ class OpenTok {
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
         list($p2p, $location) = array_values($options);
 
-        $request = self::$client->post('/session/create');
+        $request = $this->client->post('/session/create');
         $request->addPostFields($this->postFieldsForOptions($options));
         $request->addHeader('X-TB-PARTNER-AUTH', $this->apiKey.':'.$this->apiSecret);
         try {
