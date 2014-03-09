@@ -14,8 +14,10 @@
     </filter>
 
     <php>
+      <!--
       <const name="API_KEY" value="" />
       <const name="API_SECRET" value="" />
+      -->
     </php>
 </phpunit>
 
