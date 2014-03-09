@@ -142,3 +142,4 @@ class SessionTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
     }
 }
+/* vim: set ts=4 sw=4 tw=100 sts=4 et :*/

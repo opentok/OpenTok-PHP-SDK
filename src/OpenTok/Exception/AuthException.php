@@ -17,3 +17,4 @@ class AuthException extends \RuntimeException implements Exception
         return parent::__toString() . ' Response: '.(string)$this->credentials;
     }
 }
+/* vim: set ts=4 sw=4 tw=100 sts=4 et :*/

@@ -17,3 +17,4 @@ class UnexpectedResponseException extends \UnexpectedValueException implements E
         return parent::__toString() . ' Response: '.$this->response;
     }
 }
+/* vim: set ts=4 sw=4 tw=100 sts=4 et :*/
