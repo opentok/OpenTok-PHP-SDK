@@ -14,8 +14,8 @@ class SessionTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->API_KEY = (null !== API_KEY) ? API_KEY : '12345678';
-        $this->API_SECRET = (null !== API_SECRET) ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
+        $this->API_KEY = defined('API_KEY') ? API_KEY : '12345678';
+        $this->API_SECRET = defined('API_SECRET') ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
         $this->opentok = new OpenTok($this->API_KEY, $this->API_SECRET);
     }
 

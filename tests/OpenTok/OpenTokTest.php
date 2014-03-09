@@ -24,7 +24,6 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        // TODO: define the fake credentials somewhere outside the test code
         $this->API_KEY = defined('API_KEY') ? API_KEY : '12345678';
         $this->API_SECRET = defined('API_SECRET') ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
 
