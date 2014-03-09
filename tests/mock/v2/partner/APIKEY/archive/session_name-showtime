@@ -1,0 +1,19 @@
+HTTP/1.1 200 OK
+Server: nginx 
+Date: Sat, 08 Mar 2014 23:25:13 GMT 
+Content-Type: application/json 
+Transfer-Encoding: chunked 
+Connection: keep-alive
+
+{
+  "createdAt" : 1394321113584,
+  "duration" : 0,
+  "id" : "832641bf-5dbf-41a1-ad94-fea213e59a92",
+  "name" : "showtime",
+  "partnerId" : 12345678,
+  "reason" : "",
+  "sessionId" : "2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-",
+  "size" : 0,
+  "status" : "started",
+  "url" : null
+}

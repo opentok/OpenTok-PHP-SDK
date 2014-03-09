@@ -1,0 +1,33 @@
+HTTP/1.1 200 OK
+Server: nginx 
+Date: Sun, 09 Mar 2014 20:26:31 GMT 
+Content-Type: application/json 
+Transfer-Encoding: chunked 
+Connection: keep-alive
+
+{
+  "count" : 2,
+  "items" : [ {
+    "createdAt" : 1394396753000,
+    "duration" : 24,
+    "id" : "b8f64de1-e218-4091-9544-4cbf369fc238",
+    "name" : "showtime again",
+    "partnerId" : 854511,
+    "reason" : "",
+    "sessionId" : "2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-",
+    "size" : 2227849,
+    "status" : "available",
+    "url" : "http://tokbox.com.archive2.s3.amazonaws.com/854511%2Fb8f64de1-e218-4091-9544-4cbf369fc238%2Farchive.mp4?Expires=1394397391&AWSAccessKeyId=AKIAI6LQCPIXYVWCQV6Q&Signature=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+  }, {
+    "createdAt" : 1394321113000,
+    "duration" : 1294,
+    "id" : "832641bf-5dbf-41a1-ad94-fea213e59a92",
+    "name" : "showtime",
+    "partnerId" : 854511,
+    "reason" : "",
+    "sessionId" : "2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-",
+    "size" : 42165242,
+    "status" : "available",
+    "url" : "http://tokbox.com.archive2.s3.amazonaws.com/854511%2F832641bf-5dbf-41a1-ad94-fea213e59a92%2Farchive.mp4?Expires=1394397391&AWSAccessKeyId=AKIAI6LQCPIXYVWCQV6Q&Signature=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+  } ]
+}

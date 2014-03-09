@@ -280,10 +280,62 @@ class OpenTok {
      * of the Archive object, and it is a property of archive-related events in the OpenTok JavaScript SDK.
      * @return OpenTokArchive The OpenTokArchive object, which includes properties defining the archive, including the archive ID.
      */
-    public function startArchive($session_id, $name=null)
+    public function startArchive($sessionId, $name=null)
     {
-        $ar = new OpenTokArchivingInterface($this->apiKey, $this->apiSecret, $this->server_url);
-        return $ar->startArchive($session_id, $name);
+        // validate arguments
+        if (empty($sessionId) || !is_string($sessionId)) {
+            throw new InvalidArgumentException(
+                'The sessionId was empty or not a string: '.$sessionId,
+                610
+            );
+        }
+
+        // TODO: this method doesn't check if the sessionId belongs to the apiKey, should it?
+        //       if so, then the tests need to be updated.
+        //       one justification is that the generateToken method has no opportunity to return
+        //       an error for using an incorrect sessionId since there is no server request, but
+        //       this method will bubble an error when the server response is recieved if the
+        //       sessionId doesn't belong.
+
+        if ($name != null && !is_string($name) /* TODO: length? */) {
+            throw new InvalidArgumentException(
+                'The name was not a string: '.$name,
+                611
+            );
+        }
+
+        $request = $this->client->post('/v2/partner/'.$this->apiKey.'/archive');
+        $params = array( 'sessionId' => $sessionId );
+        if ($name) { $params['name'] = $name; }
+        $request->setBody(json_encode($params));
+        $request->setHeader('Content-Type', 'application/json');
+        $request->addHeader('X-TB-PARTNER-AUTH', $this->apiKey.':'.$this->apiSecret);
+        try {
+            $archiveJson = $request->send()->json();
+        } catch (ClientErrorResponseException $e) {
+            // will catch all 4xx errors
+            // TODO: test coverage
+            // TODO: logging
+            // TODO: exception handling
+            echo 'Uh oh! ' . $e->getMessage();
+            echo 'HTTP request URL: ' . $e->getRequest()->getUrl() . "\n";
+            echo 'HTTP request: ' . $e->getRequest() . "\n";
+            echo 'HTTP response status: ' . $e->getResponse()->getStatusCode() . "\n";
+            echo 'HTTP response: ' . $e->getResponse() . "\n";
+            return;
+        } catch (ServerErrorResponseException $e) {
+            // will catch all 5xx errors
+            // TODO: test coverage
+            // TODO: logging
+            // TODO: exception handling
+            echo 'Uh oh! ' . $e->getMessage();
+            echo 'HTTP request URL: ' . $e->getRequest()->getUrl() . "\n";
+            echo 'HTTP request: ' . $e->getRequest() . "\n";
+            echo 'HTTP response status: ' . $e->getResponse()->getStatusCode() . "\n";
+            echo 'HTTP response: ' . $e->getResponse() . "\n";
+            return;
+        }
+        return new Archive($archiveJson, $this->apiKey, $this->apiSecret);
     }
 
     /**
@@ -295,11 +347,41 @@ class OpenTok {
      * @param String $archive_id The archive ID of the archive you want to stop recording.
      * @return The OpenTokArchive object corresponding to the archive being stopped.
      */
-    public function stopArchive($archive_id)
+    public function stopArchive($archiveId)
     {
-        $ar = new OpenTokArchivingInterface($this->apiKey, $this->apiSecret, $this->server_url);
-        $archive = $ar->stopArchive($archive_id);
-        return new Archive($archive, $ar);
+        // TODO: validate archiveId
+
+        $request = $this->client->post('/v2/partner/'.$this->apiKey.'/archive/'.$archiveId);
+        $params = array( 'action' => 'stop' );
+        $request->setBody(json_encode($params));
+        $request->setHeader('Content-Type', 'application/json');
+        $request->addHeader('X-TB-PARTNER-AUTH', $this->apiKey.':'.$this->apiSecret);
+        try {
+            $archiveJson = $request->send()->json();
+        } catch (ClientErrorResponseException $e) {
+            // will catch all 4xx errors
+            // TODO: test coverage
+            // TODO: logging
+            // TODO: exception handling
+            echo 'Uh oh! ' . $e->getMessage();
+            echo 'HTTP request URL: ' . $e->getRequest()->getUrl() . "\n";
+            echo 'HTTP request: ' . $e->getRequest() . "\n";
+            echo 'HTTP response status: ' . $e->getResponse()->getStatusCode() . "\n";
+            echo 'HTTP response: ' . $e->getResponse() . "\n";
+            return;
+        } catch (ServerErrorResponseException $e) {
+            // will catch all 5xx errors
+            // TODO: test coverage
+            // TODO: logging
+            // TODO: exception handling
+            echo 'Uh oh! ' . $e->getMessage();
+            echo 'HTTP request URL: ' . $e->getRequest()->getUrl() . "\n";
+            echo 'HTTP request: ' . $e->getRequest() . "\n";
+            echo 'HTTP response status: ' . $e->getResponse()->getStatusCode() . "\n";
+            echo 'HTTP response: ' . $e->getResponse() . "\n";
+            return;
+        }
+        return new Archive($archiveJson, $this->apiKey, $this->apiSecret);
     }
 
     /**
@@ -312,10 +394,38 @@ class OpenTok {
      *
      * @return OpenTokArchive The OpenTokArchive object.
      */
-    public function getArchive($archive_id)
+    public function getArchive($archiveId)
     {
-        $ar = new OpenTokArchivingInterface($this->apiKey, $this->apiSecret, $this->server_url);
-        return $ar->getArchive($archive_id);
+        // TODO: validate archiveId
+
+        $request = $this->client->get('/v2/partner/'.$this->apiKey.'/archive/'.$archiveId);
+        $request->addHeader('X-TB-PARTNER-AUTH', $this->apiKey.':'.$this->apiSecret);
+        try {
+            $archiveJson = $request->send()->json();
+        } catch (ClientErrorResponseException $e) {
+            // will catch all 4xx errors
+            // TODO: test coverage
+            // TODO: logging
+            // TODO: exception handling
+            echo 'Uh oh! ' . $e->getMessage();
+            echo 'HTTP request URL: ' . $e->getRequest()->getUrl() . "\n";
+            echo 'HTTP request: ' . $e->getRequest() . "\n";
+            echo 'HTTP response status: ' . $e->getResponse()->getStatusCode() . "\n";
+            echo 'HTTP response: ' . $e->getResponse() . "\n";
+            return;
+        } catch (ServerErrorResponseException $e) {
+            // will catch all 5xx errors
+            // TODO: test coverage
+            // TODO: logging
+            // TODO: exception handling
+            echo 'Uh oh! ' . $e->getMessage();
+            echo 'HTTP request URL: ' . $e->getRequest()->getUrl() . "\n";
+            echo 'HTTP request: ' . $e->getRequest() . "\n";
+            echo 'HTTP response status: ' . $e->getResponse()->getStatusCode() . "\n";
+            echo 'HTTP response: ' . $e->getResponse() . "\n";
+            return;
+        }
+        return new Archive($archiveJson, $this->apiKey, $this->apiSecret);
     }
 
     /**
@@ -333,10 +443,39 @@ class OpenTok {
      * @throws OpenTokArchiveException There archive status is not "available", "updated",
      * or "deleted".
      */
-    public function deleteArchive($archive_id)
+    public function deleteArchive($archiveId)
     {
-        $ar = new OpenTokArchivingInterface($this->apiKey, $this->apiSecret, $this->server_url);
-        return $ar->deleteArchive($archive_id);
+        // TODO: validate archiveId
+
+        $request = $this->client->delete('/v2/partner/'.$this->apiKey.'/archive/'.$archiveId);
+        $request->setHeader('Content-Type', 'application/json');
+        $request->addHeader('X-TB-PARTNER-AUTH', $this->apiKey.':'.$this->apiSecret);
+        try {
+            $archiveJson = $request->send()->json();
+        } catch (ClientErrorResponseException $e) {
+            // will catch all 4xx errors
+            // TODO: test coverage
+            // TODO: logging
+            // TODO: exception handling
+            echo 'Uh oh! ' . $e->getMessage();
+            echo 'HTTP request URL: ' . $e->getRequest()->getUrl() . "\n";
+            echo 'HTTP request: ' . $e->getRequest() . "\n";
+            echo 'HTTP response status: ' . $e->getResponse()->getStatusCode() . "\n";
+            echo 'HTTP response: ' . $e->getResponse() . "\n";
+            return;
+        } catch (ServerErrorResponseException $e) {
+            // will catch all 5xx errors
+            // TODO: test coverage
+            // TODO: logging
+            // TODO: exception handling
+            echo 'Uh oh! ' . $e->getMessage();
+            echo 'HTTP request URL: ' . $e->getRequest()->getUrl() . "\n";
+            echo 'HTTP request: ' . $e->getRequest() . "\n";
+            echo 'HTTP response status: ' . $e->getResponse()->getStatusCode() . "\n";
+            echo 'HTTP response: ' . $e->getResponse() . "\n";
+            return;
+        }
+        return new Archive($archiveJson, $this->apiKey, $this->apiSecret);
     }
 
     /**
@@ -353,8 +492,45 @@ class OpenTok {
      */
     public function listArchives($offset=0, $count=null)
     {
-        $ar = new OpenTokArchivingInterface($this->apiKey, $this->apiSecret, $this->server_url);
-        return $ar->listArchives($offset, $count);
+        // validate params
+        if (!is_numeric($offset) || ($count != null && !is_numeric($count))) {
+            throw new InvalidArgumentException(
+                'The offset or count were not valid numbers: offset='.$offset.' count='.$count,
+                612
+            );
+        }
+
+        $request = $this->client->get('/v2/partner/'.$this->apiKey.'/archive');
+        $request->getQuery()->set('offset', $offset)->set('count', $count);
+        $request->addHeader('X-TB-PARTNER-AUTH', $this->apiKey.':'.$this->apiSecret);
+        try {
+            $archiveListJson = $request->send()->json();
+        } catch (ClientErrorResponseException $e) {
+            // will catch all 4xx errors
+            // TODO: test coverage
+            // TODO: logging
+            // TODO: exception handling
+            echo 'Uh oh! ' . $e->getMessage();
+            echo 'HTTP request URL: ' . $e->getRequest()->getUrl() . "\n";
+            echo 'HTTP request: ' . $e->getRequest() . "\n";
+            echo 'HTTP response status: ' . $e->getResponse()->getStatusCode() . "\n";
+            echo 'HTTP response: ' . $e->getResponse() . "\n";
+            return;
+        } catch (ServerErrorResponseException $e) {
+            // will catch all 5xx errors
+            // TODO: test coverage
+            // TODO: logging
+            // TODO: exception handling
+            echo 'Uh oh! ' . $e->getMessage();
+            echo 'HTTP request URL: ' . $e->getRequest()->getUrl() . "\n";
+            echo 'HTTP request: ' . $e->getRequest() . "\n";
+            echo 'HTTP response status: ' . $e->getResponse()->getStatusCode() . "\n";
+            echo 'HTTP response: ' . $e->getResponse() . "\n";
+            return;
+        }
+        return new ArchiveList($archiveListJson, $this->apiKey, $this->apiSecret);
+
+
     }
 
     /** @internal */
