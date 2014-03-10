@@ -13,8 +13,10 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
 {
     protected $API_KEY;
     protected $API_SECRET;
+
     protected $opentok;
     protected $client;
+
     protected static $mockBasePath;
 
     public static function setUpBeforeClass()
@@ -373,7 +375,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $archiveId = '063e72a4-64b4-43c8-9da5-eca071daab89';
 
         // Act
-        $archive = $this->opentok->deleteArchive($archiveId);
+        $success = $this->opentok->deleteArchive($archiveId);
 
         // Assert
         $requests = $mock->getReceivedRequests();
@@ -398,7 +400,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/2.0.0-beta', $userAgent->__toString());
 
-        $this->assertInstanceOf('OpenTok\Archive', $archive);
+        $this->assertTrue($success);
         // TODO: test the properties of the actual archive object
     }
 
