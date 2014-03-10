@@ -1,11 +1,11 @@
 <?php
 
 use Guzzle\Plugin\Mock\MockPlugin;
-use Guzzle\Http\Client;
 
 use OpenTok\OpenTok;
 use OpenTok\Session;
 use OpenTok\Role;
+use OpenTok\Util\Client;
 
 use OpenTok\TestHelpers;
 
