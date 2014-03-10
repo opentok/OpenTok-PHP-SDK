@@ -15,14 +15,13 @@ class Archive {
     {
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array(
-            'deleted' => false,
             'apiKey' => null,
             'apiSecret' => null,
             'apiUrl' => 'https://api.opentok.com',
             'client' => null
         );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($deleted, $apiKey, $apiSecret, $apiUrl, $client) = array_values($options);
+        list($apiKey, $apiSecret, $apiUrl, $client) = array_values($options);
 
         // validate params
         // TODO: validate archiveJson
@@ -33,8 +32,6 @@ class Archive {
         }
 
         $this->json = $archiveJson;
-        // TODO: also find out if the archiveJson tells us this is deleted
-        $this->isDeleted = $deleted;
 
         $this->client = isset($client) ? $client : new Client();
         if (!$this->client->isConfigured()) {
@@ -46,6 +43,9 @@ class Archive {
     // TODO: using the __get magic method is a challenge for PHPDoc, right?
     public function __get($name)
     {
+        if ($this->isDeleted) {
+            // TODO: throw an logic error about not being able to stop an archive thats deleted
+        }
         switch($name) {
             case 'createdAt':
             case 'duration':
@@ -57,7 +57,7 @@ class Archive {
             case 'size':
             case 'status':
             case 'url':
-                return $json[$name];
+                return $this->json[$name];
                 break;
             default:
                 return null;
@@ -70,7 +70,7 @@ class Archive {
             // TODO: throw an logic error about not being able to stop an archive thats deleted
         }
 
-        $archiveJson = $this->client->stopArchive($json->id);
+        $archiveJson = $this->client->stopArchive($this->json['id']);
 
         // TODO: validate json?
         $this->json = $archiveJson;
@@ -83,13 +83,12 @@ class Archive {
             // TODO: throw an logic error about not being able to stop an archive thats deleted
         }
 
-        $archiveJson = $this->client->deleteArchive($json->id);
-
-        // TODO: validate json?
-        $this->json = $archiveJson;
-        $this->isDeleted = true;
-        return $this;
-
+        if ($this->client->deleteArchive($this->json['id'])) {
+            $this->json = array();
+            $this->isDeleted = true;
+            return true;
+        }
+        return false;
     }
 
 }

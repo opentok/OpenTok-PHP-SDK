@@ -304,8 +304,7 @@ class OpenTok {
     {
         // TODO: validate archiveId
 
-        $archiveJson = $this->client->deleteArchive($archiveId);
-        return new Archive($archiveJson, array( 'client' => $this->client, 'deleted' => true ));
+        return $this->client->deleteArchive($archiveId);
     }
 
     /**

@@ -101,12 +101,12 @@ class Client extends \Guzzle\Http\Client
         $request = $this->delete('/v2/partner/'.$this->apiKey.'/archive/'.$archiveId);
         $request->setHeader('Content-Type', 'application/json');
         try {
-            $archiveJson = $request->send()->json();
+            $request->send()->json();
         } catch (Exception $e) {
             $this->handleException($e);
-            return;
+            return false;
         }
-        return $archiveJson;
+        return true;
     }
 
     public function listArchives($offset, $count)
