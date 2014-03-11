@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Archive List",
+  "description": "A list of OpenTok Archives",
+  "type": "object",
+  "properties": {
+    "count": {
+      "type": "integer"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/archive"
+      }
+    }
+  },
+  "required": ["count", "items"],
+  "definitions": {
+    "archive": {
+      "title": "Archive",
+      "description": "An OpenTok Archive",
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type" : "integer"
+        },
+        "duration": {
+          "type" : "integer",
+          "minimum": 0
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "partnerId": {
+          "type": "integer"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "sessionId": {
+          "type": "string"
+        },
+        "size": {
+          "type": "integer",
+          "minimum" : 0
+        },
+        "status": {
+          "type": "string",
+          "enum": ["available", "started", "stopped", "failed", "deleted"]
+        },
+        "url": {
+          "type": ["string", "null"]
+        }
+      },
+      "required": [ "id", "partnerId", "sessionId", "status" ]
+    }
+  }
+}
