@@ -6,9 +6,9 @@ class UnexpectedResponseException extends \UnexpectedValueException implements E
 {
     protected $response;
 
-    public function __construct($message = '', $code = 500, Exception $previous, $response)
+    public function __construct($message = '', $response)
     {
-        parent::__construct($message, $code, $previous);
+        parent::__construct($message, 800, $previous);
 
         if (isset($response)) $this->response = $response;
     }

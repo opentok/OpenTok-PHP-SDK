@@ -3,7 +3,7 @@
 namespace OpenTok;
 
 use OpenTok\Util\Client;
-use OpenTok\Exception\InvalidArgumentException;
+use OpenTok\Util\Validators;
 
 // TODO: may want to implement the ArrayAccess interface in the future
 // TODO: what does implementing JsonSerializable gain for us?
@@ -28,32 +28,31 @@ class ArchiveList {
         list($apiKey, $apiSecret, $apiUrl, $client) = array_values($options);
 
         // validate params
-        // TODO: validate archiveListJson
-        if ($client && !($client instanceof Client)) {
-            throw InvalidArgumentException(
-                'The optional client was not an instance of \OpenTok\Util\Client'
-            );
-        }
+        Validators::validateArchiveListJson($archiveListJson);
+        Validators::validateClient($client);
 
         $this->json = $archiveListJson;
 
         $this->client = isset($client) ? $client : new Client();
         if (!$this->client->isConfigured()) {
-            // TODO: validate apiKey, apiSecret, apiUrl
+            Validators::validateApiKey($apiKey);
+            Validators::validateApiSecret($apiSecret);
+            Validators::validateApiUrl($apiUrl);
+
             $this->client->configure($apiKey, $apiSecret, $apiUrl);
         }
     }
 
     public function totalCount()
     {
-        return $this->json->count;
+        return $this->json['count'];
     }
 
     public function items()
     {
         if (!$this->items) {
             $items = array();
-            foreach($this->json->items as $archiveJson) {
+            foreach($this->json['items'] as $archiveJson) {
                 $items[] = new Archive($archiveJson, array( 'client' => $this->client ));
             }
             $this->items = $items;

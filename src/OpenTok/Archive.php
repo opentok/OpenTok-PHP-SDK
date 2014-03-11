@@ -3,6 +3,7 @@
 namespace OpenTok;
 
 use OpenTok\Util\Client;
+use OpenTok\Util\Validators;
 use OpenTok\Exception\InvalidArgumentException;
 
 class Archive {
@@ -24,18 +25,17 @@ class Archive {
         list($apiKey, $apiSecret, $apiUrl, $client) = array_values($options);
 
         // validate params
-        // TODO: validate archiveJson
-        if ($client && !($client instanceof Client)) {
-            throw InvalidArgumentException(
-                'The optional client was not an instance of \OpenTok\Util\Client'
-            );
-        }
+        Validators::validateArchiveJson($archiveJson);
+        Validators::validateClient($client);
 
         $this->json = $archiveJson;
 
         $this->client = isset($client) ? $client : new Client();
         if (!$this->client->isConfigured()) {
-            // TODO: validate apiKey, apiSecret, apiUrl
+            Validators::validateApiKey($apiKey);
+            Validators::validateApiSecret($apiSecret);
+            Validators::validateApiUrl($apiUrl);
+
             $this->client->configure($apiKey, $apiSecret, $apiUrl);
         }
     }
@@ -72,7 +72,12 @@ class Archive {
 
         $archiveJson = $this->client->stopArchive($this->json['id']);
 
-        // TODO: validate json?
+        try {
+            Validators::validateArchiveJson($archiveJson);
+        } catch (InvalidArgumentException $e) {
+            // TODO: throw a more relevent server response exception
+        }
+
         $this->json = $archiveJson;
         return $this;
     }

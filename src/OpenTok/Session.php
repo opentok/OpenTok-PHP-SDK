@@ -27,7 +27,7 @@
 namespace OpenTok;
 
 use OpenTok\OpenTok;
-use OpenTok\Exception\InvalidArgumentException;
+use OpenTok\Util\Validators;
 
 class Session
 {
@@ -43,31 +43,16 @@ class Session
         $properties = array_merge($defaults, array_intersect_key($properties, $defaults));
         list($p2p, $location) = array_values($properties);
 
-        if ($opentok instanceof OpenTok) {
-            $this->opentok = $opentok;
-        } else {
-            throw new InvalidArgumentException();
-        }
+        Validators::validateOpenTok($opentok);
+        Validators::validateSessionId($sessionId);
+        Validators::validateLocation($location);
+        Validators::validateP2p($p2p);
 
-        if (is_string($sessionId) && !empty($sessionId)) {
-            $this->sessionId = $sessionId;
-        } else {
-            throw new InvalidArgumentException();
-        }
+        $this->opentok = $opentok;
+        $this->sessionId = $sessionId;
+        $this->location = $location;
+        $this->p2p = $p2p;
 
-        if (!empty($location)) { // leaving the location property empty is okay
-            if (is_string($location) && self::isValidLocation($location)) {
-                $this->location = $location;
-            } else {
-                throw new InvalidArgumentException();
-            }
-        }
-
-        if (is_bool($p2p)) {
-            $this->p2p = $p2p;
-        } else {
-            throw new InvalidArgumentException();
-        }
     }
 
     public function getSessionId()
@@ -83,11 +68,6 @@ class Session
     public function getP2p()
     {
         return $this->p2p;
-    }
-
-    public static function isValidLocation($location)
-    {
-        return (bool)filter_var($location, FILTER_VALIDATE_IP);
     }
 
     public function __toString()

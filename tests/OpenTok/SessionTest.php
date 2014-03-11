@@ -19,12 +19,6 @@ class SessionTest extends PHPUnit_Framework_TestCase
         $this->opentok = new OpenTok($this->API_KEY, $this->API_SECRET);
     }
 
-    public function testIsValidLocation()
-    {
-        $this->assertTrue(Session::isValidLocation('12.34.56.78'));
-        $this->assertFalse(Session::isValidLocation('12.34'));
-    }
-
     public function testSessionWithId()
     {
         $sessionId = 'SESSIONID';

@@ -29,9 +29,9 @@ namespace OpenTok;
 use OpenTok\Session;
 use OpenTok\Archive;
 use OpenTok\Role;
-use OpenTok\Exception\InvalidArgumentException;
 use OpenTok\Exception\UnexpectedResponseException;
 use OpenTok\Util\Client;
+use OpenTok\Util\Validators;
 
 class OpenTok {
 
@@ -47,33 +47,15 @@ class OpenTok {
         list($apiUrl, $client) = array_values($options);
 
         // validate arguments
-        if (!(is_string($apiKey) || is_int($apiKey))) {
-            throw new InvalidArgumentException(
-                'The apiKey was not a string nor an integer: '.$apiKey,
-                600
-            );
-        }
-        if (!(is_string($apiSecret))) {
-            throw new InvalidArgumentException('The apiSecret was not a string: '.$apiSecret, 601);
-        }
-        if (!(is_string($apiUrl))) {
-            throw new InvalidArgumentException(
-                'The optional apiUrl was not a string: '.$apiUrl,
-                602
-            );
-        }
-        if (isset($client) && !($client instanceof Client)) {
-            throw new InvalidArgumentException(
-                'The optional client was not an instance of \OpenTok\Util\Client',
-                603
-            );
-        }
-
-        $this->apiKey = $apiKey;
-        $this->apiSecret = $apiSecret;
+        Validators::validateApiKey($apiKey);
+        Validators::validateApiSecret($apiSecret);
+        Validators::validateApiUrl($apiUrl);
+        Validators::validateClient($client);
 
         $this->client = isset($client) ? $client : new Client();
         $this->client->configure($apiKey, $apiSecret, $apiUrl);
+        $this->apiKey = $apiKey;
+        $this->apiSecret = $apiSecret;
     }
 
     /** - Generate a token
@@ -83,7 +65,7 @@ class OpenTok {
      * $expire_time - Optional timestamp to change when the token expires. See documentation on token for details.
      * $connection_data - Optional string data to pass into the stream. See documentation on token for details.
      */
-    public function generateToken($session_id, $options = array())
+    public function generateToken($sessionId, $options = array())
     {
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array(
@@ -99,78 +81,12 @@ class OpenTok {
         $nonce = microtime(true) . mt_rand();
 
         // validate arguments
-        if(!is_string($session_id) || empty($session_id)){
-            throw new InvalidArgumentException(
-                'Null or empty session ID are not valid: '.$session_id,
-                604
-            );
-        }
-        if (!Role::isValidValue($role)) {
-            throw new InvalidArgumentException('Unknown role: '.$role, 607);
-        }
-        if(!is_null($expireTime)) {
-            if(!is_numeric($expireTime)) {
-                throw new InvalidArgumentException(
-                    'Expire time must be a number: '.$expireTime,
-                    608
-                );
-            }
-            if($expireTime < $createTime) {
-                throw new InvalidArgumentException(
-                    'Expire time must be in the future: '.$expire_time.'<'.$create_time,
-                    609
-                );
-            }
-            $in30Days = $createTime + 2592000;
-            if($expireTime > $in30Days) {
-                throw new InvalidArgumentException(
-                    'Expire time must be in the next 30 days: '.$expire_time.'>'.$in30Days,
-                    610
-                );
-            }
-        }
-        if(!empty($data)) {
-            $dataLength = strlen($data);
-            if($dataLength > 1000) {
-                throw new InvalidArgumentException(
-                    'Connection data must be less than 1000 characters. Length: '.$dataLength,
-                    611
-                );
-            }
-        }
+        Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
+        Validators::validateRole($role);
+        Validators::validateExpireTime($expireTime, $createTime);
+        Validators::validateData($data);
 
-        // validate session id
-        // TODO: write tests for this decoding, fix errors;
-        $sub_session_id = substr($session_id, 2);
-        $decoded_session_id="";
-        for($i=0;$i<3;$i++){
-            $new_session_id = $sub_session_id.str_repeat("=",$i);
-            $new_session_id = str_replace("-", "+",$new_session_id);
-            $new_session_id = str_replace("_", "/",$new_session_id);
-            $decoded_session_id = base64_decode($new_session_id);
-            if($decoded_session_id){
-                break;
-            }
-        }
-        if (strpos($decoded_session_id, "~")===false){
-            throw new InvalidArgumentException(
-                'An invalid session ID was passed: '.$session_id,
-                605
-            );
-        }else{
-            $arr=explode("~",$decoded_session_id);
-            if($arr[1]!=$this->apiKey){
-                throw new InvalidArgumentException(
-                    'The apiKey for the given sessionId does not match this instance: { '.
-                        'sessionId: "'.$session_id.'", '.
-                        'apiKey: "'.$this->apiKey.'" '.
-                    '}',
-                    606
-                );
-            }
-        }
-
-        $dataString = "session_id=$session_id&create_time=$createTime&role=$role&nonce=$nonce" .
+        $dataString = "session_id=$sessionId&create_time=$createTime&role=$role&nonce=$nonce" .
             (($expireTime) ? "&expire_time=$expireTime" : '') .
             (($data) ? "&connection_data=" . urlencode($data) : '');
         $sig = $this->_sign_string($dataString, $this->apiSecret);
@@ -190,13 +106,16 @@ class OpenTok {
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
         list($p2p, $location) = array_values($options);
 
+        // validate parameters
+        Validators::validateP2p($p2p);
+        Validators::validateLocation($location);
+
         $sessionXml = $this->client->createSession($options);
         $sessionId = $sessionXml->Session->session_id;
         if (!$sessionId) {
             throw new UnexpectedResponseException(
                 'Failed to create session: XML response did not contain a session_id',
-                502,
-                $createSessionXML
+                $sessionXml
             );
         }
 
@@ -222,26 +141,8 @@ class OpenTok {
     public function startArchive($sessionId, $name=null)
     {
         // validate arguments
-        if (empty($sessionId) || !is_string($sessionId)) {
-            throw new InvalidArgumentException(
-                'The sessionId was empty or not a string: '.$sessionId,
-                610
-            );
-        }
-
-        // TODO: this method doesn't check if the sessionId belongs to the apiKey, should it?
-        //       if so, then the tests need to be updated.
-        //       one justification is that the generateToken method has no opportunity to return
-        //       an error for using an incorrect sessionId since there is no server request, but
-        //       this method will bubble an error when the server response is recieved if the
-        //       sessionId doesn't belong.
-
-        if ($name != null && !is_string($name) /* TODO: length? */) {
-            throw new InvalidArgumentException(
-                'The name was not a string: '.$name,
-                611
-            );
-        }
+        Validators::validateSessionId($sessionId);
+        Validators::validateArchiveName($name);
 
         $params = array( 'sessionId' => $sessionId );
         if ($name) { $params['name'] = $name; }
@@ -261,7 +162,7 @@ class OpenTok {
      */
     public function stopArchive($archiveId)
     {
-        // TODO: validate archiveId
+        Validators::validateArchiveId($archiveId);
 
         $archiveJson = $this->client->stopArchive($archiveId);
         return new Archive($archiveJson, array( 'client' => $this->client ));
@@ -279,7 +180,7 @@ class OpenTok {
      */
     public function getArchive($archiveId)
     {
-        // TODO: validate archiveId
+        Validators::validateArchiveId($archiveId);
 
         $archiveJson = $this->client->getArchive($archiveId);
         return new Archive($archiveJson, array( 'client' => $this->client ));
@@ -302,7 +203,7 @@ class OpenTok {
      */
     public function deleteArchive($archiveId)
     {
-        // TODO: validate archiveId
+        Validators::validateArchiveId($archiveId);
 
         return $this->client->deleteArchive($archiveId);
     }
@@ -322,12 +223,7 @@ class OpenTok {
     public function listArchives($offset=0, $count=null)
     {
         // validate params
-        if (!is_numeric($offset) || ($count != null && !is_numeric($count))) {
-            throw new InvalidArgumentException(
-                'The offset or count were not valid numbers: offset='.$offset.' count='.$count,
-                612
-            );
-        }
+        Validators::validateOffsetAndCount($offset, $count);
 
         $archiveListJson = $this->client->listArchives($offset, $count);
         return new ArchiveList($archiveListJson, array( 'client' => $this->client ));

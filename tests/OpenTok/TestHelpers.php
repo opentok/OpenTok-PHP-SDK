@@ -8,7 +8,7 @@ class TestHelpers {
     {
         $trimmedSessionId = substr($sessionId, 2);
         $parts = explode('-', $trimmedSessionId);
-        $data;
+        $data = array();
         foreach($parts as $part) {
             $decodedPart = base64_decode($part);
             $dataItems = explode('~', $decodedPart);
