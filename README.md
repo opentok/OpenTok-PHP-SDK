@@ -8,15 +8,18 @@ This version of the SDK also includes support for working with OpenTok 2.0 archi
 
 # Installation
 
-Download the PHP files:
+## Composer (recommended):
 
-<https://github.com/opentok/Opentok-PHP-SDK/archive/master.zip>
+Composer helps manage dependencies for PHP projects. Find more info here: http://getcomposer.com
 
-Include the OpenTok PHP SDK files in your site, and add the OpenTokSDK.php file in the PHP page:
+`php composer.phar require opentok/opentok` or `composer require opentok/opentok`
 
-    <?php
-        require_once 'Opentok-PHP-SDK/OpenTokSDK.php';
-    ?>
+## Manually:
+
+Download the latest release from the [Releases](http://github.com/opentok/Opentok-PHP-SDK/releases)
+page. Extract the files into a directory inside your project.
+
+TODO: mention [PSR-4](http://www.php-fig.org/psr/psr-4/) and autoloading instructions.
 
 # Requirements
 
