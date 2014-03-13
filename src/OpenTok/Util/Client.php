@@ -165,13 +165,14 @@ class Client extends \Guzzle\Http\Client
             // will catch all 4xx errors
             if ($e->getResponse()->getStatusCode() == 403) {
                 throw new AuthenticationException(
-                    'The OpenTok API credentials were rejected, see previous for details',
+                    $this->apiKey,
+                    $this->apiSecret,
                     null,
                     $e
                 );
             } else {
                 throw new DomainException(
-                    'The OpenTok API request was not formed correctly, see previous for details',
+                    'The OpenTok API request failed: '. json_decode($e->getResponse()->getBody(true))->message,
                     null,
                     $e
                 );
@@ -179,7 +180,7 @@ class Client extends \Guzzle\Http\Client
         } else if ($e instanceof ServerErrorResponseException) {
             // will catch all 5xx errors
             throw new UnexpectedValueException(
-                'The OpenTok API server responded with an error, see previous for details',
+                'The OpenTok API server responded with an error: ' . json_decode($e->getResponse()-getBody(true))->message,
                 null,
                 $e
             );
@@ -194,7 +195,7 @@ class Client extends \Guzzle\Http\Client
         try {
             $this->handleException($e);
         } catch (AuthenticationException $ae) {
-            throw new ArchiveAuthenticationException($e->getMessage(), null, $ae->getPrevious());
+            throw new ArchiveAuthenticationException($this->apiKey, $this->apiSecret, null, $ae->getPrevious());
         } catch (DomainException $de) {
             throw new ArchiveDomainException($e->getMessage(), null, $de->getPrevious());
         } catch (UnexpectedValueException $uve) {
