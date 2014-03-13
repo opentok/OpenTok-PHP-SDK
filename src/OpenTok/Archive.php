@@ -5,6 +5,9 @@ namespace OpenTok;
 use OpenTok\Util\Client;
 use OpenTok\Util\Validators;
 
+use OpenTok\Exception\InvalidArgumentException;
+use OpenTok\Exception\ArchiveUnexpectedValueException;
+
 class Archive {
 
     private $json;
@@ -73,8 +76,8 @@ class Archive {
 
         try {
             Validators::validateArchiveJson($archiveJson);
-        } catch (\OpenTok\Exception\InvalidArgumentException $e) {
-            // TODO: throw a more relevent server response exception
+        } catch (InvalidArgumentException $e) {
+            throw new ArchiveUnexpectedValueException('The archive JSON returned after stopping was not valid', null, $e);
         }
 
         $this->json = $archiveJson;

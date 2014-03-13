@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenTok;
+namespace OpenTok\Exception;
 
 interface Exception 
 {

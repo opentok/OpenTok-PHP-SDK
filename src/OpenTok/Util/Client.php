@@ -5,12 +5,12 @@ namespace OpenTok\Util;
 use \Guzzle\Http\Exception\ClientErrorResponseException;
 use \Guzzle\Http\Exception\ServerErrorResponseException;
 
-use OpenTok\Exception;
+use OpenTok\Exception\Exception;
 use OpenTok\Exception\DomainException;
 use OpenTok\Exception\UnexpectedValueException;
 use OpenTok\Exception\AuthenticationException;
 
-use OpenTok\ArchiveException;
+use OpenTok\Exception\ArchiveException;
 use OpenTok\Exception\ArchiveDomainException;
 use OpenTok\Exception\ArchiveUnexpectedValueException;
 use OpenTok\Exception\ArchiveAuthenticationException;
