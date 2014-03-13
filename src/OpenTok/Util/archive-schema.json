@@ -50,7 +50,7 @@
         },
         "status": {
           "type": "string",
-          "enum": ["available", "started", "stopped", "failed", "deleted"]
+          "enum": ["available", "started", "stopped", "failed", "deleted", "uploaded"]
         },
         "url": {
           "type": ["string", "null"]
