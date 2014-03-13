@@ -5,7 +5,9 @@ namespace OpenTok\Util;
 use OpenTok\Util\Client;
 use OpenTok\Role;
 use OpenTok\OpenTok;
+
 use OpenTok\Exception\InvalidArgumentException;
+
 use JsonSchema\Uri\UriRetriever;
 use JsonSchema\Validator;
 

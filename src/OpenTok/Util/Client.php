@@ -5,6 +5,16 @@ namespace OpenTok\Util;
 use \Guzzle\Http\Exception\ClientErrorResponseException;
 use \Guzzle\Http\Exception\ServerErrorResponseException;
 
+use OpenTok\Exception;
+use OpenTok\Exception\DomainException;
+use OpenTok\Exception\UnexpectedValueException;
+use OpenTok\Exception\AuthenticationException;
+
+use OpenTok\ArchiveException;
+use OpenTok\Exception\ArchiveDomainException;
+use OpenTok\Exception\ArchiveUnexpectedValueException;
+use OpenTok\Exception\ArchiveAuthenticationException;
+
 // TODO: build this dynamically
 define('OPENTOK_SDK_VERSION', '2.0.0-beta');
 define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
@@ -41,12 +51,12 @@ class Client extends \Guzzle\Http\Client
         $request->addPostFields($this->postFieldsForOptions($options));
         try {
             $sessionXml = $request->send()->xml();
-        } catch (RuntimeException $e) {
+        } catch (\RuntimeException $e) {
             // The $response->xml() method uses the following code to throw a parse exception:
             // throw new RuntimeException('Unable to parse response body into XML: ' . $errorMessage);
             // TODO: test if we have a parse exception and handle it, otherwise throw again
             throw $e;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->handleException($e);
             return;
         }
@@ -57,29 +67,32 @@ class Client extends \Guzzle\Http\Client
 
     public function startArchive($params)
     {
+        // set up the request
         $request = $this->post('/v2/partner/'.$this->apiKey.'/archive');
         $request->setBody(json_encode($params));
         $request->setHeader('Content-Type', 'application/json');
+
         try {
             $archiveJson = $request->send()->json();
-        } catch (Exception $e) {
-            $this->handleException($e);
-            return;
+        } catch (\Exception $e) {
+            $this->handleArchiveException($e);
         }
         return $archiveJson;
     }
 
     public function stopArchive($archiveId)
     {
+        // set up the request
         $request = $this->post('/v2/partner/'.$this->apiKey.'/archive/'.$archiveId);
         $params = array( 'action' => 'stop' );
         $request->setBody(json_encode($params));
         $request->setHeader('Content-Type', 'application/json');
+
         try {
             $archiveJson = $request->send()->json();
-        } catch (Exception $e) {
-            $this->handleException($e);
-            return;
+        } catch (\Exception $e) {
+            // TODO: what happens with JSON parse errors?
+            $this->handleArchiveException($e);
         }
         return $archiveJson;
     }
@@ -89,7 +102,7 @@ class Client extends \Guzzle\Http\Client
         $request = $this->get('/v2/partner/'.$this->apiKey.'/archive/'.$archiveId);
         try {
             $archiveJson = $request->send()->json();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->handleException($e);
             return;
         }
@@ -102,7 +115,7 @@ class Client extends \Guzzle\Http\Client
         $request->setHeader('Content-Type', 'application/json');
         try {
             $request->send()->json();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->handleException($e);
             return false;
         }
@@ -116,7 +129,7 @@ class Client extends \Guzzle\Http\Client
         if (!empty($count)) $request->getQuery()->set('count', $count);
         try {
             $archiveListJson = $request->send()->json();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->handleException($e);
             return;
         }
@@ -139,31 +152,56 @@ class Client extends \Guzzle\Http\Client
         return $options;
     }
 
+    //echo 'Uh oh! ' . $e->getMessage();
+    //echo 'HTTP request URL: ' . $e->getRequest()->getUrl() . "\n";
+    //echo 'HTTP request: ' . $e->getRequest() . "\n";
+    //echo 'HTTP response status: ' . $e->getResponse()->getStatusCode() . "\n";
+    //echo 'HTTP response: ' . $e->getResponse() . "\n";
+
     private function handleException($e)
     {
         // TODO: test coverage
-        // TODO: logging
-        // TODO: exception handling
         if ($e instanceof ClientErrorResponseException) {
             // will catch all 4xx errors
-            echo 'Uh oh! ' . $e->getMessage();
-            echo 'HTTP request URL: ' . $e->getRequest()->getUrl() . "\n";
-            echo 'HTTP request: ' . $e->getRequest() . "\n";
-            echo 'HTTP response status: ' . $e->getResponse()->getStatusCode() . "\n";
-            echo 'HTTP response: ' . $e->getResponse() . "\n";
-            return;
+            if ($e->getResponse()->getStatusCode() == 403) {
+                throw new AuthenticationException(
+                    'The OpenTok API credentials were rejected, see previous for details',
+                    null,
+                    $e
+                );
+            } else {
+                throw new DomainException(
+                    'The OpenTok API request was not formed correctly, see previous for details',
+                    null,
+                    $e
+                );
+            }
         } else if ($e instanceof ServerErrorResponseException) {
             // will catch all 5xx errors
-            echo 'Uh oh! ' . $e->getMessage();
-            echo 'HTTP request URL: ' . $e->getRequest()->getUrl() . "\n";
-            echo 'HTTP request: ' . $e->getRequest() . "\n";
-            echo 'HTTP response status: ' . $e->getResponse()->getStatusCode() . "\n";
-            echo 'HTTP response: ' . $e->getResponse() . "\n";
-            return;
+            throw new UnexpectedValueException(
+                'The OpenTok API server responded with an error, see previous for details',
+                null,
+                $e
+            );
         } else {
-            echo 'An error unrelated to the Request cannot be handled by the OpenTok\Util\Client'."\n";
-            echo $e->getMessage();
-            return;
+            // TODO: check if this works because Exception is an interface not a class
+            throw new Exception('An unexpected error occurred');
+        }
+    }
+
+    private function handleArchiveException($e)
+    {
+        try {
+            $this->handleException($e);
+        } catch (AuthenticationException $ae) {
+            throw new ArchiveAuthenticationException($e->getMessage(), null, $ae->getPrevious());
+        } catch (DomainException $de) {
+            throw new ArchiveDomainException($e->getMessage(), null, $de->getPrevious());
+        } catch (UnexpectedValueException $uve) {
+            throw new ArchiveUnexpectedValueException($e->getMessage(), null, $uve->getPrevious());
+        } catch (Exception $oe) {
+            // TODO: check if this works because ArchiveException is an interface not a class
+            throw new ArchiveException($e->getMessage(), null, $oe->getPrevious());
         }
     }
 

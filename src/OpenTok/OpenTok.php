@@ -29,9 +29,10 @@ namespace OpenTok;
 use OpenTok\Session;
 use OpenTok\Archive;
 use OpenTok\Role;
-use OpenTok\Exception\UnexpectedResponseException;
 use OpenTok\Util\Client;
 use OpenTok\Util\Validators;
+
+use OpenTok\Exception\UnexpectedValueException;
 
 class OpenTok {
 
@@ -106,17 +107,18 @@ class OpenTok {
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
         list($p2p, $location) = array_values($options);
 
-        // validate parameters
+        // validate arguments
         Validators::validateP2p($p2p);
         Validators::validateLocation($location);
 
+        // make API call
         $sessionXml = $this->client->createSession($options);
+
+        // check response
         $sessionId = $sessionXml->Session->session_id;
         if (!$sessionId) {
-            throw new UnexpectedResponseException(
-                'Failed to create session: XML response did not contain a session_id',
-                $sessionXml
-            );
+            $errorMessage = 'Failed to create a session. Server response: '. (string)$sessionXml;
+            throw new UnexpectedValueException($errorMessage);
         }
 
         return new Session($this, (string)$sessionId, array(
@@ -147,7 +149,9 @@ class OpenTok {
         $params = array( 'sessionId' => $sessionId );
         if ($name) { $params['name'] = $name; }
 
+        // make API call
         $archiveJson = $this->client->startArchive($params);
+
         return new Archive($archiveJson, array( 'client' => $this->client ));
     }
 

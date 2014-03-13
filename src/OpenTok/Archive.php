@@ -4,7 +4,6 @@ namespace OpenTok;
 
 use OpenTok\Util\Client;
 use OpenTok\Util\Validators;
-use OpenTok\Exception\InvalidArgumentException;
 
 class Archive {
 
@@ -74,7 +73,7 @@ class Archive {
 
         try {
             Validators::validateArchiveJson($archiveJson);
-        } catch (InvalidArgumentException $e) {
+        } catch (\OpenTok\Exception\InvalidArgumentException $e) {
             // TODO: throw a more relevent server response exception
         }
 
