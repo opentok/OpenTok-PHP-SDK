@@ -69,8 +69,8 @@ $sessionId = $session->getSessionId();
 Once a Session is created, you can start generating Tokens for clients to use when connecting to it.
 You can generate a token either by calling the `generateToken($sessionId, $options)` method of the
 `OpenTok\OpenTok` class, or by calling the `generateToken($options)` method on the `OpenTok\Session`
-object returned after creating it. The `$options` parameter is an optional array used to set the
-role, expire time, and connection data of the Token.
+instance after creating it. The `$options` parameter is an optional array used to set the role,
+expire time, and connection data of the Token.
 
 ```php
 use OpenTok\Session;
@@ -104,8 +104,8 @@ $archiveId = $archive->id;
 ```
 
 You can stop the recording of a started Archive using the `stopArchive($archiveId)` method of the
-`OpenTok\OpenTok` class. You can also do this using the `stop()` method of the
-`OpenTok\Archive` class.
+`OpenTok\OpenTok` object. You can also do this using the `stop()` method of the
+`OpenTok\Archive` instance.
 
 ```php
 // Stop an Archive from an archiveId (fetched from database)
@@ -127,7 +127,7 @@ class or the `delete()` method of an `OpenTok\Archive` instance.
 ```php
 // Delete an Archive from an archiveId (fetched from database)
 $opentok->deleteArchive($archiveId);
-// Delete an Archive from an Archive instance (returned from startArchive)
+// Delete an Archive from an Archive instance (returned from startArchive, getArchive)
 $archive->delete();
 ```
 

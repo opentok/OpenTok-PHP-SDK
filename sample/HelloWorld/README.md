@@ -25,7 +25,7 @@ Finally, start the PHP CLI development server (requires PHP >= 5.4) using the `r
 $ ./run-demo
 ```
 
-Visit http://localhost:8080 in your browser. Open it again in a second window. Smile! You've just
+Visit <http://localhost:8080> in your browser. Open it again in a second window. Smile! You've just
 set up a group chat.
 
 ## Walkthrough
@@ -55,7 +55,7 @@ Next the controller performs some basic checks on the environment, initializes t
 
 The first thing that we do with OpenTok is to initialize an instance and also store it in the
 application container. At the same time, we also store the apiKey separately so that we can access
-it on its own. Notice that we needed to get the API_KEY and API_SECRET from the environment
+it on its own. Notice that we needed to get the `API_KEY` and `API_SECRET` from the environment
 variables.
 
 ```php
@@ -69,14 +69,14 @@ $app->apiKey = getenv('API_KEY');
 
 Now we are ready to configure some routes. We only need one GET route for the root path because this
 application only has one page. Inside the route handler, we query the cache to see if we have stored
-a sessionId previously. The reason we use a cache in this application is because we want to generate
+a `sessionId` previously. The reason we use a cache in this application is because we want to generate
 a session only once, no matter how many times the page is loaded, so that all visitors can join the
-same OpenTok Session. In other applications, it would be common to save the sessionId in a database
-table. If the does not have a sessionId stored, like on the first run of the application, we use the
-stored OpenTok instance to create a Session. When we return its sessionId, that will be stored in
-the cache for later use.
+same OpenTok Session. In other applications, it would be common to save the `sessionId` in a database
+table. If the cache does not have a `sessionId` stored, like on the first run of the application, we
+use the stored OpenTok instance to create a Session. When we return its `sessionId`, that will be
+stored in the cache for later use.
 
-NOTE: in order to clear the cache, just delete the cache folder created in your demo app directory.
+**NOTE:** in order to clear the cache, just delete the cache folder created in your demo app directory.
 
 ```php
 // If a sessionId has already been created, retrieve it from the cache
@@ -88,8 +88,8 @@ $sessionId = $app->cache->getOrCreate('sessionId', array(), function() use ($app
 ```
 
 Next inside the route handler, we generate a Token, so the client has permission to connect to that
-Session. This is again done by accessing the stored OpenTok instance. Since this is not cached,
-a fresh token is generated each time.
+Session. This is again done by accessing the stored OpenTok instance. Since the token is not cached,
+a fresh one is generated each time.
 
 ```php
 // Generate a fresh token for this client
@@ -99,6 +99,14 @@ $token = $app->opentok->generateToken($sessionId);
 Lastly, we load a template called `helloworld.php` in the `templates/` directory, and pass in the
 three values needed for a client to connect to a Session: `apiKey`, `sessionId`, and `token`.
 
+```php
+$app->render('helloworld.php', array(
+    'apiKey' => $app->apiKey,
+    'sessionId' => $sessionId,
+    'token' => $token
+));
+```
+
 ### Main Template (templates/helloworld.php)
 
 This file simply sets up the HTML page for the JavaScript application to run, imports the
@@ -106,6 +114,10 @@ JavaScript library, and passes the values created by the server into the JavaScr
 inside `web/js/helloworld.js`
 
 ### JavaScript Applicaton (web/js/helloworld.js)
+
+The group chat is mostly implemented in this file. At a high level, we connect to the given
+Session, publish a stream from our webcam, and listen for new streams from other clients to
+subscribe to.
 
 For more details, read the comments in the file or go to the
 [JavaScript Client Library](http://tokbox.com/opentok/libraries/client/js/) for a full reference.
