@@ -1,0 +1,6 @@
+#!/bin/sh
+
+export API_KEY=854511
+export API_SECRET=***REMOVED***
+
+php -S localhost:8080 -t web web/index.php

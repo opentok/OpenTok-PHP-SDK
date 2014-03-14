@@ -1,0 +1,8 @@
+{
+  "name": "helloworld-php",
+  "require": {
+    "slim/slim": "2.*",
+    "gregwar/cache": "1.0.*",
+    "opentok/opentok": "dev-modernization"
+  }
+}
