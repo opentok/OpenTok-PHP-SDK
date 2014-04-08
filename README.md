@@ -10,7 +10,7 @@ This version of the SDK also includes support for working with OpenTok 2.0 archi
 
 ## Composer (recommended):
 
-Composer helps manage dependencies for PHP projects. Find more info here: http://getcomposer.com
+Composer helps manage dependencies for PHP projects. Find more info here: <http://getcomposer.org>
 
 Add this package (`opentok/opentok`) to your `composer.json` file, or just run the following at the
 command line:
