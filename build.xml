@@ -5,26 +5,13 @@
   <!-- ============================================  -->
   <!-- (DEFAULT)  Target: hello                      -->
   <!-- ============================================  -->
-    <target name="hello" description="Says Hello">
-      <echo msg="Hello, world!" />
-    </target>
+  <target name="hello" description="Says Hello">
+    <echo msg="Hello, world!" />
+  </target>
 
-  <property name="git.branch" value=""/>
-  <target name="release" description="creates a release and pushes it to origin (github)">
-
-    <exec command="git symbolic-ref --short HEAD" outputProperty="git.status" />
-    <if>
-      <equals arg1="${git.status}" arg2="master" trim="true" />
-      <then>
-        <echo msg="verified that current branch is master" />
-      </then>
-      <else>
-        <fail message="must be on the master branch to release" />
-      </else>
-    </if>
-
-
-
+  <target name="test" description="run unit tests">
+    <php expression="include('./vendor/autoload.php')"/>
+    <phpunit configuration="./phpunit.xml.dist" printsummary="true"/>
   </target>
 
 </project>
