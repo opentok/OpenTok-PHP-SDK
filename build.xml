@@ -10,7 +10,7 @@
   </target>
 
   <target name="test" description="run unit tests">
-    <exec command="phpunit" passthru="true" checkreturn="true" />
+    <exec command="./vendor/bin/phpunit" passthru="true" checkreturn="true" />
   </target>
 
 </project>
