@@ -147,7 +147,8 @@ $totalCount = $archiveList->totalCount();
 
 # Documentation
 
-TODO: Reference documentation is available at http://opentok.github.io/opentok-php-sdk/
+Reference documentation is available at <http://www.tokbox.com//opentok/libraries/server/java/reference/index.html> and in the
+docs directory of the SDK.
 
 # Requirements
 
@@ -157,13 +158,18 @@ The OpenTok PHP SDK requires PHP 5.3 or greater.
 
 # Release Notes
 
-TODO: See the [Releases](https://github.com/opentok/opentok-php-sdk/releases) page for details about each
-release.
+TODO: See the [Releases](https://github.com/opentok/opentok-php-sdk/releases) page for details about 
+each release.
 
-## Important changes in v2.0
+## Important changes in v2.2
 
-This version of the SDK includes support for working with OpenTok 2.0 archives. (This API does not work
-with OpenTok 1.0 archives.)
+This version of the SDK includes support for working with OpenTok 2.0 archives. (This API does not
+work with OpenTok 1.0 archives.)
+
+The names of many methods of the API have changed. Many method names (such as createSession()) have
+changed to use camel case. See the reference documentation
+<http://www.tokbox.com//opentok/libraries/server/java/reference/index.html> and in the
+docs directory of the SDK.
 
 # Development and Contributing
 
