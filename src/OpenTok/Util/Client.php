@@ -19,6 +19,9 @@ use OpenTok\Exception\ArchiveAuthenticationException;
 define('OPENTOK_SDK_VERSION', 'dev-modernization');
 define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
 
+/**
+* @internal
+*/
 class Client extends \Guzzle\Http\Client
 {
     protected $apiKey;

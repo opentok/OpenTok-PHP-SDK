@@ -29,13 +29,34 @@ namespace OpenTok;
 use OpenTok\OpenTok;
 use OpenTok\Util\Validators;
 
+/**
+* Represents an OpenTok session.
+* <p>
+* Use the OpenTok.createSession() method to create an OpenTok session. Use the
+* getSessionId() method of the Session object to get the session ID.
+*/
 class Session
 {
+    /**
+     * @internal
+     */
     protected $sessionId;
+    /**
+     * @internal
+     */
     protected $location;
+    /**
+     * @internal
+     */
     protected $p2p;
+    /**
+     * @internal
+     */
     protected $opentok;
 
+    /**
+     * @internal
+     */
     function __construct($opentok, $sessionId, $properties = array())
     {
         // unpack arguments
@@ -55,21 +76,35 @@ class Session
 
     }
 
+    /**
+    * Returns the session ID, which uniquely identifies the session.
+    */
     public function getSessionId()
     {
         return $this->sessionId;
     }
 
+    /**
+    * Returns the location hint IP address. See the OpenTok.createSession() method.
+    */
     public function getLocation()
     {
         return $this->location;
     }
 
+    /**
+    * Returns true if the session's streams will be transmitted directly between peers; returns
+    * false if the session's streams will be transmitted using the OpenTok media server.
+    * See the OpenTok.createSession() method.
+    */
     public function getP2p()
     {
         return $this->p2p;
     }
 
+    /**
+     * @internal
+     */
     public function __toString()
     {
         return $this->sessionId;

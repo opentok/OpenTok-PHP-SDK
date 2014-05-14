@@ -7,14 +7,35 @@ use OpenTok\Util\Validators;
 
 // TODO: may want to implement the ArrayAccess interface in the future
 // TODO: what does implementing JsonSerializable gain for us?
+/**
+* A class for accessing an array of OpenTokArchive objects.
+*/
 class ArchiveList {
 
+    /**
+    * @internal
+    */
     private $json;
+    /**
+    * @internal
+    */
     private $apiKey;
+    /**
+    * @internal
+    */
     private $apiSecret;
+    /**
+    * @internal
+    */
     private $client;
+    /**
+    * @internal
+    */
     private $items;
 
+    /**
+    * @internal
+    */
     public function __construct($archiveListJson, $options = array())
     {
         // unpack optional arguments (merging with default values) into named variables
@@ -43,11 +64,17 @@ class ArchiveList {
         }
     }
 
+    /**
+     * Returns the number of total archives for the API key.
+     */
     public function totalCount()
     {
         return $this->json['count'];
     }
 
+    /**
+     * Returns an array of Archive objects.
+     */
     public function items()
     {
         if (!$this->items) {

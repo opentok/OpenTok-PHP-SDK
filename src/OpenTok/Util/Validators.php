@@ -11,6 +11,9 @@ use OpenTok\Exception\InvalidArgumentException;
 use JsonSchema\Uri\UriRetriever;
 use JsonSchema\Validator;
 
+/**
+* @internal
+*/
 class Validators
 {
     static $guidRegEx = '/^\[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}\$/';

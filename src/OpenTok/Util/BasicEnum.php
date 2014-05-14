@@ -2,6 +2,9 @@
 
 namespace OpenTok\Util;
 
+/**
+* @internal
+*/
 abstract class BasicEnum {
     private static $constCache = NULL;
 
