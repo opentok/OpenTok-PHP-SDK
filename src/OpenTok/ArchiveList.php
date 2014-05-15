@@ -8,7 +8,7 @@ use OpenTok\Util\Validators;
 // TODO: may want to implement the ArrayAccess interface in the future
 // TODO: what does implementing JsonSerializable gain for us?
 /**
-* A class for accessing an array of OpenTokArchive objects.
+* A class for accessing an array of Archive objects.
 */
 class ArchiveList {
 

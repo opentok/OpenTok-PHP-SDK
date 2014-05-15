@@ -37,9 +37,9 @@ use OpenTok\Exception\UnexpectedValueException;
 /**
 * Contains methods for creating OpenTok sessions, generating tokens, and working with archives.
 * <p>
-* To create a new OpenTokSDK object, call the OpenTokSDK constructor with your OpenTok API key
+* To create a new OpenTok object, call the OpenTok() constructor with your OpenTok API key
 * and the API secret from <a href="https://dashboard.tokbox.com">the OpenTok dashboard</a>. Do not
-* publicly share your API secret. You will use it with the OpenTokSDK constructor (only on your web
+* publicly share your API secret. You will use it with the OpenTok() constructor (only on your web
 * server) to create OpenTok sessions.
 * <p>
 * Be sure to include the entire OpenTok server SDK on your web server.
