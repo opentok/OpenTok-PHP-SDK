@@ -54,8 +54,7 @@ use OpenTok\Exception\ArchiveUnexpectedValueException;
 * The download URL of the available MP4 file. This is only set for an archive with the status set to
 * "available"; for other archives, (including archives with the status "uploaded") this property is
 * set to null. The download URL is obfuscated, and the file is only available from the URL for
-* 10 minutes. To generate a new URL, call the OpenTokArchive.listArchives() or
-* OpenTokSDK.getArchive() method.
+* 10 minutes. To generate a new URL, call the Archive.listArchives() or OpenTok.getArchive() method.
 */
 class Archive {
 
