@@ -77,9 +77,6 @@ class OpenTok {
      * Creates a token for connecting to an OpenTok session. In order to authenticate a user
      * connecting to an OpenTok session, the client passes a token when connecting to the session.
      * <p>
-     * The following example shows how to obtain a token that has a role of "subscriber" and
-     * that has a connection metadata string:
-     * <p>
      * For testing, you can also use the <a href="https://dashboard.tokbox.com/projects">OpenTok
      * dashboard</a> page to generate test tokens.
      *
@@ -181,7 +178,7 @@ class OpenTok {
     * peer-to-peer session uses the OpenTok TURN server to relay streams. For information on
     * pricing, see the <a href="http://www.tokbox.com/pricing">OpenTok pricing page</a>.
     *
-    *    <li><code>'location'</code> &mdash; n IP address that the OpenTok servers will use to
+    *    <li><code>'location'</code> &mdash; An IP address that the OpenTok servers will use to
     * situate the session in its global network. If you do not set a location hint,
     * the OpenTok servers will be based on the first client connecting to the session.</li>
     *
