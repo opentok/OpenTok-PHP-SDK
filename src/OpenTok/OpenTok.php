@@ -178,7 +178,7 @@ class OpenTok {
     * peer-to-peer session uses the OpenTok TURN server to relay streams. For information on
     * pricing, see the <a href="http://www.tokbox.com/pricing">OpenTok pricing page</a>.
     *
-    *    <li><code>'location'</code> &mdash; n IP address that the OpenTok servers will use to
+    *    <li><code>'location'</code> &mdash; An IP address that the OpenTok servers will use to
     * situate the session in its global network. If you do not set a location hint,
     * the OpenTok servers will be based on the first client connecting to the session.</li>
     *
