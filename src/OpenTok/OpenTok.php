@@ -77,9 +77,6 @@ class OpenTok {
      * Creates a token for connecting to an OpenTok session. In order to authenticate a user
      * connecting to an OpenTok session, the client passes a token when connecting to the session.
      * <p>
-     * The following example shows how to obtain a token that has a role of "subscriber" and
-     * that has a connection metadata string:
-     * <p>
      * For testing, you can also use the <a href="https://dashboard.tokbox.com/projects">OpenTok
      * dashboard</a> page to generate test tokens.
      *
