@@ -193,12 +193,12 @@ class OpenTok {
     public function createSession($options=array())
     {
         // unpack optional arguments (merging with default values) into named variables
-        $defaults = array('p2p' => null, 'location' => null);
+        $defaults = array('mediaMode' => 'routed', 'location' => null);
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($p2p, $location) = array_values($options);
+        list($mediaMode, $location) = array_values($options);
 
         // validate arguments
-        Validators::validateP2p($p2p);
+        Validators::validateMediaMode($mediaMode);
         Validators::validateLocation($location);
 
         // make API call
@@ -212,8 +212,8 @@ class OpenTok {
         }
 
         return new Session($this, (string)$sessionId, array(
-            'location' => $location, 
-            'p2p' => $p2p
+            'location' => $location,
+            'mediaMode' => $mediaMode
         ));
     }
 

@@ -1,7 +1,7 @@
 HTTP/1.1 200 OK
 Date: Thu, 27 Feb 2014 02:57:24 GMT
 Server: nginx
-Content-Type: text/xml 
+Content-Type: text/xml
 Connection: keep-alive
 Access-Control-Allow-Origin: *
 X-TB-HOST: fms403-oak.tokbox.com
