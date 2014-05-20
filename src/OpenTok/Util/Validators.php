@@ -177,11 +177,11 @@ class Validators
             );
         }
     }
-    public static function validateP2p($p2p)
+    public static function validateMediaMode($mediaMode)
     {
-        if ($p2p != null && !is_bool($p2p)) {
+        if ($mediaMode != null && !($mediaMode === "routed" || $mediaMode === "relayed")) {
             throw new InvalidArgumentException(
-                'The p2p option must be a boolean. p2p:'.print_r($p2p, true)
+                'The media mode option must be either \'routed\' or \'relayed\'. mediaMode:'.print_r($mediaMode, true)
             );
         }
     }

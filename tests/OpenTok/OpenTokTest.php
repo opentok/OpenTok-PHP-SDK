@@ -53,12 +53,12 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // Assert
     }
 
-    public function testCreatesSession()
+    public function testCreatesMediaRouterAndLocationSession()
     {
         // Arrange
         $mock = new MockPlugin();
         $response = MockPlugin::getMockFile(
-            self::$mockBasePath . 'session/create/no-p2p_location-127.0.0.1'
+            self::$mockBasePath . 'session/create/routed_location-12.34.56.78'
         );
         $mock->addResponse($response);
         $this->client->addSubscriber($mock);
@@ -66,7 +66,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // Act
         $session = $this->opentok->createSession(array(
             'location' => '12.34.56.78',
-            'p2p' => false
+            'mediaMode' => 'routed'
         ));
 
         // Assert
@@ -93,6 +93,52 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
 
         $p2p_preference = $request->getPostField('p2p.preference');
         $this->assertEquals('disabled', $p2p_preference);
+
+        $this->assertInstanceOf('OpenTok\Session', $session);
+        // NOTE: this is an actual sessionId from the recorded response, this doesn't correspond to
+        // the API Key and API Secret used to create the session.
+        $this->assertEquals(
+            '2_MX4xNzAxMjYzMX4xMjcuMC4wLjF-V2VkIEZlYiAyNiAxODo1NzoyNCBQU1QgMjAxNH4wLjU0MDU4ODc0fg',
+            $session->getSessionId()
+        );
+    }
+
+    public function testCreatesMediaRelayedSession()
+    {
+        // Arrange
+        $mock = new MockPlugin();
+        $response = MockPlugin::getMockFile(
+            self::$mockBasePath . 'session/create/relayed'
+        );
+        $mock->addResponse($response);
+        $this->client->addSubscriber($mock);
+
+        // Act
+        $session = $this->opentok->createSession(array(
+            'mediaMode' => 'relayed'
+        ));
+
+        // Assert
+        $requests = $mock->getReceivedRequests();
+        $this->assertCount(1, $requests);
+
+        $request = $requests[0];
+        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('/session/create', $request->getPath());
+        $this->assertEquals('api.opentok.com', $request->getHost());
+        $this->assertEquals('https', $request->getScheme());
+
+        $authString = $request->getHeader('X-TB-PARTNER-AUTH');
+        $this->assertNotEmpty($authString);
+        $this->assertEquals($this->API_KEY.':'.$this->API_SECRET, $authString);
+
+        // TODO: test the dynamically built User Agent string
+        $userAgent = $request->getHeader('User-Agent');
+        $this->assertNotEmpty($userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/dev-modernization', $userAgent->__toString());
+
+        $p2p_preference = $request->getPostField('p2p.preference');
+        $this->assertEquals('enabled', $p2p_preference);
 
         $this->assertInstanceOf('OpenTok\Session', $session);
         // NOTE: this is an actual sessionId from the recorded response, this doesn't correspond to
@@ -239,7 +285,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $mock->addResponse($response);
         $this->client->addSubscriber($mock);
 
-        // This sessionId was generated using a different apiKey, but this method doesn't do any 
+        // This sessionId was generated using a different apiKey, but this method doesn't do any
         // decoding to check, so its fine.
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
@@ -438,7 +484,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertStringStartsWith('OpenTok-PHP-SDK/dev-modernization', $userAgent->__toString());
 
         $this->assertInstanceOf('OpenTok\ArchiveList', $archiveList);
-        // TODO: test the properties of the actual archiveList object and its contained archive 
+        // TODO: test the properties of the actual archiveList object and its contained archive
         // objects
     }
 }

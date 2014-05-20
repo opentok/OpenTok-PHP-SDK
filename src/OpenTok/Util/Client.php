@@ -143,11 +143,12 @@ class Client extends \Guzzle\Http\Client
 
     private function postFieldsForOptions($options)
     {
-        if (!isset($options['p2p'])) {
-            unset($options['p2p']);
+        if (empty($options['mediaMode']) || $options['mediaMode'] === "routed") {
+          $options['p2p.preference'] = 'disabled';
         } else {
-            $options['p2p.preference'] = $options['p2p'] ? 'enabled' : 'disabled';
+          $options['p2p.preference'] = 'enabled';
         }
+        unset($options['mediaMode']);
         if (empty($options['location'])) {
             unset($options['location']);
         }
