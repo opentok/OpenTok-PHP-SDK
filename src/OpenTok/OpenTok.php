@@ -29,6 +29,7 @@ namespace OpenTok;
 use OpenTok\Session;
 use OpenTok\Archive;
 use OpenTok\Role;
+use OpenTok\MediaMode;
 use OpenTok\Util\Client;
 use OpenTok\Util\Validators;
 
@@ -193,7 +194,7 @@ class OpenTok {
     public function createSession($options=array())
     {
         // unpack optional arguments (merging with default values) into named variables
-        $defaults = array('mediaMode' => 'routed', 'location' => null);
+        $defaults = array('mediaMode' => MediaMode::ROUTED, 'location' => null);
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
         list($mediaMode, $location) = array_values($options);
 

@@ -2,6 +2,7 @@
 
 use OpenTok\OpenTok;
 use OpenTok\Session;
+use OpenTok\MediaMode;
 
 use OpenTok\TestHelpers;
 
@@ -24,7 +25,7 @@ class SessionTest extends PHPUnit_Framework_TestCase
         $sessionId = 'SESSIONID';
         $session = new Session($this->opentok, $sessionId);
         $this->assertEquals($sessionId, $session->getSessionId());
-        $this->assertEquals('routed', $session->getMediaMode());
+        $this->assertEquals(MediaMode::ROUTED, $session->getMediaMode());
         $this->assertEmpty($session->getLocation());
     }
 
@@ -34,20 +35,20 @@ class SessionTest extends PHPUnit_Framework_TestCase
         $location = '12.34.56.78';
         $session = new Session($this->opentok, $sessionId, array( 'location' => $location ));
         $this->assertEquals($sessionId, $session->getSessionId());
-        $this->assertEquals('routed', $session->getMediaMode());
+        $this->assertEquals(MediaMode::ROUTED, $session->getMediaMode());
         $this->assertEquals($location, $session->getLocation());
     }
 
     public function testSessionWithIdAndMediaMode()
     {
         $sessionId = 'SESSIONID';
-        $mediaMode = 'relayed';
+        $mediaMode = MediaMode::RELAYED;
         $session = new Session($this->opentok, $sessionId, array( 'mediaMode' => $mediaMode ));
         $this->assertEquals($sessionId, $session->getSessionId());
         $this->assertEquals($mediaMode, $session->getMediaMode());
         $this->assertEmpty($session->getLocation());
 
-        $mediaMode = 'routed';
+        $mediaMode = MediaMode::ROUTED;
         $session = new Session($this->opentok, $sessionId, array( 'mediaMode' => $mediaMode ));
         $this->assertEquals($sessionId, $session->getSessionId());
         $this->assertEquals($mediaMode, $session->getMediaMode());
@@ -58,13 +59,13 @@ class SessionTest extends PHPUnit_Framework_TestCase
     {
         $sessionId = 'SESSIONID';
         $location = '12.34.56.78';
-        $mediaMode = 'relayed';
+        $mediaMode = MediaMode::RELAYED;
         $session = new Session($this->opentok, $sessionId, array( 'location' => $location, 'mediaMode' => $mediaMode ));
         $this->assertEquals($sessionId, $session->getSessionId());
         $this->assertEquals($mediaMode, $session->getMediaMode());
         $this->assertEquals($location, $session->getLocation());
 
-        $mediaMode = 'routed';
+        $mediaMode = MediaMode::ROUTED;
         $session = new Session($this->opentok, $sessionId, array( 'location' => $location, 'mediaMode' => $mediaMode ));
         $this->assertEquals($sessionId, $session->getSessionId());
         $this->assertEquals($mediaMode, $session->getMediaMode());
@@ -90,7 +91,7 @@ class SessionTest extends PHPUnit_Framework_TestCase
             array('SESSIONID', array( 'location' => 'NOTALOCATION') ),
             array('SESSIONID', array( 'mediaMode' => 'NOTAMODE' ) ),
             array('SESSIONID', array( 'location' => '127.0.0.1', 'mediaMode' => 'NOTAMODE' ) ),
-            array('SESSIONID', array( 'location' => 'NOTALOCATION', 'mediaMode' => 'relayed' ) )
+            array('SESSIONID', array( 'location' => 'NOTALOCATION', 'mediaMode' => MediaMode::RELAYED ) )
         );
     }
 
@@ -100,7 +101,7 @@ class SessionTest extends PHPUnit_Framework_TestCase
         $session = new Session($this->opentok, $sessionId, array( 'notrealproperty' => 'notrealvalue' ));
         $this->assertEquals($sessionId, $session->getSessionId());
         $this->assertEmpty($session->getLocation());
-        $this->assertEquals('routed', $session->getMediaMode());
+        $this->assertEquals(MediaMode::ROUTED, $session->getMediaMode());
     }
 
     public function testCastingToString()

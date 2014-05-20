@@ -27,6 +27,7 @@
 namespace OpenTok;
 
 use OpenTok\OpenTok;
+use OpenTok\MediaMode;
 use OpenTok\Util\Validators;
 
 /**
@@ -60,7 +61,7 @@ class Session
     function __construct($opentok, $sessionId, $properties = array())
     {
         // unpack arguments
-        $defaults = array('mediaMode' => 'routed', 'location' => null);
+        $defaults = array('mediaMode' => MediaMode::ROUTED, 'location' => null);
         $properties = array_merge($defaults, array_intersect_key($properties, $defaults));
         list($mediaMode, $location) = array_values($properties);
 

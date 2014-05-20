@@ -5,6 +5,7 @@ use Guzzle\Plugin\Mock\MockPlugin;
 use OpenTok\OpenTok;
 use OpenTok\Session;
 use OpenTok\Role;
+use OpenTok\MediaMode;
 use OpenTok\Util\Client;
 
 use OpenTok\TestHelpers;
@@ -66,7 +67,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // Act
         $session = $this->opentok->createSession(array(
             'location' => '12.34.56.78',
-            'mediaMode' => 'routed'
+            'mediaMode' => MediaMode::ROUTED
         ));
 
         // Assert
@@ -115,7 +116,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
 
         // Act
         $session = $this->opentok->createSession(array(
-            'mediaMode' => 'relayed'
+            'mediaMode' => MediaMode::RELAYED
         ));
 
         // Assert
