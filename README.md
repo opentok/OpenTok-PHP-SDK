@@ -47,16 +47,21 @@ $opentok = new OpenTok($apiKey, $apiSecret);
 ## Creating Sessions
 
 To create an OpenTok Session, use the `createSession($properties)` method of the
-`OpenTok\OpenTok` class. The `$options` parameter is an optional array used to specify whether you
-are creating a p2p Session and specifying a location hint. The `getSessionId()` method of the
-`OpenTok\Session` instance is useful to get a sessionId that can be saved to a persistent store
-(e.g. database).
+`OpenTok\OpenTok` class. The `$options` parameter is an optional array used to specify the following:
+
+* Setting whether the session will use the OpenTok Media Router or attempt send streams directly
+  between clients.
+
+* Specifying a location hint.
+
+The `getSessionId()` method of the `OpenTok\Session` instance is useful to get a session ID,
+which you use to identify the session in the OpenTok client libraries.
 
 ```php
 // Just a plain Session
 $session = $openTok->createSession();
-// A p2p Session
-$session = $openTok->createSession(array( 'p2p' => true ));
+// The session will use the OpenTok Media Router
+$session = $openTok->createSession(array( 'mediaMode' => MediaMode::ROUTED ));
 // A Session with a location hint
 $session = $openTok->createSession(array( 'location' => '12.34.56.78' ));
 
