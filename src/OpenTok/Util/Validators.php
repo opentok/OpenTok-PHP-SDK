@@ -4,6 +4,7 @@ namespace OpenTok\Util;
 
 use OpenTok\Util\Client;
 use OpenTok\Role;
+use OpenTok\MediaMode;
 use OpenTok\OpenTok;
 
 use OpenTok\Exception\InvalidArgumentException;
@@ -179,9 +180,9 @@ class Validators
     }
     public static function validateMediaMode($mediaMode)
     {
-        if ($mediaMode != null && !($mediaMode === "routed" || $mediaMode === "relayed")) {
+        if (!MediaMode::isValidValue($mediaMode)) {
             throw new InvalidArgumentException(
-                'The media mode option must be either \'routed\' or \'relayed\'. mediaMode:'.print_r($mediaMode, true)
+                'The media mode option must be either \'MediaMode::ROUTED\' or \'MediaMode::RELAYED\'. mediaMode:'.print_r($mediaMode, true)
             );
         }
     }
