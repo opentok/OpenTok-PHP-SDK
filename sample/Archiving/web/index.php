@@ -103,14 +103,7 @@ $app->get('/download/:archiveId', function ($archiveId) use ($app) {
 
 $app->get('/start', function () use ($app, $sessionId) {
 
-    try {
-        $archive = $app->opentok->startArchive($sessionId, "PHP Archiving Sample App");
-    } catch (Exception $e) {
-        $guzzleException = $e->getPrevious();
-        $app->log->debug($sessionId);
-        $app->log->debug(print_r($guzzleException->getRequest()->getPostFields(), true));
-        $app->halt(500, 'Error starting archive');
-    }
+    $archive = $app->opentok->startArchive($sessionId, "PHP Archiving Sample App");
 
     $app->response->headers->set('Content-Type', 'application/json');
     echo json_encode($archive);
