@@ -3,12 +3,11 @@
 [![Build Status](https://travis-ci.org/opentok/Opentok-PHP-SDK.svg?branch=modernization)](https://travis-ci.org/opentok/Opentok-PHP-SDK)
 
 The OpenTok PHP SDK lets you generate [sessions](http://tokbox.com/opentok/tutorials/create-session/) and
-[tokens](http://tokbox.com/opentok/tutorials/create-token/) for [OpenTok](http://www.tokbox.com/) applications.
-This version of the SDK also includes support for working with OpenTok 2.0 archives.
+[tokens](http://tokbox.com/opentok/tutorials/create-token/) for [OpenTok](http://www.tokbox.com/)
+applications, and work with work with <a href="http://tokbox.com/#archiving"OpenTok 2.0
+archives</a>.
 
-# Installation
-
-## Composer (recommended):
+# Installation with Composer (recommended):
 
 Composer helps manage dependencies for PHP projects. Find more info here: <http://getcomposer.org>
 
@@ -18,11 +17,6 @@ command line:
 ```
 $ composer require opentok/opentok 2.2.x
 ```
-
-## Manually:
-
-Download the latest release from the [Releases](https://github.com/opentok/Opentok-PHP-SDK/releases)
-page. Extract the files into a directory inside your project.
 
 # Usage
 
@@ -46,7 +40,7 @@ $opentok = new OpenTok($apiKey, $apiSecret);
 
 ## Creating Sessions
 
-To create an OpenTok Session, use the `createSession($properties)` method of the
+To create an OpenTok Session, use the `createSession($options)` method of the
 `OpenTok\OpenTok` class. The `$options` parameter is an optional array used to specify the following:
 
 * Setting whether the session will use the OpenTok Media Router or attempt send streams directly
@@ -54,7 +48,7 @@ To create an OpenTok Session, use the `createSession($properties)` method of the
 
 * Specifying a location hint.
 
-The `getSessionId()` method of the `OpenTok\Session` instance is useful to get a session ID,
+The `getSessionId()` method of the `OpenTok\Session` instance returns the session ID,
 which you use to identify the session in the OpenTok client libraries.
 
 ```php
@@ -83,7 +77,7 @@ use OpenTok\Role;
 
 // Generate a Token from just a sessionId (fetched from a database)
 $token = OpenTok->generateToken($sessionId);
-// Generate a Token by callin the method on the Session (returned from createSession)
+// Generate a Token by calling the method on the Session (returned from createSession)
 $token = $session->generateToken();
 
 // Set some options in a token
@@ -152,7 +146,7 @@ $totalCount = $archiveList->totalCount();
 
 # Documentation
 
-Reference documentation is available at <http://www.tokbox.com//opentok/libraries/server/java/reference/index.html> and in the
+Reference documentation is available at <http://www.tokbox.com/opentok/libraries/server/java/reference/index.html> and in the
 docs directory of the SDK.
 
 # Requirements
@@ -161,19 +155,22 @@ You need an OpenTok API key and API secret, which you can obtain at <https://das
 
 The OpenTok PHP SDK requires PHP 5.3 or greater.
 
-# Release Notes
-
-TODO: See the [Releases](https://github.com/opentok/opentok-php-sdk/releases) page for details about
-each release.
-
-## Important changes in v2.2
+# Important changes in v2.2
 
 This version of the SDK includes support for working with OpenTok 2.0 archives. (This API does not
 work with OpenTok 1.0 archives.)
 
-The names of many methods of the API have changed. Many method names (such as createSession()) have
-changed to use camel case. See the reference documentation
-<http://www.tokbox.com//opentok/libraries/server/java/reference/index.html> and in the
+The names of many methods of the API have changed. Many method names have
+changed to use camel case, including the following:
+
+* OpenTok.createSession()
+* OpenTok.generateToken()
+
+Note also that the `options` parameter of the `OpenTok.createSession()` method has a `mediaMode`
+property instead of a `p2p` property.
+
+See the reference documentation
+<http://www.tokbox.com/opentok/libraries/server/java/reference/index.html> and in the
 docs directory of the SDK.
 
 # Development and Contributing
