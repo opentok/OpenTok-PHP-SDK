@@ -75,7 +75,7 @@ class ArchiveList {
     /**
      * Returns an array of Archive objects.
      */
-    public function items()
+    public function getItems()
     {
         if (!$this->items) {
             $items = array();

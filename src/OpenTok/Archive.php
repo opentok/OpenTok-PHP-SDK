@@ -169,6 +169,9 @@ class Archive {
         return false;
     }
 
+    /**
+     * Returns a JSON representation of this Archive object.
+     */
     public function toJson()
     {
         return $this->json;
