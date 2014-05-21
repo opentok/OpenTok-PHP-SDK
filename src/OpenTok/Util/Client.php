@@ -86,9 +86,7 @@ class Client extends \Guzzle\Http\Client
     public function stopArchive($archiveId)
     {
         // set up the request
-        $request = $this->post('/v2/partner/'.$this->apiKey.'/archive/'.$archiveId);
-        $params = array( 'action' => 'stop' );
-        $request->setBody(json_encode($params));
+        $request = $this->post('/v2/partner/'.$this->apiKey.'/archive/'.$archiveId.'/stop');
         $request->setHeader('Content-Type', 'application/json');
 
         try {
