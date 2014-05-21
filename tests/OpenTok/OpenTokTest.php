@@ -329,7 +329,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // Arrange
         $mock = new MockPlugin();
         $response = MockPlugin::getMockFile(
-            self::$mockBasePath . 'v2/partner/APIKEY/archive/ARCHIVEID/action-stop'
+            self::$mockBasePath . 'v2/partner/APIKEY/archive/ARCHIVEID/stop'
         );
         $mock->addResponse($response);
         $this->client->addSubscriber($mock);
@@ -345,7 +345,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
 
         $request = $requests[0];
         $this->assertEquals('POST', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/partner/'.$this->API_KEY.'/archive/'.$archiveId, $request->getPath());
+        $this->assertEquals('/v2/partner/'.$this->API_KEY.'/archive/'.$archiveId.'/stop', $request->getPath());
         $this->assertEquals('api.opentok.com', $request->getHost());
         $this->assertEquals('https', $request->getScheme());
 
@@ -361,9 +361,6 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $userAgent = $request->getHeader('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/dev-modernization', $userAgent->__toString());
-
-        $body = json_decode($request->getBody());
-        $this->assertEquals('stop', $body->action);
 
         $this->assertInstanceOf('OpenTok\Archive', $archive);
         // TODO: test the properties of the actual archive object

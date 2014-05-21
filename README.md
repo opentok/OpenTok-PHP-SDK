@@ -145,7 +145,7 @@ an instance of the `OpenTok\ArchiveList` class.
 $archiveList = $opentok->listArchives();
 
 // Get an array of OpenTok\Archive instances
-$archives = $archiveList->items();
+$archives = $archiveList->getItems();
 // Get the total number of Archives for this API Key
 $totalCount = $archiveList->totalCount();
 ```
@@ -163,7 +163,7 @@ The OpenTok PHP SDK requires PHP 5.3 or greater.
 
 # Release Notes
 
-TODO: See the [Releases](https://github.com/opentok/opentok-php-sdk/releases) page for details about 
+TODO: See the [Releases](https://github.com/opentok/opentok-php-sdk/releases) page for details about
 each release.
 
 ## Important changes in v2.2
