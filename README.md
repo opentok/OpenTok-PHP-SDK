@@ -146,7 +146,7 @@ $totalCount = $archiveList->totalCount();
 
 # Documentation
 
-Reference documentation is available at <http://www.tokbox.com/opentok/libraries/server/java/reference/index.html> and in the
+Reference documentation is available at <http://www.tokbox.com/opentok/libraries/server/php/reference/index.html> and in the
 docs directory of the SDK.
 
 # Requirements
@@ -170,7 +170,7 @@ Note also that the `options` parameter of the `OpenTok.createSession()` method h
 property instead of a `p2p` property.
 
 See the reference documentation
-<http://www.tokbox.com/opentok/libraries/server/java/reference/index.html> and in the
+<http://www.tokbox.com/opentok/libraries/server/php/reference/index.html> and in the
 docs directory of the SDK.
 
 # Development and Contributing
