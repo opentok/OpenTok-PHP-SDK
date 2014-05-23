@@ -7,6 +7,9 @@ The OpenTok PHP SDK lets you generate [sessions](http://tokbox.com/opentok/tutor
 applications, and work with work with <a href="http://tokbox.com/platform/archiving"OpenTok 2.0
 archives</a>.
 
+If you are updating from a previous version of this SDK, see
+[Important changes in v2.2](#important-changes-in-v22).
+
 # Installation with Composer (recommended):
 
 Composer helps manage dependencies for PHP projects. Find more info here: <http://getcomposer.org>
