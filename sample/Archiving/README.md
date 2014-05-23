@@ -28,6 +28,10 @@ $ ./run-demo
 Visit <http://localhost:8080> in your browser. Open it again in a second window. Smile! You've just
 set up a group chat.
 
+Hint: If you get an error message that says "The sessionId must belong to the apiKey", you might
+need to remove the `cache` directory in the sample app directory. This can happen if you try running
+the app with a different API Key than you used the last time it ran.
+
 ## Walkthrough
 
 This demo application uses the [Slim PHP micro-framework](http://www.slimframework.com/) and

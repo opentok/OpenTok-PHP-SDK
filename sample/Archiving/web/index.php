@@ -1,6 +1,11 @@
 <?php
 
-require __DIR__.'/../vendor/autoload.php';
+$autoloader = __DIR__.'/../vendor/autoload.php';
+if (!file_exists($autoloader)) {
+  die('You must run `composer install` in the sample app directory');
+}
+
+require($autoloader);
 
 use Slim\Slim;
 use Gregwar\Cache\Cache;
