@@ -6,7 +6,7 @@ connect and conduct a group chat.
 
 ## Running the App
 
-First, download the dependencies using [Composer](http://getcomposer.org).
+First, download the dependencies using [Composer](http://getcomposer.org) in this directory.
 
 ```
 $ composer install
