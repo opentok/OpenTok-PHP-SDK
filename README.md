@@ -171,6 +171,8 @@ changed to use camel case, including the following:
 Note also that the `options` parameter of the `OpenTok.createSession()` method has a `mediaMode`
 property instead of a `p2p` property.
 
+The API_Config class has been removed. Store your OpenTok API key and API secret in code outside of the SDK files.
+
 See the reference documentation
 <http://www.tokbox.com/opentok/libraries/server/php/reference/index.html> and in the
 docs directory of the SDK.
