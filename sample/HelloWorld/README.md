@@ -15,8 +15,8 @@ $ composer install
 Next, input your own API Key and API Secret into the `run-demo` script file:
 
 ```
-export API_KEY=0000000
-export API_SECRET=abcdef1234567890abcdef01234567890abcdef
+  export API_KEY=0000000
+  export API_SECRET=abcdef1234567890abcdef01234567890abcdef
 ```
 
 Finally, start the PHP CLI development server (requires PHP >= 5.4) using the `run-demo` script

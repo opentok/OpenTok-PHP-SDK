@@ -146,6 +146,14 @@ $archives = $archiveList->getItems();
 $totalCount = $archiveList->totalCount();
 ```
 
+# Samples
+
+There are two sample applications included in this repository. To get going as fast as possible, clone the whole
+repository and follow the Walkthroughs:
+
+*  [HelloWorld](sample/HelloWorld/README.md)
+*  [Archiving](sample/Archiving/README.md)
+
 # Documentation
 
 Reference documentation is available at <http://www.tokbox.com/opentok/libraries/server/php/reference/index.html> and in the
@@ -157,7 +165,12 @@ You need an OpenTok API key and API secret, which you can obtain at <https://das
 
 The OpenTok PHP SDK requires PHP 5.3 or greater.
 
-# Important changes in v2.2
+# Release Notes
+
+See the [Releases](https://github.com/opentok/opentok-java-sdk/releases) page for details
+about each release.
+
+## Important changes in v2.2
 
 This version of the SDK includes support for working with OpenTok 2.0 archives. (This API does not
 work with OpenTok 1.0 archives.)
