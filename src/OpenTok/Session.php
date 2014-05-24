@@ -111,6 +111,35 @@ class Session
         return $this->sessionId;
     }
 
+    /**
+     * Creates a token for connecting to the session. In order to authenticate a user,
+     * cthe client passes a token when connecting to the session.
+     * <p>
+     * For testing, you can also use the <a href="https://dashboard.tokbox.com/projects">OpenTok
+     * dashboard</a> page to generate test tokens.
+     *
+     * @param array $options This array defines options for the token. This array include the
+     * following keys, all of which are optional:
+     *
+     * <ul>
+     *
+     *    <li><code>'role'</code> (string) &mdash; One of the constants defined in the RoleConstants
+     *    class. The default role is publisher</li>
+     *
+     *    <li><code>'expireTime'</code> (int) &mdash; The timestamp for when the token expires,
+     *    in milliseconds since the Unix epoch. The default expiration time is 24 hours
+     *    after the token creation time. The maximum expiration time is 30 days after the
+     *    token creation time.</li>
+     *
+     *    <li><code>'data'</code> (string) &mdash; A string containing connection metadata
+     *    describing the end-user. For example, you can pass the user ID, name, or other data
+     *    describing the end-user. The length of the string is limited to 1000 characters.
+     *    This data cannot be updated once it is set.</li>
+     *
+     * </ul>
+     *
+     * @return string The token string.
+     */
     public function generateToken($options = array())
     {
         return $this->opentok->generateToken($this->sessionId, $options);
