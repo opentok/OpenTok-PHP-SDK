@@ -56,8 +56,8 @@ which you use to identify the session in the OpenTok client libraries.
 ```php
 // Just a plain Session
 $session = $openTok->createSession();
-// The session will use the OpenTok Media Router
-$session = $openTok->createSession(array( 'mediaMode' => MediaMode::ROUTED ));
+// A Session that attempts to use peer-to-peer streaming
+$session = $openTok->createSession(array( 'mediaMode' => MediaMode::RELAYED ));
 // A Session with a location hint
 $session = $openTok->createSession(array( 'location' => '12.34.56.78' ));
 
@@ -98,7 +98,7 @@ of the `OpenTok\OpenTok` class. This will return an `OpenTok\Archive` instance. 
 Archive on a Session that has clients connected.
 
 ```php
-$archive = $opentok->startArchive($sessionId);
+$archive = $opentok->startArchive($sessionId, $name);
 
 // Store this archiveId in the database for later use
 $archiveId = $archive->id;
@@ -115,7 +115,7 @@ $opentok->stopArchive($archiveId);
 $archive->stop();
 ```
 
-To get an `OpenTok\Archive` instance (and all the information about it) from an archiveId, use the
+To get an `OpenTok\Archive` instance (and all the information about it) from an archive ID, use the
 `getArchvie($archiveId)` method of the `OpenTok\OpenTok` class.
 
 ```php
@@ -134,7 +134,7 @@ $archive->delete();
 
 You can also get a list of all the Archives you've created (up to 1000) with your API Key. This is
 done using the `listArchives($offset, $count)` method of the `OpenTok/OpenTok` class. The parameters
-`$offset` and `$count` are optional and can help you paginate through the results. This wil return
+`$offset` and `$count` are optional and can help you paginate through the results. This will return
 an instance of the `OpenTok\ArchiveList` class.
 
 ```php
