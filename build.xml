@@ -1,17 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<project name="opentok" default="hello">
-
-  <!-- ============================================  -->
-  <!-- (DEFAULT)  Target: hello                      -->
-  <!-- ============================================  -->
-  <target name="hello" description="Says Hello">
-    <echo msg="Hello, world!" />
-  </target>
+<project name="opentok" default="test">
 
   <target name="test" description="run unit tests">
-    <php expression="include('./vendor/autoload.php')"/>
-    <phpunit configuration="./phpunit.xml.dist" printsummary="true"/>
+    <exec command="./vendor/bin/phpunit" passthru="true" checkreturn="true" />
   </target>
 
 </project>
