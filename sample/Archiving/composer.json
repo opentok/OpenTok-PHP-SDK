@@ -1,0 +1,10 @@
+{
+  "name": "archiving-php",
+  "require": {
+    "slim/slim": "2.*",
+    "slim/views": "0.1.*",
+    "twig/twig": "1.*",
+    "gregwar/cache": "1.0.*",
+    "opentok/opentok": "dev-modernization"
+  }
+}

@@ -1,0 +1,9 @@
+#!/bin/sh
+
+if [[ -z $API_KEY || -z $API_SECRET ]]
+then
+  export API_KEY=
+  export API_SECRET=
+fi
+
+php -S localhost:8080 -t web web/index.php

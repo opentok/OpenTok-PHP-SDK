@@ -4,6 +4,7 @@ namespace OpenTok\Util;
 
 use OpenTok\Util\Client;
 use OpenTok\Role;
+use OpenTok\MediaMode;
 use OpenTok\OpenTok;
 
 use OpenTok\Exception\InvalidArgumentException;
@@ -11,6 +12,9 @@ use OpenTok\Exception\InvalidArgumentException;
 use JsonSchema\Uri\UriRetriever;
 use JsonSchema\Validator;
 
+/**
+* @internal
+*/
 class Validators
 {
     static $guidRegEx = '/^\[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}\$/';
@@ -174,11 +178,11 @@ class Validators
             );
         }
     }
-    public static function validateP2p($p2p)
+    public static function validateMediaMode($mediaMode)
     {
-        if ($p2p != null && !is_bool($p2p)) {
+        if (!MediaMode::isValidValue($mediaMode)) {
             throw new InvalidArgumentException(
-                'The p2p option must be a boolean. p2p:'.print_r($p2p, true)
+                'The media mode option must be either \'MediaMode::ROUTED\' or \'MediaMode::RELAYED\'. mediaMode:'.print_r($mediaMode, true)
             );
         }
     }

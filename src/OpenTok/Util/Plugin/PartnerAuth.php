@@ -5,6 +5,9 @@ namespace OpenTok\Util\Plugin;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Guzzle\Common\Event;
 
+/**
+* @internal
+*/
 class PartnerAuth implements EventSubscriberInterface
 {
     protected $apiKey;

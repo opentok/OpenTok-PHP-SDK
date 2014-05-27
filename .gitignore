@@ -1,2 +1,5 @@
+*.DS_Store
 vendor/
 phpunit.xml
+sample/HelloWorld/vendor/
+sample/HelloWorld/cache/

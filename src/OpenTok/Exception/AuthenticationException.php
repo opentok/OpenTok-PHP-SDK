@@ -3,7 +3,10 @@
 namespace OpenTok\Exception;
 
 // TODO: this kind of exception is more meaningful if we pass in the apiKey and apiSecret
-class AuthenticationException extends OpenTok\DomainException implements \OpenTok\Exception\Exception
+/**
+ * Defines the exception thrown when you use an invalid API or secret.
+ */
+class AuthenticationException extends OpenTok\Exception\DomainException implements \OpenTok\Exception\Exception
 {
     public function __construct($apiKey, $apiSecret, $code = 0, $previous)
     {

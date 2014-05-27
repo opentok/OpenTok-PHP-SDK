@@ -16,9 +16,14 @@ use OpenTok\Exception\ArchiveUnexpectedValueException;
 use OpenTok\Exception\ArchiveAuthenticationException;
 
 // TODO: build this dynamically
-define('OPENTOK_SDK_VERSION', '2.0.0-beta');
+/** @internal */
+define('OPENTOK_SDK_VERSION', 'dev-modernization');
+/** @internal */
 define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
 
+/**
+* @internal
+*/
 class Client extends \Guzzle\Http\Client
 {
     protected $apiKey;
@@ -83,9 +88,7 @@ class Client extends \Guzzle\Http\Client
     public function stopArchive($archiveId)
     {
         // set up the request
-        $request = $this->post('/v2/partner/'.$this->apiKey.'/archive/'.$archiveId);
-        $params = array( 'action' => 'stop' );
-        $request->setBody(json_encode($params));
+        $request = $this->post('/v2/partner/'.$this->apiKey.'/archive/'.$archiveId.'/stop');
         $request->setHeader('Content-Type', 'application/json');
 
         try {
@@ -140,11 +143,8 @@ class Client extends \Guzzle\Http\Client
 
     private function postFieldsForOptions($options)
     {
-        if (!isset($options['p2p'])) {
-            unset($options['p2p']);
-        } else {
-            $options['p2p.preference'] = $options['p2p'] ? 'enabled' : 'disabled';
-        }
+        $options['p2p.preference'] = empty($options['mediaMode']) ? MediaMode::ROUTED : $options['mediaMode'];
+        unset($options['mediaMode']);
         if (empty($options['location'])) {
             unset($options['location']);
         }
