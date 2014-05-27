@@ -3,6 +3,6 @@
   "require": {
     "slim/slim": "2.*",
     "gregwar/cache": "1.0.*",
-    "opentok/opentok": "dev-modernization"
+    "opentok/opentok": "2.2.*"
   }
 }
