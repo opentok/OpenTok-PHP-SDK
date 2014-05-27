@@ -1,6 +1,6 @@
 # OpenTok PHP SDK
 
-[![Build Status](https://travis-ci.org/opentok/OpenTok-PHP-SDK.svg?branch=modernization)](https://travis-ci.org/opentok/OpenTok-PHP-SDK)
+[![Build Status](https://travis-ci.org/opentok/OpenTok-PHP-SDK.svg)](https://travis-ci.org/opentok/OpenTok-PHP-SDK)
 
 The OpenTok PHP SDK lets you generate [sessions](http://tokbox.com/opentok/tutorials/create-session/) and
 [tokens](http://tokbox.com/opentok/tutorials/create-token/) for [OpenTok](http://www.tokbox.com/)
