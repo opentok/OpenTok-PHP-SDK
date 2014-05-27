@@ -9,7 +9,9 @@ applications, and [archive](http://tokbox.com/#archiving) OpenTok 2.0 sessions.
 If you are updating from a previous version of this SDK, see
 [Important changes in v2.2](#important-changes-in-v22).
 
-# Installation with Composer (recommended):
+# Installation
+
+## Composer (recommended):
 
 Composer helps manage dependencies for PHP projects. Find more info here: <http://getcomposer.org>
 
@@ -19,6 +21,15 @@ command line:
 ```
 $ composer require opentok/opentok 2.2.x
 ```
+
+## Manually:
+
+Download the zip file for the latest release from the [Releases](https://github.com/opentok/opentok-php-sdk/releases)
+page. Unzip the file and place it into your project directory. If you have a
+[PSR-4](http://www.php-fig.org/psr/psr-4/) compliant loader, you should place the unzipped directory
+into a place your loader can find it. Otherwise, place it in the
+[include_path](http://www.php.net/manual/en/ini.core.php#ini.include-path) and include or require
+the files as necessary.
 
 # Usage
 
@@ -192,10 +203,8 @@ docs directory of the SDK.
 
 # Development and Contributing
 
-Interested in contributing? We <3 pull requests! File a new
-[Issue](https://github.com/opentok/opentok-php-sdk/issues) or take a look at the existing ones. If
-you are going to send us a pull request, please try to run the test suite first and also include
-tests for your changes.
+Interested in contributing? We :heart: pull requests! See the [Development](DEVELOPING.md) and
+[Contribution](CONTRIBUTING.md) guidelines.
 
 # Support
 
