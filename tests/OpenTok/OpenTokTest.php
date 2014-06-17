@@ -54,7 +54,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // Assert
     }
 
-    public function testCreatesMediaRouterAndLocationSession()
+    public function testCreatesMediaRoutedAndLocationSession()
     {
         // Arrange
         $mock = new MockPlugin();
@@ -87,7 +87,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/dev-modernization', $userAgent->__toString());
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.2.1-alpha.1', $userAgent->__toString());
 
         $location = $request->getPostField('location');
         $this->assertEquals('12.34.56.78', $location);
@@ -136,7 +136,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/dev-modernization', $userAgent->__toString());
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.2.1-alpha.1', $userAgent->__toString());
 
         $p2p_preference = $request->getPostField('p2p.preference');
         $this->assertEquals('enabled', $p2p_preference);
@@ -314,7 +314,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/dev-modernization', $userAgent->__toString());
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.2.1-alpha.1', $userAgent->__toString());
 
         $body = json_decode($request->getBody());
         $this->assertEquals($sessionId, $body->sessionId);
@@ -360,7 +360,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/dev-modernization', $userAgent->__toString());
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.2.1-alpha.1', $userAgent->__toString());
 
         $this->assertInstanceOf('OpenTok\Archive', $archive);
         // TODO: test the properties of the actual archive object
@@ -400,7 +400,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/dev-modernization', $userAgent->__toString());
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.2.1-alpha.1', $userAgent->__toString());
 
         $this->assertInstanceOf('OpenTok\Archive', $archive);
         // TODO: test the properties of the actual archive object
@@ -442,7 +442,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/dev-modernization', $userAgent->__toString());
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.2.1-alpha.1', $userAgent->__toString());
 
         $this->assertTrue($success);
         // TODO: test the properties of the actual archive object
@@ -479,7 +479,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/dev-modernization', $userAgent->__toString());
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.2.1-alpha.1', $userAgent->__toString());
 
         $this->assertInstanceOf('OpenTok\ArchiveList', $archiveList);
         // TODO: test the properties of the actual archiveList object and its contained archive

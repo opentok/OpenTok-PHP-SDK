@@ -30,6 +30,8 @@ In order to create a release, the following should be completed in order.
    - sample/HelloWorld/composer.json
    - sample/Archiving/composer.json
    - README.md
+   - tests/OpenTok/OpenTokTest.php
+   - tests/OpenTok/ArchiveTest.php
 1. Commit the version number change with the message "Update to version x.x.x", substituting the new version number.
 1. Create a git tag: `git tag -a vx.x.x -m "Release vx.x.x"`
 1. Change the version number for future development by adding "-alpha.1" in each file, then make another commit with the
