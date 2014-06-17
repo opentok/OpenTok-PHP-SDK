@@ -181,7 +181,7 @@ class OpenTok {
     public function createSession($options=array())
     {
         // unpack optional arguments (merging with default values) into named variables
-        $defaults = array('mediaMode' => MediaMode::ROUTED, 'location' => null);
+        $defaults = array('mediaMode' => MediaMode::RELAYED, 'location' => null);
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
         list($mediaMode, $location) = array_values($options);
 
