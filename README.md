@@ -65,11 +65,11 @@ The `getSessionId()` method of the `OpenTok\Session` instance returns the sessio
 which you use to identify the session in the OpenTok client libraries.
 
 ```php
-// Just a plain Session
+// Create a session that attempts to use peer-to-peer streaming:
 $session = $openTok->createSession();
-// A Session that attempts to use peer-to-peer streaming
-$session = $openTok->createSession(array( 'mediaMode' => MediaMode::RELAYED ));
-// A Session with a location hint
+// A session that uses the OpenTok Media Router:
+$session = $openTok->createSession(array( 'mediaMode' => MediaMode::ROUTED ));
+// A session with a location hint:
 $session = $openTok->createSession(array( 'location' => '12.34.56.78' ));
 
 // Store this sessionId in the database for later use
