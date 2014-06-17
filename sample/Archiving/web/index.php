@@ -12,6 +12,7 @@ use Gregwar\Cache\Cache;
 
 use OpenTok\OpenTok;
 use OpenTok\Role;
+use OpenTok\MediaMode;
 
 // PHP CLI webserver compatibility, serving static files
 $filename = __DIR__.preg_replace('#(\?.*)$#', '', $_SERVER['REQUEST_URI']);
@@ -45,7 +46,9 @@ $app->apiKey = getenv('API_KEY');
 // If a sessionId has already been created, retrieve it from the cache
 $sessionId = $app->cache->getOrCreate('sessionId', array(), function() use ($app) {
     // If the sessionId hasn't been created, create it now and store it
-    $session = $app->opentok->createSession();
+    $session = $app->opentok->createSession(array(
+      'mediaMode' => MediaMode::ROUTED
+    ));
     return $session->getSessionId();
 });
 

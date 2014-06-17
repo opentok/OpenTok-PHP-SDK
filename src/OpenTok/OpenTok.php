@@ -138,7 +138,15 @@ class OpenTok {
     *
     *     <li><code>'mediaMode'</code> (String) &mdash; Whether the session will transmit
     *     streams using the OpenTok Media Router (<code>MediaMode.ROUTED</code>) or not
-    *     (<code>MediaMode.RELAYED</code>). By default, sessions use the OpenTok Media Router.
+    *     (<code>MediaMode.RELAYED</code>). By default, the <code>mediaMode</code> property
+    *     is set to <code>MediaMode.RELAYED</code>.
+    *
+    *     <p>
+    *     With the <code>mediaMode</code> parameter set to <code>MediaMode.RELAYED</code>, the
+    *     session will attempt to transmit streams directly between clients. If clients cannot
+    *     connect due to firewall restrictions, the session uses the OpenTok TURN server to relay
+    *     audio-video streams.
+    *
     *     <p>
     *     The <a href="http://tokbox.com/#multiparty" target="_top"> OpenTok Media Router</a>
     *     provides the following benefits:
@@ -160,11 +168,6 @@ class OpenTok {
     *     </ul>
     *
     *     <p>
-    *     With the <code>mediaMode</code> parameter set to <code>MediaMode.RELAYED</code>, the session
-    *     will attempt to transmit streams directly between clients. If clients cannot connect due
-    *     to firewall restrictions, the session uses the OpenTok TURN server to relay audio-video
-    *     streams.
-    *     <p>
     *     You will be billed for streamed minutes if you use the OpenTok Media Router or if the
     *     session uses the OpenTok TURN server to relay streams. For information on pricing, see the
     *     <a href="http://www.tokbox.com/pricing" target="_top">OpenTok pricing page</a>.
@@ -181,7 +184,7 @@ class OpenTok {
     public function createSession($options=array())
     {
         // unpack optional arguments (merging with default values) into named variables
-        $defaults = array('mediaMode' => MediaMode::ROUTED, 'location' => null);
+        $defaults = array('mediaMode' => MediaMode::RELAYED, 'location' => null);
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
         list($mediaMode, $location) = array_values($options);
 
