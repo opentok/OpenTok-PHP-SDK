@@ -68,7 +68,7 @@ which you use to identify the session in the OpenTok client libraries.
 // Create a session that attempts to use peer-to-peer streaming:
 $session = $openTok->createSession();
 // A session that uses the OpenTok Media Router:
-$session = $openTok->createSession(array( 'mediaMode' => MediaMode::RELAYED ));
+$session = $openTok->createSession(array( 'mediaMode' => MediaMode::ROUTED ));
 // A session with a location hint:
 $session = $openTok->createSession(array( 'location' => '12.34.56.78' ));
 
