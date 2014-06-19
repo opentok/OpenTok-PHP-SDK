@@ -7,7 +7,7 @@ The OpenTok PHP SDK lets you generate [sessions](http://tokbox.com/opentok/tutor
 applications, and [archive](http://tokbox.com/#archiving) OpenTok 2.0 sessions.
 
 If you are updating from a previous version of this SDK, see
-[Important changes in v2.2](#important-changes-in-v22).
+[Important changes since v2.2.0](#important-changes-since-v220).
 
 # Installation
 
@@ -181,7 +181,17 @@ The OpenTok PHP SDK requires PHP 5.3 or greater.
 See the [Releases](https://github.com/opentok/opentok-php-sdk/releases) page for details
 about each release.
 
-## Important changes in v2.2.1
+# Important changes since v2.2.0
+
+**Changes in v2.2.1:**
+
+The default setting for the `createSession()` method is to create a session with the media mode set
+to relayed. In previous versions of the SDK, the default setting was to use the OpenTok Media Router
+(media mode set to routed). In a relayed session, clients will attempt to send streams directly
+between each other (peer-to-peer); if clients cannot connect due to firewall restrictions, the
+session uses the OpenTok TURN server to relay audio-video streams.
+
+**Changes in v2.2.0:**
 
 This version of the SDK includes support for working with OpenTok 2.0 archives. (This API does not
 work with OpenTok 1.0 archives.)
@@ -194,12 +204,6 @@ changed to use camel case, including the following:
 
 Note also that the `options` parameter of the `OpenTok.createSession()` method has a `mediaMode`
 property instead of a `p2p` property.
-
-The default setting for the `createSession()` method is to create a session with the media mode set
-to relayed. In previous versions of the SDK, the default setting was to use the OpenTok Media Router
-(media mode set to routed). In a relayed session, clients will attempt to send streams directly
-between each other (peer-to-peer); if clients cannot connect due to firewall restrictions, the
-session uses the OpenTok TURN server to relay audio-video streams.
 
 The API_Config class has been removed. Store your OpenTok API key and API secret in code outside of the SDK files.
 
