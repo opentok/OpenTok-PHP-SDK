@@ -25,19 +25,21 @@ In order to create a release, the following should be completed in order.
 1. Ensure all the tests are passing (`./vendor/bin/phing test`) and that there is enough test coverage.
 1. Make sure you are on the `master` branch of the repository, with all changes merged/commited already.
 1. Update the version number in the source code and the README. See [Versioning](#versioning) for information
-   about selecting an appropriate version number. Files to change:
+   about selecting an appropriate version number. Files to inspect for possible need to change:
    - src/OpenTok/Util/Client.php
-   - sample/HelloWorld/composer.json
-   - sample/Archiving/composer.json
-   - README.md
    - tests/OpenTok/OpenTokTest.php
    - tests/OpenTok/ArchiveTest.php
+   - sample/HelloWorld/composer.json (only needs to change when MINOR version is changing)
+   - sample/Archiving/composer.json (only needs to change when MINOR version is changing)
+   - README.md (only needs to change when MINOR version is changing)
 1. Commit the version number change with the message "Update to version x.x.x", substituting the new version number.
 1. Create a git tag: `git tag -a vx.x.x -m "Release vx.x.x"`
-1. Change the version number for future development by adding "-alpha.1" in each file, then make another commit with the
+1. Change the version number for future development by incrementing the PATH number and adding
+   "-alpha.1" in each file except samples and documentation. Then make another commit with the
    message "Begin development on next version".
-1. Push the changes to the source repository: `git push origin master`
-1. Create a zip for uploading the release to Github Releases
+1. Push the changes to the source repository: `git push origin master; git push --tags origin`
+1. Create a zip for uploading the release to Github Releases:
+   `cd src; zip -r opentok-php-sdk-x.y.z.zip OpenTok/`
 
 ## Workflow
 
