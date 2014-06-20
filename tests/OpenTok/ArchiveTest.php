@@ -154,6 +154,35 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
 
     }
 
+    public function testAllowsUnknownProperties()
+    {
+      // Set up fixtures
+      $archiveJson = array(
+          'createdAt' => 1394394801000,
+          'duration' => 0,
+          'id' => '063e72a4-64b4-43c8-9da5-eca071daab89',
+          'name' => 'showtime',
+          'partnerId' => 854511,
+          'reason' => '',
+          'sessionId' => '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-',
+          'size' => 0,
+          'status' => 'started',
+          'url' => null,
+          'notarealproperty' => 'not a real value'
+      );
+      $apiKey = defined('API_KEY') ? API_KEY : '12345678';
+      $apiSecret = defined('API_SECRET') ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
+
+      $client = new Client();
+      $archive = new Archive($this->archiveJson, array(
+          'apiKey' => $this->API_KEY,
+          'apiSecret' => $this->API_SECRET,
+          'client' => $this->client
+      ));
+
+      $this->assertInstanceOf('OpenTok\Archive', $archive);
+    }
+
     // TODO: test deleted archive can not be stopped or deleted again
 }
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/
