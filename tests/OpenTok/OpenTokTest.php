@@ -529,5 +529,26 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the properties of the actual archiveList object and its contained archive
         // objects
     }
+
+    // TODO: sloppy test in a pinch
+    public function testGetsExpiredArchive()
+    {
+        // Arrange
+        $mock = new MockPlugin();
+        $response = MockPlugin::getMockFile(
+            self::$mockBasePath . 'v2/partner/APIKEY/archive/ARCHIVEID/get-expired'
+        );
+        $mock->addResponse($response);
+        $this->client->addSubscriber($mock);
+
+        $archiveId = '063e72a4-64b4-43c8-9da5-eca071daab89';
+
+        // Act
+        $archive = $this->opentok->getArchive($archiveId);
+
+        // Assert
+        $this->assertInstanceOf('OpenTok\Archive', $archive);
+        $this->assertEquals("expired", $archive->status);
+    }
 }
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/
