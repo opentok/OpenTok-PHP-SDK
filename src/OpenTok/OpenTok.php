@@ -167,11 +167,6 @@ class OpenTok {
     *         feature, which lets you record, save, and retrieve OpenTok sessions.</li>
     *     </ul>
     *
-    *     <p>
-    *     You will be billed for streamed minutes if you use the OpenTok Media Router or if the
-    *     session uses the OpenTok TURN server to relay streams. For information on pricing, see the
-    *     <a href="http://www.tokbox.com/pricing" target="_top">OpenTok pricing page</a>.
-    *
     *    <li><code>'location'</code> (String) &mdash; An IP address that the OpenTok servers
     *    will use to situate the session in its global network. If you do not set a location hint,
     *    the OpenTok servers will be based on the first client connecting to the session.</li>
