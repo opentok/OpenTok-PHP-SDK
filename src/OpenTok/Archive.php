@@ -177,7 +177,7 @@ class Archive {
      */
     public function toJson()
     {
-        return $this->json;
+        return json_encode($this->json);
     }
 
 }
