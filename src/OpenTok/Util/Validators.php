@@ -9,8 +9,8 @@ use OpenTok\OpenTok;
 
 use OpenTok\Exception\InvalidArgumentException;
 
-use JsonSchema\Uri\UriRetriever;
-use JsonSchema\Validator;
+use Jsv4;
+use SchemaStore;
 
 /**
 * @internal
@@ -18,7 +18,7 @@ use JsonSchema\Validator;
 class Validators
 {
     static $guidRegEx = '/^\[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}\$/';
-    static $retriever;
+    static $schemaStore;
     static $schemaUri;
 
     public static function validateApiKey($apiKey)
@@ -122,18 +122,17 @@ class Validators
     }
     public static function validateArchiveData($archiveData)
     {
-        if (!self::$retriever) { self::$retriever = new UriRetriever(); }
+        if (!self::$schemaStore) { self::$schemaStore = new SchemaStore(); }
         if (!self::$schemaUri) { self::$schemaUri = 'file://'.realpath(__DIR__.'/archive-schema.json'); }
         $uri = self::$schemaUri.'#/definitions/archive';
-        $schema = self::$retriever->retrieve($uri);
-        $validator = new Validator();
+        $schema = self::$schemaStore->get($uri);
         // have to do a encode+decode so that json objects decoded as arrays from Guzzle
         // are re-encoded as objects instead
-        $validator->check(json_decode(json_encode($archiveData)), $schema);
-        if (!$validator->isValid()) {
+        $validator = Jsv4::validate(json_decode(json_encode($archiveData)), $schema);
+        if (!$validator->valid) {
             $errors = "";
-            foreach ($validator->getErrors() as $error) {
-                $errors .= '['.$error['property'].'] '.$error['message']."\n";
+            foreach ($validator->errors as $error) {
+                $errors .= '['.$error['dataPath'].'] '.$error['message']."\n";
             }
             throw new InvalidArgumentException(
                 'The archive data provided is not valid. Errors:'.$errors.' archiveData:'.print_r($archiveData, true)
@@ -142,18 +141,17 @@ class Validators
     }
     public static function validateArchiveListData($archiveListData)
     {
-        if (!self::$retriever) { self::$retriever = new UriRetriever(); }
+        if (!self::$schemaStore) { self::$schemaStore = new SchemaStore(); }
         if (!self::$schemaUri) { self::$schemaUri = 'file://'.realpath(__DIR__.'/archive-schema.json'); }
         $uri = self::$schemaUri;
-        $schema = self::$retriever->retrieve($uri);
-        $validator = new Validator();
+        $schema = self::$schemaStore->get($uri);
         // have to do a encode+decode so that json objects decoded as arrays from Guzzle
         // are re-encoded as objects instead
-        $validator->check(json_decode(json_encode($archiveListData)), $schema);
-        if (!$validator->isValid()) {
+        $validator = Jsv4::validate(json_decode(json_encode($archiveListData)), $schema);
+        if (!$validator->valid) {
             $errors = "";
-            foreach ($validator->getErrors() as $error) {
-                $errors .= '['.$error['property'].'] '.$error['message']."\n";
+            foreach ($validator->errors as $error) {
+                $errors .= '['.$error['dataPath'].'] '.$error['message']."\n";
             }
             throw new InvalidArgumentException(
                 'The archive list data provided is not valid. Errors:'.$errors.' archiveListData:'.print_r($archiveListData, true)

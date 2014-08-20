@@ -2,7 +2,14 @@
     "name": "opentok/opentok",
     "description": "OpenTok is a platform for creating real time streaming video applications, created by TokBox.",
     "type": "library",
-    "keywords": ["TokBox", "OpenTok", "PHP", "WebRTC", "video", "streaming"],
+    "keywords": [
+        "TokBox",
+        "OpenTok",
+        "PHP",
+        "WebRTC",
+        "video",
+        "streaming"
+    ],
     "homepage": "https://github.com/opentok/Opentok-PHP-SDK",
     "license": "MIT",
     "authors": [
@@ -17,22 +24,22 @@
         }
     ],
     "support": {
-      "email": "support@tokbox.com",
-      "issues": "https://github.com/opentok/Opentok-PHP-SDK/issues",
-      "irc": "irc://irc.freenode.org/opentok"
+        "email": "support@tokbox.com",
+        "issues": "https://github.com/opentok/Opentok-PHP-SDK/issues",
+        "irc": "irc://irc.freenode.org/opentok"
     },
     "require": {
-      "php" : ">=5.0.0",
-      "guzzle/guzzle": "~3.7",
-      "justinrainbow/json-schema": "~1.3"
+        "php": ">=5.0.0",
+        "guzzle/guzzle": "~3.7",
+        "geraintluff/jsv4": "dev-master"
     },
-    "require-dev" : {
-      "phpunit/phpunit": "~4.1",
-      "phing/phing": "dev-master"
+    "require-dev": {
+        "phpunit/phpunit": "~4.1",
+        "phing/phing": "dev-master"
     },
     "autoload": {
-      "psr-4": {
-        "OpenTok\\" : "src/OpenTok"
-      }
+        "psr-4": {
+            "OpenTok\\": "src/OpenTok"
+        }
     }
 }
