@@ -93,12 +93,12 @@ $app->get('/history', function () use ($app) {
 
     $archives = $app->opentok->listArchives($offset, 5);
 
-    $toJson = function($archive) {
-      return $archive->toJson();
+    $toArray = function($archive) {
+      return json_decode($archive->toJson());
     };
 
     $app->render('history.html', array(
-        'archives' => array_map($toJson, $archives->getItems()),
+        'archives' => array_map($toArray, $archives->getItems()),
         'showPrevious' => $page > 1 ? '/history?page='.($page-1) : null,
         'showNext' => $archives->totalCount() > $offset + 5 ? '/history?page='.($page+1) : null
     ));
@@ -114,13 +114,13 @@ $app->get('/start', function () use ($app, $sessionId) {
     $archive = $app->opentok->startArchive($sessionId, "PHP Archiving Sample App");
 
     $app->response->headers->set('Content-Type', 'application/json');
-    echo json_encode($archive);
+    echo $archive->toJson();
 });
 
 $app->get('/stop/:archiveId', function($archiveId) use ($app) {
     $archive = $app->opentok->stopArchive($archiveId);
     $app->response->headers->set('Content-Type', 'application/json');
-    echo json_encode($archive);
+    echo $archive->toJson();
 });
 
 $app->get('/delete/:archiveId', function($archiveId) use ($app) {
