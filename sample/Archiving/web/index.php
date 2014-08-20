@@ -94,7 +94,7 @@ $app->get('/history', function () use ($app) {
     $archives = $app->opentok->listArchives($offset, 5);
 
     $toArray = function($archive) {
-      return json_decode($archive->toJson());
+      return $archive->toArray();
     };
 
     $app->render('history.html', array(
