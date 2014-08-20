@@ -62,14 +62,14 @@ use OpenTok\Exception\ArchiveUnexpectedValueException;
 class Archive {
 
     /** @internal */
-    private $json;
+    private $data;
     /** @internal */
     private $isDeleted;
     /** @internal */
     private $client;
 
     /** @internal */
-    public function __construct($archiveJson, $options = array())
+    public function __construct($archiveData, $options = array())
     {
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array(
@@ -82,10 +82,10 @@ class Archive {
         list($apiKey, $apiSecret, $apiUrl, $client) = array_values($options);
 
         // validate params
-        Validators::validateArchiveJson($archiveJson);
+        Validators::validateArchiveData($archiveData);
         Validators::validateClient($client);
 
-        $this->json = $archiveJson;
+        $this->data = $archiveData;
 
         $this->client = isset($client) ? $client : new Client();
         if (!$this->client->isConfigured()) {
@@ -114,7 +114,7 @@ class Archive {
             case 'size':
             case 'status':
             case 'url':
-                return $this->json[$name];
+                return $this->data[$name];
                 break;
             default:
                 return null;
@@ -135,15 +135,15 @@ class Archive {
             // TODO: throw an logic error about not being able to stop an archive thats deleted
         }
 
-        $archiveJson = $this->client->stopArchive($this->json['id']);
+        $archiveData = $this->client->stopArchive($this->data['id']);
 
         try {
-            Validators::validateArchiveJson($archiveJson);
+            Validators::validateArchiveData($archiveData);
         } catch (InvalidArgumentException $e) {
             throw new ArchiveUnexpectedValueException('The archive JSON returned after stopping was not valid', null, $e);
         }
 
-        $this->json = $archiveJson;
+        $this->data = $archiveData;
         return $this;
     }
 
@@ -164,8 +164,8 @@ class Archive {
             // TODO: throw an logic error about not being able to stop an archive thats deleted
         }
 
-        if ($this->client->deleteArchive($this->json['id'])) {
-            $this->json = array();
+        if ($this->client->deleteArchive($this->data['id'])) {
+            $this->data = array();
             $this->isDeleted = true;
             return true;
         }
@@ -177,9 +177,16 @@ class Archive {
      */
     public function toJson()
     {
-        return json_encode($this->json);
+        return json_encode($this->data);
     }
 
+    /**
+     * Returns an associative array representation of this Archive object.
+     */
+    public function toArray()
+    {
+        return $this->data;
+    }
 }
 
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/
