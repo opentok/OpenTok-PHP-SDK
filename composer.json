@@ -28,10 +28,16 @@
         "issues": "https://github.com/opentok/Opentok-PHP-SDK/issues",
         "irc": "irc://irc.freenode.org/opentok"
     },
+    "repositories": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/aoberoi/json-works"
+        }
+    ],
     "require": {
         "php": ">=5.0.0",
         "guzzle/guzzle": "~3.7",
-        "johnstevenson/json-works": "1.0.*"
+        "johnstevenson/json-works": "dev-issue-1"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.1",
