@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ -z "$API_KEY" || -z "$API_SECRET" ]
+if [ -z "$API_KEY" ] || [ -z "$API_SECRET" ]
 then
   export API_KEY=
   export API_SECRET=
