@@ -31,7 +31,7 @@
     "require": {
         "php": ">=5.0.0",
         "guzzle/guzzle": "~3.7",
-        "geraintluff/jsv4": "dev-master"
+        "johnstevenson/json-works": "1.0.*"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.1",
