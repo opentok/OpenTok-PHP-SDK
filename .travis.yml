@@ -1,11 +1,12 @@
 language: php
 php:
-  - "5.5"
-  - "5.4"
-  - "5.3"
-
+- '5.5'
+- '5.4'
+- '5.3'
 before_script:
-  -  travis_retry composer install
-
+- travis_retry composer install
 script:
-  - ./vendor/bin/phpunit
+- ./vendor/bin/phpunit
+notifications:
+  slack:
+    secure: S/OnTLCACoEB/LHzN95rAM5xcGTKCNviVin5VawsTJZ2RMUa4J9yBmZpGpk+3u/pn83dmPZ2b2V7A3VCuuthHY67EFJ8c6QcoeGQbs9XzBYqEiwtywTwWGXWfoAZ5nFPqNRS9AgwNitPjzEJh+uiMVcYW7foroPU6lvM5PizTDI=
