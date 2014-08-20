@@ -120,7 +120,7 @@ class Validators
             );
         }
     }
-    public static function validateArchiveJson($archiveJson)
+    public static function validateArchiveData($archiveData)
     {
         if (!self::$retriever) { self::$retriever = new UriRetriever(); }
         if (!self::$schemaUri) { self::$schemaUri = 'file://'.realpath(__DIR__.'/archive-schema.json'); }
@@ -129,18 +129,18 @@ class Validators
         $validator = new Validator();
         // have to do a encode+decode so that json objects decoded as arrays from Guzzle
         // are re-encoded as objects instead
-        $validator->check(json_decode(json_encode($archiveJson)), $schema);
+        $validator->check(json_decode(json_encode($archiveData)), $schema);
         if (!$validator->isValid()) {
             $errors = "";
             foreach ($validator->getErrors() as $error) {
                 $errors .= '['.$error['property'].'] '.$error['message']."\n";
             }
             throw new InvalidArgumentException(
-                'The archiveJson provided is not valid. Errors:'.$errors.' archiveJson:'.print_r($archiveJson, true)
+                'The archive data provided is not valid. Errors:'.$errors.' archiveData:'.print_r($archiveData, true)
             );
         }
     }
-    public static function validateArchiveListJson($archiveListJson)
+    public static function validateArchiveListData($archiveListData)
     {
         if (!self::$retriever) { self::$retriever = new UriRetriever(); }
         if (!self::$schemaUri) { self::$schemaUri = 'file://'.realpath(__DIR__.'/archive-schema.json'); }
@@ -149,14 +149,14 @@ class Validators
         $validator = new Validator();
         // have to do a encode+decode so that json objects decoded as arrays from Guzzle
         // are re-encoded as objects instead
-        $validator->check(json_decode(json_encode($archiveListJson)), $schema);
+        $validator->check(json_decode(json_encode($archiveListData)), $schema);
         if (!$validator->isValid()) {
             $errors = "";
             foreach ($validator->getErrors() as $error) {
                 $errors .= '['.$error['property'].'] '.$error['message']."\n";
             }
             throw new InvalidArgumentException(
-                'The archiveListJson provided is not valid. Errors:'.$errors.' archiveListJson:'.print_r($archiveListJson, true)
+                'The archive list data provided is not valid. Errors:'.$errors.' archiveListData:'.print_r($archiveListData, true)
             );
         }
     }

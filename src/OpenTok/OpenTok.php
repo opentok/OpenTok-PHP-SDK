@@ -231,9 +231,9 @@ class OpenTok {
         if ($name) { $params['name'] = $name; }
 
         // make API call
-        $archiveJson = $this->client->startArchive($params);
+        $archiveData = $this->client->startArchive($params);
 
-        return new Archive($archiveJson, array( 'client' => $this->client ));
+        return new Archive($archiveData, array( 'client' => $this->client ));
     }
 
     /**
@@ -249,8 +249,8 @@ class OpenTok {
     {
         Validators::validateArchiveId($archiveId);
 
-        $archiveJson = $this->client->stopArchive($archiveId);
-        return new Archive($archiveJson, array( 'client' => $this->client ));
+        $archiveData = $this->client->stopArchive($archiveId);
+        return new Archive($archiveData, array( 'client' => $this->client ));
     }
 
     /**
@@ -267,8 +267,8 @@ class OpenTok {
     {
         Validators::validateArchiveId($archiveId);
 
-        $archiveJson = $this->client->getArchive($archiveId);
-        return new Archive($archiveJson, array( 'client' => $this->client ));
+        $archiveData = $this->client->getArchive($archiveId);
+        return new Archive($archiveData, array( 'client' => $this->client ));
     }
 
     /**
@@ -310,8 +310,8 @@ class OpenTok {
         // validate params
         Validators::validateOffsetAndCount($offset, $count);
 
-        $archiveListJson = $this->client->listArchives($offset, $count);
-        return new ArchiveList($archiveListJson, array( 'client' => $this->client ));
+        $archiveListData = $this->client->listArchives($offset, $count);
+        return new ArchiveList($archiveListData, array( 'client' => $this->client ));
     }
 
     /** @internal */

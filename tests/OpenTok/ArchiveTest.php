@@ -8,7 +8,7 @@ use OpenTok\Util\Client;
 class ArchiveTest extends PHPUnit_Framework_TestCase {
 
     // Fixtures
-    protected $archiveJson;
+    protected $archiveData;
     protected $API_KEY;
     protected $API_SECRET;
 
@@ -25,7 +25,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
     public function setUp()
     {
         // Set up fixtures
-        $this->archiveJson = array(
+        $this->archiveData = array(
             'createdAt' => 1394394801000,
             'duration' => 0,
             'id' => '063e72a4-64b4-43c8-9da5-eca071daab89',
@@ -41,7 +41,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         $this->API_SECRET = defined('API_SECRET') ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
 
         $this->client = new Client();
-        $this->archive = new Archive($this->archiveJson, array(
+        $this->archive = new Archive($this->archiveData, array(
             'apiKey' => $this->API_KEY,
             'apiSecret' => $this->API_SECRET,
             'client' => $this->client
@@ -58,16 +58,16 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
 
     public function testReadsProperties()
     {
-        $this->assertEquals($this->archiveJson['createdAt'], $this->archive->createdAt);
-        $this->assertEquals($this->archiveJson['duration'], $this->archive->duration);
-        $this->assertEquals($this->archiveJson['id'], $this->archive->id);
-        $this->assertEquals($this->archiveJson['name'], $this->archive->name);
-        $this->assertEquals($this->archiveJson['partnerId'], $this->archive->partnerId);
-        $this->assertEquals($this->archiveJson['reason'], $this->archive->reason);
-        $this->assertEquals($this->archiveJson['sessionId'], $this->archive->sessionId);
-        $this->assertEquals($this->archiveJson['size'], $this->archive->size);
-        $this->assertEquals($this->archiveJson['status'], $this->archive->status);
-        $this->assertEquals($this->archiveJson['url'], $this->archive->url);
+        $this->assertEquals($this->archiveData['createdAt'], $this->archive->createdAt);
+        $this->assertEquals($this->archiveData['duration'], $this->archive->duration);
+        $this->assertEquals($this->archiveData['id'], $this->archive->id);
+        $this->assertEquals($this->archiveData['name'], $this->archive->name);
+        $this->assertEquals($this->archiveData['partnerId'], $this->archive->partnerId);
+        $this->assertEquals($this->archiveData['reason'], $this->archive->reason);
+        $this->assertEquals($this->archiveData['sessionId'], $this->archive->sessionId);
+        $this->assertEquals($this->archiveData['size'], $this->archive->size);
+        $this->assertEquals($this->archiveData['status'], $this->archive->status);
+        $this->assertEquals($this->archiveData['url'], $this->archive->url);
     }
 
     public function testStopsArchive()
@@ -89,7 +89,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
 
         $request = $requests[0];
         $this->assertEquals('POST', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/partner/'.$this->API_KEY.'/archive/'.$this->archiveJson['id'].'/stop', $request->getPath());
+        $this->assertEquals('/v2/partner/'.$this->API_KEY.'/archive/'.$this->archiveData['id'].'/stop', $request->getPath());
         $this->assertEquals('api.opentok.com', $request->getHost());
         $this->assertEquals('https', $request->getScheme());
 
@@ -132,7 +132,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
 
         $request = $requests[0];
         $this->assertEquals('DELETE', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/partner/'.$this->API_KEY.'/archive/'.$this->archiveJson['id'], $request->getPath());
+        $this->assertEquals('/v2/partner/'.$this->API_KEY.'/archive/'.$this->archiveData['id'], $request->getPath());
         $this->assertEquals('api.opentok.com', $request->getHost());
         $this->assertEquals('https', $request->getScheme());
 
@@ -157,7 +157,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
     public function testAllowsUnknownProperties()
     {
       // Set up fixtures
-      $archiveJson = array(
+      $archiveData = array(
           'createdAt' => 1394394801000,
           'duration' => 0,
           'id' => '063e72a4-64b4-43c8-9da5-eca071daab89',
@@ -174,7 +174,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
       $apiSecret = defined('API_SECRET') ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
 
       $client = new Client();
-      $archive = new Archive($this->archiveJson, array(
+      $archive = new Archive($archiveData, array(
           'apiKey' => $this->API_KEY,
           'apiSecret' => $this->API_SECRET,
           'client' => $this->client
@@ -192,7 +192,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
 
         // Assert
         $this->assertInternalType('array', $archiveArray);
-        $this->assertEquals($this->archiveJson, $archiveArray);
+        $this->assertEquals($this->archiveData, $archiveArray);
     }
 
     // TODO: test deleted archive can not be stopped or deleted again
