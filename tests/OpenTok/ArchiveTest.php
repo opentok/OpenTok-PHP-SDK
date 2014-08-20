@@ -183,6 +183,18 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
       $this->assertInstanceOf('OpenTok\Archive', $archive);
     }
 
+    public function testSerializedToArray()
+    {
+        // Arrange
+
+        // Act
+        $archiveArray = $this->archive->toArray();
+
+        // Assert
+        $this->assertInternalType('array', $archiveArray);
+        $this->assertEquals($this->archiveJson, $archiveArray);
+    }
+
     // TODO: test deleted archive can not be stopped or deleted again
 }
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/

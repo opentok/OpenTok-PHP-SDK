@@ -180,6 +180,14 @@ class Archive {
         return $this->json;
     }
 
+    /**
+     * Returns an associative array representation of this Archive object.
+     */
+    public function toArray()
+    {
+        return $this->json;
+    }
+
 }
 
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/
