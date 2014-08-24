@@ -24,12 +24,9 @@ $ composer require opentok/opentok 2.2.x
 
 ## Manually:
 
-Download the zip file for the latest release from the [Releases](https://github.com/opentok/opentok-php-sdk/releases)
-page. Unzip the file and place it into your project directory. If you have a
-[PSR-4](http://www.php-fig.org/psr/psr-4/) compliant loader, you should place the unzipped directory
-into a place your loader can find it. Otherwise, place it in the
-[include_path](http://www.php.net/manual/en/ini.core.php#ini.include-path) and include or require
-the files as necessary.
+Download the phar file for the latest release from the [Releases](https://github.com/opentok/opentok-php-sdk/releases)
+page. Place it in the [include_path](http://www.php.net/manual/en/ini.core.php#ini.include-path) and include or
+require the phar file in any script which uses the `OpenTok\*` classes.
 
 # Usage
 
