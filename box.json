@@ -1,0 +1,14 @@
+{
+  "alias": "opentok-php-sdk",
+  "directories": [ "src" ],
+  "files": [ "tools/stub.php" ],
+  "finder": [
+    {
+      "name": ["*.php", "*.pem"],
+      "exclude": ["Tests", "tests"],
+      "in": "vendor"
+    }
+  ],
+  "output": "opentok-php-sdk.phar",
+  "stub": "tools/stub.php" 
+}
