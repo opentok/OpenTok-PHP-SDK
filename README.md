@@ -93,7 +93,7 @@ $token = $session->generateToken();
 // Set some options in a token
 $token = $session->generateToken(array(
     'role'       => Role::MODERATOR,
-    'expireTime' => time()+(7 * 24 * 60 * 60) // in one week
+    'expireTime' => time()+(7 * 24 * 60 * 60), // in one week
     'data'       => 'name=Johnny'
 ));
 ```
