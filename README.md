@@ -24,9 +24,11 @@ $ composer require opentok/opentok 2.2.x
 
 ## Manually:
 
-Download the phar file for the latest release from the [Releases](https://github.com/opentok/opentok-php-sdk/releases)
-page. Place it in the [include_path](http://www.php.net/manual/en/ini.core.php#ini.include-path) and include or
-require the phar file in any script which uses the `OpenTok\*` classes.
+Download the `opentok.phar` file for the latest release from the [Releases](https://github.com/opentok/opentok-php-sdk/releases)
+page.
+
+Place `opentok.phar` in the [include_path](http://www.php.net/manual/en/ini.core.php#ini.include-path) OR
+require it in any script which uses the `OpenTok\*` classes.
 
 # Usage
 

@@ -41,7 +41,8 @@ In order to create a release, the following should be completed in order.
    message "Begin development on next version".
 1. Push the changes to the source repository: `git push origin master; git push --tags origin`
 1. Generate a phar archive for distribution using [Box](http://box-project.org/): `box build`. Upload it to
-   the GitHub Release.
+   the GitHub Release. Be sure that the dependencies in the `/vendor` directory are current before
+   building.
 
 ## Workflow
 
