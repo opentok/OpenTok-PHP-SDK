@@ -1,5 +1,5 @@
 {
-  "alias": "opentok-php-sdk",
+  "alias": "opentok",
   "directories": [ "src" ],
   "files": [ "tools/stub.php" ],
   "finder": [
@@ -9,6 +9,6 @@
       "in": "vendor"
     }
   ],
-  "output": "opentok-php-sdk.phar",
+  "output": "opentok.phar",
   "stub": "tools/stub.php" 
 }
