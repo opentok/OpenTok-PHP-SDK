@@ -183,6 +183,34 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
       $this->assertInstanceOf('OpenTok\Archive', $archive);
     }
 
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testRejectsBadArchiveData() {
+      // Set up fixtures
+      $badArchiveData = array(
+          'createdAt' => 'imnotanumber',
+          'duration' => 0,
+          'id' => '063e72a4-64b4-43c8-9da5-eca071daab89',
+          'name' => 'showtime',
+          'partnerId' => 854511,
+          'reason' => '',
+          'sessionId' => '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-',
+          'size' => 0,
+          'status' => 'started',
+          'url' => null
+      );
+      $apiKey = defined('API_KEY') ? API_KEY : '12345678';
+      $apiSecret = defined('API_SECRET') ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
+
+      $client = new Client();
+      $archive = new Archive($badArchiveData, array(
+          'apiKey' => $this->API_KEY,
+          'apiSecret' => $this->API_SECRET,
+          'client' => $this->client
+      ));
+    }
+
     public function testSerializesToJson() {
 
         // Arrange
