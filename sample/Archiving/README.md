@@ -8,7 +8,7 @@ Sessions, list archives that have been created, download the recordings, and del
 First, download the dependencies using [Composer](http://getcomposer.org) in this directory.
 
 ```
-$ composer install
+$ ../../composer.phar install
 ```
 
 Next, input your own API Key and API Secret into the `run-demo` script file:
@@ -26,10 +26,6 @@ $ ./run-demo
 
 Visit <http://localhost:8080> in your browser.  You can now create new archives (either as a host or
 as a participant) and also play archives that have already been created.
-
-Hint: If you get an error message that says "The sessionId must belong to the apiKey", you might
-need to remove the `cache` directory in the sample app directory. This can happen if you try running
-the app with a different API Key than you used the last time it ran.
 
 ## Walkthrough
 
