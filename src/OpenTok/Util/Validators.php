@@ -9,8 +9,8 @@ use OpenTok\OpenTok;
 
 use OpenTok\Exception\InvalidArgumentException;
 
-use JsonSchema\Uri\UriRetriever;
-use JsonSchema\Validator;
+use JohnStevenson\JsonWorks\Document;
+use JohnStevenson\JsonWorks\Utils as JsonUtils;
 
 /**
 * @internal
@@ -18,7 +18,7 @@ use JsonSchema\Validator;
 class Validators
 {
     static $guidRegEx = '/^\[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}\$/';
-    static $retriever;
+    static $schemaStore;
     static $schemaUri;
 
     public static function validateApiKey($apiKey)
@@ -122,41 +122,31 @@ class Validators
     }
     public static function validateArchiveData($archiveData)
     {
-        if (!self::$retriever) { self::$retriever = new UriRetriever(); }
-        if (!self::$schemaUri) { self::$schemaUri = 'file://'.realpath(__DIR__.'/archive-schema.json'); }
-        $uri = self::$schemaUri.'#/definitions/archive';
-        $schema = self::$retriever->retrieve($uri);
-        $validator = new Validator();
+        if (!self::$schemaUri) { self::$schemaUri = realpath(__DIR__.'/archive-schema.json'); }
+        $document = new Document();
         // have to do a encode+decode so that json objects decoded as arrays from Guzzle
         // are re-encoded as objects instead
-        $validator->check(json_decode(json_encode($archiveData)), $schema);
-        if (!$validator->isValid()) {
-            $errors = "";
-            foreach ($validator->getErrors() as $error) {
-                $errors .= '['.$error['property'].'] '.$error['message']."\n";
-            }
+        $document->loadData(json_decode(json_encode($archiveData)));
+        $document->loadSchema(self::$schemaUri);
+        // JSON Pointers are supported for the validation using this library, this is a hack
+        $document->loadSchema(JsonUtils::get(JsonUtils::get($document->schema->data, 'definitions'), 'archive'));
+        if (!$document->validate()) {
             throw new InvalidArgumentException(
-                'The archive data provided is not valid. Errors:'.$errors.' archiveData:'.print_r($archiveData, true)
+                'The archive data provided is not valid. Errors:'.$document->lastError.' archiveData:'.print_r($archiveData, true)
             );
         }
     }
     public static function validateArchiveListData($archiveListData)
     {
-        if (!self::$retriever) { self::$retriever = new UriRetriever(); }
-        if (!self::$schemaUri) { self::$schemaUri = 'file://'.realpath(__DIR__.'/archive-schema.json'); }
-        $uri = self::$schemaUri;
-        $schema = self::$retriever->retrieve($uri);
-        $validator = new Validator();
+        if (!self::$schemaUri) { self::$schemaUri = realpath(__DIR__.'/archive-schema.json'); }
+        $document = new Document();
         // have to do a encode+decode so that json objects decoded as arrays from Guzzle
         // are re-encoded as objects instead
-        $validator->check(json_decode(json_encode($archiveListData)), $schema);
-        if (!$validator->isValid()) {
-            $errors = "";
-            foreach ($validator->getErrors() as $error) {
-                $errors .= '['.$error['property'].'] '.$error['message']."\n";
-            }
+        $document->loadData(json_decode(json_encode($archiveListData)));
+        $document->loadSchema(self::$schemaUri);
+        if (!$document->validate()) {
             throw new InvalidArgumentException(
-                'The archive list data provided is not valid. Errors:'.$errors.' archiveListData:'.print_r($archiveListData, true)
+                'The archive data provided is not valid. Errors:'.$document->lastError.' archiveData:'.print_r($archiveData, true)
             );
         }
     }

@@ -19,7 +19,7 @@ Add this package (`opentok/opentok`) to your `composer.json` file, or just run t
 command line:
 
 ```
-$ composer require opentok/opentok 2.2.x
+$ ./composer.phar require opentok/opentok 2.2.x
 ```
 
 ## Manually:
@@ -64,6 +64,8 @@ The `getSessionId()` method of the `OpenTok\Session` instance returns the sessio
 which you use to identify the session in the OpenTok client libraries.
 
 ```php
+use OpenTok\MediaMode;
+
 // Create a session that attempts to use peer-to-peer streaming:
 $session = $openTok->createSession();
 // A session that uses the OpenTok Media Router:

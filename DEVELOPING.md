@@ -39,10 +39,10 @@ In order to create a release, the following should be completed in order.
 1. Change the version number for future development by incrementing the PATH number and adding
    "-alpha.1" in each file except samples and documentation. Then make another commit with the
    message "Begin development on next version".
-1. Push the changes to the source repository: `git push origin master; git push --tags origin`
-1. Generate a phar archive for distribution using [Box](http://box-project.org/): `box build`. Upload it to
-   the GitHub Release. Be sure that the dependencies in the `/vendor` directory are current before
-   building.
+1. Push the changes to the source repository: `git push origin master; git push --tags origin`s
+1. Generate a phar archive for distribution using [Box](http://box-project.org/): `box build`. Be sure that the
+   dependencies in the `/vendor` directory are current before building. Upload it to the GitHub Release. Add
+   release notes with a description of changes and fixes.
 
 ## Workflow
 
