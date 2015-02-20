@@ -152,7 +152,9 @@ class Validators
     }
     public static function validateOffsetAndCount($offset, $count)
     {
-        if (!is_numeric($offset) || ($count != null && !is_numeric($count))) {
+        if ((!is_numeric($offset) || $offset < 0 ) ||
+            (($count != null && !is_numeric($count)) || $count < 0 || $count > 1000) ) {
+
             throw new InvalidArgumentException(
                 'The offset or count were not valid numbers: offset='.print_r($offset, true).' count='.print_r($count, true)
             );

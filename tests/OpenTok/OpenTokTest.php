@@ -503,7 +503,6 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->client->addSubscriber($mock);
 
         // Act
-        // TODO: use offset and count
         $archiveList = $this->opentok->listArchives();
 
         // Assert
@@ -528,6 +527,27 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('OpenTok\ArchiveList', $archiveList);
         // TODO: test the properties of the actual archiveList object and its contained archive
         // objects
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testFailsWhenListingArchivesWithTooLargeCount()
+    {
+        // Arrange
+        $mock = new MockPlugin();
+        $response = MockPlugin::getMockFile(
+            self::$mockBasePath . 'v2/partner/APIKEY/archive/get'
+        );
+        $mock->addResponse($response);
+        $this->client->addSubscriber($mock);
+
+        // Act
+        $archiveList = $this->opentok->listArchives(0, 1001);
+
+        // Assert
+        $requests = $mock->getReceivedRequests();
+        $this->assertCount(0, $requests);
     }
 
     // TODO: sloppy test in a pinch
