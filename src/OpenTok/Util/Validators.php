@@ -112,6 +112,22 @@ class Validators
             );
         }
     }
+    public static function validateArchiveHasVideo($hasVideo)
+    {
+        if (!is_bool($hasVideo)) {
+            throw new InvalidArgumentException(
+                'The hasVideo was not a boolean: '.print_r($hasVideo, true)
+            );
+        }
+    }
+    public static function validateArchiveHasAudio($hasAudio)
+    {
+        if (!is_bool($hasAudio)) {
+            throw new InvalidArgumentException(
+                'The hasAudio was not a boolean: '.print_r($hasAudio, true)
+            );
+        }
+    }
     public static function validateArchiveId($archiveId)
     {
         if ( !is_string($archiveId) || preg_match(self::$guidRegEx, $archiveId) ) {

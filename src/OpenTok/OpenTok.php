@@ -221,17 +221,21 @@ class OpenTok {
      * @return Archive The Archive object, which includes properties defining the archive, including
      * the archive ID.
      */
-    public function startArchive($sessionId, $name=null)
+    public function startArchive($sessionId, $options=array())
     {
+        // unpack optional arguments (merging with default values) into named variables
+        $defaults = array('name' => null, 'hasVideo' => true, 'hasAudio' => true);
+        $options = array_merge($defaults, array_intersect_key($options, $defaults));
+        list($name, $hasVideo, $hasAudio) = array_values($options);
+
         // validate arguments
         Validators::validateSessionId($sessionId);
         Validators::validateArchiveName($name);
-
-        $params = array( 'sessionId' => $sessionId );
-        if ($name) { $params['name'] = $name; }
+        Validators::validateArchiveHasVideo($hasVideo);
+        Validators::validateArchiveHasAudio($hasAudio);
 
         // make API call
-        $archiveData = $this->client->startArchive($params);
+        $archiveData = $this->client->startArchive($sessionId, $options);
 
         return new Archive($archiveData, array( 'client' => $this->client ));
     }

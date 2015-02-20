@@ -320,7 +320,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $token = $this->opentok->generateToken('SESSIONID', array('role' => 'notarole'));
     }
 
-    public function testStartsArchive()
+    public function testStartsArchiveNamed()
     {
         // Arrange
         $mock = new MockPlugin();
@@ -335,7 +335,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
         // Act
-        $archive = $this->opentok->startArchive($sessionId, 'showtime');
+        $archive = $this->opentok->startArchive($sessionId, array( 'name' => 'showtime' ));
 
         // Assert
         $requests = $mock->getReceivedRequests();
@@ -363,6 +363,55 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $body = json_decode($request->getBody());
         $this->assertEquals($sessionId, $body->sessionId);
         $this->assertEquals('showtime', $body->name);
+
+        $this->assertInstanceOf('OpenTok\Archive', $archive);
+        // TODO: test the properties of the actual archive object
+    }
+
+    public function testStartsArchiveAudioOnly()
+    {
+        // Arrange
+        $mock = new MockPlugin();
+        $response = MockPlugin::getMockFile(
+            self::$mockBasePath . 'v2/partner/APIKEY/archive/session_hasVideo-false'
+        );
+        $mock->addResponse($response);
+        $this->client->addSubscriber($mock);
+
+        // This sessionId was generated using a different apiKey, but this method doesn't do any
+        // decoding to check, so its fine.
+        $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
+
+        // Act
+        $archive = $this->opentok->startArchive($sessionId, array( 'hasVideo' => false ));
+
+        // Assert
+        $requests = $mock->getReceivedRequests();
+        $this->assertCount(1, $requests);
+
+        $request = $requests[0];
+        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('/v2/partner/'.$this->API_KEY.'/archive', $request->getPath());
+        $this->assertEquals('api.opentok.com', $request->getHost());
+        $this->assertEquals('https', $request->getScheme());
+
+        $contentType = $request->getHeader('Content-Type');
+        $this->assertNotEmpty($contentType);
+        $this->assertEquals('application/json', $contentType);
+
+        $authString = $request->getHeader('X-TB-PARTNER-AUTH');
+        $this->assertNotEmpty($authString);
+        $this->assertEquals($this->API_KEY.':'.$this->API_SECRET, $authString);
+
+        // TODO: test the dynamically built User Agent string
+        $userAgent = $request->getHeader('User-Agent');
+        $this->assertNotEmpty($userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.2.3-alpha.1', $userAgent->__toString());
+
+        $body = json_decode($request->getBody());
+        $this->assertEquals($sessionId, $body->sessionId);
+        $this->assertEquals(false, $body->hasVideo);
+        $this->assertEquals(true, $body->hasAudio);
 
         $this->assertInstanceOf('OpenTok\Archive', $archive);
         // TODO: test the properties of the actual archive object

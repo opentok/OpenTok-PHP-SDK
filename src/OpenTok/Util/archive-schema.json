@@ -54,6 +54,12 @@
         },
         "url": {
           "type": ["string", "null"]
+        },
+        "hasVideo": {
+          "type": "boolean"
+        },
+        "hasAudio": {
+          "type": "boolean"
         }
       },
       "required": [ "id", "partnerId", "sessionId", "status" ]
