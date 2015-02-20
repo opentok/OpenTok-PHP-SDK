@@ -9,6 +9,8 @@ this project. If you use this package within your own software as is but don't p
 *  [Phing](http://www.phing.info/): used to run predefined tasks. Installed via Composer into the vendor directory. You
    can run phing but using the command line script `./vendor/bin/phing` or you can put it on your PATH.
 *  [Composer](https://getcomposer.org/): used to manage dependencies for the project.
+*  [Box](http://box-project.org/): used to generate a phar archive, which is useful for users who
+   don't use Composer in their own project.
 
 ## Tasks
 
@@ -38,8 +40,8 @@ In order to create a release, the following should be completed in order.
    "-alpha.1" in each file except samples and documentation. Then make another commit with the
    message "Begin development on next version".
 1. Push the changes to the source repository: `git push origin master; git push --tags origin`
-1. Create a zip for uploading the release to Github Releases:
-   `cd src; zip -r opentok-php-sdk-x.y.z.zip OpenTok/`
+1. Generate a phar archive for distribution using [Box](http://box-project.org/): `box build`. Upload it to
+   the GitHub Release. Add release notes with a description of changes and fixes.
 
 ## Workflow
 

@@ -78,7 +78,7 @@ $app->get('/start', function () use ($app, $sessionId) {
     $archive = $app->opentok->startArchive($sessionId, "PHP Archiving Sample App");
 
     $app->response->headers->set('Content-Type', 'application/json');
-    echo json_encode($archive);
+    echo $archive->toJson();
 });
 ```
 
@@ -87,7 +87,7 @@ for the session that needs to be archived. The optional second argument is `name
 the archive and can be read later. In this case, as in the HelloWorld sample app, there is
 only one session created and it is used here and for the participant view. This will trigger the
 recording to begin. The response sent back to the client's XHR request will be the JSON
-representation of the archive, which is serialized by the `json_encode()` builtin. The client is also
+representation of the archive, which is serialized by the `toJson()` method. The client is also
 listening for the `archiveStarted` event, and uses that event to change the 'Start Archiving' button
 to show 'Stop Archiving' instead. When the user presses the button this time, another XHR request
 is sent to the <http://localhost:8080/stop/:archiveId> URL where `:archiveId` represents the ID the
@@ -97,7 +97,7 @@ client receives in the 'archiveStarted' event. The route handler for this reques
 $app->get('/stop/:archiveId', function($archiveId) use ($app) {
     $archive = $app->opentok->stopArchive($archiveId);
     $app->response->headers->set('Content-Type', 'application/json');
-    echo json_encode($archive);
+    echo $archive->toJson();
 });
 ```
 
@@ -164,12 +164,12 @@ $app->get('/history', function () use ($app) {
 
     $archives = $app->opentok->listArchives($offset, 5);
 
-    $toJson = function($archive) {
-      return $archive->toJson();
+    $toArray = function($archive) {
+      return $archive->toArray();
     };
 
     $app->render('history.html', array(
-        'archives' => array_map($toJson, $archives->getItems()),
+        'archives' => array_map($toArray, $archives->getItems()),
         'showPrevious' => $page > 1 ? '/history?page='.($page-1) : null,
         'showNext' => $archives->totalCount() > $offset + 5 ? '/history?page='.($page+1) : null
     ));
