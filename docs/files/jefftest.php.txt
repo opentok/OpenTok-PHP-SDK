@@ -1,0 +1,7 @@
+use OpenTok\OpenTok;
+
+$opentok = new OpenTok($apiKey, $apiSecret);
+
+$session = $openTok->createSession();
+$session->getSessionId();
+
