@@ -225,14 +225,14 @@ class OpenTok {
      *     archive-related events in the OpenTok client libraries.
      *   </li>
      *   <li><code>hasAudio</code> &mdash; (Boolean) Whether the archive will record audio
-     *     (<code>true</code>) or not <code>false</code>). The default value is <code>true</code>
-     *     (audio is recorded). If you set both  <code>hasAudio</code> and <code>hasAudio</code>
+     *     (<code>true</code>) or not (<code>false</code>). The default value is <code>true</code>
+     *     (audio is recorded). If you set both  <code>hasAudio</code> and <code>hasVideo</code>
      *     to <code>false</code>, the call to the <code>startArchive()</code> method results in an
      *     error.
      *   </li>
      *   <li><code>hasVideo</code> &mdash; (Boolean) Whether the archive will record video
-     *     (<code>true</code>) or not <code>false</code>). The default value is <code>true</code>
-     *     (video is recorded). If you set both  <code>hasAudio</code> and <code>hasAudio</code>
+     *     (<code>true</code>) or not (<code>false</code>). The default value is <code>true</code>
+     *     (video is recorded). If you set both  <code>hasAudio</code> and <code>hasVideo</code>
      *     to <code>false</code>, the call to the <code>startArchive()</code> method results in an
      *     error.
      *   </li>
