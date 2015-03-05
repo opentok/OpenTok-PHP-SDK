@@ -110,9 +110,23 @@ of the `OpenTok\OpenTok` class. This will return an `OpenTok\Archive` instance. 
 Archive on a Session that has clients connected.
 
 ```php
-$archive = $opentok->startArchive($sessionId, $name);
-
+$archiveOptions = array(
+    'name' => 'Important Presentation'
+);
+$archive = $opentok->startArchive($sessionId, $archiveOptions);
 // Store this archiveId in the database for later use
+$archiveId = $archive->id;
+```
+
+You can also disable audio or video recording by setting the `hasAudio` or `hasVideo` property of
+the `options` parameter to `false`:
+
+```php
+$archiveOptions = array(
+    'name' => 'Important Presentation',
+    'hasVideo' => false
+);
+$archive = $opentok->startArchive($sessionId, $archiveOptions);
 $archiveId = $archive->id;
 ```
 
