@@ -60,7 +60,7 @@ class OpenTok {
      * @param string $sessionId The session ID corresponding to the session to which the user
      * will connect.
      *
-     * @param array $options This array defines options for the token. This array include the
+     * @param array $options This array defines options for the token. This array includes the
      * following keys, all of which are optional:
      *
      * <ul>
@@ -215,9 +215,29 @@ class OpenTok {
      * set to routed); you cannot archive sessions with the media mode set to relayed.
      *
      * @param String $sessionId The session ID of the OpenTok session to archive.
-     * @param String $name The name of the archive. You can use this name to identify the archive.
-     * It is a property of the Archive object, and it is a property of archive-related events in the
-     * OpenTok JavaScript SDK.
+     *
+     * @param array $options A set of options for the archive. This array includes the
+     * following keys, all of which are optional:
+     *
+     * <ul>
+     *   <li><code>name</code> &mdash; (String) The name of the archive. You can use this name to
+     *     identify the archive. It is a property of the Archive object, and it is a property of
+     *     archive-related events in the OpenTok client libraries.
+     *   </li>
+     *   <li><code>hasAudio</code> &mdash; (Boolean) Whether the archive will record audio
+     *     (<code>true</code>) or not <code>false</code>). The default value is <code>true</code>
+     *     (audio is recorded). If you set both  <code>hasAudio</code> and <code>hasAudio</code>
+     *     to <code>false</code>, the call to the <code>startArchive()</code> method results in an
+     *     error.
+     *   </li>
+     *   <li><code>hasVideo</code> &mdash; (Boolean) Whether the archive will record video
+     *     (<code>true</code>) or not <code>false</code>). The default value is <code>true</code>
+     *     (video is recorded). If you set both  <code>hasAudio</code> and <code>hasAudio</code>
+     *     to <code>false</code>, the call to the <code>startArchive()</code> method results in an
+     *     error.
+     *   </li>
+     * <ul>
+     *
      * @return Archive The Archive object, which includes properties defining the archive, including
      * the archive ID.
      */

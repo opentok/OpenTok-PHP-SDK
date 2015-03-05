@@ -17,6 +17,12 @@ use OpenTok\Exception\ArchiveUnexpectedValueException;
 * @property string $duration
 * The duration of the archive, in milliseconds.
 *
+* @property bool $hasVideo
+* Whether the archive has a video track (<code>true</code>) or not (<code>false</code>).
+*
+* @property bool $hasAudio
+* Whether the archive has an audio track (<code>true</code>) or not (<code>false</code>).
+*
 * @property string $id
 * The archive ID.
 *
@@ -58,12 +64,6 @@ use OpenTok\Exception\ArchiveUnexpectedValueException;
 * "available"; for other archives, (including archives with the status "uploaded") this property is
 * set to null. The download URL is obfuscated, and the file is only available from the URL for
 * 10 minutes. To generate a new URL, call the Archive.listArchives() or OpenTok.getArchive() method.
-*
-* @property bool $hasVideo
-* Whether the archive has a video track (<code>true</code>) or not (<code>false</code>).
-*
-* @property bool $hasAudio
-* Whether the archive has an audio track (<code>true</code>) or not (<code>false</code>).
 */
 class Archive {
 
