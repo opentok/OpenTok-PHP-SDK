@@ -4,7 +4,7 @@
 
 The OpenTok PHP SDK lets you generate [sessions](http://tokbox.com/opentok/tutorials/create-session/) and
 [tokens](http://tokbox.com/opentok/tutorials/create-token/) for [OpenTok](http://www.tokbox.com/)
-applications, and [archive](http://tokbox.com/#archiving) OpenTok 2.0 sessions.
+applications, and [archive](https://tokbox.com/opentok/tutorials/archiving) OpenTok sessions.
 
 If you are updating from a previous version of this SDK, see
 [Important changes since v2.2.0](#important-changes-since-v220).
