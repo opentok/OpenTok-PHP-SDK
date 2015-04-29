@@ -58,6 +58,8 @@ To create an OpenTok Session, use the `createSession($options)` method of the
 * Setting whether the session will use the OpenTok Media Router or attempt send streams directly
   between clients.
 
+* Setting whether the session will automatically create archives (implies use of routed session)
+
 * Specifying a location hint.
 
 The `getSessionId()` method of the `OpenTok\Session` instance returns the session ID,
@@ -65,13 +67,21 @@ which you use to identify the session in the OpenTok client libraries.
 
 ```php
 use OpenTok\MediaMode;
+use OpenTok\ArchiveMode;
 
 // Create a session that attempts to use peer-to-peer streaming:
-$session = $openTok->createSession();
+$session = $opentok->createSession();
+
 // A session that uses the OpenTok Media Router:
-$session = $openTok->createSession(array( 'mediaMode' => MediaMode::ROUTED ));
+$session = $opentok->createSession(array( 'mediaMode' => MediaMode::ROUTED ));
+
+// A session that is auto-archived (and uses the OpenTok Media Router):
+$session = $opentok->createSession(array( 'archiveMode' => ArchiveMode::ALWAYS));
+
 // A session with a location hint:
-$session = $openTok->createSession(array( 'location' => '12.34.56.78' ));
+$session = $opentok->createSession(array( 'location' => '12.34.56.78' ));
+
+
 
 // Store this sessionId in the database for later use
 $sessionId = $session->getSessionId();
@@ -90,7 +100,7 @@ use OpenTok\Session;
 use OpenTok\Role;
 
 // Generate a Token from just a sessionId (fetched from a database)
-$token = OpenTok->generateToken($sessionId);
+$token = $opentok->generateToken($sessionId);
 // Generate a Token by calling the method on the Session (returned from createSession)
 $token = $session->generateToken();
 
@@ -200,8 +210,8 @@ work with OpenTok 1.0 archives.)
 The names of many methods of the API have changed. Many method names have
 changed to use camel case, including the following:
 
-* OpenTok.createSession()
-* OpenTok.generateToken()
+* `\OpenTok\OpenTok->createSession()`
+* `\OpenTok\OpenTok->generateToken()`
 
 Note also that the `options` parameter of the `OpenTok.createSession()` method has a `mediaMode`
 property instead of a `p2p` property.
