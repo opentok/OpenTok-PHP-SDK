@@ -45,9 +45,10 @@ use OpenTok\Exception\ArchiveUnexpectedValueException;
 *
 * <ul>
 *   <li> "available" -- The archive is available for download from the OpenTok cloud.</li>
-*   <li>"expired" -- The archive is no longer available for download from the OpenTok
+*   <li> "expired" -- The archive is no longer available for download from the OpenTok
 *         cloud.</li>
 *   <li> "failed" -- The archive recording failed.</li>
+*   <li> "paused" -- The archive recording has paused.</li>
 *   <li> "started" -- The archive started and is in the process of being recorded.</li>
 *   <li> "stopped" -- The archive stopped recording.</li>
 *   <li> "uploaded" -- The archive is available for download from the the upload target
