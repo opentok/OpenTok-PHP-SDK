@@ -211,6 +211,34 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
       ));
     }
 
+    public function testAllowsPausedStatus() {
+      // Set up fixtures
+      $archiveData = array(
+          'createdAt' => 1394394801000,
+          'duration' => 0,
+          'id' => '063e72a4-64b4-43c8-9da5-eca071daab89',
+          'name' => 'showtime',
+          'partnerId' => 854511,
+          'reason' => '',
+          'sessionId' => '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-',
+          'size' => 0,
+          'status' => 'paused',
+          'url' => null,
+      );
+      $apiKey = defined('API_KEY') ? API_KEY : '12345678';
+      $apiSecret = defined('API_SECRET') ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
+
+      $client = new Client();
+      $archive = new Archive($archiveData, array(
+          'apiKey' => $this->API_KEY,
+          'apiSecret' => $this->API_SECRET,
+          'client' => $this->client
+      ));
+
+      $this->assertInstanceOf('OpenTok\Archive', $archive);
+      $this->assertEquals($archiveData['status'], $archive->status);
+    }
+
     public function testSerializesToJson() {
 
         // Arrange
