@@ -3,6 +3,7 @@
 use OpenTok\OpenTok;
 use OpenTok\Session;
 use OpenTok\MediaMode;
+use OpenTok\ArchiveMode;
 
 use OpenTok\TestHelpers;
 
@@ -71,6 +72,21 @@ class SessionTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($mediaMode, $session->getMediaMode());
         $this->assertEquals($location, $session->getLocation());
     }
+
+    public function testSessionWithArchiveMode()
+    {
+        $sessionId = 'SESSIONID';
+        $archiveMode = ArchiveMode::ALWAYS;
+        $session = new Session($this->opentok, $sessionId, array( 'archiveMode' => $archiveMode ));
+        $this->assertEquals($sessionId, $session->getSessionId());
+        $this->assertEquals($archiveMode, $session->getArchiveMode());
+
+        $archiveMode = ArchiveMode::MANUAL;
+        $session = new Session($this->opentok, $sessionId, array( 'archiveMode' => $archiveMode ));
+        $this->assertEquals($sessionId, $session->getSessionId());
+        $this->assertEquals($archiveMode, $session->getArchiveMode());
+    }
+
     /**
      * @dataProvider badParameterProvider
      * @expectedException InvalidArgumentException

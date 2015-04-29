@@ -5,7 +5,7 @@ namespace OpenTok;
 use OpenTok\Util\BasicEnum;
 
 /**
- * Defines values for the mediaMode parameter of the OpenTok.OpenTok.generateSession()
+ * Defines values for the mediaMode parameter of the \OpenTok\OpenTok->createSession()
  * method.
  */
 abstract class MediaMode extends BasicEnum {
