@@ -173,8 +173,8 @@ class OpenTok {
     *
     * </ul>
     *
-    * @return string A session ID for the new session. For example, when using the OpenTok.js
-    * library, use this session ID when calling the <code>OT.initSession()</code> method.
+    * @return Session A new session. For example, when using the OpenTok.js library, use this
+    * session's ID when calling the <code>OT.initSession()</code> method.
     */
     public function createSession($options=array())
     {
