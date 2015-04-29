@@ -27,16 +27,10 @@
         "email": "support@tokbox.com",
         "issues": "https://github.com/opentok/Opentok-PHP-SDK/issues"
     },
-    "repositories": [
-        {
-          "type": "vcs",
-          "url": "https://github.com/aoberoi/json-works"
-        }
-    ],
     "require": {
         "php": ">=5.0.0",
         "guzzle/guzzle": "~3.7",
-        "johnstevenson/json-works": "dev-master"
+        "aoberoi/json-works": "~1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.1",
