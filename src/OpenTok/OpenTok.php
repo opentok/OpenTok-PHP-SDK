@@ -180,12 +180,18 @@ class OpenTok {
     */
     public function createSession($options=array())
     {
-        if (array_key_exists('mediaMode', $options) &&
-            $options['mediaMode'] != MediaMode::ROUTED &&
-            array_key_exists('archiveMode', $options) &&
+        if (array_key_exists('archiveMode', $options) &&
             $options['archiveMode'] != ArchiveMode::MANUAL) {
-            throw new InvalidArgumentException('A session must be routed to be archived.');
+
+            if (array_key_exists('mediaMode', $options) &&
+                $options['mediaMode'] != MediaMode::ROUTED) {
+
+                throw new InvalidArgumentException('A session must be routed to be archived.');
+            } else {
+              $options['mediaMode'] = MediaMode::ROUTED;
+            }
         }
+
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array(
             'mediaMode' => MediaMode::RELAYED,

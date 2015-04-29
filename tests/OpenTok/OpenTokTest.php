@@ -232,6 +232,9 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $archiveMode = $request->getPostField('archiveMode');
         $this->assertEquals('always', $archiveMode);
 
+        $mediaMode = $request->getPostField('p2p.preference');
+        $this->assertNotEquals('enabled', $mediaMode);
+
         $this->assertInstanceOf('OpenTok\Session', $session);
         // NOTE: this is an actual sessionId from the recorded response, this doesn't correspond to
         // the API Key and API Secret used to create the session.
