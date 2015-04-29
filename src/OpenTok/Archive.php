@@ -24,6 +24,8 @@ use OpenTok\Exception\ArchiveUnexpectedValueException;
 * The name of the archive. If no name was provided when the archive was created, this is set
 * to null.
 *
+* @property string $outputMode TODO
+*
 * @property string $partnerId
 * The API key associated with the archive.
 *
@@ -122,6 +124,7 @@ class Archive {
             case 'url':
             case 'hasVideo':
             case 'hasAudio':
+            case 'outputMode':
                 return $this->data[$name];
                 break;
             default:

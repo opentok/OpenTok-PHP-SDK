@@ -116,11 +116,23 @@ $token = $session->generateToken(array(
 
 You can start the recording of an OpenTok Session using the `startArchive($sessionId, $name)` method
 of the `OpenTok\OpenTok` class. This will return an `OpenTok\Archive` instance. The parameter
-`$name` is optional and is used to assign a name for the Archive. Note that you can only start an
+`$archiveOptions` is an optional array and is used to assign a name, whether to record audio and/or
+video, and the desired output mode for the Archive. Note that you can only start an
 Archive on a Session that has clients connected.
 
 ```php
-$archive = $opentok->startArchive($sessionId, $name);
+// Create a simple archive of a session
+$archive = $opentok->startArchive($sessionId);
+
+
+// Create an archive using custom options
+$archiveOptions = array(
+    'name' => 'Important Presentation',     // default: null
+    'hasAudio' => true,                     // default: true
+    'hasVideo' => true,                     // default: true
+    'outputMode' => OutputMode::INDIVIDUAL  // default: OutputMode::COMPOSED
+);
+$archive = $opentok->startArchive($sessionId, $archiveOptions);
 
 // Store this archiveId in the database for later use
 $archiveId = $archive->id;

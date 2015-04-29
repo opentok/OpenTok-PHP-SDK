@@ -77,10 +77,15 @@ class Session
     }
 
     /**
-    * FIXME: does not return boolean
-    * Returns true if the session's streams will be transmitted directly between peers; returns
-    * false if the session's streams will be transmitted using the OpenTok media server.
-    * See the OpenTok.createSession() method.
+    * {@link http://example.com foo}
+    * {@link OpenTok->createSession()}
+    *
+    * Returns MediaMode::RELAYED if the session's streams will be transmitted directly between
+    * peers; returns MediaMode::ROUTED if the session's streams will be transmitted using the
+    * OpenTok Media Router.
+    *
+    * See <a href="OpenTok.OpenTok.html#method_createSession">OpenTok->createSession()</a>
+    * @see OpenTok->createSession()
     */
     public function getMediaMode()
     {
