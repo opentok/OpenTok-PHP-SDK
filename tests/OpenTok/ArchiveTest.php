@@ -37,7 +37,8 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
             'status' => 'started',
             'url' => null,
             'hasVideo' => false,
-            'hasAudio' => true
+            'hasAudio' => true,
+            'outputMode' => 'composed'
         );
         $this->API_KEY = defined('API_KEY') ? API_KEY : '12345678';
         $this->API_SECRET = defined('API_SECRET') ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
@@ -72,6 +73,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($this->archiveData['url'], $this->archive->url);
         $this->assertEquals($this->archiveData['hasVideo'], $this->archive->hasVideo);
         $this->assertEquals($this->archiveData['hasAudio'], $this->archive->hasAudio);
+        $this->assertEquals($this->archiveData['outputMode'], $this->archive->outputMode);
     }
 
     public function testStopsArchive()

@@ -6,6 +6,7 @@ use OpenTok\Util\Client;
 use OpenTok\Role;
 use OpenTok\MediaMode;
 use OpenTok\ArchiveMode;
+use OpenTok\OutputMode;
 use OpenTok\OpenTok;
 
 use OpenTok\Exception\InvalidArgumentException;
@@ -127,6 +128,12 @@ class Validators
             throw new InvalidArgumentException(
                 'The hasAudio was not a boolean: '.print_r($hasAudio, true)
             );
+        }
+    }
+    public static function validateArchiveOutputMode($outputMode)
+    {
+        if (!OutputMode::isValidValue($outputMode)) {
+            throw new InvalidArgumentException('Unknown output mode: '.print_r($outputMode, true));
         }
     }
     public static function validateArchiveId($archiveId)

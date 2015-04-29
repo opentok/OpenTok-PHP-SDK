@@ -7,6 +7,7 @@ use OpenTok\Archive;
 use OpenTok\Role;
 use OpenTok\MediaMode;
 use OpenTok\ArchiveMode;
+use OpenTok\OutputMode;
 use OpenTok\Util\Client;
 use OpenTok\Util\Validators;
 
@@ -249,15 +250,21 @@ class OpenTok {
         }
 
         // unpack optional arguments (merging with default values) into named variables
-        $defaults = array('name' => null, 'hasVideo' => true, 'hasAudio' => true);
+        $defaults = array(
+            'name' => null,
+            'hasVideo' => true,
+            'hasAudio' => true,
+            'outputMode' => OutputMode::COMPOSED
+        );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($name, $hasVideo, $hasAudio) = array_values($options);
+        list($name, $hasVideo, $hasAudio, $outputMode) = array_values($options);
 
         // validate arguments
         Validators::validateSessionId($sessionId);
         Validators::validateArchiveName($name);
         Validators::validateArchiveHasVideo($hasVideo);
         Validators::validateArchiveHasAudio($hasAudio);
+        Validators::validateArchiveOutputMode($outputMode);
 
         // make API call
         $archiveData = $this->client->startArchive($sessionId, $options);
