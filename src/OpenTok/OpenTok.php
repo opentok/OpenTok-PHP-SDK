@@ -223,6 +223,11 @@ class OpenTok {
      */
     public function startArchive($sessionId, $options=array())
     {
+        // support for deprecated method signature, remove in v3.0.0 (not before)
+        if (!is_array($options)) {
+          $options = array('name' => $options);
+        }
+
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array('name' => null, 'hasVideo' => true, 'hasAudio' => true);
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
