@@ -6,10 +6,12 @@ use OpenTok\Session;
 use OpenTok\Archive;
 use OpenTok\Role;
 use OpenTok\MediaMode;
+use OpenTok\ArchiveMode;
 use OpenTok\Util\Client;
 use OpenTok\Util\Validators;
 
 use OpenTok\Exception\UnexpectedValueException;
+use OpenTok\Exception\InvalidArgumentException;
 
 /**
 * Contains methods for creating OpenTok sessions, generating tokens, and working with archives.
@@ -178,13 +180,24 @@ class OpenTok {
     */
     public function createSession($options=array())
     {
+        if (array_key_exists('mediaMode', $options) &&
+            $options['mediaMode'] != MediaMode::ROUTED &&
+            array_key_exists('archiveMode', $options) &&
+            $options['archiveMode'] != ArchiveMode::MANUAL) {
+            throw new InvalidArgumentException('A session must be routed to be archived.');
+        }
         // unpack optional arguments (merging with default values) into named variables
-        $defaults = array('mediaMode' => MediaMode::RELAYED, 'location' => null);
+        $defaults = array(
+            'mediaMode' => MediaMode::RELAYED,
+            'archiveMode' => ArchiveMode::MANUAL,
+            'location' => null
+        );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($mediaMode, $location) = array_values($options);
+        list($mediaMode, $archiveMode, $location) = array_values($options);
 
         // validate arguments
         Validators::validateMediaMode($mediaMode);
+        Validators::validateArchiveMode($archiveMode);
         Validators::validateLocation($location);
 
         // make API call
@@ -199,7 +212,8 @@ class OpenTok {
 
         return new Session($this, (string)$sessionId, array(
             'location' => $location,
-            'mediaMode' => $mediaMode
+            'mediaMode' => $mediaMode,
+            'archiveMode' => $archiveMode
         ));
     }
 

@@ -5,6 +5,7 @@ namespace OpenTok\Util;
 use OpenTok\Util\Client;
 use OpenTok\Role;
 use OpenTok\MediaMode;
+use OpenTok\ArchiveMode;
 use OpenTok\OpenTok;
 
 use OpenTok\Exception\InvalidArgumentException;
@@ -191,6 +192,14 @@ class Validators
         if (!MediaMode::isValidValue($mediaMode)) {
             throw new InvalidArgumentException(
                 'The media mode option must be either \'MediaMode::ROUTED\' or \'MediaMode::RELAYED\'. mediaMode:'.print_r($mediaMode, true)
+            );
+        }
+    }
+    public static function validateArchiveMode($archiveMode)
+    {
+        if (!ArchiveMode::isValidValue($archiveMode)) {
+            throw new InvalidArgumentException(
+                'The archive mode option must be either \'ArchiveMode::MANUAL\' or \'ArchiveMode::ALWAYS\'. archiveMode:'.print_r($archiveMode, true)
             );
         }
     }

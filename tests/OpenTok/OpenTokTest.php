@@ -6,6 +6,7 @@ use OpenTok\OpenTok;
 use OpenTok\Session;
 use OpenTok\Role;
 use OpenTok\MediaMode;
+use OpenTok\ArchiveMode;
 use OpenTok\Util\Client;
 
 use OpenTok\TestHelpers;
@@ -192,6 +193,68 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
             '2_MX4xNzAxMjYzMX4xMjcuMC4wLjF-V2VkIEZlYiAyNiAxODo1NzoyNCBQU1QgMjAxNH4wLjU0MDU4ODc0fg',
             $session->getSessionId()
         );
+    }
+
+    public function testCreatesAutoArchivedSession()
+    {
+        // Arrange
+        $mock = new MockPlugin();
+        $response = MockPlugin::getMockFile(
+            self::$mockBasePath . 'session/create/alwaysarchived'
+        );
+        $mock->addResponse($response);
+        $this->client->addSubscriber($mock);
+
+        // Act
+        $session = $this->opentok->createSession(array(
+            'archiveMode' => ArchiveMode::ALWAYS
+        ));
+
+        // Assert
+        $requests = $mock->getReceivedRequests();
+        $this->assertCount(1, $requests);
+
+        $request = $requests[0];
+        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('/session/create', $request->getPath());
+        $this->assertEquals('api.opentok.com', $request->getHost());
+        $this->assertEquals('https', $request->getScheme());
+
+        $authString = $request->getHeader('X-TB-PARTNER-AUTH');
+        $this->assertNotEmpty($authString);
+        $this->assertEquals($this->API_KEY.':'.$this->API_SECRET, $authString);
+
+        // TODO: test the dynamically built User Agent string
+        $userAgent = $request->getHeader('User-Agent');
+        $this->assertNotEmpty($userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.2.3-alpha.1', $userAgent->__toString());
+
+        $archiveMode = $request->getPostField('archiveMode');
+        $this->assertEquals('always', $archiveMode);
+
+        $this->assertInstanceOf('OpenTok\Session', $session);
+        // NOTE: this is an actual sessionId from the recorded response, this doesn't correspond to
+        // the API Key and API Secret used to create the session.
+        $this->assertEquals(
+            '2_MX4xNzAxMjYzMX4xMjcuMC4wLjF-V2VkIEZlYiAyNiAxODo1NzoyNCBQU1QgMjAxNH4wLjU0MDU4ODc0fg',
+            $session->getSessionId()
+        );
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testFailsWhenCreatingRelayedAutoArchivedSession()
+    {
+        // Arrange
+
+        // Act
+        $session = $this->opentok->createSession(array(
+            'mediaMode' => MediaMode::RELAYED,
+            'archiveMode' => ArchiveMode::ALWAYS
+        ));
+
+        // Assert
     }
 
     public function testGeneratesToken() {
