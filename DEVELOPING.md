@@ -31,8 +31,6 @@ In order to create a release, the following should be completed in order.
    - src/OpenTok/Util/Client.php
    - tests/OpenTok/OpenTokTest.php
    - tests/OpenTok/ArchiveTest.php
-   - sample/HelloWorld/composer.json (only needs to change when MINOR version is changing)
-   - sample/Archiving/composer.json (only needs to change when MINOR version is changing)
    - README.md (only needs to change when MINOR version is changing)
 1. Commit the version number change with the message "Update to version x.x.x", substituting the new version number.
 1. Create a git tag: `git tag -a vx.x.x -m "Release vx.x.x"`
