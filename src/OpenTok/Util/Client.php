@@ -17,7 +17,7 @@ use OpenTok\Exception\ArchiveAuthenticationException;
 
 // TODO: build this dynamically
 /** @internal */
-define('OPENTOK_SDK_VERSION', '2.2.3');
+define('OPENTOK_SDK_VERSION', '2.2.4-alpha.1');
 /** @internal */
 define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
 
