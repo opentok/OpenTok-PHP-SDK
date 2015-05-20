@@ -139,7 +139,18 @@ class OpenTok {
     *
     * <ul>
     *
-    *     <li><code>'mediaMode'</code> (String) &mdash; Whether the session will transmit
+    *    <li><code>'archiveMode'</code> (ArchiveMode) &mdash; Whether the session is automatically
+    *    archived (<code>ArchiveMode::ALWAYS</code>) or not (<code>ArchiveMode::MANUAL</code>).
+    *    By default, the setting is <code>ArchiveMode.MANUAL</code>, and you must call the
+    *    <code>OpenTok->startArchive()</code> method to start archiving. To archive the session
+    *    (either automatically or not), you must set the <code>mediaMode</code> key to
+    *    <code>MediaMode::ROUTED</code>.</li>
+    *
+    *    <li><code>'location'</code> (String) &mdash; An IP address that the OpenTok servers
+    *    will use to situate the session in its global network. If you do not set a location hint,
+    *    the OpenTok servers will be based on the first client connecting to the session.</li>
+    *
+    *     <li><code>'mediaMode'</code> (MediaMode) &mdash; Whether the session will transmit
     *     streams using the OpenTok Media Router (<code>MediaMode.ROUTED</code>) or not
     *     (<code>MediaMode.RELAYED</code>). By default, the <code>mediaMode</code> property
     *     is set to <code>MediaMode.RELAYED</code>.
@@ -171,14 +182,12 @@ class OpenTok {
     *         feature, which lets you record, save, and retrieve OpenTok sessions.</li>
     *     </ul>
     *
-    *    <li><code>'location'</code> (String) &mdash; An IP address that the OpenTok servers
-    *    will use to situate the session in its global network. If you do not set a location hint,
-    *    the OpenTok servers will be based on the first client connecting to the session.</li>
-    *
     * </ul>
     *
-    * @return string A session ID for the new session. For example, when using the OpenTok.js
-    * library, use this session ID when calling the <code>OT.initSession()</code> method.
+    * @return \OpenTok\Session A Session object representing the new session. Call the
+    * <code>getSessionId()</code> method of this object to get the session ID. For example,
+    * when using the OpenTok.js library, use this session ID when calling the
+    * <code>OT.initSession()</code> method.
     */
     public function createSession($options=array())
     {
@@ -237,9 +246,32 @@ class OpenTok {
      * set to routed); you cannot archive sessions with the media mode set to relayed.
      *
      * @param String $sessionId The session ID of the OpenTok session to archive.
-     * @param String $name The name of the archive. You can use this name to identify the archive.
-     * It is a property of the Archive object, and it is a property of archive-related events in the
-     * OpenTok JavaScript SDK.
+     *
+     * @param array $options (Optional) This array defines options for the archive. The array
+     * includes the following keys (all of which are optional):
+     *
+     * <ul>
+     *
+     *    <li><code>'name'</code> (String) &mdash; The name of the archive. You can use this name to
+     *    identify the archive. It is a property of the Archive object, and it is a property of
+     *    archive-related events in the OpenTok client SDKs.</li>
+     *
+     *    <li><code>'hasVideo'</code> (Boolean) &mdash; Whether the archive will record video
+     *    (true, the default) or not (false). If you set both <code>hasAudio</code> and
+     *    <code>hasVideo</code> to false, the call to the <code>startArchive()</code> method results
+     *    in an error.</li>
+     *
+     *    <li><code>'hasAudio'</code> (Boolean) &mdash; Whether the archive will record audio
+     *    (true, the default) or not (false). If you set both <code>hasAudio</code> and
+     *    <code>hasVideo</code> to false, the call to the <code>startArchive()</code> method results
+     *    in an error.</li>
+     *
+     *    <li><code>'outputMode'</code> (OutputMode) &mdash; Whether all streams in the
+     *    archive are recorded to a single file (<code>OutputMode::COMPOSED</code>, the default)
+     *    or to individual files (<code>OutputMode::INDIVIDUAL</code>).</li>
+     *
+     * <ul>
+     *
      * @return Archive The Archive object, which includes properties defining the archive, including
      * the archive ID.
      */

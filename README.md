@@ -72,12 +72,15 @@ $session = $opentok->createSession();
 // A session that uses the OpenTok Media Router:
 $session = $opentok->createSession(array( 'mediaMode' => MediaMode::ROUTED ));
 
-// A session that is auto-archived (and uses the OpenTok Media Router):
-$session = $opentok->createSession(array( 'archiveMode' => ArchiveMode::ALWAYS));
-
 // A session with a location hint:
 $session = $opentok->createSession(array( 'location' => '12.34.56.78' ));
 
+// An automatically archived session:
+$sessionOptions = array(
+    'archiveMode' => ArchiveMode::ALWAYS,
+    'mediaMode' => MediaMode::ROUTED
+);
+$session = $opentok->createSession($sessionOptions);
 
 
 // Store this sessionId in the database for later use
@@ -176,6 +179,10 @@ $archives = $archiveList->getItems();
 // Get the total number of Archives for this API Key
 $totalCount = $archiveList->totalCount();
 ```
+
+Note that you can also create an automatically archived session, by passing in `ArchiveMode::ALWAYS`
+as the `archiveMode` key of the `options` parameter passed into the `OpenTok->createSession()`
+method (see "Creating Sessions," above).
 
 # Samples
 

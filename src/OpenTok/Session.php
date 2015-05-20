@@ -71,7 +71,7 @@ class Session
     /**
     * Returns the location hint IP address.
     *
-    * See <a href="OpenTok.OpenTok.html#method_createSession">OpenTok->createSession()</a>
+    * See <a href="OpenTok.OpenTok.html#method_createSession">OpenTok->createSession()</a>.
     */
     public function getLocation()
     {
@@ -84,6 +84,7 @@ class Session
     * OpenTok Media Router.
     *
     * See <a href="OpenTok.OpenTok.html#method_createSession">OpenTok->createSession()</a>
+    * and <a href="OpenTok.MediaMode.html">ArchiveMode</a>.
     */
     public function getMediaMode()
     {
@@ -91,7 +92,11 @@ class Session
     }
 
     /**
-    * TODO: document this
+    * Defines whether the session is automatically archived (ArchiveMode::ALWAYS)
+    * or not (ArchiveMode::MANUAL).
+    *
+    * See <a href="OpenTok.OpenTok.html#method_createSession">OpenTok->createSession()</a>
+    * and <a href="OpenTok.ArchiveMode.html">ArchiveMode</a>.
     */
     public function getArchiveMode()
     {
