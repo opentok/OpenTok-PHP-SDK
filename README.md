@@ -4,10 +4,7 @@
 
 The OpenTok PHP SDK lets you generate [sessions](http://tokbox.com/opentok/tutorials/create-session/) and
 [tokens](http://tokbox.com/opentok/tutorials/create-token/) for [OpenTok](http://www.tokbox.com/)
-applications, and [archive](http://tokbox.com/#archiving) OpenTok 2.0 sessions.
-
-If you are updating from a previous version of this SDK, see
-[Important changes since v2.2.0](#important-changes-since-v220).
+applications, and [archive](http://tokbox.com/opentok/tutorials/archiving/) sessions.
 
 # Installation
 
@@ -216,8 +213,7 @@ session uses the OpenTok TURN server to relay audio-video streams.
 
 **Changes in v2.2.0:**
 
-This version of the SDK includes support for working with OpenTok 2.0 archives. (This API does not
-work with OpenTok 1.0 archives.)
+This version of the SDK includes support for working with OpenTok archives.
 
 The names of many methods of the API have changed. Many method names have
 changed to use camel case, including the following:
@@ -225,7 +221,7 @@ changed to use camel case, including the following:
 * `\OpenTok\OpenTok->createSession()`
 * `\OpenTok\OpenTok->generateToken()`
 
-Note also that the `options` parameter of the `OpenTok.createSession()` method has a `mediaMode`
+Note also that the `options` parameter of the `OpenTok->createSession()` method has a `mediaMode`
 property instead of a `p2p` property.
 
 The API_Config class has been removed. Store your OpenTok API key and API secret in code outside of the SDK files.

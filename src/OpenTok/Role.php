@@ -5,7 +5,7 @@ namespace OpenTok;
 use OpenTok\Util\BasicEnum;
 
 /**
- * Defines values for the role parameter of the OpenTok.OpenTok.generateToken()
+ * Defines values for the role parameter of the \OpenTok\OpenTok->generateToken()
  * method.
  */
 abstract class Role extends BasicEnum {

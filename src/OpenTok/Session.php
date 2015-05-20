@@ -10,7 +10,7 @@ use OpenTok\Util\Validators;
 /**
 * Represents an OpenTok session.
 * <p>
-* Use the OpenTok.createSession() method to create an OpenTok session. Use the
+* Use the \OpenTok\OpenTok->createSession() method to create an OpenTok session. Use the
 * getSessionId() method of the Session object to get the session ID.
 */
 class Session
@@ -69,7 +69,9 @@ class Session
     }
 
     /**
-    * Returns the location hint IP address. See the OpenTok.createSession() method.
+    * Returns the location hint IP address.
+    *
+    * See <a href="OpenTok.OpenTok.html#method_createSession">OpenTok->createSession()</a>
     */
     public function getLocation()
     {
@@ -77,15 +79,11 @@ class Session
     }
 
     /**
-    * {@link http://example.com foo}
-    * {@link OpenTok->createSession()}
-    *
     * Returns MediaMode::RELAYED if the session's streams will be transmitted directly between
     * peers; returns MediaMode::ROUTED if the session's streams will be transmitted using the
     * OpenTok Media Router.
     *
     * See <a href="OpenTok.OpenTok.html#method_createSession">OpenTok->createSession()</a>
-    * @see OpenTok->createSession()
     */
     public function getMediaMode()
     {
