@@ -144,28 +144,28 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-135382826"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-513283568"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-135382826" class="accordion-body collapse in">
+            <div id="namespace-513283568" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                                                     <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1431950931"></a>
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1254644964"></a>
                                 <a href="../namespaces/OpenTok.html" style="margin-left: 30px; padding-left: 0">OpenTok</a>
             </div>
-            <div id="namespace-1431950931" class="accordion-body collapse ">
+            <div id="namespace-1254644964" class="accordion-body collapse ">
                 <div class="accordion-inner">
 
                                                     <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-707324117"></a>
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1116999287"></a>
                                 <a href="../namespaces/OpenTok.Exception.html" style="margin-left: 30px; padding-left: 0">Exception</a>
             </div>
-            <div id="namespace-707324117" class="accordion-body collapse ">
+            <div id="namespace-1116999287" class="accordion-body collapse ">
                 <div class="accordion-inner">
 
                     
@@ -220,10 +220,11 @@
                                             </nav>
                     <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal"><i class="icon-code"></i></a>
 
-                    <h1><small>\OpenTok</small>MediaMode</h1>
-                    <p><em>Defines values for the mediaMode parameter of the \OpenTok\OpenTok-&gt;createSession()
-method.</em></p>
-                    
+                    <h1><small>\OpenTok</small>OutputMode</h1>
+                    <p><em>Defines values for the outputMode option of the \OpenTok\OpenTok-&gt;startArchive() method
+and for the outputMode property of the Archive class.</em></p>
+                    <p>See <a href="OpenTok.OpenTok.html#method_startArchive">OpenTok->startArchive()</a>
+and <a href="OpenTok.Archive.html#property_outputMode">Archive.outputMode</a>.</p>
 
                     <section id="summary">
                         <h2>Summary</h2>
@@ -246,8 +247,8 @@ method.</em></p>
                                                                     <em>No public properties found</em>
                                                             </section>
                             <section class="span4">
-                                                                    <a href="../classes/OpenTok.MediaMode.html#constant_ROUTED" class="">ROUTED</a><br />
-                                                                    <a href="../classes/OpenTok.MediaMode.html#constant_RELAYED" class="">RELAYED</a><br />
+                                                                    <a href="../classes/OpenTok.OutputMode.html#constant_COMPOSED" class="">COMPOSED</a><br />
+                                                                    <a href="../classes/OpenTok.OutputMode.html#constant_INDIVIDUAL" class="">INDIVIDUAL</a><br />
                                                             </section>
                         </section>
                         <section class="row-fluid protected">
@@ -280,14 +281,14 @@ method.</em></p>
                     
                     <dl>
                         <dt>File</dt>
-                            <dd><a href="../files/MediaMode.php.html"><div class="path-wrapper">MediaMode.php</div></a></dd>
+                            <dd><a href="../files/OutputMode.php.html"><div class="path-wrapper">OutputMode.php</div></a></dd>
                                                 <dt>Package</dt>
                             <dd><div class="namespace-wrapper"></div></dd>
                                                 <dt>Class hierarchy</dt>
                             <dd class="hierarchy">
                                                                                                                                                                                                                                                                                                 
                                         <div class="namespace-wrapper">\OpenTok\Util\BasicEnum</div>
-                                                                                                    <div class="namespace-wrapper">\OpenTok\MediaMode</div>
+                                                                                                    <div class="namespace-wrapper">\OpenTok\OutputMode</div>
                             </dd>
 
                         
@@ -318,11 +319,11 @@ method.</em></p>
 
                                 <div class="row-fluid">
         <div class="span8 content class">
-            <a id="constant_ROUTED" name="constant_ROUTED" class="anchor"></a>
-            <article id="constant_ROUTED" class="constant">
-                <h3 class="">ROUTED</h3>
-                <pre class="signature">ROUTED</pre>
-                <p><em>The session will send streams using the OpenTok Media Router.</em></p>
+            <a id="constant_COMPOSED" name="constant_COMPOSED" class="anchor"></a>
+            <article id="constant_COMPOSED" class="constant">
+                <h3 class="">COMPOSED</h3>
+                <pre class="signature">COMPOSED</pre>
+                <p><em></em></p>
                 
             </article>
         </div>
@@ -345,12 +346,11 @@ method.</em></p>
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="constant_RELAYED" name="constant_RELAYED" class="anchor"></a>
-            <article id="constant_RELAYED" class="constant">
-                <h3 class="">RELAYED</h3>
-                <pre class="signature">RELAYED</pre>
-                <p><em>The session will attempt send streams directly between clients. If clients cannot connect
-  due to firewall restrictions, the session uses the OpenTok TURN server to relay streams.</em></p>
+            <a id="constant_INDIVIDUAL" name="constant_INDIVIDUAL" class="anchor"></a>
+            <article id="constant_INDIVIDUAL" class="constant">
+                <h3 class="">INDIVIDUAL</h3>
+                <pre class="signature">INDIVIDUAL</pre>
+                <p><em></em></p>
                 
             </article>
         </div>
@@ -379,10 +379,10 @@ method.</em></p>
     <div id="source-view" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="source-view-label" aria-hidden="true">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="source-view-label">MediaMode.php</h3>
+            <h3 id="source-view-label">OutputMode.php</h3>
         </div>
         <div class="modal-body">
-            <pre data-src="../files/MediaMode.php.txt" class="language-php line-numbers"></pre>
+            <pre data-src="../files/OutputMode.php.txt" class="language-php line-numbers"></pre>
         </div>
     </div>
 

@@ -144,28 +144,28 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-135382826"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-520661678"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-135382826" class="accordion-body collapse in">
+            <div id="namespace-520661678" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                                                     <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1431950931"></a>
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-220544553"></a>
                                 <a href="../namespaces/OpenTok.html" style="margin-left: 30px; padding-left: 0">OpenTok</a>
             </div>
-            <div id="namespace-1431950931" class="accordion-body collapse ">
+            <div id="namespace-220544553" class="accordion-body collapse ">
                 <div class="accordion-inner">
 
                                                     <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-707324117"></a>
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1590127498"></a>
                                 <a href="../namespaces/OpenTok.Exception.html" style="margin-left: 30px; padding-left: 0">Exception</a>
             </div>
-            <div id="namespace-707324117" class="accordion-body collapse ">
+            <div id="namespace-1590127498" class="accordion-body collapse ">
                 <div class="accordion-inner">
 
                     
@@ -220,10 +220,11 @@
                                             </nav>
                     <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal"><i class="icon-code"></i></a>
 
-                    <h1><small>\OpenTok</small>MediaMode</h1>
-                    <p><em>Defines values for the mediaMode parameter of the \OpenTok\OpenTok-&gt;createSession()
-method.</em></p>
-                    
+                    <h1><small>\OpenTok</small>ArchiveMode</h1>
+                    <p><em>Defines values for the archiveMode parameter of the \OpenTok\OpenTok-&gt;createSession() method
+and the return value for the \OpenTok\Session-&gt;getArchiveMode() method.</em></p>
+                    <p>See <a href="OpenTok.OpenTok.html#method_createSession">OpenTok->createSession()</a>
+and <a href="OpenTok.Archive.html#method_getArchiveMode">Session->getArchiveMode()</a>.</p>
 
                     <section id="summary">
                         <h2>Summary</h2>
@@ -246,8 +247,8 @@ method.</em></p>
                                                                     <em>No public properties found</em>
                                                             </section>
                             <section class="span4">
-                                                                    <a href="../classes/OpenTok.MediaMode.html#constant_ROUTED" class="">ROUTED</a><br />
-                                                                    <a href="../classes/OpenTok.MediaMode.html#constant_RELAYED" class="">RELAYED</a><br />
+                                                                    <a href="../classes/OpenTok.ArchiveMode.html#constant_MANUAL" class="">MANUAL</a><br />
+                                                                    <a href="../classes/OpenTok.ArchiveMode.html#constant_ALWAYS" class="">ALWAYS</a><br />
                                                             </section>
                         </section>
                         <section class="row-fluid protected">
@@ -280,14 +281,14 @@ method.</em></p>
                     
                     <dl>
                         <dt>File</dt>
-                            <dd><a href="../files/MediaMode.php.html"><div class="path-wrapper">MediaMode.php</div></a></dd>
+                            <dd><a href="../files/ArchiveMode.php.html"><div class="path-wrapper">ArchiveMode.php</div></a></dd>
                                                 <dt>Package</dt>
                             <dd><div class="namespace-wrapper"></div></dd>
                                                 <dt>Class hierarchy</dt>
                             <dd class="hierarchy">
                                                                                                                                                                                                                                                                                                 
                                         <div class="namespace-wrapper">\OpenTok\Util\BasicEnum</div>
-                                                                                                    <div class="namespace-wrapper">\OpenTok\MediaMode</div>
+                                                                                                    <div class="namespace-wrapper">\OpenTok\ArchiveMode</div>
                             </dd>
 
                         
@@ -318,11 +319,12 @@ method.</em></p>
 
                                 <div class="row-fluid">
         <div class="span8 content class">
-            <a id="constant_ROUTED" name="constant_ROUTED" class="anchor"></a>
-            <article id="constant_ROUTED" class="constant">
-                <h3 class="">ROUTED</h3>
-                <pre class="signature">ROUTED</pre>
-                <p><em>The session will send streams using the OpenTok Media Router.</em></p>
+            <a id="constant_MANUAL" name="constant_MANUAL" class="anchor"></a>
+            <article id="constant_MANUAL" class="constant">
+                <h3 class="">MANUAL</h3>
+                <pre class="signature">MANUAL</pre>
+                <p><em>The session is not archived automatically. To archive the session, you can call the
+\OpenTok\OpenTok-&gt;startArchive() method.</em></p>
                 
             </article>
         </div>
@@ -345,12 +347,12 @@ method.</em></p>
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="constant_RELAYED" name="constant_RELAYED" class="anchor"></a>
-            <article id="constant_RELAYED" class="constant">
-                <h3 class="">RELAYED</h3>
-                <pre class="signature">RELAYED</pre>
-                <p><em>The session will attempt send streams directly between clients. If clients cannot connect
-  due to firewall restrictions, the session uses the OpenTok TURN server to relay streams.</em></p>
+            <a id="constant_ALWAYS" name="constant_ALWAYS" class="anchor"></a>
+            <article id="constant_ALWAYS" class="constant">
+                <h3 class="">ALWAYS</h3>
+                <pre class="signature">ALWAYS</pre>
+                <p><em>The session is archived automatically (as soon as there are clients publishing streams
+to the session).</em></p>
                 
             </article>
         </div>
@@ -379,10 +381,10 @@ method.</em></p>
     <div id="source-view" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="source-view-label" aria-hidden="true">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="source-view-label">MediaMode.php</h3>
+            <h3 id="source-view-label">ArchiveMode.php</h3>
         </div>
         <div class="modal-body">
-            <pre data-src="../files/MediaMode.php.txt" class="language-php line-numbers"></pre>
+            <pre data-src="../files/ArchiveMode.php.txt" class="language-php line-numbers"></pre>
         </div>
     </div>
 
