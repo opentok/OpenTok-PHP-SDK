@@ -13,6 +13,7 @@ use Gregwar\Cache\Cache;
 use OpenTok\OpenTok;
 use OpenTok\Role;
 use OpenTok\MediaMode;
+use OpenTok\OutputMode;
 
 // PHP CLI webserver compatibility, serving static files
 $filename = __DIR__.preg_replace('#(\?.*)$#', '', $_SERVER['REQUEST_URI']);
@@ -109,9 +110,14 @@ $app->get('/download/:archiveId', function ($archiveId) use ($app) {
     $app->redirect($archive->url);
 });
 
-$app->get('/start', function () use ($app, $sessionId) {
+$app->post('/start', function () use ($app, $sessionId) {
 
-    $archive = $app->opentok->startArchive($sessionId, "PHP Archiving Sample App");
+    $archive = $app->opentok->startArchive($sessionId, array(
+      'name' => "PHP Archiving Sample App",
+      'hasAudio' => ($app->request->post('hasAudio') == 'on'),
+      'hasVideo' => ($app->request->post('hasVideo') == 'on'),
+      'outputMode' => ($app->request->post('outputMode') == 'composed' ? OutputMode::COMPOSED : OutputMode::INDIVIDUAL)
+    ));
 
     $app->response->headers->set('Content-Type', 'application/json');
     echo $archive->toJson();
