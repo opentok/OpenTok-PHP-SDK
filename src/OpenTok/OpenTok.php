@@ -63,7 +63,7 @@ class OpenTok {
      * @param string $sessionId The session ID corresponding to the session to which the user
      * will connect.
      *
-     * @param array $options This array defines options for the token. This array include the
+     * @param array $options This array defines options for the token. This array includes the
      * following keys, all of which are optional:
      *
      * <ul>
@@ -151,8 +151,8 @@ class OpenTok {
     *     audio-video streams.
     *
     *     <p>
-    *     The <a href="http://tokbox.com/#multiparty" target="_top"> OpenTok Media Router</a>
-    *     provides the following benefits:
+    *     The <a href="https://tokbox.com/opentok/tutorials/create-session/#media-mode"
+    *     target="_top">OpenTok Media Router</a> provides the following benefits:
     *
     *     <ul>
     *       <li>The OpenTok Media Router can decrease bandwidth usage in multiparty sessions.
@@ -160,13 +160,13 @@ class OpenTok {
     *           each client must send a separate audio-video stream to each client subscribing to
     *           it.)</li>
     *       <li>The OpenTok Media Router can improve the quality of the user experience through
-    *         <a href="http://tokbox.com/#iqc" target="_top">Intelligent Quality Control</a>. With
-    *         Intelligent Quality Control, if a client's connectivity degrades to a degree that
+    *         <a href="https://tokbox.com/platform/fallback" target="_top">audio fallback and video
+    *         recovery</a>, if a client's connectivity degrades to a degree that
     *         it does not support video for a stream it's subscribing to, the video is dropped on
     *         that client (without affecting other clients), and the client receives audio only.
     *         If the client's connectivity improves, the video returns.</li>
     *       <li>The OpenTok Media Router supports the
-    *         <a href="http://tokbox.com/platform/archiving" target="_top">archiving</a>
+    *         <a href="https://tokbox.com/opentok/tutorials/archiving" target="_top">archiving</a>
     *         feature, which lets you record, save, and retrieve OpenTok sessions.</li>
     *     </ul>
     *
@@ -236,9 +236,29 @@ class OpenTok {
      * set to routed); you cannot archive sessions with the media mode set to relayed.
      *
      * @param String $sessionId The session ID of the OpenTok session to archive.
-     * @param String $name The name of the archive. You can use this name to identify the archive.
-     * It is a property of the Archive object, and it is a property of archive-related events in the
-     * OpenTok JavaScript SDK.
+     *
+     * @param array $options A set of options for the archive. This array includes the
+     * following keys, all of which are optional:
+     *
+     * <ul>
+     *   <li><code>name</code> &mdash; (String) The name of the archive. You can use this name to
+     *     identify the archive. It is a property of the Archive object, and it is a property of
+     *     archive-related events in the OpenTok client libraries.
+     *   </li>
+     *   <li><code>hasAudio</code> &mdash; (Boolean) Whether the archive will record audio
+     *     (<code>true</code>) or not (<code>false</code>). The default value is <code>true</code>
+     *     (audio is recorded). If you set both  <code>hasAudio</code> and <code>hasVideo</code>
+     *     to <code>false</code>, the call to the <code>startArchive()</code> method results in an
+     *     error.
+     *   </li>
+     *   <li><code>hasVideo</code> &mdash; (Boolean) Whether the archive will record video
+     *     (<code>true</code>) or not (<code>false</code>). The default value is <code>true</code>
+     *     (video is recorded). If you set both  <code>hasAudio</code> and <code>hasVideo</code>
+     *     to <code>false</code>, the call to the <code>startArchive()</code> method results in an
+     *     error.
+     *   </li>
+     * <ul>
+     *
      * @return Archive The Archive object, which includes properties defining the archive, including
      * the archive ID.
      */
