@@ -1,8 +1,9 @@
 {
   "name": "helloworld-php",
+  "minimum-stability": "dev",
   "require": {
     "slim/slim": "2.*",
     "gregwar/cache": "1.0.*",
-    "opentok/opentok": "2.2.*"
+    "opentok/opentok": "dev-master"
   }
 }
