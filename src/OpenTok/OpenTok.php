@@ -139,7 +139,18 @@ class OpenTok {
     *
     * <ul>
     *
-    *     <li><code>'mediaMode'</code> (String) &mdash; Whether the session will transmit
+    *    <li><code>'archiveMode'</code> (ArchiveMode) &mdash; Whether the session is automatically
+    *    archived (<code>ArchiveMode::ALWAYS</code>) or not (<code>ArchiveMode::MANUAL</code>).
+    *    By default, the setting is <code>ArchiveMode.MANUAL</code>, and you must call the
+    *    <code>OpenTok->startArchive()</code> method to start archiving. To archive the session
+    *    (either automatically or not), you must set the <code>mediaMode</code> key to
+    *    <code>MediaMode::ROUTED</code>.</li>
+    *
+    *    <li><code>'location'</code> (String) &mdash; An IP address that the OpenTok servers
+    *    will use to situate the session in its global network. If you do not set a location hint,
+    *    the OpenTok servers will be based on the first client connecting to the session.</li>
+    *
+    *     <li><code>'mediaMode'</code> (MediaMode) &mdash; Whether the session will transmit
     *     streams using the OpenTok Media Router (<code>MediaMode.ROUTED</code>) or not
     *     (<code>MediaMode.RELAYED</code>). By default, the <code>mediaMode</code> property
     *     is set to <code>MediaMode.RELAYED</code>.
@@ -151,8 +162,9 @@ class OpenTok {
     *     audio-video streams.
     *
     *     <p>
-    *     The <a href="https://tokbox.com/opentok/tutorials/create-session/#media-mode"
-    *     target="_top">OpenTok Media Router</a> provides the following benefits:
+    *     The
+    *     <a href="https://tokbox.com/opentok/tutorials/create-session/#media-mode" target="_top">
+    *     OpenTok Media Router</a> provides the following benefits:
     *
     *     <ul>
     *       <li>The OpenTok Media Router can decrease bandwidth usage in multiparty sessions.
@@ -160,24 +172,21 @@ class OpenTok {
     *           each client must send a separate audio-video stream to each client subscribing to
     *           it.)</li>
     *       <li>The OpenTok Media Router can improve the quality of the user experience through
-    *         <a href="https://tokbox.com/platform/fallback" target="_top">audio fallback and video
-    *         recovery</a>, if a client's connectivity degrades to a degree that
-    *         it does not support video for a stream it's subscribing to, the video is dropped on
-    *         that client (without affecting other clients), and the client receives audio only.
+    *         recovery</a>. With these features, if a client's connectivity degrades to a degree
+    *         that it does not support video for a stream it's subscribing to, the video is dropped
+    *         on that client (without affecting other clients), and the client receives audio only.
     *         If the client's connectivity improves, the video returns.</li>
     *       <li>The OpenTok Media Router supports the
     *         <a href="https://tokbox.com/opentok/tutorials/archiving" target="_top">archiving</a>
     *         feature, which lets you record, save, and retrieve OpenTok sessions.</li>
     *     </ul>
     *
-    *    <li><code>'location'</code> (String) &mdash; An IP address that the OpenTok servers
-    *    will use to situate the session in its global network. If you do not set a location hint,
-    *    the OpenTok servers will be based on the first client connecting to the session.</li>
-    *
     * </ul>
     *
-    * @return string A session ID for the new session. For example, when using the OpenTok.js
-    * library, use this session ID when calling the <code>OT.initSession()</code> method.
+    * @return \OpenTok\Session A Session object representing the new session. Call the
+    * <code>getSessionId()</code> method of this object to get the session ID. For example,
+    * when using the OpenTok.js library, use this session ID when calling the
+    * <code>OT.initSession()</code> method.
     */
     public function createSession($options=array())
     {
@@ -225,7 +234,7 @@ class OpenTok {
     }
 
     /**
-     * Starts archiving an OpenTok 2.0 session.
+     * Starts archiving an OpenTok session.
      * <p>
      * Clients must be actively connected to the OpenTok session for you to successfully start
      * recording an archive.
@@ -236,27 +245,29 @@ class OpenTok {
      * set to routed); you cannot archive sessions with the media mode set to relayed.
      *
      * @param String $sessionId The session ID of the OpenTok session to archive.
-     *
-     * @param array $options A set of options for the archive. This array includes the
-     * following keys, all of which are optional:
+     * @param array $options (Optional) This array defines options for the archive. The array
+     * includes the following keys (all of which are optional):
      *
      * <ul>
-     *   <li><code>name</code> &mdash; (String) The name of the archive. You can use this name to
-     *     identify the archive. It is a property of the Archive object, and it is a property of
-     *     archive-related events in the OpenTok client libraries.
-     *   </li>
-     *   <li><code>hasAudio</code> &mdash; (Boolean) Whether the archive will record audio
-     *     (<code>true</code>) or not (<code>false</code>). The default value is <code>true</code>
-     *     (audio is recorded). If you set both  <code>hasAudio</code> and <code>hasVideo</code>
-     *     to <code>false</code>, the call to the <code>startArchive()</code> method results in an
-     *     error.
-     *   </li>
-     *   <li><code>hasVideo</code> &mdash; (Boolean) Whether the archive will record video
-     *     (<code>true</code>) or not (<code>false</code>). The default value is <code>true</code>
-     *     (video is recorded). If you set both  <code>hasAudio</code> and <code>hasVideo</code>
-     *     to <code>false</code>, the call to the <code>startArchive()</code> method results in an
-     *     error.
-     *   </li>
+     *
+     *    <li><code>'name'</code> (String) &mdash; The name of the archive. You can use this name to
+     *    identify the archive. It is a property of the Archive object, and it is a property of
+     *    archive-related events in the OpenTok client SDKs.</li>
+     *
+     *    <li><code>'hasVideo'</code> (Boolean) &mdash; Whether the archive will record video
+     *    (true, the default) or not (false). If you set both <code>hasAudio</code> and
+     *    <code>hasVideo</code> to false, the call to the <code>startArchive()</code> method results
+     *    in an error.</li>
+     *
+     *    <li><code>'hasAudio'</code> (Boolean) &mdash; Whether the archive will record audio
+     *    (true, the default) or not (false). If you set both <code>hasAudio</code> and
+     *    <code>hasVideo</code> to false, the call to the <code>startArchive()</code> method results
+     *    in an error.</li>
+     *
+     *    <li><code>'outputMode'</code> (OutputMode) &mdash; Whether all streams in the
+     *    archive are recorded to a single file (<code>OutputMode::COMPOSED</code>, the default)
+     *    or to individual files (<code>OutputMode::INDIVIDUAL</code>).</li>
+     *
      * <ul>
      *
      * @return Archive The Archive object, which includes properties defining the archive, including

@@ -4,10 +4,7 @@
 
 The OpenTok PHP SDK lets you generate [sessions](http://tokbox.com/opentok/tutorials/create-session/) and
 [tokens](http://tokbox.com/opentok/tutorials/create-token/) for [OpenTok](http://www.tokbox.com/)
-applications, and [archive](https://tokbox.com/opentok/tutorials/archiving) OpenTok sessions.
-
-If you are updating from a previous version of this SDK, see
-[Important changes since v2.2.0](#important-changes-since-v220).
+applications, and [archive](http://tokbox.com/opentok/tutorials/archiving/) sessions.
 
 # Installation
 
@@ -75,12 +72,15 @@ $session = $opentok->createSession();
 // A session that uses the OpenTok Media Router:
 $session = $opentok->createSession(array( 'mediaMode' => MediaMode::ROUTED ));
 
-// A session that is auto-archived (and uses the OpenTok Media Router):
-$session = $opentok->createSession(array( 'archiveMode' => ArchiveMode::ALWAYS));
-
 // A session with a location hint:
 $session = $opentok->createSession(array( 'location' => '12.34.56.78' ));
 
+// An automatically archived session:
+$sessionOptions = array(
+    'archiveMode' => ArchiveMode::ALWAYS,
+    'mediaMode' => MediaMode::ROUTED
+);
+$session = $opentok->createSession($sessionOptions);
 
 
 // Store this sessionId in the database for later use
@@ -180,6 +180,10 @@ $archives = $archiveList->getItems();
 $totalCount = $archiveList->totalCount();
 ```
 
+Note that you can also create an automatically archived session, by passing in `ArchiveMode::ALWAYS`
+as the `archiveMode` key of the `options` parameter passed into the `OpenTok->createSession()`
+method (see "Creating Sessions," above).
+
 # Samples
 
 There are two sample applications included in this repository. To get going as fast as possible, clone the whole
@@ -216,8 +220,7 @@ session uses the OpenTok TURN server to relay audio-video streams.
 
 **Changes in v2.2.0:**
 
-This version of the SDK includes support for working with OpenTok 2.0 archives. (This API does not
-work with OpenTok 1.0 archives.)
+This version of the SDK includes support for working with OpenTok archives.
 
 The names of many methods of the API have changed. Many method names have
 changed to use camel case, including the following:
@@ -225,7 +228,7 @@ changed to use camel case, including the following:
 * `\OpenTok\OpenTok->createSession()`
 * `\OpenTok\OpenTok->generateToken()`
 
-Note also that the `options` parameter of the `OpenTok.createSession()` method has a `mediaMode`
+Note also that the `options` parameter of the `OpenTok->createSession()` method has a `mediaMode`
 property instead of a `p2p` property.
 
 The API_Config class has been removed. Store your OpenTok API key and API secret in code outside of the SDK files.
