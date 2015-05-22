@@ -12,7 +12,13 @@ use OpenTok\Util\BasicEnum;
  * and <a href="OpenTok.Archive.html#property_outputMode">Archive.outputMode</a>.
  */
 abstract class OutputMode extends BasicEnum {
+    /**
+     * All streams in the archive are recorded to a single (composed) file.
+     */
     const COMPOSED = 'composed';
+    /**
+     * Each stream in the archive is recorded to its own individual file.
+     */
     const INDIVIDUAL = 'individual';
 }
 

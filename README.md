@@ -138,6 +138,8 @@ $archive = $opentok->startArchive($sessionId, $archiveOptions);
 $archiveId = $archive->id;
 ```
 
+Setting the output mode to `OutputMode::INDIVIDUAL` setting causes each stream in the archive to be recorded to its own individual file. The `OutputMode::COMPOSED` setting (the default) causes all streams in the archive are recorded to a single (composed) file.
+
 You can stop the recording of a started Archive using the `stopArchive($archiveId)` method of the
 `OpenTok\OpenTok` object. You can also do this using the `stop()` method of the
 `OpenTok\Archive` instance.
@@ -183,6 +185,10 @@ $totalCount = $archiveList->totalCount();
 Note that you can also create an automatically archived session, by passing in `ArchiveMode::ALWAYS`
 as the `archiveMode` key of the `options` parameter passed into the `OpenTok->createSession()`
 method (see "Creating Sessions," above).
+
+For more information on archiving, see the
+[OpenTok archiving](https://tokbox.com/opentok/tutorials/archiving/) programming guide.
+
 
 # Samples
 

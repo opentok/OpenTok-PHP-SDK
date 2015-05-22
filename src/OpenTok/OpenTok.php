@@ -243,6 +243,10 @@ class OpenTok {
      * of sessions that use the OpenTok Media Router (sessions with the
      * <a href="http://tokbox.com/opentok/tutorials/create-session/#media-mode">media mode</a>
      * set to routed); you cannot archive sessions with the media mode set to relayed.
+     * <p>
+     * For more information on archiving, see the
+     * <a href="https://tokbox.com/opentok/tutorials/archiving/">OpenTok archiving</a> programming
+     * guide.
      *
      * @param String $sessionId The session ID of the OpenTok session to archive.
      * @param array $options (Optional) This array defines options for the archive. The array
