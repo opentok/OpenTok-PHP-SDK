@@ -144,28 +144,28 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1377601294"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1030736023"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-1377601294" class="accordion-body collapse in">
+            <div id="namespace-1030736023" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                                                     <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1958522470"></a>
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1729102353"></a>
                                 <a href="../namespaces/OpenTok.html" style="margin-left: 30px; padding-left: 0">OpenTok</a>
             </div>
-            <div id="namespace-1958522470" class="accordion-body collapse ">
+            <div id="namespace-1729102353" class="accordion-body collapse ">
                 <div class="accordion-inner">
 
                                                     <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1560691804"></a>
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1042592781"></a>
                                 <a href="../namespaces/OpenTok.Exception.html" style="margin-left: 30px; padding-left: 0">Exception</a>
             </div>
-            <div id="namespace-1560691804" class="accordion-body collapse ">
+            <div id="namespace-1042592781" class="accordion-body collapse ">
                 <div class="accordion-inner">
 
                     
@@ -440,6 +440,9 @@ the following keys (all of which are optional):</p>
     connect due to firewall restrictions, the session uses the OpenTok TURN server to relay
     audio-video streams.
     <p>
+    The
+    <a href="https://tokbox.com/opentok/tutorials/create-session/#media-mode" target="_top">
+    OpenTok Media Router</a> provides the following benefits:
     <ul>
       <li>The OpenTok Media Router can decrease bandwidth usage in multiparty sessions.
           (When the <code>mediaMode</code> parameter is set to <code>MediaMode.ROUTED</code>,
@@ -500,6 +503,10 @@ You can only record one archive at a time for a given session. You can only reco
 of sessions that use the OpenTok Media Router (sessions with the
 <a href="http://tokbox.com/opentok/tutorials/create-session/#media-mode">media mode</a>
 set to routed); you cannot archive sessions with the media mode set to relayed.
+<p>
+For more information on archiving, see the
+<a href="https://tokbox.com/opentok/tutorials/archiving/">OpenTok archiving</a> programming
+guide.
 
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
@@ -513,6 +520,7 @@ set to routed); you cannot archive sessions with the media mode set to relayed.
                                 <td>$options </td>
                                 <td><p>(Optional) This array defines options for the archive. The array
 includes the following keys (all of which are optional):</p>
+<ul>
    <li><code>'name'</code> (String) &mdash; The name of the archive. You can use this name to
    identify the archive. It is a property of the Archive object, and it is a property of
    archive-related events in the OpenTok client SDKs.</li>
@@ -802,7 +810,9 @@ to return an array of Archive objects.</p>
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on April 29th, 2015 at 11:08.
+                    on 
+Warning: date_default_timezone_get(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you most likely misspelled the timezone identifier. We selected the timezone 'UTC' for now, but please set date.timezone to select your timezone. in /Users/Jeff/pear/share/pear/phpDocumentor/vendor/twig/twig/lib/Twig/Extension/Core.php on line 89
+May 22nd, 2015 at 19:35.
                 </section>
             </section>
         </section>
