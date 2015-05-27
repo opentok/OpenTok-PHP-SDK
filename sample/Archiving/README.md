@@ -69,18 +69,26 @@ generates the three strings that the client (JavaScript) needs to connect to the
 URL. The route handler for this URL is shown below:
 
 ```php
-$app->get('/start', function () use ($app, $sessionId) {
+$app->post('/start', function () use ($app, $sessionId) {
 
-    $archive = $app->opentok->startArchive($sessionId, "PHP Archiving Sample App");
+    $archive = $app->opentok->startArchive($sessionId, array(
+      'name' => "PHP Archiving Sample App",
+      'hasAudio' => ($app->request->post('hasAudio') == 'on'),
+      'hasVideo' => ($app->request->post('hasVideo') == 'on'),
+      'outputMode' => ($app->request->post('outputMode') == 'composed' ? OutputMode::COMPOSED : OutputMode::INDIVIDUAL)
+    ));
 
     $app->response->headers->set('Content-Type', 'application/json');
     echo $archive->toJson();
 });
 ```
 
-In this handler, the `startArchive()` method of the `opentok` instance is called with the `sessionId`
-for the session that needs to be archived. The optional second argument is `name`, which is stored with
-the archive and can be read later. In this case, as in the HelloWorld sample app, there is
+In this handler, the `startArchive()` method of the `opentok` instance is called with the
+`sessionId` for the session that needs to be archived. The remaining arguments are a set of
+optional properties for the archive. The `name` is stored with the archive and can be read later.
+The `hasAudio`, `hasVideo`, and `outputMode` values are read from the request body; these define
+whether the archive will record audio and video, and whether it will record streams individually or
+to a single file composed of all streams. In this case, as in the HelloWorld sample app, there is
 only one session created and it is used here and for the participant view. This will trigger the
 recording to begin. The response sent back to the client's XHR request will be the JSON
 representation of the archive, which is serialized by the `toJson()` method. The client is also
