@@ -228,7 +228,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.2.3-alpha.1', $userAgent->__toString());
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.2.4-alpha.1', $userAgent->__toString());
 
         $archiveMode = $request->getPostField('archiveMode');
         $this->assertEquals('always', $archiveMode);
@@ -425,7 +425,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.2.3-alpha.1', $userAgent->__toString());
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.2.4-alpha.1', $userAgent->__toString());
 
         $this->assertInstanceOf('OpenTok\Archive', $archive);
         $this->assertEquals(0, $archive->duration);
@@ -476,7 +476,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.2.3-alpha.1', $userAgent->__toString());
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.2.4-alpha.1', $userAgent->__toString());
 
         $body = json_decode($request->getBody());
         $this->assertEquals($sessionId, $body->sessionId);
@@ -573,7 +573,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.2.3-alpha.1', $userAgent->__toString());
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.2.4-alpha.1', $userAgent->__toString());
 
         $body = json_decode($request->getBody());
         $this->assertEquals($sessionId, $body->sessionId);
@@ -624,7 +624,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
       // TODO: test the dynamically built User Agent string
       $userAgent = $request->getHeader('User-Agent');
       $this->assertNotEmpty($userAgent);
-      $this->assertStringStartsWith('OpenTok-PHP-SDK/2.2.3-alpha.1', $userAgent->__toString());
+      $this->assertStringStartsWith('OpenTok-PHP-SDK/2.2.4-alpha.1', $userAgent->__toString());
 
       $body = json_decode($request->getBody());
       $this->assertEquals($sessionId, $body->sessionId);
