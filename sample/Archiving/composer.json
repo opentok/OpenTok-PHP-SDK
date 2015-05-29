@@ -1,6 +1,6 @@
 {
   "name": "archiving-php",
-  "minimum-stability": "dev",
+  "minimum-stability":"dev",
   "require": {
     "slim/slim": "2.*",
     "slim/views": "0.1.*",
