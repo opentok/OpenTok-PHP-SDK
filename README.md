@@ -4,10 +4,7 @@
 
 The OpenTok PHP SDK lets you generate [sessions](http://tokbox.com/opentok/tutorials/create-session/) and
 [tokens](http://tokbox.com/opentok/tutorials/create-token/) for [OpenTok](http://www.tokbox.com/)
-applications, and [archive](http://tokbox.com/#archiving) OpenTok 2.0 sessions.
-
-If you are updating from a previous version of this SDK, see
-[Important changes since v2.2.0](#important-changes-since-v220).
+applications, and [archive](http://tokbox.com/opentok/tutorials/archiving/) sessions.
 
 # Installation
 
@@ -58,6 +55,8 @@ To create an OpenTok Session, use the `createSession($options)` method of the
 * Setting whether the session will use the OpenTok Media Router or attempt send streams directly
   between clients.
 
+* Setting whether the session will automatically create archives (implies use of routed session)
+
 * Specifying a location hint.
 
 The `getSessionId()` method of the `OpenTok\Session` instance returns the session ID,
@@ -65,13 +64,24 @@ which you use to identify the session in the OpenTok client libraries.
 
 ```php
 use OpenTok\MediaMode;
+use OpenTok\ArchiveMode;
 
 // Create a session that attempts to use peer-to-peer streaming:
-$session = $openTok->createSession();
+$session = $opentok->createSession();
+
 // A session that uses the OpenTok Media Router:
-$session = $openTok->createSession(array( 'mediaMode' => MediaMode::ROUTED ));
+$session = $opentok->createSession(array( 'mediaMode' => MediaMode::ROUTED ));
+
 // A session with a location hint:
-$session = $openTok->createSession(array( 'location' => '12.34.56.78' ));
+$session = $opentok->createSession(array( 'location' => '12.34.56.78' ));
+
+// An automatically archived session:
+$sessionOptions = array(
+    'archiveMode' => ArchiveMode::ALWAYS,
+    'mediaMode' => MediaMode::ROUTED
+);
+$session = $opentok->createSession($sessionOptions);
+
 
 // Store this sessionId in the database for later use
 $sessionId = $session->getSessionId();
@@ -90,7 +100,7 @@ use OpenTok\Session;
 use OpenTok\Role;
 
 // Generate a Token from just a sessionId (fetched from a database)
-$token = OpenTok->generateToken($sessionId);
+$token = $opentok->generateToken($sessionId);
 // Generate a Token by calling the method on the Session (returned from createSession)
 $token = $session->generateToken();
 
@@ -106,15 +116,29 @@ $token = $session->generateToken(array(
 
 You can start the recording of an OpenTok Session using the `startArchive($sessionId, $name)` method
 of the `OpenTok\OpenTok` class. This will return an `OpenTok\Archive` instance. The parameter
-`$name` is optional and is used to assign a name for the Archive. Note that you can only start an
+`$archiveOptions` is an optional array and is used to assign a name, whether to record audio and/or
+video, and the desired output mode for the Archive. Note that you can only start an
 Archive on a Session that has clients connected.
 
 ```php
-$archive = $opentok->startArchive($sessionId, $name);
+// Create a simple archive of a session
+$archive = $opentok->startArchive($sessionId);
+
+
+// Create an archive using custom options
+$archiveOptions = array(
+    'name' => 'Important Presentation',     // default: null
+    'hasAudio' => true,                     // default: true
+    'hasVideo' => true,                     // default: true
+    'outputMode' => OutputMode::INDIVIDUAL  // default: OutputMode::COMPOSED
+);
+$archive = $opentok->startArchive($sessionId, $archiveOptions);
 
 // Store this archiveId in the database for later use
 $archiveId = $archive->id;
 ```
+
+Setting the output mode to `OutputMode::INDIVIDUAL` setting causes each stream in the archive to be recorded to its own individual file. The `OutputMode::COMPOSED` setting (the default) causes all streams in the archive are recorded to a single (composed) file.
 
 You can stop the recording of a started Archive using the `stopArchive($archiveId)` method of the
 `OpenTok\OpenTok` object. You can also do this using the `stop()` method of the
@@ -158,6 +182,14 @@ $archives = $archiveList->getItems();
 $totalCount = $archiveList->totalCount();
 ```
 
+Note that you can also create an automatically archived session, by passing in `ArchiveMode::ALWAYS`
+as the `archiveMode` key of the `options` parameter passed into the `OpenTok->createSession()`
+method (see "Creating Sessions," above).
+
+For more information on archiving, see the
+[OpenTok archiving](https://tokbox.com/opentok/tutorials/archiving/) programming guide.
+
+
 # Samples
 
 There are two sample applications included in this repository. To get going as fast as possible, clone the whole
@@ -194,16 +226,15 @@ session uses the OpenTok TURN server to relay audio-video streams.
 
 **Changes in v2.2.0:**
 
-This version of the SDK includes support for working with OpenTok 2.0 archives. (This API does not
-work with OpenTok 1.0 archives.)
+This version of the SDK includes support for working with OpenTok archives.
 
 The names of many methods of the API have changed. Many method names have
 changed to use camel case, including the following:
 
-* OpenTok.createSession()
-* OpenTok.generateToken()
+* `\OpenTok\OpenTok->createSession()`
+* `\OpenTok\OpenTok->generateToken()`
 
-Note also that the `options` parameter of the `OpenTok.createSession()` method has a `mediaMode`
+Note also that the `options` parameter of the `OpenTok->createSession()` method has a `mediaMode`
 property instead of a `p2p` property.
 
 The API_Config class has been removed. Store your OpenTok API key and API secret in code outside of the SDK files.

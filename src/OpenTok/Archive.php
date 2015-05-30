@@ -17,10 +17,20 @@ use OpenTok\Exception\ArchiveUnexpectedValueException;
 * @property string $duration
 * The duration of the archive, in milliseconds.
 *
+* @property bool $hasVideo
+* Whether the archive has a video track (<code>true</code>) or not (<code>false</code>).
+*
+* @property bool $hasAudio
+* Whether the archive has an audio track (<code>true</code>) or not (<code>false</code>).
+*
 * @property string $id
 * The archive ID.
 *
 * @property string $name
+* The name of the archive. If no name was provided when the archive was created, this is set
+* to null.
+*
+* @property string $outputMode
 * The name of the archive. If no name was provided when the archive was created, this is set
 * to null.
 *
@@ -46,7 +56,12 @@ use OpenTok\Exception\ArchiveUnexpectedValueException;
 *   <li> "expired" -- The archive is no longer available for download from the OpenTok
 *         cloud.</li>
 *   <li> "failed" -- The archive recording failed.</li>
-*   <li> "paused" -- The archive recording has paused.</li>
+*   <li> "paused" -- The archive is in progress and no clients are publishing streams to
+*        the session. When an archive is in progress and any client publishes a stream,
+*        the status is "started". When an archive is "paused", nothing is recorded. When
+*        a client starts publishing a stream, the recording starts (or resumes). If all clients
+*        disconnect from a session that is being archived, the status changes to "paused", and
+*        after 60 seconds the archive recording stops (and the status changes to "stopped").</li>
 *   <li> "started" -- The archive started and is in the process of being recorded.</li>
 *   <li> "stopped" -- The archive stopped recording.</li>
 *   <li> "uploaded" -- The archive is available for download from the the upload target
@@ -115,6 +130,9 @@ class Archive {
             case 'size':
             case 'status':
             case 'url':
+            case 'hasVideo':
+            case 'hasAudio':
+            case 'outputMode':
                 return $this->data[$name];
                 break;
             default:

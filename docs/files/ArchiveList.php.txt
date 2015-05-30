@@ -15,7 +15,7 @@ class ArchiveList {
     /**
     * @internal
     */
-    private $json;
+    private $data;
     /**
     * @internal
     */
@@ -36,7 +36,7 @@ class ArchiveList {
     /**
     * @internal
     */
-    public function __construct($archiveListJson, $options = array())
+    public function __construct($archiveListData, $options = array())
     {
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array(
@@ -49,10 +49,10 @@ class ArchiveList {
         list($apiKey, $apiSecret, $apiUrl, $client) = array_values($options);
 
         // validate params
-        Validators::validateArchiveListJson($archiveListJson);
+        Validators::validateArchiveListData($archiveListData);
         Validators::validateClient($client);
 
-        $this->json = $archiveListJson;
+        $this->data = $archiveListData;
 
         $this->client = isset($client) ? $client : new Client();
         if (!$this->client->isConfigured()) {
@@ -69,7 +69,7 @@ class ArchiveList {
      */
     public function totalCount()
     {
-        return $this->json['count'];
+        return $this->data['count'];
     }
 
     /**
@@ -79,8 +79,8 @@ class ArchiveList {
     {
         if (!$this->items) {
             $items = array();
-            foreach($this->json['items'] as $archiveJson) {
-                $items[] = new Archive($archiveJson, array( 'client' => $this->client ));
+            foreach($this->data['items'] as $archiveData) {
+                $items[] = new Archive($archiveData, array( 'client' => $this->client ));
             }
             $this->items = $items;
         }

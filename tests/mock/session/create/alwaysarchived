@@ -1,0 +1,9 @@
+HTTP/1.1 200 OK
+Date: Thu, 27 Feb 2014 02:57:24 GMT
+Server: nginx
+Content-Type: text/xml
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+X-TB-HOST: fms403-oak.tokbox.com
+
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><sessions><Session><session_id>2_MX4xNzAxMjYzMX4xMjcuMC4wLjF-V2VkIEZlYiAyNiAxODo1NzoyNCBQU1QgMjAxNH4wLjU0MDU4ODc0fg</session_id><partner_id>17012631</partner_id><create_dt>Wed Feb 26 18:57:24 PST 2014</create_dt></Session></sessions>

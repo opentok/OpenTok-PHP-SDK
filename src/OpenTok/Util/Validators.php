@@ -5,6 +5,8 @@ namespace OpenTok\Util;
 use OpenTok\Util\Client;
 use OpenTok\Role;
 use OpenTok\MediaMode;
+use OpenTok\ArchiveMode;
+use OpenTok\OutputMode;
 use OpenTok\OpenTok;
 
 use OpenTok\Exception\InvalidArgumentException;
@@ -112,6 +114,28 @@ class Validators
             );
         }
     }
+    public static function validateArchiveHasVideo($hasVideo)
+    {
+        if (!is_bool($hasVideo)) {
+            throw new InvalidArgumentException(
+                'The hasVideo was not a boolean: '.print_r($hasVideo, true)
+            );
+        }
+    }
+    public static function validateArchiveHasAudio($hasAudio)
+    {
+        if (!is_bool($hasAudio)) {
+            throw new InvalidArgumentException(
+                'The hasAudio was not a boolean: '.print_r($hasAudio, true)
+            );
+        }
+    }
+    public static function validateArchiveOutputMode($outputMode)
+    {
+        if (!OutputMode::isValidValue($outputMode)) {
+            throw new InvalidArgumentException('Unknown output mode: '.print_r($outputMode, true));
+        }
+    }
     public static function validateArchiveId($archiveId)
     {
         if ( !is_string($archiveId) || preg_match(self::$guidRegEx, $archiveId) ) {
@@ -175,6 +199,14 @@ class Validators
         if (!MediaMode::isValidValue($mediaMode)) {
             throw new InvalidArgumentException(
                 'The media mode option must be either \'MediaMode::ROUTED\' or \'MediaMode::RELAYED\'. mediaMode:'.print_r($mediaMode, true)
+            );
+        }
+    }
+    public static function validateArchiveMode($archiveMode)
+    {
+        if (!ArchiveMode::isValidValue($archiveMode)) {
+            throw new InvalidArgumentException(
+                'The archive mode option must be either \'ArchiveMode::MANUAL\' or \'ArchiveMode::ALWAYS\'. archiveMode:'.print_r($archiveMode, true)
             );
         }
     }

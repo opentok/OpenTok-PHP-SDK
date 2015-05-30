@@ -4,12 +4,13 @@ namespace OpenTok;
 
 use OpenTok\OpenTok;
 use OpenTok\MediaMode;
+use OpenTok\ArchiveMode;
 use OpenTok\Util\Validators;
 
 /**
 * Represents an OpenTok session.
 * <p>
-* Use the OpenTok.createSession() method to create an OpenTok session. Use the
+* Use the \OpenTok\OpenTok->createSession() method to create an OpenTok session. Use the
 * getSessionId() method of the Session object to get the session ID.
 */
 class Session
@@ -29,6 +30,10 @@ class Session
     /**
      * @internal
      */
+    protected $archiveMode;
+    /**
+     * @internal
+     */
     protected $opentok;
 
     /**
@@ -37,19 +42,21 @@ class Session
     function __construct($opentok, $sessionId, $properties = array())
     {
         // unpack arguments
-        $defaults = array('mediaMode' => MediaMode::ROUTED, 'location' => null);
+        $defaults = array('mediaMode' => MediaMode::ROUTED, 'archiveMode' => ArchiveMode::MANUAL, 'location' => null);
         $properties = array_merge($defaults, array_intersect_key($properties, $defaults));
-        list($mediaMode, $location) = array_values($properties);
+        list($mediaMode, $archiveMode, $location) = array_values($properties);
 
         Validators::validateOpenTok($opentok);
         Validators::validateSessionId($sessionId);
         Validators::validateLocation($location);
         Validators::validateMediaMode($mediaMode);
+        Validators::validateArchiveMode($archiveMode);
 
         $this->opentok = $opentok;
         $this->sessionId = $sessionId;
         $this->location = $location;
         $this->mediaMode = $mediaMode;
+        $this->archiveMode = $archiveMode;
 
     }
 
@@ -62,7 +69,9 @@ class Session
     }
 
     /**
-    * Returns the location hint IP address. See the OpenTok.createSession() method.
+    * Returns the location hint IP address.
+    *
+    * See <a href="OpenTok.OpenTok.html#method_createSession">OpenTok->createSession()</a>.
     */
     public function getLocation()
     {
@@ -70,13 +79,28 @@ class Session
     }
 
     /**
-    * Returns true if the session's streams will be transmitted directly between peers; returns
-    * false if the session's streams will be transmitted using the OpenTok media server.
-    * See the OpenTok.createSession() method.
+    * Returns MediaMode::RELAYED if the session's streams will be transmitted directly between
+    * peers; returns MediaMode::ROUTED if the session's streams will be transmitted using the
+    * OpenTok Media Router.
+    *
+    * See <a href="OpenTok.OpenTok.html#method_createSession">OpenTok->createSession()</a>
+    * and <a href="OpenTok.MediaMode.html">ArchiveMode</a>.
     */
     public function getMediaMode()
     {
         return $this->mediaMode;
+    }
+
+    /**
+    * Defines whether the session is automatically archived (ArchiveMode::ALWAYS)
+    * or not (ArchiveMode::MANUAL).
+    *
+    * See <a href="OpenTok.OpenTok.html#method_createSession">OpenTok->createSession()</a>
+    * and <a href="OpenTok.ArchiveMode.html">ArchiveMode</a>.
+    */
+    public function getArchiveMode()
+    {
+        return $this->archiveMode;
     }
 
     /**

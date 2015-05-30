@@ -70,11 +70,11 @@ class Client extends \Guzzle\Http\Client
 
     // Archiving API Requests
 
-    public function startArchive($params)
+    public function startArchive($sessionId, $options)
     {
         // set up the request
         $request = $this->post('/v2/partner/'.$this->apiKey.'/archive');
-        $request->setBody(json_encode($params));
+        $request->setBody(json_encode(array_merge(array( 'sessionId' => $sessionId ), $options)));
         $request->setHeader('Content-Type', 'application/json');
 
         try {

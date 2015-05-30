@@ -3,7 +3,7 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
     <meta charset="utf-8"/>
-    <title>API Documentation</title>
+    <title>OpenTok PHP SDK</title>
     <meta name="author" content=""/>
     <meta name="description" content=""/>
 
@@ -83,7 +83,7 @@
             <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
                 <i class="icon-ellipsis-vertical"></i>
             </a>
-            <a class="brand" href="../index.html">API Documentation</a>
+            <a class="brand" href="../index.html">OpenTok PHP SDK</a>
 
             <div class="nav-collapse">
                 <ul class="nav pull-right">
@@ -114,12 +114,12 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">24</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">26</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="../reports/markers.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <i class="icon-list-alt"></i>&#160;Markers <span class="label label-info pull-right">14</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Markers <span class="label label-info pull-right">14</span>
                                 </a>
                             </li>
                             <li>
@@ -144,28 +144,28 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-449363588"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1030736023"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-449363588" class="accordion-body collapse in">
+            <div id="namespace-1030736023" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                                                     <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1735324763"></a>
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1729102353"></a>
                                 <a href="../namespaces/OpenTok.html" style="margin-left: 30px; padding-left: 0">OpenTok</a>
             </div>
-            <div id="namespace-1735324763" class="accordion-body collapse ">
+            <div id="namespace-1729102353" class="accordion-body collapse ">
                 <div class="accordion-inner">
 
                                                     <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1573518746"></a>
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1042592781"></a>
                                 <a href="../namespaces/OpenTok.Exception.html" style="margin-left: 30px; padding-left: 0">Exception</a>
             </div>
-            <div id="namespace-1573518746" class="accordion-body collapse ">
+            <div id="namespace-1042592781" class="accordion-body collapse ">
                 <div class="accordion-inner">
 
                     
@@ -189,8 +189,10 @@
                     <ul>
                                                                                                     <li class="class"><a href="../classes/OpenTok.Archive.html">Archive</a></li>
                                                     <li class="class"><a href="../classes/OpenTok.ArchiveList.html">ArchiveList</a></li>
+                                                    <li class="class"><a href="../classes/OpenTok.ArchiveMode.html">ArchiveMode</a></li>
                                                     <li class="class"><a href="../classes/OpenTok.MediaMode.html">MediaMode</a></li>
                                                     <li class="class"><a href="../classes/OpenTok.OpenTok.html">OpenTok</a></li>
+                                                    <li class="class"><a href="../classes/OpenTok.OutputMode.html">OutputMode</a></li>
                                                     <li class="class"><a href="../classes/OpenTok.Role.html">Role</a></li>
                                                     <li class="class"><a href="../classes/OpenTok.Session.html">Session</a></li>
                                             </ul>
@@ -345,7 +347,7 @@ will connect.</p></td>
                                                     <tr>
                                 <td>array</td>
                                 <td>$options </td>
-                                <td><p>This array defines options for the token. This array include the
+                                <td><p>This array defines options for the token. This array includes the
 following keys, all of which are optional:</p>
 <ul>
    <li><code>'role'</code> (string) &mdash; One of the constants defined in the RoleConstants
@@ -391,7 +393,7 @@ following keys, all of which are optional:</p>
             <article class="method">
                 <h3 class="public ">createSession()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">createSession(array <span class="argument">$options</span>) : string</pre>
+                <pre class="signature" style="margin-right: 54px;">createSession(array <span class="argument">$options</span>) : \OpenTok\Session</pre>
                 <p><em>Creates a new OpenTok session and returns the session ID, which uniquely identifies
 the session.</em></p>
                 <p>
@@ -419,7 +421,16 @@ REST API</a> or the <a href="https://dashboard.tokbox.com/projects">OpenTok dash
                                 <td><p>(Optional) This array defines options for the session. The array includes
 the following keys (all of which are optional):</p>
 <ul>
-    <li><code>'mediaMode'</code> (String) &mdash; Whether the session will transmit
+   <li><code>'archiveMode'</code> (ArchiveMode) &mdash; Whether the session is automatically
+   archived (<code>ArchiveMode::ALWAYS</code>) or not (<code>ArchiveMode::MANUAL</code>).
+   By default, the setting is <code>ArchiveMode.MANUAL</code>, and you must call the
+   <code>OpenTok->startArchive()</code> method to start archiving. To archive the session
+   (either automatically or not), you must set the <code>mediaMode</code> key to
+   <code>MediaMode::ROUTED</code>.</li>
+   <li><code>'location'</code> (String) &mdash; An IP address that the OpenTok servers
+   will use to situate the session in its global network. If you do not set a location hint,
+   the OpenTok servers will be based on the first client connecting to the session.</li>
+    <li><code>'mediaMode'</code> (MediaMode) &mdash; Whether the session will transmit
     streams using the OpenTok Media Router (<code>MediaMode.ROUTED</code>) or not
     (<code>MediaMode.RELAYED</code>). By default, the <code>mediaMode</code> property
     is set to <code>MediaMode.RELAYED</code>.
@@ -429,35 +440,34 @@ the following keys (all of which are optional):</p>
     connect due to firewall restrictions, the session uses the OpenTok TURN server to relay
     audio-video streams.
     <p>
-    The <a href="http://tokbox.com/#multiparty" target="_top"> OpenTok Media Router</a>
-    provides the following benefits:
+    The
+    <a href="https://tokbox.com/opentok/tutorials/create-session/#media-mode" target="_top">
+    OpenTok Media Router</a> provides the following benefits:
     <ul>
       <li>The OpenTok Media Router can decrease bandwidth usage in multiparty sessions.
           (When the <code>mediaMode</code> parameter is set to <code>MediaMode.ROUTED</code>,
           each client must send a separate audio-video stream to each client subscribing to
           it.)</li>
       <li>The OpenTok Media Router can improve the quality of the user experience through
-        <a href="http://tokbox.com/#iqc" target="_top">Intelligent Quality Control</a>. With
-        Intelligent Quality Control, if a client's connectivity degrades to a degree that
-        it does not support video for a stream it's subscribing to, the video is dropped on
-        that client (without affecting other clients), and the client receives audio only.
+        recovery</a>. With these features, if a client's connectivity degrades to a degree
+        that it does not support video for a stream it's subscribing to, the video is dropped
+        on that client (without affecting other clients), and the client receives audio only.
         If the client's connectivity improves, the video returns.</li>
       <li>The OpenTok Media Router supports the
-        <a href="http://tokbox.com/platform/archiving" target="_top">archiving</a>
+        <a href="https://tokbox.com/opentok/tutorials/archiving" target="_top">archiving</a>
         feature, which lets you record, save, and retrieve OpenTok sessions.</li>
     </ul>
-   <li><code>'location'</code> (String) &mdash; An IP address that the OpenTok servers
-   will use to situate the session in its global network. If you do not set a location hint,
-   the OpenTok servers will be based on the first client connecting to the session.</li>
 </ul></td>
                             </tr>
                                             </table>
                 
                 
                                     <h4>Returns</h4>
-                    string
-                                            &mdash; <p>A session ID for the new session. For example, when using the OpenTok.js
-library, use this session ID when calling the <code>OT.initSession()</code> method.</p>
+                    <a href="../classes/OpenTok.Session.html">\OpenTok\Session</a>
+                                            &mdash; <p>A Session object representing the new session. Call the
+<code>getSessionId()</code> method of this object to get the session ID. For example,
+when using the OpenTok.js library, use this session ID when calling the
+<code>OT.initSession()</code> method.</p>
                                                 </article>
         </div>
         <aside class="span4 detailsbar">
@@ -483,8 +493,8 @@ library, use this session ID when calling the <code>OT.initSession()</code> meth
             <article class="method">
                 <h3 class="public ">startArchive()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">startArchive(String <span class="argument">$sessionId</span>, String <span class="argument">$name</span>) : \OpenTok\Archive</pre>
-                <p><em>Starts archiving an OpenTok 2.0 session.</em></p>
+                <pre class="signature" style="margin-right: 54px;">startArchive(String <span class="argument">$sessionId</span>, array <span class="argument">$options</span>) : \OpenTok\Archive</pre>
+                <p><em>Starts archiving an OpenTok session.</em></p>
                 <p>
 Clients must be actively connected to the OpenTok session for you to successfully start
 recording an archive.
@@ -493,6 +503,10 @@ You can only record one archive at a time for a given session. You can only reco
 of sessions that use the OpenTok Media Router (sessions with the
 <a href="http://tokbox.com/opentok/tutorials/create-session/#media-mode">media mode</a>
 set to routed); you cannot archive sessions with the media mode set to relayed.
+<p>
+For more information on archiving, see the
+<a href="https://tokbox.com/opentok/tutorials/archiving/">OpenTok archiving</a> programming
+guide.
 
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
@@ -502,11 +516,26 @@ set to routed); you cannot archive sessions with the media mode set to relayed.
                                 <td><p>The session ID of the OpenTok session to archive.</p></td>
                             </tr>
                                                     <tr>
-                                <td>String</td>
-                                <td>$name </td>
-                                <td><p>The name of the archive. You can use this name to identify the archive.
-It is a property of the Archive object, and it is a property of archive-related events in the
-OpenTok JavaScript SDK.</p></td>
+                                <td>array</td>
+                                <td>$options </td>
+                                <td><p>(Optional) This array defines options for the archive. The array
+includes the following keys (all of which are optional):</p>
+<ul>
+   <li><code>'name'</code> (String) &mdash; The name of the archive. You can use this name to
+   identify the archive. It is a property of the Archive object, and it is a property of
+   archive-related events in the OpenTok client SDKs.</li>
+   <li><code>'hasVideo'</code> (Boolean) &mdash; Whether the archive will record video
+   (true, the default) or not (false). If you set both <code>hasAudio</code> and
+   <code>hasVideo</code> to false, the call to the <code>startArchive()</code> method results
+   in an error.</li>
+   <li><code>'hasAudio'</code> (Boolean) &mdash; Whether the archive will record audio
+   (true, the default) or not (false). If you set both <code>hasAudio</code> and
+   <code>hasVideo</code> to false, the call to the <code>startArchive()</code> method results
+   in an error.</li>
+   <li><code>'outputMode'</code> (OutputMode) &mdash; Whether all streams in the
+   archive are recorded to a single file (<code>OutputMode::COMPOSED</code>, the default)
+   or to individual files (<code>OutputMode::INDIVIDUAL</code>).</li>
+<ul></td>
                             </tr>
                                             </table>
                 
@@ -781,7 +810,9 @@ to return an array of Archive objects.</p>
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on June 19th, 2014 at 22:14.
+                    on 
+Warning: date_default_timezone_get(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you most likely misspelled the timezone identifier. We selected the timezone 'UTC' for now, but please set date.timezone to select your timezone. in /Users/Jeff/pear/share/pear/phpDocumentor/vendor/twig/twig/lib/Twig/Extension/Core.php on line 89
+May 22nd, 2015 at 19:35.
                 </section>
             </section>
         </section>
