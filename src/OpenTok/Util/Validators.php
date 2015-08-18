@@ -146,7 +146,7 @@ class Validators
     }
     public static function validateArchiveData($archiveData)
     {
-        if (!self::$schemaUri) { self::$schemaUri = realpath(__DIR__.'/archive-schema.json'); }
+        if (!self::$schemaUri) { self::$schemaUri = __DIR__.'/archive-schema.json'; }
         $document = new Document();
         // have to do a encode+decode so that json objects decoded as arrays from Guzzle
         // are re-encoded as objects instead
@@ -162,7 +162,7 @@ class Validators
     }
     public static function validateArchiveListData($archiveListData)
     {
-        if (!self::$schemaUri) { self::$schemaUri = realpath(__DIR__.'/archive-schema.json'); }
+        if (!self::$schemaUri) { self::$schemaUri = __DIR__.'/archive-schema.json'; }
         $document = new Document();
         // have to do a encode+decode so that json objects decoded as arrays from Guzzle
         // are re-encoded as objects instead
