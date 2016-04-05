@@ -180,7 +180,7 @@ class Client extends \Guzzle\Http\Client
         } else if ($e instanceof ServerErrorResponseException) {
             // will catch all 5xx errors
             throw new UnexpectedValueException(
-                'The OpenTok API server responded with an error: ' . json_decode($e->getResponse()-getBody(true))->message,
+                'The OpenTok API server responded with an error: ' . json_decode($e->getResponse()->getBody(true))->message,
                 null,
                 $e
             );
