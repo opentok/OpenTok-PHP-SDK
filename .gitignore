@@ -5,6 +5,8 @@ phpunit.xml
 sample/HelloWorld/vendor/
 sample/HelloWorld/cache/
 sample/HelloWorld/composer.lock
+sample/HelloWorld/composer.phar
 sample/Archiving/vendor/
 sample/Archiving/cache/
 sample/Archiving/composer.lock
+sample/Archiving/composer.phar

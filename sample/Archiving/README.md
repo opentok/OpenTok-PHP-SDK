@@ -8,7 +8,7 @@ Sessions, list archives that have been created, download the recordings, and del
 First, download the dependencies using [Composer](http://getcomposer.org) in this directory.
 
 ```
-$ ../../composer.phar install
+$ ./composer.phar install
 ```
 
 Next, input your own API Key and API Secret into the `run-demo` script file:

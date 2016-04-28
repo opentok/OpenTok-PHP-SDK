@@ -9,7 +9,7 @@ connect and conduct a group chat.
 First, download the dependencies using [Composer](http://getcomposer.org) in this directory.
 
 ```
-$ ../../composer.phar install
+$ ./composer.phar install
 ```
 
 Next, input your own API Key and API Secret into the `run-demo` script file:
@@ -113,7 +113,7 @@ This file simply sets up the HTML page for the JavaScript application to run, im
 JavaScript library, and passes the values created by the server into the JavaScript application
 inside `web/js/helloworld.js`
 
-### JavaScript Applicaton (web/js/helloworld.js)
+### JavaScript Application (web/js/helloworld.js)
 
 The group chat is mostly implemented in this file. At a high level, we connect to the given
 Session, publish a stream from our webcam, and listen for new streams from other clients to
