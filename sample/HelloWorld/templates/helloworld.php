@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <title>OpenTok Hello World</title>
-    <script src="//static.opentok.com/webrtc/v2.2/js/TB.min.js"></script>
+    <script src="https://static.opentok.com/v2/js/opentok.js"></script>
     <script type="text/javascript">
         var apiKey = '<?php echo $apiKey; ?>';
         var sessionId = '<?php echo $sessionId; ?>';
