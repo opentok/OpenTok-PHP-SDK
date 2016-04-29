@@ -69,7 +69,7 @@ use OpenTok\ArchiveMode;
 // Create a session that attempts to use peer-to-peer streaming:
 $session = $opentok->createSession();
 
-// A session that uses the OpenTok Media Router:
+// A session that uses the OpenTok Media Router, which is required for archiving:
 $session = $opentok->createSession(array( 'mediaMode' => MediaMode::ROUTED ));
 
 // A session with a location hint:
@@ -113,6 +113,9 @@ $token = $session->generateToken(array(
 ```
 
 ## Working with Archives
+
+You can only archive sessions that use the OpenTok Media Router
+(sessions with the media mode set to routed).
 
 You can start the recording of an OpenTok Session using the `startArchive($sessionId, $name)` method
 of the `OpenTok\OpenTok` class. This will return an `OpenTok\Archive` instance. The parameter
