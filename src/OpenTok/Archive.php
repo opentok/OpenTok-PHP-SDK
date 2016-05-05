@@ -65,8 +65,8 @@ use OpenTok\Exception\ArchiveUnexpectedValueException;
 *   <li> "started" -- The archive started and is in the process of being recorded.</li>
 *   <li> "stopped" -- The archive stopped recording.</li>
 *   <li> "uploaded" -- The archive is available for download from the the upload target
-*        Amazon S3 bucket or Windows Azure container you specified at
-*        <a href="https://dashboard.tokbox.com">the OpenTok dashboard</a>.</li>
+*        Amazon S3 bucket or Windows Azure container you set up for your
+*        <a href="https://tokbox.com/account">OpenTok project</a>.</li>
 * </ul>
 *
 * @property string $url

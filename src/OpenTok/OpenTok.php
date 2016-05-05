@@ -18,7 +18,7 @@ use OpenTok\Exception\InvalidArgumentException;
 * Contains methods for creating OpenTok sessions, generating tokens, and working with archives.
 * <p>
 * To create a new OpenTok object, call the OpenTok() constructor with your OpenTok API key
-* and the API secret from <a href="https://dashboard.tokbox.com">the OpenTok dashboard</a>. Do not
+* and the API secret for your <a href="https://tokbox.com/account">TokBox account</a>. Do not
 * publicly share your API secret. You will use it with the OpenTok() constructor (only on your web
 * server) to create OpenTok sessions.
 * <p>
@@ -57,8 +57,8 @@ class OpenTok {
      * Creates a token for connecting to an OpenTok session. In order to authenticate a user
      * connecting to an OpenTok session, the client passes a token when connecting to the session.
      * <p>
-     * For testing, you can also use the <a href="https://dashboard.tokbox.com/projects">OpenTok
-     * dashboard</a> page to generate test tokens.
+     * For testing, you generate tokens or by logging in to your
+     * <a href="https://tokbox.com/account">TokBox account</a>.
      *
      * @param string $sessionId The session ID corresponding to the session to which the user
      * will connect.
@@ -130,9 +130,8 @@ class OpenTok {
     * Calling this method results in an OpenTokException in the event of an error.
     * Check the error message for details.
     * <p>
-    * You can also create a session using the
-    * <a href="http://www.tokbox.com/opentok/api/#session_id_production">OpenTok
-    * REST API</a> or the <a href="https://dashboard.tokbox.com/projects">OpenTok dashboard</a>.
+    * You can also create a session by logging in to your
+    * <a href="https://tokbox.com/account">TokBox account</a>.
     *
     * @param array $options (Optional) This array defines options for the session. The array includes
     * the following keys (all of which are optional):

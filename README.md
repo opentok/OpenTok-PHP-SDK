@@ -208,7 +208,8 @@ Reference documentation is available at
 
 # Requirements
 
-You need an OpenTok API key and API secret, which you can obtain at <https://dashboard.tokbox.com>.
+You need an OpenTok API key and API secret, which you can obtain by logging into your
+[TokBox account](https://tokbox.com/account).
 
 The OpenTok PHP SDK requires PHP 5.3 or greater.
 
