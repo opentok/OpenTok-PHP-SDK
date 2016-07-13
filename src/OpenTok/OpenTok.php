@@ -99,6 +99,8 @@ class OpenTok {
             'jti' => (float) rand() / (float) getrandmax(),
             'role' => Role::PUBLISHER,
             'scope' => 'session.connect',
+            'connectionData' => null,
+            'initialLayoutClassList' => null
         );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
         $role = $options['role'];
