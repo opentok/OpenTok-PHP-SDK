@@ -30,7 +30,8 @@
     "require": {
         "php": ">=5.0.0",
         "guzzle/guzzle": "~3.7",
-        "aoberoi/json-works": "~1.0"
+        "aoberoi/json-works": "~1.0",
+        "firebase/php-jwt": "^3.0"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.1",

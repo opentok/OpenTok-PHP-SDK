@@ -79,9 +79,10 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('api.opentok.com', $request->getHost());
         $this->assertEquals('https', $request->getScheme());
 
-        $authString = $request->getHeader('X-TB-PARTNER-AUTH');
+        $authString = $request->getHeader('X-OPENTOK-AUTH');
         $this->assertNotEmpty($authString);
-        $this->assertEquals($this->API_KEY.':'.$this->API_SECRET, $authString);
+        $decodedToken = TestHelpers::decodeToken($authString, $this->API_SECRET);
+        $this->assertEquals($this->API_KEY, $decodedToken->iss);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -126,9 +127,10 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('api.opentok.com', $request->getHost());
         $this->assertEquals('https', $request->getScheme());
 
-        $authString = $request->getHeader('X-TB-PARTNER-AUTH');
+        $authString = $request->getHeader('X-OPENTOK-AUTH');
         $this->assertNotEmpty($authString);
-        $this->assertEquals($this->API_KEY.':'.$this->API_SECRET, $authString);
+        $decodedToken = TestHelpers::decodeToken($authString, $this->API_SECRET);
+        $this->assertEquals($this->API_KEY, $decodedToken->iss);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -175,9 +177,10 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('api.opentok.com', $request->getHost());
         $this->assertEquals('https', $request->getScheme());
 
-        $authString = $request->getHeader('X-TB-PARTNER-AUTH');
+        $authString = $request->getHeader('X-OPENTOK-AUTH');
         $this->assertNotEmpty($authString);
-        $this->assertEquals($this->API_KEY.':'.$this->API_SECRET, $authString);
+        $decodedToken = TestHelpers::decodeToken($authString, $this->API_SECRET);
+        $this->assertEquals($this->API_KEY, $decodedToken->iss);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -221,9 +224,10 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('api.opentok.com', $request->getHost());
         $this->assertEquals('https', $request->getScheme());
 
-        $authString = $request->getHeader('X-TB-PARTNER-AUTH');
+        $authString = $request->getHeader('X-OPENTOK-AUTH');
         $this->assertNotEmpty($authString);
-        $this->assertEquals($this->API_KEY.':'.$this->API_SECRET, $authString);
+        $decodedToken = TestHelpers::decodeToken($authString, $this->API_SECRET);
+        $this->assertEquals($this->API_KEY, $decodedToken->iss);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -274,20 +278,15 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
 
         // Assert
         $this->assertInternalType('string', $token);
-
-        $decodedToken = TestHelpers::decodeToken($token);
-        $this->assertEquals($sessionId, $decodedToken['session_id']);
-        $this->assertEquals($bogusApiKey, $decodedToken['partner_id']);
-        $this->assertNotEmpty($decodedToken['nonce']);
-        $this->assertNotEmpty($decodedToken['create_time']);
-        $this->assertArrayNotHasKey('connection_data', $decodedToken);
+        $decodedToken = TestHelpers::decodeToken($token, $bogusApiSecret);
+        $this->assertEquals($sessionId, $decodedToken->sub);
+        $this->assertEquals($bogusApiKey, $decodedToken->iss);
+        $this->assertNotEmpty($decodedToken->jti);
+        $this->assertNotEmpty($decodedToken->iat);
         // TODO: should all tokens have a role of publisher even if this wasn't specified?
-        //$this->assertNotEmpty($decodedToken['role']);
+        //$this->assertNotEmpty($decodedToken->role);
         // TODO: should all tokens have a default expire time even if it wasn't specified?
-        //$this->assertNotEmpty($decodedToken['expire_time']);
-
-        $this->assertNotEmpty($decodedToken['sig']);
-        $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
+        //$this->assertNotEmpty($decodedToken->exp);
     }
 
     public function testGeneratesTokenWithRole() {
@@ -304,18 +303,14 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // Assert
         $this->assertInternalType('string', $token);
 
-        $decodedToken = TestHelpers::decodeToken($token);
-        $this->assertEquals($sessionId, $decodedToken['session_id']);
-        $this->assertEquals($bogusApiKey, $decodedToken['partner_id']);
-        $this->assertNotEmpty($decodedToken['nonce']);
-        $this->assertNotEmpty($decodedToken['create_time']);
-        $this->assertArrayNotHasKey('connection_data', $decodedToken);
-        $this->assertEquals('moderator', $decodedToken['role']);
+        $decodedToken = TestHelpers::decodeToken($token, $bogusApiSecret);
+        $this->assertEquals($sessionId, $decodedToken->sub);
+        $this->assertEquals($bogusApiKey, $decodedToken->iss);
+        $this->assertNotEmpty($decodedToken->jti);
+        $this->assertNotEmpty($decodedToken->iat);
+        $this->assertEquals('moderator', $decodedToken->role);
         // TODO: should all tokens have a default expire time even if it wasn't specified?
-        //$this->assertNotEmpty($decodedToken['expire_time']);
-
-        $this->assertNotEmpty($decodedToken['sig']);
-        $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
+        //$this->assertNotEmpty($decodedToken->exp);
     }
 
     public function testGeneratesTokenWithExpireTime() {
@@ -327,24 +322,20 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
         // Act
-        // expires in one hour (60 seconds * 60 minutes)
-        $inOneHour = time() + (60 * 60);
-        $token = $opentok->generateToken($sessionId, array('expireTime' => $inOneHour ));
+        // expires in 5 minutes (5 seconds * 60 minutes)
+        $inThreeMinutes = time() + (3 * 60);
+        $token = $opentok->generateToken($sessionId, array('exp' => $inThreeMinutes ));
 
         // Assert
         $this->assertInternalType('string', $token);
 
-        $decodedToken = TestHelpers::decodeToken($token);
-        $this->assertEquals($sessionId, $decodedToken['session_id']);
-        $this->assertEquals($bogusApiKey, $decodedToken['partner_id']);
-        $this->assertNotEmpty($decodedToken['nonce']);
-        $this->assertNotEmpty($decodedToken['create_time']);
-        $this->assertArrayNotHasKey('connection_data', $decodedToken);
-        $this->assertNotEmpty($decodedToken['role']);
-        $this->assertEquals($inOneHour, $decodedToken['expire_time']);
-
-        $this->assertNotEmpty($decodedToken['sig']);
-        $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
+        $decodedToken = TestHelpers::decodeToken($token, $bogusApiSecret);
+        $this->assertEquals($sessionId, $decodedToken->sub);
+        $this->assertEquals($bogusApiKey, $decodedToken->iss);
+        $this->assertNotEmpty($decodedToken->jti);
+        $this->assertNotEmpty($decodedToken->iat);
+        $this->assertNotEmpty($decodedToken->role);
+        $this->assertEquals($inThreeMinutes, $decodedToken->exp);
     }
 
     public function testGeneratesTokenWithData() {
@@ -362,18 +353,14 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // Assert
         $this->assertInternalType('string', $token);
 
-        $decodedToken = TestHelpers::decodeToken($token);
-        $this->assertEquals($sessionId, $decodedToken['session_id']);
-        $this->assertEquals($bogusApiKey, $decodedToken['partner_id']);
-        $this->assertNotEmpty($decodedToken['nonce']);
-        $this->assertNotEmpty($decodedToken['create_time']);
-        $this->assertEquals($userStatus, $decodedToken['connection_data']);
-        $this->assertNotEmpty($decodedToken['role']);
+        $decodedToken = TestHelpers::decodeToken($token, $bogusApiSecret);
+        $this->assertEquals($sessionId, $decodedToken->sub);
+        $this->assertEquals($bogusApiKey, $decodedToken->iss);
+        $this->assertNotEmpty($decodedToken->jti);
+        $this->assertNotEmpty($decodedToken->iat);
+        $this->assertNotEmpty($decodedToken->role);
         // TODO: should all tokens have a default expire time even if it wasn't specified?
-        //$this->assertNotEmpty($decodedToken['expire_time']);
-
-        $this->assertNotEmpty($decodedToken['sig']);
-        $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
+        //$this->assertNotEmpty($decodedToken->exp);
     }
 
     // TODO: write tests for passing invalid $expireTime and $data to generateToken
@@ -418,9 +405,10 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertNotEmpty($contentType);
         $this->assertEquals('application/json', $contentType);
 
-        $authString = $request->getHeader('X-TB-PARTNER-AUTH');
+        $authString = $request->getHeader('X-OPENTOK-AUTH');
         $this->assertNotEmpty($authString);
-        $this->assertEquals($this->API_KEY.':'.$this->API_SECRET, $authString);
+        $decodedToken = TestHelpers::decodeToken($authString, $this->API_SECRET);
+        $this->assertEquals($this->API_KEY, $decodedToken->iss);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -469,9 +457,10 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertNotEmpty($contentType);
         $this->assertEquals('application/json', $contentType);
 
-        $authString = $request->getHeader('X-TB-PARTNER-AUTH');
+        $authString = $request->getHeader('X-OPENTOK-AUTH');
         $this->assertNotEmpty($authString);
-        $this->assertEquals($this->API_KEY.':'.$this->API_SECRET, $authString);
+        $decodedToken = TestHelpers::decodeToken($authString, $this->API_SECRET);
+        $this->assertEquals($this->API_KEY, $decodedToken->iss);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -518,9 +507,10 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertNotEmpty($contentType);
         $this->assertEquals('application/json', $contentType);
 
-        $authString = $request->getHeader('X-TB-PARTNER-AUTH');
+        $authString = $request->getHeader('X-OPENTOK-AUTH');
         $this->assertNotEmpty($authString);
-        $this->assertEquals($this->API_KEY.':'.$this->API_SECRET, $authString);
+        $decodedToken = TestHelpers::decodeToken($authString, $this->API_SECRET);
+        $this->assertEquals($this->API_KEY, $decodedToken->iss);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -566,9 +556,10 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertNotEmpty($contentType);
         $this->assertEquals('application/json', $contentType);
 
-        $authString = $request->getHeader('X-TB-PARTNER-AUTH');
+        $authString = $request->getHeader('X-OPENTOK-AUTH');
         $this->assertNotEmpty($authString);
-        $this->assertEquals($this->API_KEY.':'.$this->API_SECRET, $authString);
+        $decodedToken = TestHelpers::decodeToken($authString, $this->API_SECRET);
+        $this->assertEquals($this->API_KEY, $decodedToken->iss);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -617,9 +608,10 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
       $this->assertNotEmpty($contentType);
       $this->assertEquals('application/json', $contentType);
 
-      $authString = $request->getHeader('X-TB-PARTNER-AUTH');
+      $authString = $request->getHeader('X-OPENTOK-AUTH');
       $this->assertNotEmpty($authString);
-      $this->assertEquals($this->API_KEY.':'.$this->API_SECRET, $authString);
+      $decodedToken = TestHelpers::decodeToken($authString, $this->API_SECRET);
+      $this->assertEquals($this->API_KEY, $decodedToken->iss);
 
       // TODO: test the dynamically built User Agent string
       $userAgent = $request->getHeader('User-Agent');
@@ -663,9 +655,10 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertNotEmpty($contentType);
         $this->assertEquals('application/json', $contentType);
 
-        $authString = $request->getHeader('X-TB-PARTNER-AUTH');
+        $authString = $request->getHeader('X-OPENTOK-AUTH');
         $this->assertNotEmpty($authString);
-        $this->assertEquals($this->API_KEY.':'.$this->API_SECRET, $authString);
+        $decodedToken = TestHelpers::decodeToken($authString, $this->API_SECRET);
+        $this->assertEquals($this->API_KEY, $decodedToken->iss);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -703,9 +696,10 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
 
         // TODO: this doesn't require Content-Type: application/json, but delete does?
 
-        $authString = $request->getHeader('X-TB-PARTNER-AUTH');
+        $authString = $request->getHeader('X-OPENTOK-AUTH');
         $this->assertNotEmpty($authString);
-        $this->assertEquals($this->API_KEY.':'.$this->API_SECRET, $authString);
+        $decodedToken = TestHelpers::decodeToken($authString, $this->API_SECRET);
+        $this->assertEquals($this->API_KEY, $decodedToken->iss);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -745,9 +739,10 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertNotEmpty($contentType);
         $this->assertEquals('application/json', $contentType);
 
-        $authString = $request->getHeader('X-TB-PARTNER-AUTH');
+        $authString = $request->getHeader('X-OPENTOK-AUTH');
         $this->assertNotEmpty($authString);
-        $this->assertEquals($this->API_KEY.':'.$this->API_SECRET, $authString);
+        $decodedToken = TestHelpers::decodeToken($authString, $this->API_SECRET);
+        $this->assertEquals($this->API_KEY, $decodedToken->iss);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -781,9 +776,10 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('api.opentok.com', $request->getHost());
         $this->assertEquals('https', $request->getScheme());
 
-        $authString = $request->getHeader('X-TB-PARTNER-AUTH');
+        $authString = $request->getHeader('X-OPENTOK-AUTH');
         $this->assertNotEmpty($authString);
-        $this->assertEquals($this->API_KEY.':'.$this->API_SECRET, $authString);
+        $decodedToken = TestHelpers::decodeToken($authString, $this->API_SECRET);
+        $this->assertEquals($this->API_KEY, $decodedToken->iss);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');

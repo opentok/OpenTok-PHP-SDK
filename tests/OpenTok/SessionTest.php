@@ -138,19 +138,15 @@ class SessionTest extends PHPUnit_Framework_TestCase
         $token = $session->generateToken();
 
         $this->assertInternalType('string', $token);
-        $decodedToken = TestHelpers::decodeToken($token);
-        $this->assertEquals($sessionId, $decodedToken['session_id']);
-        $this->assertEquals($bogusApiKey, $decodedToken['partner_id']);
-        $this->assertNotEmpty($decodedToken['nonce']);
-        $this->assertNotEmpty($decodedToken['create_time']);
-        $this->assertArrayNotHasKey('connection_data', $decodedToken);
+        $decodedToken = TestHelpers::decodeToken($token, $bogusApiSecret);
+        $this->assertEquals($sessionId, $decodedToken->sub);
+        $this->assertEquals($bogusApiKey, $decodedToken->iss);
+        $this->assertNotEmpty($decodedToken->jti);
+        $this->assertNotEmpty($decodedToken->iat);
         // TODO: should all tokens have a role of publisher even if this wasn't specified?
-        //$this->assertNotEmpty($decodedToken['role']);
+        //$this->assertNotEmpty($decodedToken->role);
         // TODO: should all tokens have a default expire time even if it wasn't specified?
-        //$this->assertNotEmpty($decodedToken['expire_time']);
-
-        $this->assertNotEmpty($decodedToken['sig']);
-        $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
+        //$this->assertNotEmpty($decodedToken->exp);
     }
 }
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/

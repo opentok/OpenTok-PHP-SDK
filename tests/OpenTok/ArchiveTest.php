@@ -5,6 +5,8 @@ use Guzzle\Plugin\Mock\MockPlugin;
 use OpenTok\Archive;
 use OpenTok\Util\Client;
 
+use OpenTok\TestHelpers;
+
 class ArchiveTest extends PHPUnit_Framework_TestCase {
 
     // Fixtures
@@ -103,9 +105,10 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         $this->assertNotEmpty($contentType);
         $this->assertEquals('application/json', $contentType);
 
-        $authString = $request->getHeader('X-TB-PARTNER-AUTH');
+        $authString = $request->getHeader('X-OPENTOK-AUTH');
         $this->assertNotEmpty($authString);
-        $this->assertEquals($this->API_KEY.':'.$this->API_SECRET, $authString);
+        $decodedToken = TestHelpers::decodeToken($authString, $this->API_SECRET);
+        $this->assertEquals($this->API_KEY, $decodedToken->iss);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -146,9 +149,10 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         $this->assertNotEmpty($contentType);
         $this->assertEquals('application/json', $contentType);
 
-        $authString = $request->getHeader('X-TB-PARTNER-AUTH');
+        $authString = $request->getHeader('X-OPENTOK-AUTH');
         $this->assertNotEmpty($authString);
-        $this->assertEquals($this->API_KEY.':'.$this->API_SECRET, $authString);
+        $decodedToken = TestHelpers::decodeToken($authString, $this->API_SECRET);
+        $this->assertEquals($this->API_KEY, $decodedToken->iss);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');

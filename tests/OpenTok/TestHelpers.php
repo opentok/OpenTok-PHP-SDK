@@ -2,6 +2,8 @@
 
 namespace OpenTok;
 
+use \Firebase\JWT\JWT;
+
 class TestHelpers {
     // TODO: untested, unused
     public static function decodeSessionId($sessionId)
@@ -17,16 +19,14 @@ class TestHelpers {
         return $data;
     }
 
-    public static function decodeToken($token)
+    public static function decodeToken($token, $secret)
     {
-        $trimmedToken = substr($token, 4); // removes T1==
-        $decodedToken = base64_decode($trimmedToken);
-        $parts = explode(':', $decodedToken); // splits into partner info and data string
-        parse_str($parts[0], $parsedPartnerInfo);
-        parse_str($parts[1], $parsedDataString);
-        return array_merge($parsedPartnerInfo, $parsedDataString, array(
-            'dataString' => $parts[1]
-        ));
+        try {
+          $decodedToken = JWT::decode($token, $secret, array('HS256'));
+        } catch (Exception $e) {
+          $this->fail("Failed to decode token");
+        }
+        return $decodedToken;
     }
 }
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/
