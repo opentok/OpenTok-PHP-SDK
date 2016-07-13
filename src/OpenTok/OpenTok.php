@@ -2,6 +2,8 @@
 
 namespace OpenTok;
 
+use \Firebase\JWT\JWT;
+
 use OpenTok\Session;
 use OpenTok\Archive;
 use OpenTok\Role;
@@ -89,12 +91,21 @@ class OpenTok {
     {
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array(
+            'ist' => 'project',
+            'iss' => $this->apiKey,
+            'sub' => $sessionId,
+            'iat' => time(),
+            'exp' => time()+(24 * 60 * 60),
+            'jti' => (float) rand() / (float) getrandmax(),
             'role' => Role::PUBLISHER,
-            'expireTime' => null,
-            'data' => null
+            'scope' => 'session.connect',
+            'connectionData' => null,
+            'initialLayoutClassList' => null
         );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($role, $expireTime, $data) = array_values($options);
+        $role = $options['role'];
+        $exp = $options['exp'];
+        $connectionData = $options['connectionData'];
 
         // additional token data
         $createTime = time();
@@ -103,15 +114,10 @@ class OpenTok {
         // validate arguments
         Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
         Validators::validateRole($role);
-        Validators::validateExpireTime($expireTime, $createTime);
-        Validators::validateData($data);
+        Validators::validateExpireTime($exp, $createTime);
+        Validators::validateData($connectionData);
 
-        $dataString = "session_id=$sessionId&create_time=$createTime&role=$role&nonce=$nonce" .
-            (($expireTime) ? "&expire_time=$expireTime" : '') .
-            (($data) ? "&connection_data=" . urlencode($data) : '');
-        $sig = $this->_sign_string($dataString, $this->apiSecret);
-
-        return "T1==" . base64_encode("partner_id=$this->apiKey&sig=$sig:$dataString");
+        return JWT::encode($options, $this->apiSecret);
     }
 
     /**

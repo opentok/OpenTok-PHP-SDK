@@ -38,8 +38,8 @@ class Client extends \Guzzle\Http\Client
         $this->setUserAgent(OPENTOK_SDK_USER_AGENT, true);
 
         // TODO: attach plugins
-        $partnerAuthPlugin = new Plugin\PartnerAuth($apiKey, $apiSecret);
-        $this->addSubscriber($partnerAuthPlugin);
+        $opentokAuthPlugin = new Plugin\OpentokAuth($apiKey, $apiSecret);
+        $this->addSubscriber($opentokAuthPlugin);
 
         $this->configured = true;
     }
