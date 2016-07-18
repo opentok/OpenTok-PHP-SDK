@@ -1,10 +1,9 @@
 <?php
 
-use \Firebase\JWT\JWT;
-
 use Guzzle\Plugin\Mock\MockPlugin;
 
 use OpenTok\OpenTok;
+use OpenTok\OpenTokTestCase;
 use OpenTok\Session;
 use OpenTok\Role;
 use OpenTok\MediaMode;
@@ -14,11 +13,8 @@ use OpenTok\Util\Client;
 
 use OpenTok\TestHelpers;
 
-class OpenTokTest extends PHPUnit_Framework_TestCase
+class OpenTokTest extends OpenTokTestCase
 {
-    protected $API_KEY;
-    protected $API_SECRET;
-
     protected $opentok;
     protected $client;
 
@@ -82,9 +78,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('https', $request->getScheme());
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->assertNotEmpty($authString);
-        $decodedToken = JWT::decode($authString, $this->API_SECRET, array('HS256'));
-        $this->assertEquals($this->API_KEY, $decodedToken->iss);
+        $this->validateJwt($authString);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -130,9 +124,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('https', $request->getScheme());
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->assertNotEmpty($authString);
-        $decodedToken = JWT::decode($authString, $this->API_SECRET, array('HS256'));
-        $this->assertEquals($this->API_KEY, $decodedToken->iss);
+        $this->validateJwt($authString);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -180,9 +172,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('https', $request->getScheme());
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->assertNotEmpty($authString);
-        $decodedToken = JWT::decode($authString, $this->API_SECRET, array('HS256'));
-        $this->assertEquals($this->API_KEY, $decodedToken->iss);
+        $this->validateJwt($authString);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -227,9 +217,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('https', $request->getScheme());
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->assertNotEmpty($authString);
-        $decodedToken = JWT::decode($authString, $this->API_SECRET, array('HS256'));
-        $this->assertEquals($this->API_KEY, $decodedToken->iss);
+        $this->validateJwt($authString);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -425,9 +413,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->assertNotEmpty($authString);
-        $decodedToken = JWT::decode($authString, $this->API_SECRET, array('HS256'));
-        $this->assertEquals($this->API_KEY, $decodedToken->iss);
+        $this->validateJwt($authString);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -477,9 +463,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->assertNotEmpty($authString);
-        $decodedToken = JWT::decode($authString, $this->API_SECRET, array('HS256'));
-        $this->assertEquals($this->API_KEY, $decodedToken->iss);
+        $this->validateJwt($authString);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -527,9 +511,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->assertNotEmpty($authString);
-        $decodedToken = JWT::decode($authString, $this->API_SECRET, array('HS256'));
-        $this->assertEquals($this->API_KEY, $decodedToken->iss);
+        $this->validateJwt($authString);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -576,9 +558,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->assertNotEmpty($authString);
-        $decodedToken = JWT::decode($authString, $this->API_SECRET, array('HS256'));
-        $this->assertEquals($this->API_KEY, $decodedToken->iss);
+        $this->validateJwt($authString);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -628,9 +608,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
       $this->assertEquals('application/json', $contentType);
 
       $authString = $request->getHeader('X-OPENTOK-AUTH');
-      $this->assertNotEmpty($authString);
-      $decodedToken = JWT::decode($authString, $this->API_SECRET, array('HS256'));
-      $this->assertEquals($this->API_KEY, $decodedToken->iss);
+      $this->validateJwt($authString);
 
       // TODO: test the dynamically built User Agent string
       $userAgent = $request->getHeader('User-Agent');
@@ -675,9 +653,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->assertNotEmpty($authString);
-        $decodedToken = JWT::decode($authString, $this->API_SECRET, array('HS256'));
-        $this->assertEquals($this->API_KEY, $decodedToken->iss);
+        $this->validateJwt($authString);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -716,9 +692,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: this doesn't require Content-Type: application/json, but delete does?
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->assertNotEmpty($authString);
-        $decodedToken = JWT::decode($authString, $this->API_SECRET, array('HS256'));
-        $this->assertEquals($this->API_KEY, $decodedToken->iss);
+        $this->validateJwt($authString);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -759,9 +733,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->assertNotEmpty($authString);
-        $decodedToken = JWT::decode($authString, $this->API_SECRET, array('HS256'));
-        $this->assertEquals($this->API_KEY, $decodedToken->iss);
+        $this->validateJwt($authString);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -796,9 +768,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('https', $request->getScheme());
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->assertNotEmpty($authString);
-        $decodedToken = JWT::decode($authString, $this->API_SECRET, array('HS256'));
-        $this->assertEquals($this->API_KEY, $decodedToken->iss);
+        $this->validateJwt($authString);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');

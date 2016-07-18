@@ -1,5 +1,6 @@
 *.DS_Store
 composer.phar
+composer.lock
 opentok.phar
 vendor/
 phpunit.xml

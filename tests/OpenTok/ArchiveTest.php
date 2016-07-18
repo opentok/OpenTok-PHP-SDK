@@ -1,18 +1,16 @@
 <?php
 
-use \Firebase\JWT\JWT;
-
 use Guzzle\Plugin\Mock\MockPlugin;
 
 use OpenTok\Archive;
+use OpenTok\OpenTokTestCase;
+use OpenTok\TestHelpers;
 use OpenTok\Util\Client;
 
-class ArchiveTest extends PHPUnit_Framework_TestCase {
+class ArchiveTest extends OpenTokTestCase {
 
     // Fixtures
     protected $archiveData;
-    protected $API_KEY;
-    protected $API_SECRET;
 
     protected $archive;
     protected $client;
@@ -106,9 +104,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->assertNotEmpty($authString);
-        $decodedToken = JWT::decode($authString, $this->API_SECRET, array('HS256'));
-        $this->assertEquals($this->API_KEY, $decodedToken->iss);
+        $this->validateJwt($authString);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -150,9 +146,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->assertNotEmpty($authString);
-        $decodedToken = JWT::decode($authString, $this->API_SECRET, array('HS256'));
-        $this->assertEquals($this->API_KEY, $decodedToken->iss);
+        $this->validateJwt($authString);
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');

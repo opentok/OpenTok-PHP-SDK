@@ -34,14 +34,19 @@ class OpentokAuth implements EventSubscriberInterface
 
     private function createAuthHeader()
     {
-      $token = array(
-          'ist' => 'project',
-          'iss' => $this->apiKey,
-          'iat' => time(),
-          'exp' => time()+(5 * 60),
-          'jti' => (float) rand() / (float) getrandmax(),
-      );
+        $token = array(
+            'ist' => 'project',
+            'iss' => $this->apiKey,
+            'iat' => time(), // this is in seconds
+            'exp' => time()+(5 * 60),
+            'jti' => $this->generateNonce(),
+        );
+        return JWT::encode($token, $this->apiSecret);
+    }
 
-      return JWT::encode($token, $this->apiSecret);
+    private function generateNonce($len = 10) {
+        $bytes = openssl_random_pseudo_bytes($len);
+        $hex = bin2hex($bytes);
+        return $hex;
     }
 }
