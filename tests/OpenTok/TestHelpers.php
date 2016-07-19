@@ -31,13 +31,13 @@ class TestHelpers {
         ));
     }
 
-    public function validateOpenTokAuthHeader($apiKey, $apiSecret, $token) {
+    public static function validateOpenTokAuthHeader($apiKey, $apiSecret, $token) {
       if (!isset($token)) {
         return false;
       }
 
       try {
-        $decodedToken = JWT::decode($token, 'a'.$apiSecret, array('HS256'));
+        $decodedToken = JWT::decode($token, $apiSecret, array('HS256'));
       } catch(\Exception $e) {
         return false;
       }
