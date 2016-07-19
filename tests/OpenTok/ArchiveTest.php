@@ -3,7 +3,10 @@
 use Guzzle\Plugin\Mock\MockPlugin;
 
 use OpenTok\Archive;
+use OpenTok\OpenTokTestCase;
 use OpenTok\Util\Client;
+
+use OpenTok\TestHelpers;
 
 class ArchiveTest extends PHPUnit_Framework_TestCase {
 
@@ -103,9 +106,8 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         $this->assertNotEmpty($contentType);
         $this->assertEquals('application/json', $contentType);
 
-        $authString = $request->getHeader('X-TB-PARTNER-AUTH');
-        $this->assertNotEmpty($authString);
-        $this->assertEquals($this->API_KEY.':'.$this->API_SECRET, $authString);
+        $authString = $request->getHeader('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -117,7 +119,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
 
     }
 
-     public function testDeletesArchive()
+    public function testDeletesArchive()
     {
         // Arrange
         $mock = new MockPlugin();
@@ -146,9 +148,8 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         $this->assertNotEmpty($contentType);
         $this->assertEquals('application/json', $contentType);
 
-        $authString = $request->getHeader('X-TB-PARTNER-AUTH');
-        $this->assertNotEmpty($authString);
-        $this->assertEquals($this->API_KEY.':'.$this->API_SECRET, $authString);
+        $authString = $request->getHeader('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -192,7 +193,8 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException InvalidArgumentException
      */
-    public function testRejectsBadArchiveData() {
+    public function testRejectsBadArchiveData()
+    {
       // Set up fixtures
       $badArchiveData = array(
           'createdAt' => 'imnotanumber',
@@ -217,7 +219,8 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
       ));
     }
 
-    public function testAllowsPausedStatus() {
+    public function testAllowsPausedStatus()
+    {
       // Set up fixtures
       $archiveData = array(
           'createdAt' => 1394394801000,
@@ -245,8 +248,8 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
       $this->assertEquals($archiveData['status'], $archive->status);
     }
 
-    public function testSerializesToJson() {
-
+    public function testSerializesToJson()
+    {
         // Arrange
 
         // Act
@@ -269,5 +272,9 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($this->archiveData, $archiveArray);
     }
     // TODO: test deleted archive can not be stopped or deleted again
+
+    private function decodeToken($token) {
+
+    }
 }
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/

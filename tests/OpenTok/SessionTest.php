@@ -1,6 +1,7 @@
 <?php
 
 use OpenTok\OpenTok;
+use OpenTok\OpenTokTestCase;
 use OpenTok\Session;
 use OpenTok\MediaMode;
 use OpenTok\ArchiveMode;
@@ -9,7 +10,6 @@ use OpenTok\TestHelpers;
 
 class SessionTest extends PHPUnit_Framework_TestCase
 {
-
     protected $API_KEY;
     protected $API_SECRET;
     protected $opentok;
