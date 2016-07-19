@@ -8,8 +8,10 @@ use OpenTok\ArchiveMode;
 
 use OpenTok\TestHelpers;
 
-class SessionTest extends OpenTokTestCase
+class SessionTest extends PHPUnit_Framework_TestCase
 {
+    protected $API_KEY;
+    protected $API_SECRET;
     protected $opentok;
 
     public function setUp()

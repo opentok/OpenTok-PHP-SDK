@@ -39,14 +39,8 @@ class OpentokAuth implements EventSubscriberInterface
             'iss' => $this->apiKey,
             'iat' => time(), // this is in seconds
             'exp' => time()+(5 * 60),
-            'jti' => $this->generateNonce(),
+            'jti' => uniqid(),
         );
         return JWT::encode($token, $this->apiSecret);
-    }
-
-    private function generateNonce($len = 10) {
-        $bytes = openssl_random_pseudo_bytes($len);
-        $hex = bin2hex($bytes);
-        return $hex;
     }
 }

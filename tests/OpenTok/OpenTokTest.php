@@ -13,8 +13,11 @@ use OpenTok\Util\Client;
 
 use OpenTok\TestHelpers;
 
-class OpenTokTest extends OpenTokTestCase
+class OpenTokTest extends PHPUnit_Framework_TestCase
 {
+    protected $API_KEY;
+    protected $API_SECRET;
+
     protected $opentok;
     protected $client;
 
@@ -78,7 +81,7 @@ class OpenTokTest extends OpenTokTestCase
         $this->assertEquals('https', $request->getScheme());
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->validateJwt($authString);
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -124,7 +127,7 @@ class OpenTokTest extends OpenTokTestCase
         $this->assertEquals('https', $request->getScheme());
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->validateJwt($authString);
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -172,7 +175,7 @@ class OpenTokTest extends OpenTokTestCase
         $this->assertEquals('https', $request->getScheme());
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->validateJwt($authString);
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -217,7 +220,7 @@ class OpenTokTest extends OpenTokTestCase
         $this->assertEquals('https', $request->getScheme());
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->validateJwt($authString);
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -413,7 +416,7 @@ class OpenTokTest extends OpenTokTestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->validateJwt($authString);
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -463,7 +466,7 @@ class OpenTokTest extends OpenTokTestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->validateJwt($authString);
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -511,7 +514,7 @@ class OpenTokTest extends OpenTokTestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->validateJwt($authString);
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -558,7 +561,7 @@ class OpenTokTest extends OpenTokTestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->validateJwt($authString);
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -608,7 +611,7 @@ class OpenTokTest extends OpenTokTestCase
       $this->assertEquals('application/json', $contentType);
 
       $authString = $request->getHeader('X-OPENTOK-AUTH');
-      $this->validateJwt($authString);
+      $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
       // TODO: test the dynamically built User Agent string
       $userAgent = $request->getHeader('User-Agent');
@@ -653,7 +656,7 @@ class OpenTokTest extends OpenTokTestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->validateJwt($authString);
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -692,7 +695,7 @@ class OpenTokTest extends OpenTokTestCase
         // TODO: this doesn't require Content-Type: application/json, but delete does?
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->validateJwt($authString);
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -733,7 +736,7 @@ class OpenTokTest extends OpenTokTestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->validateJwt($authString);
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -768,7 +771,7 @@ class OpenTokTest extends OpenTokTestCase
         $this->assertEquals('https', $request->getScheme());
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->validateJwt($authString);
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');

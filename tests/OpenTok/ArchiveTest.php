@@ -4,13 +4,16 @@ use Guzzle\Plugin\Mock\MockPlugin;
 
 use OpenTok\Archive;
 use OpenTok\OpenTokTestCase;
-use OpenTok\TestHelpers;
 use OpenTok\Util\Client;
 
-class ArchiveTest extends OpenTokTestCase {
+use OpenTok\TestHelpers;
+
+class ArchiveTest extends PHPUnit_Framework_TestCase {
 
     // Fixtures
     protected $archiveData;
+    protected $API_KEY;
+    protected $API_SECRET;
 
     protected $archive;
     protected $client;
@@ -104,7 +107,7 @@ class ArchiveTest extends OpenTokTestCase {
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->validateJwt($authString);
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
@@ -146,7 +149,7 @@ class ArchiveTest extends OpenTokTestCase {
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->validateJwt($authString);
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');

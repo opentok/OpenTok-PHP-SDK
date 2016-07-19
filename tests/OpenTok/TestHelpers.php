@@ -2,6 +2,8 @@
 
 namespace OpenTok;
 
+use \Firebase\JWT\JWT;
+
 class TestHelpers {
     // TODO: untested, unused
     public static function decodeSessionId($sessionId)
@@ -27,6 +29,36 @@ class TestHelpers {
         return array_merge($parsedPartnerInfo, $parsedDataString, array(
             'dataString' => $parts[1]
         ));
+    }
+
+    public function validateOpenTokAuthHeader($apiKey, $apiSecret, $token) {
+      if (!isset($token)) {
+        return false;
+      }
+
+      try {
+        $decodedToken = JWT::decode($token, 'a'.$apiSecret, array('HS256'));
+      } catch(\Exception $e) {
+        return false;
+      }
+
+      if (!property_exists($decodedToken, 'iss') || $decodedToken->iss !== $apiKey) {
+        return false;
+      }
+
+      if (!property_exists($decodedToken, 'ist') || 'project' !== $decodedToken->ist) {
+        return false;
+      }
+
+      if (!property_exists($decodedToken, 'exp') || time() >= $decodedToken->exp) {
+        return false;
+      }
+
+      if (!property_exists($decodedToken, 'jti')) {
+        return false;
+      }
+
+      return true;
     }
 }
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/
