@@ -31,7 +31,7 @@ class TestHelpers {
         ));
     }
 
-    public static function validateOpenTokAuthHeader($apiKey, $apiSecret, $token) {
+    public static function validateOpenTokAuthHeader($apiKey, $apiSecret, $token, $sessionId = null) {
       if (!isset($token)) {
         return false;
       }
@@ -55,6 +55,10 @@ class TestHelpers {
       }
 
       if (!property_exists($decodedToken, 'jti')) {
+        return false;
+      }
+
+      if ($sessionId !== null && $decodedToken->sub !== $sessionId) {
         return false;
       }
 

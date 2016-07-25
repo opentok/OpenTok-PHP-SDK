@@ -29,10 +29,18 @@ class OpentokAuth implements EventSubscriberInterface
     public function onBeforeSend(Event $event)
     {
         $request = $event['request'];
-        $request->addHeader('X-OPENTOK-AUTH', $this->createAuthHeader());
+        $sessionId = null;
+        if (method_exists($request, 'getBody')) {
+          $body = json_decode($request->getBody());
+          if ($body !== null && property_exists($body, 'sessionId')) {
+            $sessionId = $body->sessionId;
+          }
+        }
+
+        $request->addHeader('X-OPENTOK-AUTH', $this->createAuthHeader($sessionId));
     }
 
-    private function createAuthHeader()
+    private function createAuthHeader($sessionId = null)
     {
         $token = array(
             'ist' => 'project',
@@ -41,6 +49,11 @@ class OpentokAuth implements EventSubscriberInterface
             'exp' => time()+(5 * 60),
             'jti' => uniqid(),
         );
+
+        if ($sessionId !== null) {
+          $token['sub'] = $sessionId;
+        }
+
         return JWT::encode($token, $this->apiSecret);
     }
 }

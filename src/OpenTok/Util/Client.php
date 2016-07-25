@@ -186,7 +186,7 @@ class Client extends \Guzzle\Http\Client
             );
         } else {
             // TODO: check if this works because Exception is an interface not a class
-            throw new Exception('An unexpected error occurred');
+            throw new \Exception('An unexpected error occurred');
         }
     }
 
