@@ -2,7 +2,7 @@ var session = OT.initSession(sessionId),
     publisher = OT.initPublisher('publisher');
 
 session.connect(apiKey, token, function(error) {
-  if(err) {
+  if(error) {
     console.error(error.message);
     return;
   }
