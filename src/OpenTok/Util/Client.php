@@ -139,6 +139,38 @@ class Client extends \Guzzle\Http\Client
         return $archiveListJson;
     }
 
+    public function call($sessionId, $token, $sipUri, $username, $password, $options)
+    {
+        $body = array(
+          'sessionId' => $sessionId,
+          'token' => $token,
+          'sip' => array(
+            'uri' => $sipUri,
+            'auth' => array(
+              'username' => $username,
+              'password' => $password
+            ),
+            'secure' => $options['secure']
+          )
+        );
+
+        if (sizeof($options['headers']) > 0) {
+            $body['headers'] = $options['headers'];
+        }
+
+        // set up the request
+        $request = $this->post('/v2/partner/'.$this->apiKey.'/call');
+        $request->setBody(json_encode($body));
+        $request->setHeader('Content-Type', 'application/json');
+
+        try {
+            $sipJson = $request->send()->json();
+        } catch (\Exception $e) {
+            $this->handleException($e);
+        }
+        return $sipJson;
+    }
+
     // Helpers
 
     private function postFieldsForOptions($options)
@@ -186,7 +218,7 @@ class Client extends \Guzzle\Http\Client
             );
         } else {
             // TODO: check if this works because Exception is an interface not a class
-            throw new Exception('An unexpected error occurred');
+            throw new \Exception('An unexpected error occurred');
         }
     }
 

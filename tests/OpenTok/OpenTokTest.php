@@ -836,5 +836,34 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('OpenTok\Archive', $archive);
         $this->assertEquals("expired", $archive->status);
     }
+
+    public function testSipCall()
+    {
+      // Arrange
+      $mock = new MockPlugin();
+      $response = MockPlugin::getMockFile(
+          self::$mockBasePath . 'v2/partner/APIKEY/call'
+      );
+      $mock->addResponse($response);
+      $this->client->addSubscriber($mock);
+
+      $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+      $bogusApiKey = '12345678';
+      $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+      $bogusToken = 'T1==TEST';
+      $bogusSipUri = 'sip:john@doe.com';
+      $bogusUsername = 'john';
+      $bogusPassword = 'doe';
+      $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+
+      // Act
+      $sipCall = $this->opentok->call($sessionId, $bogusToken, $bogusSipUri, $bogusUsername, $bogusPassword);
+
+      // Assert
+      $this->assertInstanceOf('OpenTok\SipCall', $sipCall);
+      $this->assertNotNull($sipCall->id);
+      $this->assertNotNull($sipCall->connectionId);
+      $this->assertNotNull($sipCall->streamId);
+    }
 }
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/
