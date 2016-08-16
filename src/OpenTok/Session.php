@@ -113,10 +113,10 @@ class Session
 
     /**
      * Creates a token for connecting to the session. In order to authenticate a user,
-     * cthe client passes a token when connecting to the session.
+     * the client passes a token when connecting to the session.
      * <p>
-     * For testing, you can also use the <a href="https://dashboard.tokbox.com/projects">OpenTok
-     * dashboard</a> page to generate test tokens.
+     * For testing, you can also generate tokens or by logging in to your
+     * <a href="https://tokbox.com/account">TokBox account</a>.
      *
      * @param array $options This array defines options for the token. This array include the
      * following keys, all of which are optional:
