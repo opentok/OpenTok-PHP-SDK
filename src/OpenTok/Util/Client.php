@@ -139,23 +139,23 @@ class Client extends \Guzzle\Http\Client
         return $archiveListJson;
     }
 
-    public function call($sessionId, $token, $sipUri, $username, $password, $options)
+    public function dial($sessionId, $token, $sipUri, $username, $password, $options)
     {
         $body = array(
           'sessionId' => $sessionId,
           'token' => $token,
           'sip' => array(
             'uri' => $sipUri,
-            'auth' => array(
-              'username' => $username,
-              'password' => $password
-            ),
             'secure' => $options['secure']
           )
         );
 
-        if (sizeof($options['headers']) > 0) {
+        if (isset($options) && array_key_exists('headers', $options) && sizeof($options['headers']) > 0) {
             $body['headers'] = $options['headers'];
+        }
+
+        if (isset($options) && array_key_exists('auth', $options)) {
+            $body['auth'] = $options['auth'];
         }
 
         // set up the request

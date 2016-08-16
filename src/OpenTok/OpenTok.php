@@ -388,7 +388,7 @@ class OpenTok {
     /**
      * Initiate an outgoing SIP call
      *
-     * @param string $sessionId TThe OpenTok SessionIdwhere the participant being called
+     * @param string $sessionId The OpenTok SessionIdwhere the participant being called
      * will join.
      *
      * @param string $token The token for conecting to an OpenTok session. This is the same
@@ -416,22 +416,33 @@ class OpenTok {
      *
      * <ul>
      *
-     *    <li><code>'headers'</code> (string) &mdash; Headers​: Custom Headers to be added to the
+     *    <li><code>'headers'</code> (array) &mdash; Headers​: Custom Headers to be added to the
      *    SIP INVITE request initiated from OpenTok to the Third Party SIP Platform. All of this
      *    custom headers must start with the "X-" prefix, or a Bad Request (400) will be thrown.</li>
      *
-     *    <li><code>'secure'</code> (int) &mdash; Secure​: Boolean (trueor false) flag that indicates
+     *    <li><code>'auth'</code> (array) &mdash; Auth​: Username and Password to be used in the SIP
+     *    INVITE request for HTTP Digest authentication in case this is required by the Third Party
+     *    SIP Platform.
+     *
+     *     <ul>
+     *
+     *       <li><code>'username'</code> (string) &mdash; Username: String</li>
+     *
+     *       <li><code>'password'</code> (string) &mdash; Password: String</li>
+     *
+     *     </ul>
+     *
+     *    <li><code>'secure'</code> (int) &mdash; Secure​: Boolean (true or false) flag that indicates
      *    whether the media must be transmitted encrypted or not.</li>
      *
      * </ul>
      *
      * @return SipCall The SipCall, which contains the ids of the Sip connection.
      */
-    public function call($sessionId, $token, $sipUri, $username, $password, $options=array())
+    public function dial($sessionId, $token, $sipUri, $options=array())
     {
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array(
-            'headers' => array(),
             'secure' => true
         );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
@@ -441,7 +452,7 @@ class OpenTok {
         Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
 
         // make API call
-        $sipJson = $this->client->call($sessionId, $token, $sipUri, $username, $password, $options);
+        $sipJson = $this->client->dial($sessionId, $token, $sipUri, $username, $password, $options);
 
         // check response
         $id = $sipJson['id'];
