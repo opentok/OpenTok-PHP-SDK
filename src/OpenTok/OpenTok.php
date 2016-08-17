@@ -443,7 +443,9 @@ class OpenTok {
     {
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array(
-            'secure' => true
+            'auth' => null,
+            'headers' => null,
+            'secure' => true,
         );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
         list($headers, $secure) = array_values($options);

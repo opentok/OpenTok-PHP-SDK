@@ -881,6 +881,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
       $bogusSipUri = 'sip:john@doe.com';
       $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
+      $sipCall = null;
       // Act
       try {
           $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri);
