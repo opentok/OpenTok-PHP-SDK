@@ -139,7 +139,7 @@ class Client extends \Guzzle\Http\Client
         return $archiveListJson;
     }
 
-    public function dial($sessionId, $token, $sipUri, $username, $password, $options)
+    public function dial($sessionId, $token, $sipUri, $options)
     {
         $body = array(
           'sessionId' => $sessionId,

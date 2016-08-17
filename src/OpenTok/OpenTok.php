@@ -454,7 +454,7 @@ class OpenTok {
         Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
 
         // make API call
-        $sipJson = $this->client->dial($sessionId, $token, $sipUri, $username, $password, $options);
+        $sipJson = $this->client->dial($sessionId, $token, $sipUri, $options);
 
         // check response
         $id = $sipJson['id'];
