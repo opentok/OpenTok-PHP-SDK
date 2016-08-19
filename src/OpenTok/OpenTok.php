@@ -394,12 +394,6 @@ class OpenTok {
      * @param string $token The token for conecting to an OpenTok session. This is the same
      * as the one created by Session.generateToken.
      *
-     * @param string $username Auth​: Username to be used in the SIP INVITE request for HTTP
-     * Digest authentication in case this is required by the Third Party SIP Platform.
-     *
-     * @param string $password Auth​: Password to be used in the SIP INVITE request for HTTP
-     * Digest authentication in case this is required by the Third Party SIP Platform.
-     *
      * @param string $sipUrl The SIP Uri to be used as destination of the SIP Call initiated from
      * OpenTok to the Third Party SIP Platform.
      * If the SIP Uri contains a transport=tlsheader, the negotiation between TokBox and
