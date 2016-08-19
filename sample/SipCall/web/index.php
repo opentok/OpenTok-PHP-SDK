@@ -24,8 +24,8 @@ if (php_sapi_name() === 'cli-server' && is_file($filename)) {
 }
 
 // Verify that the API Key and API Secret are defined
-if (!(getenv('API_KEY') && getenv('API_SECRET'))) {
-    die('You must define an API_KEY and API_SECRET in the run-demo file');
+if (!(getenv('API_KEY') && getenv('API_SECRET') && getenv('SIP_URI') && getenv('SIP_SECURE'))) {
+    die('You must define API_KEY, API_SECRET, SIP_URI, and SIP_SECURE in the run-demo file');
 }
 
 // Initialize Slim application
@@ -44,6 +44,13 @@ $app->container->singleton('opentok', function () {
 });
 // Store the API Key in the app container
 $app->apiKey = getenv('API_KEY');
+
+$app->sip = array(
+  'uri' => getenv('SIP_URI'),
+  'username' => getenv('SIP_USERNAME'),
+  'password' => getenv('SIP_PASSWORD'),
+  'secure' => (getenv('SIP_SECURE') === 'true')
+);
 
 // Configure routes
 $app->get('/', function () use ($app) {
@@ -71,15 +78,15 @@ $app->post('/sip/start', function () use ($app) {
     $token = $app->opentok->generateToken($sessionId, array('data' => 'sip=true'));
 
     // create the options parameter
-    $options = array();
-    $username = getenv('SIP_USERNAME');
-    if ($username !== false) {
-        $options['auth'] = array('username' => $username, 'password' => getenv('SIP_PASSWORD'));
+    $options = array(
+      'secure' => $app->sip['secure']
+    );
+    if ($app->sip['username'] !== false) {
+        $options['auth'] = array('username' => $app->sip['username'], 'password' => $app->sip['password']);
     }
-    $options['secure'] = (getenv('SIP_SECURE') == 'true');
 
     // make the sip call
-    $sipCall = $app->opentok->dial($sessionId, $token, getenv('SIP_URI'), $options);
+    $sipCall = $app->opentok->dial($sessionId, $token, $app->sip['uri'], $options);
 
     echo $sipCall->toJson();
 });
