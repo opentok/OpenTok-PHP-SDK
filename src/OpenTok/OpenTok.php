@@ -4,6 +4,8 @@ namespace OpenTok;
 
 use OpenTok\Session;
 use OpenTok\Archive;
+use OpenTok\Broadcast;
+use OpenTok\Layout;
 use OpenTok\Role;
 use OpenTok\MediaMode;
 use OpenTok\ArchiveMode;
@@ -382,6 +384,88 @@ class OpenTok {
 
         $archiveListData = $this->client->listArchives($offset, $count);
         return new ArchiveList($archiveListData, array( 'client' => $this->client ));
+    }
+
+    public function startBroadcast($sessionId, $options=array())
+    {
+        // unpack optional arguments (merging with default values) into named variables
+        // NOTE: although the server can be authoritative about the default value of layout, its
+        // not preferred to depend on that in the SDK because its then harder to garauntee backwards
+        // compatibility
+        $defaults = array(
+            'layout' => Layout::getBestFit()
+        );
+        $options = array_merge($defaults, array_intersect_key($options, $defaults));
+        list($layout) = array_values($options);
+
+        // validate arguments
+        Validators::validateSessionId($sessionId);
+        Validators::validateLayout($layout);
+
+        // make API call
+        $broadcastData = $this->client->startBroadcast($sessionId, $options);
+
+        return new Broadcast($broadcastData, array( 'client' => $this->client ));
+    }
+
+    public function stopBroadcast($broadcastId)
+    {
+        // validate arguments
+        Validators::validateBroadcastId($broadcastId);
+
+        // make API call
+        $broadcastData = $this->client->stopBroadcast($broadcastId);
+        return new Broadcast($broadcastData, array(
+            'client' => $this->client,
+            'isStopped' => true
+        ));
+    }
+
+    public function getBroadcast($broadcastId)
+    {
+        Validators::validateBroadcastId($broadcastId);
+
+        $broadcastData = $this->client->getBroadcast($broadcastId);
+        return new Broadcast($broadcastData, array( 'client' => $this->client ));
+    }
+
+    // TODO: not yet implemented by the platform
+    // public function getBroadcastLayout($broadcastId)
+    // {
+    //     Validators::validateBroadcastId($broadcastId);
+    //
+    //     $layoutData = $this->client->getLayout($broadcastId, 'broadcast');
+    //     return Layout::fromData($layoutData);
+    // }
+
+    public function updateBroadcastLayout($broadcastId, $layout)
+    {
+        Validators::validateBroadcastId($broadcastId);
+        Validators::validateLayout($layout);
+
+        // TODO: platform implementation does not meet API Review spec
+        // $layoutData = $this->client->updateLayout($broadcastId, $layout, 'broadcast');
+        // return Layout::fromData($layoutData);
+
+        $this->client->updateLayout($broadcastId, $layout, 'broadcast');
+    }
+
+    public function updateStream($sessionId, $streamId, $properties = array())
+    {
+        // unpack optional arguments (merging with default values) into named variables
+        $defaults = array(
+            'layoutClassList' => array()
+        );
+        $properties = array_merge($defaults, array_intersect_key($properties, $defaults));
+        list($layoutClassList) = array_values($properties);
+
+        // validate arguments
+        Validators::validateSessionId($sessionId);
+        Validators::validateStreamId($streamId);
+        Validators::validateLayoutClassList($layoutClassList, 'JSON');
+
+        // make API call
+        $this->client->updateStream($sessionId, $streamId, $properties);
     }
 
     /** @internal */

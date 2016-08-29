@@ -1,17 +1,21 @@
 <?php
 
 use Guzzle\Plugin\Mock\MockPlugin;
+use Guzzle\Plugin\Log\LogPlugin;
 
 use OpenTok\OpenTok;
 use OpenTok\OpenTokTestCase;
 use OpenTok\Session;
 use OpenTok\Role;
+use OpenTok\Layout;
 use OpenTok\MediaMode;
 use OpenTok\ArchiveMode;
 use OpenTok\OutputMode;
 use OpenTok\Util\Client;
 
 use OpenTok\TestHelpers;
+
+// define('DEBUG', true);
 
 class OpenTokTest extends PHPUnit_Framework_TestCase
 {
@@ -34,6 +38,10 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->API_SECRET = defined('API_SECRET') ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
 
         $this->client = new Client();
+        if (defined('DEBUG')) {
+            $this->client->addSubscriber(LogPlugin::getDebugPlugin());
+        }
+
         $this->opentok = new OpenTok($this->API_KEY, $this->API_SECRET, array('client' => $this->client));
 
     }
@@ -824,5 +832,264 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('OpenTok\Archive', $archive);
         $this->assertEquals("expired", $archive->status);
     }
+
+    public function testStartsBroadcast()
+    {
+        // Arrange
+        $mock = new MockPlugin();
+        $response = MockPlugin::getMockFile(
+            self::$mockBasePath . '/v2/project/APIKEY/broadcast/session_layout-bestfit'
+        );
+        $mock->addResponse($response);
+        $this->client->addSubscriber($mock);
+
+        // This sessionId was generated using a different apiKey, but this method doesn't do any
+        // decoding to check, so its fine.
+        $sessionId = '2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4';
+
+        // Act
+        $broadcast = $this->opentok->startBroadcast($sessionId);
+
+        // Assert
+        $requests = $mock->getReceivedRequests();
+        $this->assertCount(1, $requests);
+
+        $request = $requests[0];
+        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/broadcast', $request->getPath());
+        $this->assertEquals('api.opentok.com', $request->getHost());
+        $this->assertEquals('https', $request->getScheme());
+
+        $contentType = $request->getHeader('Content-Type');
+        $this->assertNotEmpty($contentType);
+        $this->assertEquals('application/json', $contentType);
+
+        $authString = $request->getHeader('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        // TODO: test the dynamically built User Agent string
+        $userAgent = $request->getHeader('User-Agent');
+        $this->assertNotEmpty($userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.3.3-alpha.1', $userAgent->__toString());
+
+        $this->assertInstanceOf('OpenTok\Broadcast', $broadcast);
+        $this->assertInternalType('string', $broadcast->id);
+        $this->assertEquals($sessionId, $broadcast->sessionId);
+        $this->assertInternalType('array', $broadcast->broadcastUrls);
+        $this->assertArrayHasKey('hls', $broadcast->broadcastUrls);
+        $this->assertInternalType('string', $broadcast->broadcastUrls['hls']);
+        $this->assertInternalType('string', $broadcast->hlsUrl);
+        $this->assertFalse($broadcast->isStopped);
+    }
+
+    // TODO: test startBroadcast with layout
+
+    public function testStopsBroadcast()
+    {
+        // Arrange
+        $mock = new MockPlugin();
+        $response = MockPlugin::getMockFile(
+            self::$mockBasePath . '/v2/project/APIKEY/broadcast/BROADCASTID/stop'
+        );
+        $mock->addResponse($response);
+        $this->client->addSubscriber($mock);
+
+        $broadcastId = 'BROADCASTID';
+
+        // Act
+        $broadcast = $this->opentok->stopBroadcast($broadcastId);
+
+        // Assert
+        $requests = $mock->getReceivedRequests();
+        $this->assertCount(1, $requests);
+
+        $request = $requests[0];
+        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/broadcast/'.$broadcastId.'/stop', $request->getPath());
+        $this->assertEquals('api.opentok.com', $request->getHost());
+        $this->assertEquals('https', $request->getScheme());
+
+        $authString = $request->getHeader('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        // TODO: test the dynamically built User Agent string
+        $userAgent = $request->getHeader('User-Agent');
+        $this->assertNotEmpty($userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.3.3-alpha.1', $userAgent->__toString());
+
+        $this->assertInstanceOf('OpenTok\Broadcast', $broadcast);
+        $this->assertTrue($broadcast->isStopped);
+    }
+
+    public function testGetsBroadcast()
+    {
+        // Arrange
+        $mock = new MockPlugin();
+        $response = MockPlugin::getMockFile(
+            self::$mockBasePath . '/v2/project/APIKEY/broadcast/BROADCASTID/get'
+        );
+        $mock->addResponse($response);
+        $this->client->addSubscriber($mock);
+
+        $broadcastId = 'BROADCASTID';
+
+        // Act
+        $broadcast = $this->opentok->getBroadcast($broadcastId);
+
+        // Assert
+        $requests = $mock->getReceivedRequests();
+        $this->assertCount(1, $requests);
+
+        $request = $requests[0];
+        $this->assertEquals('GET', strtoupper($request->getMethod()));
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/broadcast/'.$broadcastId, $request->getPath());
+        $this->assertEquals('api.opentok.com', $request->getHost());
+        $this->assertEquals('https', $request->getScheme());
+
+        $authString = $request->getHeader('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        // TODO: test the dynamically built User Agent string
+        $userAgent = $request->getHeader('User-Agent');
+        $this->assertNotEmpty($userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.3.3-alpha.1', $userAgent->__toString());
+
+        $this->assertInstanceOf('OpenTok\Broadcast', $broadcast);
+    }
+
+    public function testUpdatesBroadcastLayoutWithPredefined()
+    {
+        // Arrange
+        $mock = new MockPlugin();
+        $response = MockPlugin::getMockFile(
+            self::$mockBasePath . '/v2/project/APIKEY/broadcast/BROADCASTID/layout/type-pip'
+        );
+        $mock->addResponse($response);
+        $this->client->addSubscriber($mock);
+
+        $broadcastId = 'BROADCASTID';
+        $layout = Layout::getPIP();
+
+        // Act
+        $this->opentok->updateBroadcastLayout($broadcastId, $layout);
+
+        // Assert
+        $requests = $mock->getReceivedRequests();
+        $this->assertCount(1, $requests);
+
+        $request = $requests[0];
+        $this->assertEquals('PUT', strtoupper($request->getMethod()));
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/broadcast/'.$broadcastId.'/layout', $request->getPath());
+        $this->assertEquals('api.opentok.com', $request->getHost());
+        $this->assertEquals('https', $request->getScheme());
+
+        $contentType = $request->getHeader('Content-Type');
+        $this->assertNotEmpty($contentType);
+        $this->assertEquals('application/json', $contentType);
+
+        $authString = $request->getHeader('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        $body = json_decode($request->getBody());
+        $this->assertEquals('pip', $body->type);
+
+        // TODO: test the dynamically built User Agent string
+        $userAgent = $request->getHeader('User-Agent');
+        $this->assertNotEmpty($userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.3.3-alpha.1', $userAgent->__toString());
+    }
+
+    public function testUpdatesBroadcastLayoutWithCustom()
+    {
+        // Arrange
+        $mock = new MockPlugin();
+        $response = MockPlugin::getMockFile(
+            self::$mockBasePath . '/v2/project/APIKEY/broadcast/BROADCASTID/layout/type-custom'
+        );
+        $mock->addResponse($response);
+        $this->client->addSubscriber($mock);
+
+        $broadcastId = 'BROADCASTID';
+        $stylesheet = '.classname { height: 1px; width: 1px }';
+        $layout = Layout::createCustom(array(
+            'stylesheet' => $stylesheet
+        ));
+
+        // Act
+        $this->opentok->updateBroadcastLayout($broadcastId, $layout);
+
+        // Assert
+        $requests = $mock->getReceivedRequests();
+        $this->assertCount(1, $requests);
+
+        $request = $requests[0];
+        $this->assertEquals('PUT', strtoupper($request->getMethod()));
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/broadcast/'.$broadcastId.'/layout', $request->getPath());
+        $this->assertEquals('api.opentok.com', $request->getHost());
+        $this->assertEquals('https', $request->getScheme());
+
+        $contentType = $request->getHeader('Content-Type');
+        $this->assertNotEmpty($contentType);
+        $this->assertEquals('application/json', $contentType);
+
+        $authString = $request->getHeader('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        $body = json_decode($request->getBody());
+        $this->assertEquals('custom', $body->type);
+        $this->assertEquals($stylesheet, $body->stylesheet);
+
+        // TODO: test the dynamically built User Agent string
+        $userAgent = $request->getHeader('User-Agent');
+        $this->assertNotEmpty($userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.3.3-alpha.1', $userAgent->__toString());
+    }
+
+    public function testUpdatesStreamLayoutClassList()
+    {
+        // Arrange
+        $mock = new MockPlugin();
+        $response = MockPlugin::getMockFile(
+            self::$mockBasePath . '/v2/project/APIKEY/session/SESSIONID/stream/STREAMID/layoutClassList'
+        );
+        $mock->addResponse($response);
+        $this->client->addSubscriber($mock);
+
+        $sessionId = 'SESSIONID';
+        $streamId = 'STREAMID';
+        $layoutClassList = ['foo', 'bar'];
+
+        // Act
+        $this->opentok->updateStream($sessionId, $streamId, array(
+            'layoutClassList' => $layoutClassList
+        ));
+
+        // Assert
+        $requests = $mock->getReceivedRequests();
+        $this->assertCount(1, $requests);
+
+        $request = $requests[0];
+        $this->assertEquals('PUT', strtoupper($request->getMethod()));
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/session/'.$sessionId.'/stream/'.$streamId, $request->getPath());
+        $this->assertEquals('api.opentok.com', $request->getHost());
+        $this->assertEquals('https', $request->getScheme());
+
+        $contentType = $request->getHeader('Content-Type');
+        $this->assertNotEmpty($contentType);
+        $this->assertEquals('application/json', $contentType);
+
+        $authString = $request->getHeader('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        $body = json_decode($request->getBody());
+        $this->assertEquals($layoutClassList, $body->layoutClassList);
+
+        // TODO: test the dynamically built User Agent string
+        $userAgent = $request->getHeader('User-Agent');
+        $this->assertNotEmpty($userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.3.3-alpha.1', $userAgent->__toString());
+    }
+
+
 }
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/
