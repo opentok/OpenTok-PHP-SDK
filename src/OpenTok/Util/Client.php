@@ -221,6 +221,38 @@ class Client extends \Guzzle\Http\Client
         }
     }
 
+    public function dial($sessionId, $token, $sipUri, $options)
+    {
+        $body = array(
+          'sessionId' => $sessionId,
+          'token' => $token,
+          'sip' => array(
+            'uri' => $sipUri,
+            'secure' => $options['secure']
+          )
+        );
+
+        if (isset($options) && array_key_exists('headers', $options) && sizeof($options['headers']) > 0) {
+            $body['headers'] = $options['headers'];
+        }
+
+        if (isset($options) && array_key_exists('auth', $options)) {
+            $body['auth'] = $options['auth'];
+        }
+
+        // set up the request
+        $request = $this->post('/v2/partner/'.$this->apiKey.'/call');
+        $request->setBody(json_encode($body));
+        $request->setHeader('Content-Type', 'application/json');
+
+        try {
+            $sipJson = $request->send()->json();
+        } catch (\Exception $e) {
+            $this->handleException($e);
+        }
+        return $sipJson;
+    }
+
     // Helpers
 
     private function postFieldsForOptions($options)
@@ -268,7 +300,7 @@ class Client extends \Guzzle\Http\Client
             );
         } else {
             // TODO: check if this works because Exception is an interface not a class
-            throw new Exception('An unexpected error occurred');
+            throw new \Exception('An unexpected error occurred');
         }
     }
 

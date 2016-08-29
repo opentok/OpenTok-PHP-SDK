@@ -1091,5 +1091,58 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
     }
 
 
+    public function testSipCall()
+    {
+      // Arrange
+      $mock = new MockPlugin();
+      $response = MockPlugin::getMockFile(
+          self::$mockBasePath . 'v2/partner/APIKEY/dial'
+      );
+      $mock->addResponse($response);
+      $this->client->addSubscriber($mock);
+
+      $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+      $bogusApiKey = '12345678';
+      $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+      $bogusToken = 'T1==TEST';
+      $bogusSipUri = 'sip:john@doe.com';
+      $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+
+      // Act
+      $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri);
+
+      // Assert
+      $this->assertInstanceOf('OpenTok\SipCall', $sipCall);
+      $this->assertNotNull($sipCall->id);
+      $this->assertNotNull($sipCall->connectionId);
+      $this->assertNotNull($sipCall->streamId);
+    }
+
+    public function testFailedSipCall()
+    {
+      // Arrange
+      $mock = new MockPlugin();
+      $response = MockPlugin::getMockFile(
+          self::$mockBasePath . 'v2/partner/APIKEY/dial-failed'
+      );
+      $mock->addResponse($response);
+      $this->client->addSubscriber($mock);
+
+      $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+      $bogusApiKey = '12345678';
+      $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+      $bogusToken = 'T1==TEST';
+      $bogusSipUri = 'sip:john@doe.com';
+      $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+
+      $sipCall = null;
+      // Act
+      try {
+          $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri);
+          $this->assertNull($sipCall);
+      } catch (\Exception $e) {
+          $this->assertNull($sipCall);
+      }
+    }
 }
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/

@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Sat, 08 Mar 2014 23:25:13 GMT
+Content-Type: application/json
+Transfer-Encoding: chunked
+Connection: keep-alive
+
+{
+  "id" : "1bae377f-d620-4e58-86c0-5a37364eec0c",
+  "connectionId" : "da9cb410-e29b-4c2d-ab9e-fe65bf83fcaf",
+  "streamId" : "e6f13213-22cb-45de-b71d-af7cef329954"
+}

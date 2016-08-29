@@ -1,0 +1,21 @@
+#!/bin/sh
+
+if [ -z "$API_KEY" ] || [ -z "$API_SECRET" ]
+then
+  # OpenTok Project Configuration (find these at https://tokbox.com/account)
+  export API_KEY=
+  export API_SECRET=
+
+  # SIP Destination Configuration (find these with your SIP server provider)
+  export SIP_URI=sip:
+  export SIP_USERNAME=
+  export SIP_PASSWORD=
+  export SIP_SECURE=false
+fi
+
+if [ -d "cache" ]
+then
+  rm -rf cache/
+fi
+
+php -S localhost:8080 -t web web/index.php
