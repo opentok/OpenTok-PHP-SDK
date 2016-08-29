@@ -1057,7 +1057,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
 
         $sessionId = 'SESSIONID';
         $streamId = 'STREAMID';
-        $layoutClassList = ['foo', 'bar'];
+        $layoutClassList = array('foo', 'bar');
 
         // Act
         $this->opentok->updateStream($sessionId, $streamId, array(
