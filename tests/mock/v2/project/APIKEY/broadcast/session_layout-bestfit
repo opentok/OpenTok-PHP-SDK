@@ -1,0 +1,20 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Mon, 29 Aug 2016 01:54:20 GMT
+Content-Type: application/json
+Connection: keep-alive
+Content-Length: 372
+Strict-Transport-Security: max-age=31536000; includeSubdomains
+
+{
+  "id":"6706b658-2eba-42cc-b4d2-7d01a104d182",
+  "sessionId":"2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4",
+  "projectId":854511,
+  "createdAt":1472435659497,
+  "broadcastUrls":{
+    "hls":"https://cdn-broadcast001-dub.tokbox.com/29908/29908_6706b658-2eba-42cc-b4d2-7d01a104d182.smil/playlist.m3u8"
+  },
+  "updatedAt":1472435660268,
+  "status":"started",
+  "partnerId":854511
+}

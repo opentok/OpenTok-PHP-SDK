@@ -76,6 +76,7 @@ use OpenTok\Exception\ArchiveUnexpectedValueException;
 * 10 minutes. To generate a new URL, call the Archive.listArchives() or OpenTok.getArchive() method.
 */
 class Archive {
+    // NOTE: after PHP 5.3.0 support is dropped, the class can implement JsonSerializable
 
     /** @internal */
     private $data;
@@ -196,13 +197,20 @@ class Archive {
      */
     public function toJson()
     {
-        return json_encode($this->data);
+        return json_encode($this->jsonSerialize());
     }
 
     /**
      * Returns an associative array representation of this Archive object.
+     * @deprecated 3.0.0 A more standard name for this method is supplied by JsonSerializable
+     * @see Archive::jsonSerialize() for a method with the same behavior
      */
     public function toArray()
+    {
+        return $this->data;
+    }
+
+    public function jsonSerialize()
     {
         return $this->data;
     }

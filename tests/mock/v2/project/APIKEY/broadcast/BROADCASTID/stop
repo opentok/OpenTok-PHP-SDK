@@ -1,0 +1,18 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Mon, 29 Aug 2016 01:58:49 GMT
+Content-Type: application/json
+Connection: keep-alive
+Content-Length: 259
+Strict-Transport-Security: max-age=31536000; includeSubdomains
+
+{
+  "id":"6706b658-2eba-42cc-b4d2-7d01a104d182",
+  "sessionId":"2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4",
+  "projectId":854511,
+  "createdAt":1472435660275,
+  "broadcastUrls":null,
+  "updatedAt":1472435660275,
+  "status":"stopped",
+  "partnerId":854511
+}
