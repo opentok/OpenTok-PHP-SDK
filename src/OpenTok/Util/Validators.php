@@ -3,6 +3,7 @@
 namespace OpenTok\Util;
 
 use OpenTok\Util\Client;
+use OpenTok\Layout;
 use OpenTok\Role;
 use OpenTok\MediaMode;
 use OpenTok\ArchiveMode;
@@ -20,8 +21,8 @@ use JohnStevenson\JsonWorks\Utils as JsonUtils;
 class Validators
 {
     static $guidRegEx = '/^\[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}\$/';
-    static $schemaStore;
-    static $schemaUri;
+    static $archiveSchemaUri;
+    static $broadcastSchemaUri;
 
     public static function validateApiKey($apiKey)
     {
@@ -146,12 +147,12 @@ class Validators
     }
     public static function validateArchiveData($archiveData)
     {
-        if (!self::$schemaUri) { self::$schemaUri = __DIR__.'/archive-schema.json'; }
+        if (!self::$archiveSchemaUri) { self::$archiveSchemaUri = __DIR__.'/archive-schema.json'; }
         $document = new Document();
         // have to do a encode+decode so that json objects decoded as arrays from Guzzle
         // are re-encoded as objects instead
         $document->loadData(json_decode(json_encode($archiveData)));
-        $document->loadSchema(self::$schemaUri);
+        $document->loadSchema(self::$archiveSchemaUri);
         // JSON Pointers are supported for the validation using this library, this is a hack
         $document->loadSchema(JsonUtils::get(JsonUtils::get($document->schema->data, 'definitions'), 'archive'));
         if (!$document->validate()) {
@@ -162,12 +163,12 @@ class Validators
     }
     public static function validateArchiveListData($archiveListData)
     {
-        if (!self::$schemaUri) { self::$schemaUri = __DIR__.'/archive-schema.json'; }
+        if (!self::$archiveSchemaUri) { self::$archiveSchemaUri = __DIR__.'/archive-schema.json'; }
         $document = new Document();
         // have to do a encode+decode so that json objects decoded as arrays from Guzzle
         // are re-encoded as objects instead
         $document->loadData(json_decode(json_encode($archiveListData)));
-        $document->loadSchema(self::$schemaUri);
+        $document->loadSchema(self::$archiveSchemaUri);
         if (!$document->validate()) {
             throw new InvalidArgumentException(
                 'The archive data provided is not valid. Errors:'.$document->lastError.' archiveData:'.print_r($archiveData, true)
@@ -226,8 +227,64 @@ class Validators
             );
         }
     }
+    public static function validateBroadcastData($broadcastData)
+    {
+        if (!self::$broadcastSchemaUri) { self::$broadcastSchemaUri = __DIR__.'/broadcast-schema.json'; }
+        $document = new Document();
+        // have to do a encode+decode so that json objects decoded as arrays from Guzzle
+        // are re-encoded as objects instead
+        $document->loadData(json_decode(json_encode($broadcastData)));
+        $document->loadSchema(self::$broadcastSchemaUri);
+        if (!$document->validate()) {
+            throw new InvalidArgumentException(
+                'The broadcast data provided is not valid. Errors:'.$document->lastError.' broadcastData:'.print_r($broadcastData, true)
+            );
+        }
+    }
+    public static function validateBroadcastId($broadcastId)
+    {
+        if ( !is_string($broadcastId) || preg_match(self::$guidRegEx, $broadcastId) ) {
+            throw new InvalidArgumentException(
+                'The broadcastId was not valid. broadcastId:'.print_r($broadcastId, true)
+            );
+        }
+    }
+    public static function validateLayout($layout)
+    {
+        if (!($layout instanceof Layout)) {
+            throw new InvalidArgumentException(
+                'The layout parameter must be an instance of OpenTok\Layout. layout:'.print_r($layout, true)
+            );
+        }
+    }
+    public static function validateLayoutStylesheet($stylesheet)
+    {
+        if (!(is_string($stylesheet))) {
+            throw new InvalidArgumentException('The stylesheet was not a string: '.print_r($stylesheet, true));
+        }
+    }
+    public static function validateStreamId($streamId)
+    {
+        if (!(is_string($streamId))) {
+            throw new InvalidArgumentException('The streamId was not a string: '.print_r($streamId, true));
+        }
+    }
+    public static function validateLayoutClassList($layoutClassList, $format = 'JSON')
+    {
+        if ($format === 'JSON') {
+            if (!is_array($layoutClassList) || self::isAssoc($layoutClassList)) {
+                throw new InvalidArgumentException('The layoutClassList was not a valid JSON array: '.print_r($layoutClassList, true));
+            }
+        }
+    }
 
     // Helpers
+
+    // credit: http://stackoverflow.com/a/173479
+    protected static function isAssoc($arr)
+    {
+        return array_keys($arr) !== range(0, count($arr) - 1);
+    }
 
     protected static function decodeSessionId($sessionId)
     {
