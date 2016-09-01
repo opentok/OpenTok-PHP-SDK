@@ -22,7 +22,7 @@ use OpenTok\Exception\BroadcastAuthenticationException;
 
 // TODO: build this dynamically
 /** @internal */
-define('OPENTOK_SDK_VERSION', '2.4.0');
+define('OPENTOK_SDK_VERSION', '2.4.1-alpha.1');
 /** @internal */
 define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
 
