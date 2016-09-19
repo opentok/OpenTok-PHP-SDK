@@ -141,7 +141,7 @@ $archive = $opentok->startArchive($sessionId, $archiveOptions);
 $archiveId = $archive->id;
 ```
 
-Setting the output mode to `OutputMode::INDIVIDUAL` setting causes each stream in the archive to be recorded to its own individual file. The `OutputMode::COMPOSED` setting (the default) causes all streams in the archive are recorded to a single (composed) file.
+Setting the output mode to `OutputMode::INDIVIDUAL` setting causes each stream in the archive to be recorded to its own individual file. The `OutputMode::COMPOSED` setting (the default) causes all streams in the archive to be recorded to a single (composed) file.
 
 You can stop the recording of a started Archive using the `stopArchive($archiveId)` method of the
 `OpenTok\OpenTok` object. You can also do this using the `stop()` method of the
