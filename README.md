@@ -52,7 +52,7 @@ $opentok = new OpenTok($apiKey, $apiSecret);
 To create an OpenTok Session, use the `createSession($options)` method of the
 `OpenTok\OpenTok` class. The `$options` parameter is an optional array used to specify the following:
 
-* Setting whether the session will use the OpenTok Media Router or attempt send streams directly
+* Setting whether the session will use the OpenTok Media Router or attempt to send streams directly
   between clients.
 
 * Setting whether the session will automatically create archives (implies use of routed session)
