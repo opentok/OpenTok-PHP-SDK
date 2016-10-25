@@ -1118,6 +1118,48 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
       $this->assertNotNull($sipCall->streamId);
     }
 
+    public function testSipCallWithAuth()
+    {
+      // Arrange
+      $mock = new MockPlugin();
+      $response = MockPlugin::getMockFile(
+          self::$mockBasePath . 'v2/partner/APIKEY/dial'
+      );
+      $mock->addResponse($response);
+      $this->client->addSubscriber($mock);
+
+      $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+      $bogusApiKey = '12345678';
+      $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+      $bogusToken = 'T1==TEST';
+      $bogusSipUri = 'sip:john@doe.com';
+      $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+
+      $auth = array(
+        'username' => 'john',
+        'password' => 'doe'
+      );
+
+      // Act
+      $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri, array(
+        'auth' => $auth
+      ));
+
+      // Assert
+      $this->assertInstanceOf('OpenTok\SipCall', $sipCall);
+      $this->assertNotNull($sipCall->id);
+      $this->assertNotNull($sipCall->connectionId);
+      $this->assertNotNull($sipCall->streamId);
+
+      $requests = $mock->getReceivedRequests();
+      $this->assertCount(1, $requests);
+      $request = $requests[0];
+
+      $body = json_decode($request->getBody());
+      $this->assertEquals($auth['username'], $body->sip->auth->username);
+      $this->assertEquals($auth['password'], $body->sip->auth->password);
+    }
+
     public function testFailedSipCall()
     {
       // Arrange

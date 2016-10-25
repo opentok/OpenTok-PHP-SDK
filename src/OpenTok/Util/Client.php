@@ -233,11 +233,11 @@ class Client extends \Guzzle\Http\Client
         );
 
         if (isset($options) && array_key_exists('headers', $options) && sizeof($options['headers']) > 0) {
-            $body['headers'] = $options['headers'];
+            $body['sip']['headers'] = $options['headers'];
         }
 
         if (isset($options) && array_key_exists('auth', $options)) {
-            $body['auth'] = $options['auth'];
+            $body['sip']['auth'] = $options['auth'];
         }
 
         // set up the request
