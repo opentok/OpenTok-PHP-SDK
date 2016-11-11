@@ -38,9 +38,8 @@ use OpenTok\Exception\ArchiveUnexpectedValueException;
 * The API key associated with the archive.
 *
 * @property string $reason
-* For archives with the status "stopped", this can be set to "maximum duration
-* exceeded", "maximum idle time exceeded", "session ended", "user initiated". For archives with
-* the status "failed", this can be set to "failure".
+* For archives with the status "stopped" or "failed", this string describes the reason
+* the archive stopped (such as "maximum duration exceeded") or failed.
 *
 * @property string $sessionId
 * The session ID of the OpenTok session associated with this archive.
