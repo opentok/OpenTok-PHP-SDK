@@ -331,7 +331,7 @@ class OpenTok {
      * @param String $archiveId The archive ID.
      *
      * @throws ArchiveException There is no archive with the specified ID.
-     * @throws OpenTokArgumentException The archive ID provided is null or an empty string.
+     * @throws InvalidArgumentException The archive ID provided is null or an empty string.
      *
      * @return Archive The Archive object.
      */
