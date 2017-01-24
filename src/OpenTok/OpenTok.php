@@ -391,7 +391,7 @@ class OpenTok {
         Validators::validateSessionId($sessionId);
         Validators::validateConnectionId($connectionId);
 
-        return $this->client->forceDisconnect($archiveId, $connectionId);
+        return $this->client->forceDisconnect($sessionId, $connectionId);
     }
 
     public function startBroadcast($sessionId, $options=array())
