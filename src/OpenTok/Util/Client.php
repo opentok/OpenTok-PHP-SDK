@@ -132,7 +132,7 @@ class Client extends \Guzzle\Http\Client
     
     public function forceDisconnect($sessionId,$connectionId)
     {
-        $request = $this->delete('/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/stream/'.$connectionId);
+        $request = $this->delete('/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/connection/'.$connectionId);
         $request->setHeader('Content-Type', 'application/json');
         try {
             $request->send()->json();
