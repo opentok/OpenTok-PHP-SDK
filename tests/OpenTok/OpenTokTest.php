@@ -397,7 +397,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // Arrange
         $mock = new MockPlugin();
         $response = MockPlugin::getMockFile(
-            self::$mockBasePath . 'v2/partner/APIKEY/archive/session'
+            self::$mockBasePath . 'v2/project/APIKEY/archive/session'
         );
         $mock->addResponse($response);
         $this->client->addSubscriber($mock);
@@ -415,7 +415,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
 
         $request = $requests[0];
         $this->assertEquals('POST', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/partner/'.$this->API_KEY.'/archive', $request->getPath());
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive', $request->getPath());
         $this->assertEquals('api.opentok.com', $request->getHost());
         $this->assertEquals('https', $request->getScheme());
 
@@ -447,7 +447,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // Arrange
         $mock = new MockPlugin();
         $response = MockPlugin::getMockFile(
-            self::$mockBasePath . 'v2/partner/APIKEY/archive/session_name-showtime'
+            self::$mockBasePath . 'v2/project/APIKEY/archive/session_name-showtime'
         );
         $mock->addResponse($response);
         $this->client->addSubscriber($mock);
@@ -465,7 +465,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
 
         $request = $requests[0];
         $this->assertEquals('POST', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/partner/'.$this->API_KEY.'/archive', $request->getPath());
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive', $request->getPath());
         $this->assertEquals('api.opentok.com', $request->getHost());
         $this->assertEquals('https', $request->getScheme());
 
@@ -495,7 +495,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // Arrange
         $mock = new MockPlugin();
         $response = MockPlugin::getMockFile(
-            self::$mockBasePath . 'v2/partner/APIKEY/archive/session_name-showtime'
+            self::$mockBasePath . 'v2/project/APIKEY/archive/session_name-showtime'
         );
         $mock->addResponse($response);
         $this->client->addSubscriber($mock);
@@ -513,7 +513,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
 
         $request = $requests[0];
         $this->assertEquals('POST', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/partner/'.$this->API_KEY.'/archive', $request->getPath());
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive', $request->getPath());
         $this->assertEquals('api.opentok.com', $request->getHost());
         $this->assertEquals('https', $request->getScheme());
 
@@ -542,7 +542,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // Arrange
         $mock = new MockPlugin();
         $response = MockPlugin::getMockFile(
-            self::$mockBasePath . 'v2/partner/APIKEY/archive/session_hasVideo-false'
+            self::$mockBasePath . 'v2/project/APIKEY/archive/session_hasVideo-false'
         );
         $mock->addResponse($response);
         $this->client->addSubscriber($mock);
@@ -560,7 +560,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
 
         $request = $requests[0];
         $this->assertEquals('POST', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/partner/'.$this->API_KEY.'/archive', $request->getPath());
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive', $request->getPath());
         $this->assertEquals('api.opentok.com', $request->getHost());
         $this->assertEquals('https', $request->getScheme());
 
@@ -590,7 +590,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
       // Arrange
       $mock = new MockPlugin();
       $response = MockPlugin::getMockFile(
-          self::$mockBasePath . 'v2/partner/APIKEY/archive/session_outputMode-individual'
+          self::$mockBasePath . 'v2/project/APIKEY/archive/session_outputMode-individual'
       );
       $mock->addResponse($response);
       $this->client->addSubscriber($mock);
@@ -610,7 +610,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
 
       $request = $requests[0];
       $this->assertEquals('POST', strtoupper($request->getMethod()));
-      $this->assertEquals('/v2/partner/'.$this->API_KEY.'/archive', $request->getPath());
+      $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive', $request->getPath());
       $this->assertEquals('api.opentok.com', $request->getHost());
       $this->assertEquals('https', $request->getScheme());
 
@@ -639,7 +639,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // Arrange
         $mock = new MockPlugin();
         $response = MockPlugin::getMockFile(
-            self::$mockBasePath . 'v2/partner/APIKEY/archive/ARCHIVEID/stop'
+            self::$mockBasePath . 'v2/project/APIKEY/archive/ARCHIVEID/stop'
         );
         $mock->addResponse($response);
         $this->client->addSubscriber($mock);
@@ -655,7 +655,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
 
         $request = $requests[0];
         $this->assertEquals('POST', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/partner/'.$this->API_KEY.'/archive/'.$archiveId.'/stop', $request->getPath());
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive/'.$archiveId.'/stop', $request->getPath());
         $this->assertEquals('api.opentok.com', $request->getHost());
         $this->assertEquals('https', $request->getScheme());
 
@@ -680,7 +680,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // Arrange
         $mock = new MockPlugin();
         $response = MockPlugin::getMockFile(
-            self::$mockBasePath . 'v2/partner/APIKEY/archive/ARCHIVEID/get'
+            self::$mockBasePath . 'v2/project/APIKEY/archive/ARCHIVEID/get'
         );
         $mock->addResponse($response);
         $this->client->addSubscriber($mock);
@@ -696,7 +696,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
 
         $request = $requests[0];
         $this->assertEquals('GET', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/partner/'.$this->API_KEY.'/archive/'.$archiveId, $request->getPath());
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive/'.$archiveId, $request->getPath());
         $this->assertEquals('api.opentok.com', $request->getHost());
         $this->assertEquals('https', $request->getScheme());
 
@@ -719,7 +719,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // Arrange
         $mock = new MockPlugin();
         $response = MockPlugin::getMockFile(
-            self::$mockBasePath . 'v2/partner/APIKEY/archive/ARCHIVEID/delete'
+            self::$mockBasePath . 'v2/project/APIKEY/archive/ARCHIVEID/delete'
         );
         $mock->addResponse($response);
         $this->client->addSubscriber($mock);
@@ -735,7 +735,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
 
         $request = $requests[0];
         $this->assertEquals('DELETE', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/partner/'.$this->API_KEY.'/archive/'.$archiveId, $request->getPath());
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive/'.$archiveId, $request->getPath());
         $this->assertEquals('api.opentok.com', $request->getHost());
         $this->assertEquals('https', $request->getScheme());
 
@@ -760,7 +760,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // Arrange
         $mock = new MockPlugin();
         $response = MockPlugin::getMockFile(
-            self::$mockBasePath . 'v2/partner/APIKEY/archive/get'
+            self::$mockBasePath . 'v2/project/APIKEY/archive/get'
         );
         $mock->addResponse($response);
         $this->client->addSubscriber($mock);
@@ -774,7 +774,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
 
         $request = $requests[0];
         $this->assertEquals('GET', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/partner/'.$this->API_KEY.'/archive', $request->getPath());
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive', $request->getPath());
         $this->assertEquals('api.opentok.com', $request->getHost());
         $this->assertEquals('https', $request->getScheme());
 
@@ -799,7 +799,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // Arrange
         $mock = new MockPlugin();
         $response = MockPlugin::getMockFile(
-            self::$mockBasePath . 'v2/partner/APIKEY/archive/get'
+            self::$mockBasePath . 'v2/project/APIKEY/archive/get'
         );
         $mock->addResponse($response);
         $this->client->addSubscriber($mock);
@@ -818,7 +818,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // Arrange
         $mock = new MockPlugin();
         $response = MockPlugin::getMockFile(
-            self::$mockBasePath . 'v2/partner/APIKEY/archive/ARCHIVEID/get-expired'
+            self::$mockBasePath . 'v2/project/APIKEY/archive/ARCHIVEID/get-expired'
         );
         $mock->addResponse($response);
         $this->client->addSubscriber($mock);
@@ -1096,7 +1096,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
       // Arrange
       $mock = new MockPlugin();
       $response = MockPlugin::getMockFile(
-          self::$mockBasePath . 'v2/partner/APIKEY/dial'
+          self::$mockBasePath . 'v2/project/APIKEY/dial'
       );
       $mock->addResponse($response);
       $this->client->addSubscriber($mock);
@@ -1123,7 +1123,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
       // Arrange
       $mock = new MockPlugin();
       $response = MockPlugin::getMockFile(
-          self::$mockBasePath . 'v2/partner/APIKEY/dial'
+          self::$mockBasePath . 'v2/project/APIKEY/dial'
       );
       $mock->addResponse($response);
       $this->client->addSubscriber($mock);
@@ -1165,7 +1165,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
       // Arrange
       $mock = new MockPlugin();
       $response = MockPlugin::getMockFile(
-          self::$mockBasePath . 'v2/partner/APIKEY/dial-failed'
+          self::$mockBasePath . 'v2/project/APIKEY/dial-failed'
       );
       $mock->addResponse($response);
       $this->client->addSubscriber($mock);
