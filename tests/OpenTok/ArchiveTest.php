@@ -84,7 +84,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         // Arrange
         $mock = new MockPlugin();
         $response = MockPlugin::getMockFile(
-            self::$mockBasePath . 'v2/partner/APIKEY/archive/ARCHIVEID/stop'
+            self::$mockBasePath . 'v2/project/APIKEY/archive/ARCHIVEID/stop'
         );
         $mock->addResponse($response);
         $this->client->addSubscriber($mock);
@@ -98,7 +98,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
 
         $request = $requests[0];
         $this->assertEquals('POST', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/partner/'.$this->API_KEY.'/archive/'.$this->archiveData['id'].'/stop', $request->getPath());
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive/'.$this->archiveData['id'].'/stop', $request->getPath());
         $this->assertEquals('api.opentok.com', $request->getHost());
         $this->assertEquals('https', $request->getScheme());
 
@@ -124,7 +124,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         // Arrange
         $mock = new MockPlugin();
         $response = MockPlugin::getMockFile(
-            self::$mockBasePath . 'v2/partner/APIKEY/archive/ARCHIVEID/delete'
+            self::$mockBasePath . 'v2/project/APIKEY/archive/ARCHIVEID/delete'
         );
         $mock->addResponse($response);
         $this->client->addSubscriber($mock);
@@ -140,7 +140,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
 
         $request = $requests[0];
         $this->assertEquals('DELETE', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/partner/'.$this->API_KEY.'/archive/'.$this->archiveData['id'], $request->getPath());
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive/'.$this->archiveData['id'], $request->getPath());
         $this->assertEquals('api.opentok.com', $request->getHost());
         $this->assertEquals('https', $request->getScheme());
 
