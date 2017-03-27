@@ -19,6 +19,7 @@ use OpenTok\Exception\BroadcastException;
 use OpenTok\Exception\BroadcastDomainException;
 use OpenTok\Exception\BroadcastUnexpectedValueException;
 use OpenTok\Exception\BroadcastAuthenticationException;
+use OpenTok\MediaMode;
 
 // TODO: build this dynamically
 /** @internal */
