@@ -424,7 +424,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeader('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString, $sessionId));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
