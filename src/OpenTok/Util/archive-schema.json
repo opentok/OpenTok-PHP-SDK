@@ -21,9 +21,6 @@
       "description": "An OpenTok Archive",
       "type": "object",
       "properties": {
-        "createdAt": {
-          "type" : "integer"
-        },
         "duration": {
           "type" : "integer",
           "minimum": 0
