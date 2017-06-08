@@ -41,7 +41,7 @@ session.on('archiveStopped', function(event) {
 });
 
 $(document).ready(function() {
-  $('.start').click(function (event) {
+  $('.start').click(function(event) {
     var options = $('.archive-options').serialize();
     disableForm();
     $.post('/start', options).fail(enableForm);
