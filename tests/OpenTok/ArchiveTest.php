@@ -84,7 +84,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         // Arrange
         $mock = new MockPlugin();
         $response = MockPlugin::getMockFile(
-            self::$mockBasePath . 'v2/partner/APIKEY/archive/ARCHIVEID/stop'
+            self::$mockBasePath . 'v2/project/APIKEY/archive/ARCHIVEID/stop'
         );
         $mock->addResponse($response);
         $this->client->addSubscriber($mock);
@@ -98,7 +98,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
 
         $request = $requests[0];
         $this->assertEquals('POST', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/partner/'.$this->API_KEY.'/archive/'.$this->archiveData['id'].'/stop', $request->getPath());
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive/'.$this->archiveData['id'].'/stop', $request->getPath());
         $this->assertEquals('api.opentok.com', $request->getHost());
         $this->assertEquals('https', $request->getScheme());
 
@@ -112,7 +112,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.3.3-alpha.1', $userAgent->__toString());
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.4.1-alpha.1', $userAgent->__toString());
 
         // TODO: test the properties of the actual archive object
         $this->assertEquals('stopped', $this->archive->status);
@@ -124,7 +124,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         // Arrange
         $mock = new MockPlugin();
         $response = MockPlugin::getMockFile(
-            self::$mockBasePath . 'v2/partner/APIKEY/archive/ARCHIVEID/delete'
+            self::$mockBasePath . 'v2/project/APIKEY/archive/ARCHIVEID/delete'
         );
         $mock->addResponse($response);
         $this->client->addSubscriber($mock);
@@ -140,7 +140,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
 
         $request = $requests[0];
         $this->assertEquals('DELETE', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/partner/'.$this->API_KEY.'/archive/'.$this->archiveData['id'], $request->getPath());
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive/'.$this->archiveData['id'], $request->getPath());
         $this->assertEquals('api.opentok.com', $request->getHost());
         $this->assertEquals('https', $request->getScheme());
 
@@ -154,7 +154,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.3.3-alpha.1', $userAgent->__toString());
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.4.1-alpha.1', $userAgent->__toString());
 
         $this->assertTrue($success);
         // TODO: assert that all properties of the archive object were cleared

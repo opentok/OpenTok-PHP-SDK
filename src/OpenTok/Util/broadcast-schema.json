@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Broadcast",
+  "description": "An OpenTok Broadcast",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$"
+    },
+    "sessionId": {
+      "type": "string"
+    },
+    "partnerId": {
+      "type": "integer"
+    },
+    "createdAt": {
+      "type" : "integer"
+    },
+    "updatedAt": {
+      "type" : "integer"
+    },
+    "broadcastUrls": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "hls": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "required": ["id", "sessionId", "partnerId", "createdAt", "updatedAt"]
+}

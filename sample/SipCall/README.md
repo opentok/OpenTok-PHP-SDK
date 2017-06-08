@@ -27,8 +27,7 @@ Finally, start the PHP CLI development server (requires PHP >= 5.4) using the `r
 $ ./run-demo
 ```
 
-Visit <http://localhost:8080> in your browser. Open it again in a second window. Smile! You've just
-set up a group chat. You can
+Visit <http://localhost:8080> in your browser.
 
 ## Walkthrough
 

@@ -16,7 +16,7 @@ Add this package (`opentok/opentok`) to your `composer.json` file, or just run t
 command line:
 
 ```
-$ ./composer.phar require opentok/opentok 2.3.x
+$ ./composer.phar require opentok/opentok 2.4.x
 ```
 
 ## Manually:
@@ -52,7 +52,7 @@ $opentok = new OpenTok($apiKey, $apiSecret);
 To create an OpenTok Session, use the `createSession($options)` method of the
 `OpenTok\OpenTok` class. The `$options` parameter is an optional array used to specify the following:
 
-* Setting whether the session will use the OpenTok Media Router or attempt send streams directly
+* Setting whether the session will use the OpenTok Media Router or attempt to send streams directly
   between clients.
 
 * Setting whether the session will automatically create archives (implies use of routed session)
@@ -141,7 +141,7 @@ $archive = $opentok->startArchive($sessionId, $archiveOptions);
 $archiveId = $archive->id;
 ```
 
-Setting the output mode to `OutputMode::INDIVIDUAL` setting causes each stream in the archive to be recorded to its own individual file. The `OutputMode::COMPOSED` setting (the default) causes all streams in the archive are recorded to a single (composed) file.
+Setting the output mode to `OutputMode::INDIVIDUAL` setting causes each stream in the archive to be recorded to its own individual file. The `OutputMode::COMPOSED` setting (the default) causes all streams in the archive to be recorded to a single (composed) file.
 
 You can stop the recording of a started Archive using the `stopArchive($archiveId)` method of the
 `OpenTok\OpenTok` object. You can also do this using the `stop()` method of the
