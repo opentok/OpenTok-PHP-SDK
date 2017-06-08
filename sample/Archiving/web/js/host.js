@@ -1,17 +1,27 @@
-var session = OT.initSession(sessionId),
+var session = OT.initSession(apiKey, sessionId),
     publisher = OT.initPublisher('publisher'),
     archiveID = null;
 
-session.connect(apiKey, token, function(error) {
-  if(error) {
-    console.error(error.message);
-    return;
+session.connect(token, function(error) {
+  if (error) {
+    console.error('Failed to connect', error);
+  } else {
+    session.publish(publisher, function(error) {
+      if (error) {
+        console.error('Failed to publish', error);
+      }
+    });
   }
-  session.publish(publisher);
 });
 
 session.on('streamCreated', function(event) {
-  session.subscribe(event.stream, 'subscribers', { insertMode: 'append' });
+  session.subscribe(event.stream, 'subscribers', {
+    insertMode: 'append'
+  }, function(error) {
+    if (error) {
+      console.error('Failed to subscribe', error);
+    }
+  });
 });
 
 session.on('archiveStarted', function(event) {

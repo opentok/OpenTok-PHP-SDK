@@ -1,4 +1,4 @@
-var session = OT.initSession(sessionId);
+var session = OT.initSession(apiKey, sessionId);
 session.on("streamCreated", function (event) {
   var tokenData = event.stream.connection.data;
   if (tokenData && tokenData.includes("sip=true")) {
@@ -6,14 +6,27 @@ session.on("streamCreated", function (event) {
   } else {
     var element = "webrtcPublisherContainer";
   }
-  session.subscribe(event.stream, element, { insertMode: "append" });
+  session.subscribe(event.stream, element, {
+    insertMode: "append"
+  }, function(error) {
+    if (error) {
+      console.error('Failed to subscribe', error);
+    }
+  });
 })
-.connect(apiKey, token, function (err) {
-  if (err) return;
+.connect(token, function (error) {
+  if (error) {
+    console.error('Failed to connect', error);
+    return;
+  }
   session.publish("selfPublisherContainer", {
     insertMode: "append",
     height: "120px",
     width: "160px"
+  }, function(error) {
+    if (error) {
+      console.error('Failed to publish', error);
+    }
   });
 });
 $('#startSip').click(function (event) {
