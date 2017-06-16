@@ -4,6 +4,8 @@ namespace OpenTok;
 
 use OpenTok\Exception\BroadcastDomainException;
 use OpenTok\Exception\BroadcastUnexpectedValueException;
+use OpenTok\Exception\InvalidArgumentException;
+use OpenTok\Util\Client;
 use OpenTok\Util\Validators;
 
 class Broadcast {

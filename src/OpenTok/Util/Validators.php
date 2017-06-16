@@ -179,7 +179,7 @@ class Validators
         $document->loadSchema(self::$archiveSchemaUri);
         if (!$document->validate()) {
             throw new InvalidArgumentException(
-                'The archive data provided is not valid. Errors:'.$document->lastError.' archiveData:'.print_r($archiveData, true)
+                'The archive data provided is not valid. Errors:'.$document->lastError.' archiveData:'.print_r($archiveListData, true)
             );
         }
     }
