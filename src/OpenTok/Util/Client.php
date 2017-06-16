@@ -23,7 +23,7 @@ use OpenTok\MediaMode;
 
 // TODO: build this dynamically
 /** @internal */
-define('OPENTOK_SDK_VERSION', '2.4.1-alpha.1');
+define('OPENTOK_SDK_VERSION', '2.5.0');
 /** @internal */
 define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
 
@@ -79,7 +79,7 @@ class Client extends \Guzzle\Http\Client
     public function startArchive($sessionId, $options)
     {
         // set up the request
-        $request = $this->post('/v2/partner/'.$this->apiKey.'/archive');
+        $request = $this->post('/v2/project/'.$this->apiKey.'/archive');
         $request->setBody(json_encode(array_merge(array( 'sessionId' => $sessionId ), $options)));
         $request->setHeader('Content-Type', 'application/json');
 
@@ -94,7 +94,7 @@ class Client extends \Guzzle\Http\Client
     public function stopArchive($archiveId)
     {
         // set up the request
-        $request = $this->post('/v2/partner/'.$this->apiKey.'/archive/'.$archiveId.'/stop');
+        $request = $this->post('/v2/project/'.$this->apiKey.'/archive/'.$archiveId.'/stop');
         $request->setHeader('Content-Type', 'application/json');
 
         try {
@@ -108,7 +108,7 @@ class Client extends \Guzzle\Http\Client
 
     public function getArchive($archiveId)
     {
-        $request = $this->get('/v2/partner/'.$this->apiKey.'/archive/'.$archiveId);
+        $request = $this->get('/v2/project/'.$this->apiKey.'/archive/'.$archiveId);
         try {
             $archiveJson = $request->send()->json();
         } catch (\Exception $e) {
@@ -120,7 +120,7 @@ class Client extends \Guzzle\Http\Client
 
     public function deleteArchive($archiveId)
     {
-        $request = $this->delete('/v2/partner/'.$this->apiKey.'/archive/'.$archiveId);
+        $request = $this->delete('/v2/project/'.$this->apiKey.'/archive/'.$archiveId);
         $request->setHeader('Content-Type', 'application/json');
         try {
             $request->send()->json();
@@ -133,7 +133,7 @@ class Client extends \Guzzle\Http\Client
 
     public function listArchives($offset, $count)
     {
-        $request = $this->get('/v2/partner/'.$this->apiKey.'/archive');
+        $request = $this->get('/v2/project/'.$this->apiKey.'/archive');
         if ($offset != 0) $request->getQuery()->set('offset', $offset);
         if (!empty($count)) $request->getQuery()->set('count', $count);
         try {
@@ -242,7 +242,7 @@ class Client extends \Guzzle\Http\Client
         }
 
         // set up the request
-        $request = $this->post('/v2/partner/'.$this->apiKey.'/call');
+        $request = $this->post('/v2/project/'.$this->apiKey.'/call');
         $request->setBody(json_encode($body));
         $request->setHeader('Content-Type', 'application/json');
 
