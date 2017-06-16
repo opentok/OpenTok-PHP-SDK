@@ -22,7 +22,7 @@ use OpenTok\Exception\BroadcastAuthenticationException;
 
 // TODO: build this dynamically
 /** @internal */
-define('OPENTOK_SDK_VERSION', '2.4.1-alpha.1');
+define('OPENTOK_SDK_VERSION', '2.5.0');
 /** @internal */
 define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
 
@@ -129,7 +129,7 @@ class Client extends \Guzzle\Http\Client
         }
         return true;
     }
-    
+
     public function forceDisconnect($sessionId,$connectionId)
     {
         $request = $this->delete('/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/connection/'.$connectionId);
