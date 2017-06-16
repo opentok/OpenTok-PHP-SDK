@@ -62,6 +62,14 @@ class Validators
             );
         }
     }
+    public static function validateConnectionId($connectionId)
+    {
+        if(!is_string($connectionId) || empty($connectionId)){
+            throw new InvalidArgumentException(
+                'Null or empty connection ID is not valid: '.print_r($connectionId, true)
+            );
+        }
+    }
     public static function validateRole($role)
     {
         if (!Role::isValidValue($role)) {

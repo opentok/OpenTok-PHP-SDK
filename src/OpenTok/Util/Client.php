@@ -131,6 +131,19 @@ class Client extends \Guzzle\Http\Client
         return true;
     }
 
+    public function forceDisconnect($sessionId,$connectionId)
+    {
+        $request = $this->delete('/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/connection/'.$connectionId);
+        $request->setHeader('Content-Type', 'application/json');
+        try {
+            $request->send()->json();
+        } catch (\Exception $e) {
+            $this->handleException($e);
+            return false;
+        }
+        return true;
+    }
+
     public function listArchives($offset, $count)
     {
         $request = $this->get('/v2/project/'.$this->apiKey.'/archive');

@@ -386,6 +386,14 @@ class OpenTok {
         return new ArchiveList($archiveListData, array( 'client' => $this->client ));
     }
 
+    public function forceDisconnect($sessionId, $connectionId)
+    {
+        Validators::validateSessionId($sessionId);
+        Validators::validateConnectionId($connectionId);
+
+        return $this->client->forceDisconnect($sessionId, $connectionId);
+    }
+
     public function startBroadcast($sessionId, $options=array())
     {
         // unpack optional arguments (merging with default values) into named variables

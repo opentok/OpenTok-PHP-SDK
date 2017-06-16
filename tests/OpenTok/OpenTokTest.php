@@ -833,6 +833,50 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals("expired", $archive->status);
     }
 
+	public function testForceDisconnect()
+	{
+        // Arrange
+        $mock = new MockPlugin();
+        $response = MockPlugin::getMockFile(
+            self::$mockBasePath . 'v2/project/APIKEY/session/SESSIONID/connection/CONNECTIONID/delete'
+        );
+        $mock->addResponse($response);
+        $this->client->addSubscriber($mock);
+
+        // This sessionId was generated using a different apiKey, but this method doesn't do any
+        // decoding to check, so its fine.
+        $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
+
+        $connectionId = '063e72a4-64b4-43c8-9da5-eca071daab89';
+
+        // Act
+        $success = $this->opentok->forceDisconnect($sessionId, $connectionId);
+
+        // Assert
+        $requests = $mock->getReceivedRequests();
+        $this->assertCount(1, $requests);
+
+        $request = $requests[0];
+        $this->assertEquals('DELETE', strtoupper($request->getMethod()));
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/session/'.$sessionId.'/connection/'.$connectionId, $request->getPath());
+        $this->assertEquals('api.opentok.com', $request->getHost());
+        $this->assertEquals('https', $request->getScheme());
+
+        $contentType = $request->getHeader('Content-Type');
+        $this->assertNotEmpty($contentType);
+        $this->assertEquals('application/json', $contentType);
+
+        $authString = $request->getHeader('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        // TODO: test the dynamically built User Agent string
+        $userAgent = $request->getHeader('User-Agent');
+        $this->assertNotEmpty($userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.5.0', $userAgent->__toString());
+
+        $this->assertTrue($success);
+    }
+
     public function testStartsBroadcast()
     {
         // Arrange
