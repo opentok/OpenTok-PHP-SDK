@@ -838,15 +838,19 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // Arrange
         $mock = new MockPlugin();
         $response = MockPlugin::getMockFile(
-            self::$mockBasePath . 'v2/project/APIKEY/connection/CONNECTIONID/delete'
+            self::$mockBasePath . 'v2/project/APIKEY/session/SESSIONID/connection/CONNECTIONID/delete'
         );
         $mock->addResponse($response);
         $this->client->addSubscriber($mock);
 
+        // This sessionId was generated using a different apiKey, but this method doesn't do any
+        // decoding to check, so its fine.
+        $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
+
         $connectionId = '063e72a4-64b4-43c8-9da5-eca071daab89';
 
         // Act
-        $success = $this->opentok->forceDisconnect($connectionId);
+        $success = $this->opentok->forceDisconnect($sessionId, $connectionId);
 
         // Assert
         $requests = $mock->getReceivedRequests();
@@ -854,7 +858,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
 
         $request = $requests[0];
         $this->assertEquals('DELETE', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/connection/'.$connectionId, $request->getPath());
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/session/'.$sessionId.'/connection/'.$connectionId, $request->getPath());
         $this->assertEquals('api.opentok.com', $request->getHost());
         $this->assertEquals('https', $request->getScheme());
 
@@ -868,7 +872,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeader('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.4.1-alpha.1', $userAgent->__toString());
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/2.5.0', $userAgent->__toString());
 
         $this->assertTrue($success);
     }
