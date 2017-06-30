@@ -123,7 +123,10 @@ class Client extends \Guzzle\Http\Client
         $request = $this->delete('/v2/project/'.$this->apiKey.'/archive/'.$archiveId);
         $request->setHeader('Content-Type', 'application/json');
         try {
-            $request->send()->json();
+            $response = $request->send();
+            if ($response->getStatusCode() != 204) {
+                $response->json();
+            }
         } catch (\Exception $e) {
             $this->handleException($e);
             return false;
@@ -136,7 +139,10 @@ class Client extends \Guzzle\Http\Client
         $request = $this->delete('/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/connection/'.$connectionId);
         $request->setHeader('Content-Type', 'application/json');
         try {
-            $request->send()->json();
+            $response = $request->send();
+            if ($response->getStatusCode() != 204) {
+                $response->json();
+            }
         } catch (\Exception $e) {
             $this->handleException($e);
             return false;
@@ -229,7 +235,10 @@ class Client extends \Guzzle\Http\Client
         $request->setBody(json_encode($properties));
         $request->setHeader('Content-Type', 'application/json');
         try {
-            $request->send()->json();
+            $response = $request->send();
+            if ($response->getStatusCode() != 204) {
+                $response->json();
+            }
         } catch (\Exception $e) {
             $this->handleException($e);
         }
