@@ -54,11 +54,13 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('OpenTok\OpenTok', $this->opentok);
     }
 
-    /**
-     * @expectedException PHPUnit_Framework_Error_Warning
-     */
     public function testFailsOnInvalidInitialization()
     {
+        if (class_exists('ArgumentCountError')) {
+          $this->expectException(ArgumentCountError::class);
+        } else {
+          $this->expectException(PHPUnit_Framework_Error_Warning::class);
+        }
         // Arrange
         $opentok = new OpenTok();
         // Act
