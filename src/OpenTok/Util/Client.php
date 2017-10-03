@@ -262,6 +262,9 @@ class Client extends \Guzzle\Http\Client
         if (isset($options) && array_key_exists('auth', $options)) {
             $body['sip']['auth'] = $options['auth'];
         }
+        if (isset($options) && array_key_exists('from', $options)) {
+            $body['sip']['from'] = $options['from'];
+        }
 
         // set up the request
         $request = $this->post('/v2/project/'.$this->apiKey.'/call');
