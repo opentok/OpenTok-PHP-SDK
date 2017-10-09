@@ -11,6 +11,9 @@ then
   export SIP_USERNAME=
   export SIP_PASSWORD=
   export SIP_SECURE=false
+
+  # SIP from (optional)
+  export SIP_FROM=003456@yourcompany.com
 fi
 
 if [ -d "cache" ]

@@ -49,7 +49,8 @@ $app->sip = array(
   'uri' => getenv('SIP_URI'),
   'username' => getenv('SIP_USERNAME'),
   'password' => getenv('SIP_PASSWORD'),
-  'secure' => (getenv('SIP_SECURE') === 'true')
+  'secure' => (getenv('SIP_SECURE') === 'true'),
+  'from' => getenv('SIP_FROM'),
 );
 
 // Configure routes
@@ -79,7 +80,8 @@ $app->post('/sip/start', function () use ($app) {
 
     // create the options parameter
     $options = array(
-      'secure' => $app->sip['secure']
+      'secure' => $app->sip['secure'],
+      'from' => $app->$sip['from'],
     );
     if ($app->sip['username'] !== false) {
         $options['auth'] = array('username' => $app->sip['username'], 'password' => $app->sip['password']);

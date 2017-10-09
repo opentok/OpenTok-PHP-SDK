@@ -15,6 +15,9 @@ SET SIP_USERNAME=
 SET SIP_PASSWORD=
 SET SIP_SECURE=false
 
+:: SIP from (optional)
+SET SIP_FROM=
+
 :skipdef
 
 RD /q /s cache

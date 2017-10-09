@@ -531,9 +531,10 @@ class OpenTok {
             'auth' => null,
             'headers' => null,
             'secure' => true,
+            'from' => null,
         );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($headers, $secure) = array_values($options);
+        list($headers, $secure, $from) = array_values($options);
 
         // validate arguments
         Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);

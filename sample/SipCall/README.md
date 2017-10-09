@@ -19,6 +19,7 @@ Next, input your own API Key, API Secret, and SIP configuration into the `run-de
   export SIP_USERNAME=
   export SIP_PASSWORD=
   export SIP_SECURE=false
+  export SIP_FROM=003456@yourcompany.com
 ```
 
 Finally, start the PHP CLI development server (requires PHP >= 5.4) using the `run-demo` script
