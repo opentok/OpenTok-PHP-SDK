@@ -23,7 +23,7 @@ use OpenTok\MediaMode;
 
 // TODO: build this dynamically
 /** @internal */
-define('OPENTOK_SDK_VERSION', '3.0.0');
+define('OPENTOK_SDK_VERSION', '3.1.0');
 /** @internal */
 define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
 
