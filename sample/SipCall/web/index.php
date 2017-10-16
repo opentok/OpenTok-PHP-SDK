@@ -81,7 +81,7 @@ $app->post('/sip/start', function () use ($app) {
     // create the options parameter
     $options = array(
       'secure' => $app->sip['secure'],
-      'from' => $app->$sip['from'],
+      'from' => $app->sip['from'],
     );
     if ($app->sip['username'] !== false) {
         $options['auth'] = array('username' => $app->sip['username'], 'password' => $app->sip['password']);
