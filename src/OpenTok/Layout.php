@@ -10,7 +10,7 @@ class Layout {
     private static $bestFit = null;
     private static $pip = null;
     private static $verticalPresentation = null;
-    private static $horizontalPresentaton = null;
+    private static $horizontalPresentation = null;
 
     public static function getBestFit()
     {
@@ -38,10 +38,10 @@ class Layout {
 
     public static function getHorizontalPresentation()
     {
-        if (is_null(self::$horizontalPresentaton)) {
-            self::$horizontalPresentaton = new Layout('horizontalPresentaton');
+        if (is_null(self::$horizontalPresentation)) {
+            self::$horizontalPresentation = new Layout('horizontalPresentation');
         }
-        return self::$horizontalPresentaton;
+        return self::$horizontalPresentation;
     }
 
     public static function createCustom($options)
