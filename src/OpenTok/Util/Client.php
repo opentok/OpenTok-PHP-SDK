@@ -54,17 +54,18 @@ class Client
         }
 
         $handler = Middleware::mapRequest(function (RequestInterface $request) {
-          return $request->withHeader('X-OPENTOK-AUTH', $this->createAuthHeader());
+            $authHeader = $this->createAuthHeader();
+            return $request->withHeader('X-OPENTOK-AUTH', $authHeader);
         });
         $handlerStack->push($handler);
 
         $ua = OPENTOK_SDK_USER_AGENT . ' ' . \GuzzleHttp\default_user_agent();
         $this->client = new \GuzzleHttp\Client([
-          'base_uri' => $apiUrl,
-          'handler' => $handlerStack,
-          'headers' => [
-            'User-Agent' => $ua
-          ]
+            'base_uri' => $apiUrl,
+            'handler' => $handlerStack,
+            'headers' => [
+                'User-Agent' => $ua
+            ]
         ]);
 
         $this->configured = true;
