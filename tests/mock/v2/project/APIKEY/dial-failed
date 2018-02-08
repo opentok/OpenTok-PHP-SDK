@@ -1,5 +1,0 @@
-HTTP/1.1 500 Internal Server Error
-Server: nginx
-Date: Sat, 08 Mar 2014 23:25:13 GMT
-Transfer-Encoding: chunked
-Connection: keep-alive
