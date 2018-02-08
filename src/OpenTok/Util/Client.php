@@ -42,16 +42,20 @@ class Client
     protected $configured = false;
     protected $client;
 
-    public function configure($apiKey, $apiSecret, $apiUrl)
+    public function configure($apiKey, $apiSecret, $apiUrl, $options = array())
     {
         $this->apiKey = $apiKey;
         $this->apiSecret = $apiSecret;
 
+        if (empty($options['handler'])) {
+          $handlerStack = HandlerStack::create();
+        } else {
+          $handlerStack = $options['handler'];
+        }
+
         $handler = Middleware::mapRequest(function (RequestInterface $request) {
           return $request->withHeader('X-OPENTOK-AUTH', $this->createAuthHeader());
         });
-
-        $handlerStack = HandlerStack::create();
         $handlerStack->push($handler);
 
         $ua = OPENTOK_SDK_USER_AGENT . ' ' . \GuzzleHttp\default_user_agent();
