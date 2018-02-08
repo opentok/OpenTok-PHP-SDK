@@ -3,7 +3,6 @@
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
-use GuzzleHttp\Psr7\Response;
 
 use OpenTok\OpenTok;
 use OpenTok\OpenTokTestCase;
@@ -40,7 +39,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->API_SECRET = defined('API_SECRET') ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
 
         if (is_array($mocks)) {
-            $responses = $this->mocksToResponses($mocks);
+            $responses = TestHelpers::mocksToResponses($mocks, self::$mockBasePath);
         } else {
             $responses = [];
         }
@@ -69,21 +68,6 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $handlerStack->push($history);
 
         $this->opentok = new OpenTok($this->API_KEY, $this->API_SECRET, array('client' => $this->client));
-    }
-
-    private function mocksToResponses($mocks)
-    {
-        return array_map(function ($mock) {
-            $code = !empty($mock['code']) ? $mock['code'] : 200;
-            $headers = !empty($mock['headers']) ? $mock['headers'] : [];
-            $body = null;
-            if (!empty($mock['body'])) {
-              $body = $mock['body'];
-            } else if (!empty($mock['path'])) {
-              $body = file_get_contents(self::$mockBasePath . $mock['path']);
-            }
-            return new Response($code, $headers, $body);
-        }, $mocks);
     }
 
     private function setupOT()

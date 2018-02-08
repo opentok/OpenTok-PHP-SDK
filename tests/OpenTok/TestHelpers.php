@@ -2,6 +2,7 @@
 
 namespace OpenTok;
 
+use GuzzleHttp\Psr7\Response;
 use \Firebase\JWT\JWT;
 
 class TestHelpers {
@@ -59,6 +60,21 @@ class TestHelpers {
       }
 
       return true;
+    }
+
+    public static function mocksToResponses($mocks, $basePath)
+    {
+        return array_map(function ($mock) use ($basePath) {
+            $code = !empty($mock['code']) ? $mock['code'] : 200;
+            $headers = !empty($mock['headers']) ? $mock['headers'] : [];
+            $body = null;
+            if (!empty($mock['body'])) {
+              $body = $mock['body'];
+            } else if (!empty($mock['path'])) {
+              $body = file_get_contents($basePath . $mock['path']);
+            }
+            return new Response($code, $headers, $body);
+        }, $mocks);
     }
 }
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/
