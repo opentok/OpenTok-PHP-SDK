@@ -50,7 +50,9 @@ class OpenTok {
         Validators::validateClient($client);
 
         $this->client = isset($client) ? $client : new Client();
-        $this->client->configure($apiKey, $apiSecret, $apiUrl);
+        if (!$this->client->isConfigured()) {
+          $this->client->configure($apiKey, $apiSecret, $apiUrl);
+        }
         $this->apiKey = $apiKey;
         $this->apiSecret = $apiSecret;
     }
