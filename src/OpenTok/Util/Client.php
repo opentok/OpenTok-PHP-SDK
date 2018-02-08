@@ -91,11 +91,13 @@ class Client
 
     public function createSession($options)
     {
-        $request = new Request('POST', '/session/create', [
-          'form_params' => $this->postFieldsForOptions($options)
-        ]);
+        $request = new Request('POST', '/session/create');
         try {
-            $sessionXml = $this->getResponseXml($this->client->send($request));
+            $response = $this->client->send($request, [
+                'debug' => true,
+                'form_params' => $this->postFieldsForOptions($options)
+            ]);
+            $sessionXml = $this->getResponseXml($response);
         } catch (\RuntimeException $e) {
             // TODO: test if we have a parse exception and handle it, otherwise throw again
             throw $e;
@@ -136,12 +138,16 @@ class Client
     public function startArchive($sessionId, $options)
     {
         // set up the request
-        $request = new Request('POST', '/v2/project/'.$this->apiKey.'/archive', [
-          'json' => array_merge(array( 'sessionId' => $sessionId ), $options)
-        ]);
+        $request = new Request('POST', '/v2/project/'.$this->apiKey.'/archive');
 
         try {
-            $archiveJson = json_decode($this->client->send($request)->getBody(), true);
+            $response = $this->client->send($request, [
+                'json' => array_merge(
+                    array( 'sessionId' => $sessionId ),
+                    $options
+                )
+            ]);
+            $archiveJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
             $this->handleArchiveException($e);
         }
@@ -151,14 +157,15 @@ class Client
     public function stopArchive($archiveId)
     {
         // set up the request
-        $request = new Request('POST', '/v2/project/'.$this->apiKey.'/archive/'.$archiveId.'/stop', [
-          'headers' => [
-            'Content-Type' => 'application/json'
-          ]
-        ]);
+        $request = new Request(
+            'POST',
+            '/v2/project/'.$this->apiKey.'/archive/'.$archiveId.'/stop',
+            ['Content-Type' => 'application/json']
+        );
 
         try {
-            $archiveJson = json_decode($this->client->send($request)->getBody(), true);
+            $response = $this->client->send($request);
+            $archiveJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
             // TODO: what happens with JSON parse errors?
             $this->handleArchiveException($e);
@@ -168,9 +175,13 @@ class Client
 
     public function getArchive($archiveId)
     {
-        $request = new Request('GET', '/v2/project/'.$this->apiKey.'/archive/'.$archiveId);
+        $request = new Request(
+            'GET',
+            '/v2/project/'.$this->apiKey.'/archive/'.$archiveId
+        );
         try {
-            $archiveJson = json_decode($this->client->send($request)->getBody(), true);
+            $response = $this->client->send($request);
+            $archiveJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
             $this->handleException($e);
             return;
@@ -180,11 +191,11 @@ class Client
 
     public function deleteArchive($archiveId)
     {
-        $request = new Request('DELETE', '/v2/project/'.$this->apiKey.'/archive/'.$archiveId, [
-          'headers' => [
-            'Content-Type' => 'application/json'
-          ]
-        ]);
+        $request = new Request(
+            'DELETE',
+            '/v2/project/'.$this->apiKey.'/archive/'.$archiveId,
+            ['Content-Type' => 'application/json']
+        );
         try {
             $response = $this->client->send($request);
             if ($response->getStatusCode() != 204) {
@@ -199,11 +210,11 @@ class Client
 
     public function forceDisconnect($sessionId,$connectionId)
     {
-        $request = new Request('DELETE', '/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/connection/'.$connectionId, [
-          'headers' => [
-            'Content-Type' => 'application/json'
-          ]
-        ]);
+        $request = new Request(
+            'DELETE',
+            '/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/connection/'.$connectionId,
+            ['Content-Type' => 'application/json']
+        );
         try {
             $response = $this->client->send($request);
             if ($response->getStatusCode() != 204) {
@@ -222,7 +233,8 @@ class Client
         if ($offset != 0) $request->getQuery()->set('offset', $offset);
         if (!empty($count)) $request->getQuery()->set('count', $count);
         try {
-            $archiveListJson = json_decode($this->client->send($request)->getBody(), true);
+            $response = $this->client->send($request);
+            $archiveListJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
             $this->handleException($e);
             return;
@@ -232,15 +244,19 @@ class Client
 
     public function startBroadcast($sessionId, $options)
     {
-        $request = new Request('POST', '/v2/project/'.$this->apiKey.'/broadcast', [
-          'json' => [
-            'sessionId' => $sessionId,
-            'layout' => $options['layout']->jsonSerialize()
-          ]
-        ]);
+        $request = new Request(
+            'POST',
+            '/v2/project/'.$this->apiKey.'/broadcast'
+        );
 
         try {
-            $broadcastJson = json_decode($this->client->send($request)->getBody(), true);
+            $response = $this->client->send($request, [
+              'json' => [
+                'sessionId' => $sessionId,
+                'layout' => $options['layout']->jsonSerialize()
+              ]
+            ]);
+            $broadcastJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
             $this->handleBroadcastException($e);
         }
@@ -249,14 +265,15 @@ class Client
 
     public function stopBroadcast($broadcastId)
     {
-        $request = new Request('POST', '/v2/project/'.$this->apiKey.'/broadcast/'.$broadcastId.'/stop', [
-          'headers' => [
-            'Content-Type' => 'application/json'
-          ]
-        ]);
+        $request = new Request(
+            'POST',
+            '/v2/project/'.$this->apiKey.'/broadcast/'.$broadcastId.'/stop',
+            ['Content-Type' => 'application/json']
+        );
 
         try {
-            $broadcastJson = json_decode($this->client->send($request)->getBody(), true);
+            $response = $this->client->send($request);
+            $broadcastJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
             $this->handleBroadcastException($e);
         }
@@ -265,9 +282,13 @@ class Client
 
     public function getBroadcast($broadcastId)
     {
-        $request = new Request('GET', '/v2/project/'.$this->apiKey.'/broadcast/'.$broadcastId);
+        $request = new Request(
+            'GET',
+            '/v2/project/'.$this->apiKey.'/broadcast/'.$broadcastId
+        );
         try {
-            $broadcastJson = json_decode($this->client->send($request)->getBody(), true);
+            $response = $this->client->send($request);
+            $broadcastJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
             $this->handleBroadcastException($e);
         }
@@ -276,9 +297,13 @@ class Client
 
     public function getLayout($resourceId, $resourceType = 'broadcast')
     {
-        $request = new Request('GET', '/v2/project/'.$this->apiKey.'/'.$resourceType.'/'.$resourceId.'/layout');
+        $request = new Request(
+            'GET',
+            '/v2/project/'.$this->apiKey.'/'.$resourceType.'/'.$resourceId.'/layout'
+        );
         try {
-            $layoutJson = json_decode($this->client->send($request)->getBody(), true);
+            $response = $this->client->send($request);
+            $layoutJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
             $this->handleException($e);
         }
@@ -287,11 +312,15 @@ class Client
 
     public function updateLayout($resourceId, $layout, $resourceType = 'broadcast')
     {
-        $request = new Request('PUT', '/v2/project/'.$this->apiKey.'/'.$resourceType.'/'.$resourceId.'/layout', [
-          'json' => $layout->jsonSerialize()
-        ]);
+        $request = new Request(
+          'PUT',
+          '/v2/project/'.$this->apiKey.'/'.$resourceType.'/'.$resourceId.'/layout'
+        );
         try {
-            $layoutJson = json_decode($this->client->send($request)->getBody(), true);
+            $response = $this->client->send($request, [
+                'json' => $layout->jsonSerialize()
+            ]);
+            $layoutJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
             $this->handleException($e);
         }
@@ -300,11 +329,14 @@ class Client
 
     public function updateStream($sessionId, $streamId, $properties)
     {
-        $request = new Request('PUT', '/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/stream/'.$streamId, [
-          'json' => $properties
-        ]);
+        $request = new Request(
+            'PUT',
+            '/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/stream/'.$streamId
+        );
         try {
-            $response = $this->client->send($request);
+            $response = $this->client->send($request, [
+                'json' => $properties
+            ]);
             if ($response->getStatusCode() != 204) {
                 json_decode($response->getBody(), true);
             }
@@ -336,12 +368,13 @@ class Client
         }
 
         // set up the request
-        $request = new Request('POST', '/v2/project/'.$this->apiKey.'/call', [
-          'json' => $body
-        ]);
+        $request = new Request('POST', '/v2/project/'.$this->apiKey.'/call');
 
         try {
-            $sipJson = json_decode($this->client->send($request)->getBody(), true);
+            $response = $this->client->send($request, [
+                'json' => $body
+            ]);
+            $sipJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
             $this->handleException($e);
         }
