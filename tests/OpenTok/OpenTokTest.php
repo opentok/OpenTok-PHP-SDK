@@ -844,6 +844,42 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // objects
     }
 
+    public function testListsArchivesWithOffsetAndCount()
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/archive/get_second'
+        ]]);
+
+        // Act
+        $archiveList = $this->opentok->listArchives(1, 1);
+
+        // Assert
+        $this->assertCount(1, $this->historyContainer);
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertEquals('GET', strtoupper($request->getMethod()));
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive', $request->getUri()->getPath());
+        $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
+        $this->assertEquals('https', $request->getUri()->getScheme());
+
+        $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        // TODO: test the dynamically built User Agent string
+        $userAgent = $request->getHeaderLine('User-Agent');
+        $this->assertNotEmpty($userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/3.1.1', $userAgent);
+
+        $this->assertInstanceOf('OpenTok\ArchiveList', $archiveList);
+        $this->assertEquals(1, $archiveList->totalCount());
+        $this->assertEquals('832641bf-5dbf-41a1-ad94-fea213e59a92', $archiveList->getItems()[0]->id);
+    }
+
     /**
      * @expectedException InvalidArgumentException
      */

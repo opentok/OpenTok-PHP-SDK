@@ -230,10 +230,17 @@ class Client
     public function listArchives($offset, $count)
     {
         $request = new Request('GET', '/v2/project/'.$this->apiKey.'/archive');
-        if ($offset != 0) $request->getQuery()->set('offset', $offset);
-        if (!empty($count)) $request->getQuery()->set('count', $count);
+        $queryParams = [];
+        if ($offset != 0) {
+          $queryParams['offset'] = $offset;
+        }
+        if (!empty($count)) {
+          $queryParams['count'] = $count;
+        }
         try {
-            $response = $this->client->send($request);
+            $response = $this->client->send($request, [
+              'query' => $queryParams
+            ]);
             $archiveListJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
             $this->handleException($e);

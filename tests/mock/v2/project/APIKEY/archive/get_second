@@ -1,0 +1,15 @@
+{
+  "count" : 1,
+  "items" : [ {
+    "createdAt" : 1394321113000,
+    "duration" : 1294,
+    "id" : "832641bf-5dbf-41a1-ad94-fea213e59a92",
+    "name" : "showtime",
+    "partnerId" : 854511,
+    "reason" : "",
+    "sessionId" : "2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-",
+    "size" : 42165242,
+    "status" : "available",
+    "url" : "http://tokbox.com.archive2.s3.amazonaws.com/854511%2F832641bf-5dbf-41a1-ad94-fea213e59a92%2Farchive.mp4?Expires=1394397391&AWSAccessKeyId=AKIAI6LQCPIXYVWCQV6Q&Signature=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+  } ]
+}
