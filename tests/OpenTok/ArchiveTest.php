@@ -1,6 +1,8 @@
 <?php
 
-use Guzzle\Plugin\Mock\MockPlugin;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
 
 use OpenTok\Archive;
 use OpenTok\OpenTokTestCase;
@@ -25,7 +27,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         self::$mockBasePath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'mock' . DIRECTORY_SEPARATOR;
     }
 
-    public function setUp()
+    public function setupArchives()
     {
         // Set up fixtures
         $this->archiveData = array(
@@ -43,10 +45,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
             'hasAudio' => true,
             'outputMode' => 'composed'
         );
-        $this->API_KEY = defined('API_KEY') ? API_KEY : '12345678';
-        $this->API_SECRET = defined('API_SECRET') ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
 
-        $this->client = new Client();
         $this->archive = new Archive($this->archiveData, array(
             'apiKey' => $this->API_KEY,
             'apiSecret' => $this->API_SECRET,
@@ -54,9 +53,48 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         ));
     }
 
+    private function setupOTWithMocks($mocks)
+    {
+        $this->API_KEY = defined('API_KEY') ? API_KEY : '12345678';
+        $this->API_SECRET = defined('API_SECRET') ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
+
+        if (is_array($mocks)) {
+            $responses = TestHelpers::mocksToResponses($mocks, self::$mockBasePath);
+        } else {
+            $responses = [];
+        }
+
+        $mock = new MockHandler($responses);
+        $handlerStack = HandlerStack::create($mock);
+        $clientOptions = [
+            'handler' => $handlerStack
+        ];
+
+        $this->client = new Client();
+        $this->client->configure(
+            $this->API_KEY,
+            $this->API_SECRET,
+            'https://api.opentok.com',
+            $clientOptions
+        );
+
+        // Push history onto handler stack *after* configuring client to
+        // ensure auth header is added before history handler is invoked
+        $this->historyContainer = [];
+        $history = Middleware::history($this->historyContainer);
+        $handlerStack->push($history);
+    }
+
+    private function setupOT()
+    {
+        return $this->setupOTWithMocks([]);
+    }
+
     public function testInitializes()
     {
         // Arrange
+        $this->setupOT();
+        $this->setupArchives();
         // Act
         // Assert
         $this->assertInstanceOf('OpenTok\Archive', $this->archive);
@@ -64,6 +102,9 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
 
     public function testReadsProperties()
     {
+        $this->setupOT();
+        $this->setupArchives();
+
         $this->assertEquals($this->archiveData['createdAt'], $this->archive->createdAt);
         $this->assertEquals($this->archiveData['duration'], $this->archive->duration);
         $this->assertEquals($this->archiveData['id'], $this->archive->id);
@@ -82,37 +123,38 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
     public function testStopsArchive()
     {
         // Arrange
-        $mock = new MockPlugin();
-        $response = MockPlugin::getMockFile(
-            self::$mockBasePath . 'v2/project/APIKEY/archive/ARCHIVEID/stop'
-        );
-        $mock->addResponse($response);
-        $this->client->addSubscriber($mock);
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/archive/ARCHIVEID/stop'
+        ]]);
+        $this->setupArchives();
 
         // Act
         $this->archive->stop();
 
         // Assert
-        $requests = $mock->getReceivedRequests();
-        $this->assertCount(1, $requests);
+        $this->assertCount(1, $this->historyContainer);
 
-        $request = $requests[0];
+        $request = $this->historyContainer[0]['request'];
         $this->assertEquals('POST', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive/'.$this->archiveData['id'].'/stop', $request->getPath());
-        $this->assertEquals('api.opentok.com', $request->getHost());
-        $this->assertEquals('https', $request->getScheme());
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive/'.$this->archiveData['id'].'/stop', $request->getUri()->getPath());
+        $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
+        $this->assertEquals('https', $request->getUri()->getScheme());
 
-        $contentType = $request->getHeader('Content-Type');
+        $contentType = $request->getHeaderLine('Content-Type');
         $this->assertNotEmpty($contentType);
         $this->assertEquals('application/json', $contentType);
 
-        $authString = $request->getHeader('X-OPENTOK-AUTH');
+        $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
-        $userAgent = $request->getHeader('User-Agent');
+        $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/3.1.1', $userAgent->__toString());
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/3.1.1', $userAgent);
 
         // TODO: test the properties of the actual archive object
         $this->assertEquals('stopped', $this->archive->status);
@@ -122,12 +164,10 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
     public function testDeletesArchive()
     {
         // Arrange
-        $mock = new MockPlugin();
-        $response = MockPlugin::getMockFile(
-            self::$mockBasePath . 'v2/project/APIKEY/archive/ARCHIVEID/delete'
-        );
-        $mock->addResponse($response);
-        $this->client->addSubscriber($mock);
+        $this->setupOTWithMocks([[
+            'code' => 204
+        ]]);
+        $this->setupArchives();
 
         // Act
         // TODO: should this test be run on an archive object whose fixture has status 'available'
@@ -135,26 +175,25 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         $success = $this->archive->delete();
 
         // Assert
-        $requests = $mock->getReceivedRequests();
-        $this->assertCount(1, $requests);
+        $this->assertCount(1, $this->historyContainer);
 
-        $request = $requests[0];
+        $request = $this->historyContainer[0]['request'];
         $this->assertEquals('DELETE', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive/'.$this->archiveData['id'], $request->getPath());
-        $this->assertEquals('api.opentok.com', $request->getHost());
-        $this->assertEquals('https', $request->getScheme());
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive/'.$this->archiveData['id'], $request->getUri()->getPath());
+        $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
+        $this->assertEquals('https', $request->getUri()->getScheme());
 
-        $contentType = $request->getHeader('Content-Type');
+        $contentType = $request->getHeaderLine('Content-Type');
         $this->assertNotEmpty($contentType);
         $this->assertEquals('application/json', $contentType);
 
-        $authString = $request->getHeader('X-OPENTOK-AUTH');
+        $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
-        $userAgent = $request->getHeader('User-Agent');
+        $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/3.1.1', $userAgent->__toString());
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/3.1.1', $userAgent);
 
         $this->assertTrue($success);
         // TODO: assert that all properties of the archive object were cleared
@@ -163,31 +202,30 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
 
     public function testAllowsUnknownProperties()
     {
-      // Set up fixtures
-      $archiveData = array(
-          'createdAt' => 1394394801000,
-          'duration' => 0,
-          'id' => '063e72a4-64b4-43c8-9da5-eca071daab89',
-          'name' => 'showtime',
-          'partnerId' => 854511,
-          'reason' => '',
-          'sessionId' => '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-',
-          'size' => 0,
-          'status' => 'started',
-          'url' => null,
-          'notarealproperty' => 'not a real value'
-      );
-      $apiKey = defined('API_KEY') ? API_KEY : '12345678';
-      $apiSecret = defined('API_SECRET') ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
+        $this->setupOT();
 
-      $client = new Client();
-      $archive = new Archive($archiveData, array(
-          'apiKey' => $this->API_KEY,
-          'apiSecret' => $this->API_SECRET,
-          'client' => $this->client
-      ));
+        // Set up fixtures
+        $archiveData = array(
+            'createdAt' => 1394394801000,
+            'duration' => 0,
+            'id' => '063e72a4-64b4-43c8-9da5-eca071daab89',
+            'name' => 'showtime',
+            'partnerId' => 854511,
+            'reason' => '',
+            'sessionId' => '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-',
+            'size' => 0,
+            'status' => 'started',
+            'url' => null,
+            'notarealproperty' => 'not a real value'
+        );
 
-      $this->assertInstanceOf('OpenTok\Archive', $archive);
+        $archive = new Archive($archiveData, array(
+            'apiKey' => $this->API_KEY,
+            'apiSecret' => $this->API_SECRET,
+            'client' => $this->client
+        ));
+
+        $this->assertInstanceOf('OpenTok\Archive', $archive);
     }
 
     /**
@@ -195,62 +233,62 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
      */
     public function testRejectsBadArchiveData()
     {
-      // Set up fixtures
-      $badArchiveData = array(
-          'createdAt' => 'imnotanumber',
-          'duration' => 0,
-          'id' => '063e72a4-64b4-43c8-9da5-eca071daab89',
-          'name' => 'showtime',
-          'partnerId' => 854511,
-          'reason' => '',
-          'sessionId' => '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-',
-          'size' => 0,
-          'status' => 'started',
-          'url' => null
-      );
-      $apiKey = defined('API_KEY') ? API_KEY : '12345678';
-      $apiSecret = defined('API_SECRET') ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
+        $this->setupOT();
 
-      $client = new Client();
-      $archive = new Archive($badArchiveData, array(
-          'apiKey' => $this->API_KEY,
-          'apiSecret' => $this->API_SECRET,
-          'client' => $this->client
-      ));
+        // Set up fixtures
+        $badArchiveData = array(
+            'createdAt' => 'imnotanumber',
+            'duration' => 0,
+            'id' => '063e72a4-64b4-43c8-9da5-eca071daab89',
+            'name' => 'showtime',
+            'partnerId' => 854511,
+            'reason' => '',
+            'sessionId' => '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-',
+            'size' => 0,
+            'status' => 'started',
+            'url' => null
+        );
+
+        $archive = new Archive($badArchiveData, array(
+            'apiKey' => $this->API_KEY,
+            'apiSecret' => $this->API_SECRET,
+            'client' => $this->client
+        ));
     }
 
     public function testAllowsPausedStatus()
     {
-      // Set up fixtures
-      $archiveData = array(
-          'createdAt' => 1394394801000,
-          'duration' => 0,
-          'id' => '063e72a4-64b4-43c8-9da5-eca071daab89',
-          'name' => 'showtime',
-          'partnerId' => 854511,
-          'reason' => '',
-          'sessionId' => '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-',
-          'size' => 0,
-          'status' => 'paused',
-          'url' => null,
-      );
-      $apiKey = defined('API_KEY') ? API_KEY : '12345678';
-      $apiSecret = defined('API_SECRET') ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
+        $this->setupOT();
 
-      $client = new Client();
-      $archive = new Archive($archiveData, array(
-          'apiKey' => $this->API_KEY,
-          'apiSecret' => $this->API_SECRET,
-          'client' => $this->client
-      ));
+        // Set up fixtures
+        $archiveData = array(
+            'createdAt' => 1394394801000,
+            'duration' => 0,
+            'id' => '063e72a4-64b4-43c8-9da5-eca071daab89',
+            'name' => 'showtime',
+            'partnerId' => 854511,
+            'reason' => '',
+            'sessionId' => '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-',
+            'size' => 0,
+            'status' => 'paused',
+            'url' => null,
+        );
 
-      $this->assertInstanceOf('OpenTok\Archive', $archive);
-      $this->assertEquals($archiveData['status'], $archive->status);
+        $archive = new Archive($archiveData, array(
+            'apiKey' => $this->API_KEY,
+            'apiSecret' => $this->API_SECRET,
+            'client' => $this->client
+        ));
+
+        $this->assertInstanceOf('OpenTok\Archive', $archive);
+        $this->assertEquals($archiveData['status'], $archive->status);
     }
 
     public function testSerializesToJson()
     {
         // Arrange
+        $this->setupOT();
+        $this->setupArchives();
 
         // Act
         $archiveJson = $this->archive->toJson();
@@ -263,6 +301,8 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
     public function testSerializedToArray()
     {
         // Arrange
+        $this->setupOT();
+        $this->setupArchives();
 
         // Act
         $archiveArray = $this->archive->toArray();
@@ -273,7 +313,8 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
     }
     // TODO: test deleted archive can not be stopped or deleted again
 
-    private function decodeToken($token) {
+    private function decodeToken($token)
+    {
 
     }
 }

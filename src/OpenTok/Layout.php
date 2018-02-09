@@ -79,7 +79,8 @@ class Layout {
         $this->stylesheet = $stylesheet;
     }
 
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $data = array(
             'type' => $this->type
         );

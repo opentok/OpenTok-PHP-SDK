@@ -33,7 +33,7 @@ $app = new Slim(array(
 ));
 
 // Intialize a cache, store it in the app container
-$app->container->singleton('cache', function() {
+$app->container->singleton('cache', function () {
     return new Cache;
 });
 
@@ -45,7 +45,7 @@ $app->container->singleton('opentok', function () {
 $app->apiKey = getenv('API_KEY');
 
 // If a sessionId has already been created, retrieve it from the cache
-$sessionId = $app->cache->getOrCreate('sessionId', array(), function() use ($app) {
+$sessionId = $app->cache->getOrCreate('sessionId', array(), function () use ($app) {
     // If the sessionId hasn't been created, create it now and store it
     $session = $app->opentok->createSession(array(
       'mediaMode' => MediaMode::ROUTED
@@ -94,7 +94,7 @@ $app->get('/history', function () use ($app) {
 
     $archives = $app->opentok->listArchives($offset, 5);
 
-    $toArray = function($archive) {
+    $toArray = function ($archive) {
       return $archive->toArray();
     };
 
@@ -123,13 +123,13 @@ $app->post('/start', function () use ($app, $sessionId) {
     echo $archive->toJson();
 });
 
-$app->get('/stop/:archiveId', function($archiveId) use ($app) {
+$app->get('/stop/:archiveId', function ($archiveId) use ($app) {
     $archive = $app->opentok->stopArchive($archiveId);
     $app->response->headers->set('Content-Type', 'application/json');
     echo $archive->toJson();
 });
 
-$app->get('/delete/:archiveId', function($archiveId) use ($app) {
+$app->get('/delete/:archiveId', function ($archiveId) use ($app) {
     $app->opentok->deleteArchive($archiveId);
     $app->redirect('/history');
 });
