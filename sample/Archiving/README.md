@@ -98,7 +98,7 @@ is sent to the <http://localhost:8080/stop/:archiveId> URL where `:archiveId` re
 client receives in the 'archiveStarted' event. The route handler for this request is shown below:
 
 ```php
-$app->get('/stop/:archiveId', function($archiveId) use ($app) {
+$app->get('/stop/:archiveId', function ($archiveId) use ($app) {
     $archive = $app->opentok->stopArchive($archiveId);
     $app->response->headers->set('Content-Type', 'application/json');
     echo $archive->toJson();
@@ -168,7 +168,7 @@ $app->get('/history', function () use ($app) {
 
     $archives = $app->opentok->listArchives($offset, 5);
 
-    $toArray = function($archive) {
+    $toArray = function ($archive) {
       return $archive->toArray();
     };
 
@@ -214,7 +214,7 @@ from the URL. Lastly, we send a redirect response back to the browser so the dow
 The code for the delete route handler is shown below:
 
 ```php
-$app->get('/delete/:archiveId', function($archiveId) use ($app) {
+$app->get('/delete/:archiveId', function ($archiveId) use ($app) {
     $app->opentok->deleteArchive($archiveId);
     $app->redirect('/history');
 });

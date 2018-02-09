@@ -89,9 +89,9 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // Arrange
         $this->setupOT();
         if (class_exists('ArgumentCountError')) {
-          $this->expectException(ArgumentCountError::class);
+            $this->expectException(ArgumentCountError::class);
         } else {
-          $this->expectException(PHPUnit_Framework_Error_Warning::class);
+            $this->expectException(PHPUnit_Framework_Error_Warning::class);
         }
         $opentok = new OpenTok();
         // Act
@@ -143,16 +143,16 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
 
     private function getPostField($request, $targetKey)
     {
-      $params = array_map(function($item) {
-        return explode('=', $item);
-      }, explode('&', (string) $request->getBody()));
-      $found = array_values(array_filter(
-        $params,
-        function($item) use ($targetKey) {
-          return is_array($item) ? $item[0] === $targetKey : false;
-        }
-      ));
-      return count($found) > 0 ? $found[0][1] : '';
+        $params = array_map(function ($item) {
+            return explode('=', $item);
+        }, explode('&', (string) $request->getBody()));
+        $found = array_values(array_filter(
+            $params,
+            function ($item) use ($targetKey) {
+                return is_array($item) ? $item[0] === $targetKey : false;
+            }
+        ));
+        return count($found) > 0 ? $found[0][1] : '';
     }
 
     public function testCreatesMediaRoutedAndLocationSession()
@@ -644,51 +644,51 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
 
     public function testStartsArchiveIndividualOutput()
     {
-      // Arrange
-      $this->setupOTWithMocks([[
-          'code' => 200,
-          'headers' => [
-              'Content-Type' => 'application/json'
-          ],
-          'path' => 'v2/project/APIKEY/archive/session_outputMode-individual'
-      ]]);
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/archive/session_outputMode-individual'
+        ]]);
 
-      // This sessionId was generated using a different apiKey, but this method doesn't do any
-      // decoding to check, so its fine.
-      $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
+        // This sessionId was generated using a different apiKey, but this method doesn't do any
+        // decoding to check, so its fine.
+        $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
-      // Act
-      $archive = $this->opentok->startArchive($sessionId, array(
-          'outputMode' => OutputMode::INDIVIDUAL
-      ));
+        // Act
+        $archive = $this->opentok->startArchive($sessionId, array(
+            'outputMode' => OutputMode::INDIVIDUAL
+        ));
 
-      // Assert
-      $this->assertCount(1, $this->historyContainer);
+        // Assert
+        $this->assertCount(1, $this->historyContainer);
 
-      $request = $this->historyContainer[0]['request'];
-      $this->assertEquals('POST', strtoupper($request->getMethod()));
-      $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive', $request->getUri()->getPath());
-      $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
-      $this->assertEquals('https', $request->getUri()->getScheme());
+        $request = $this->historyContainer[0]['request'];
+        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive', $request->getUri()->getPath());
+        $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
+        $this->assertEquals('https', $request->getUri()->getScheme());
 
-      $contentType = $request->getHeaderLine('Content-Type');
-      $this->assertNotEmpty($contentType);
-      $this->assertEquals('application/json', $contentType);
+        $contentType = $request->getHeaderLine('Content-Type');
+        $this->assertNotEmpty($contentType);
+        $this->assertEquals('application/json', $contentType);
 
-      $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-      $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-      // TODO: test the dynamically built User Agent string
-      $userAgent = $request->getHeaderLine('User-Agent');
-      $this->assertNotEmpty($userAgent);
-      $this->assertStringStartsWith('OpenTok-PHP-SDK/3.1.1', $userAgent);
+        // TODO: test the dynamically built User Agent string
+        $userAgent = $request->getHeaderLine('User-Agent');
+        $this->assertNotEmpty($userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/3.1.1', $userAgent);
 
-      $body = json_decode($request->getBody());
-      $this->assertEquals($sessionId, $body->sessionId);
-      $this->assertEquals('individual', $body->outputMode);
+        $body = json_decode($request->getBody());
+        $this->assertEquals($sessionId, $body->sessionId);
+        $this->assertEquals('individual', $body->outputMode);
 
-      $this->assertInstanceOf('OpenTok\Archive', $archive);
-      $this->assertEquals(OutputMode::INDIVIDUAL, $archive->outputMode);
+        $this->assertInstanceOf('OpenTok\Archive', $archive);
+        $this->assertEquals(OutputMode::INDIVIDUAL, $archive->outputMode);
     }
 
     public function testStopsArchive()
@@ -1223,131 +1223,131 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
 
     public function testSipCall()
     {
-      // Arrange
-      $this->setupOTWithMocks([[
-          'code' => 200,
-          'headers' => [
-              'Content-Type' => 'application/json'
-          ],
-          'path' => 'v2/project/APIKEY/dial'
-      ]]);
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/dial'
+        ]]);
 
-      $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
-      $bogusApiKey = '12345678';
-      $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
-      $bogusToken = 'T1==TEST';
-      $bogusSipUri = 'sip:john@doe.com';
-      $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $bogusApiKey = '12345678';
+        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $bogusToken = 'T1==TEST';
+        $bogusSipUri = 'sip:john@doe.com';
+        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
-      // Act
-      $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri);
+        // Act
+        $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri);
 
-      // Assert
-      $this->assertInstanceOf('OpenTok\SipCall', $sipCall);
-      $this->assertNotNull($sipCall->id);
-      $this->assertNotNull($sipCall->connectionId);
-      $this->assertNotNull($sipCall->streamId);
+        // Assert
+        $this->assertInstanceOf('OpenTok\SipCall', $sipCall);
+        $this->assertNotNull($sipCall->id);
+        $this->assertNotNull($sipCall->connectionId);
+        $this->assertNotNull($sipCall->streamId);
     }
 
     public function testSipCallWithAuth()
     {
-      // Arrange
-      $this->setupOTWithMocks([[
-          'code' => 200,
-          'path' => 'v2/project/APIKEY/dial'
-      ]]);
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'path' => 'v2/project/APIKEY/dial'
+        ]]);
 
-      $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
-      $bogusApiKey = '12345678';
-      $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
-      $bogusToken = 'T1==TEST';
-      $bogusSipUri = 'sip:john@doe.com';
-      $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $bogusApiKey = '12345678';
+        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $bogusToken = 'T1==TEST';
+        $bogusSipUri = 'sip:john@doe.com';
+        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
-      $auth = array(
-        'username' => 'john',
-        'password' => 'doe'
-      );
+        $auth = array(
+            'username' => 'john',
+            'password' => 'doe'
+        );
 
-      // Act
-      $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri, array(
-        'auth' => $auth
-      ));
+        // Act
+        $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri, array(
+            'auth' => $auth
+        ));
 
-      // Assert
-      $this->assertInstanceOf('OpenTok\SipCall', $sipCall);
-      $this->assertNotNull($sipCall->id);
-      $this->assertNotNull($sipCall->connectionId);
-      $this->assertNotNull($sipCall->streamId);
+        // Assert
+        $this->assertInstanceOf('OpenTok\SipCall', $sipCall);
+        $this->assertNotNull($sipCall->id);
+        $this->assertNotNull($sipCall->connectionId);
+        $this->assertNotNull($sipCall->streamId);
 
-      $this->assertCount(1, $this->historyContainer);
-      $request = $this->historyContainer[0]['request'];
+        $this->assertCount(1, $this->historyContainer);
+        $request = $this->historyContainer[0]['request'];
 
-      $body = json_decode($request->getBody());
-      $this->assertEquals($auth['username'], $body->sip->auth->username);
-      $this->assertEquals($auth['password'], $body->sip->auth->password);
+        $body = json_decode($request->getBody());
+        $this->assertEquals($auth['username'], $body->sip->auth->username);
+        $this->assertEquals($auth['password'], $body->sip->auth->password);
     }
 
     public function testFailedSipCall()
     {
-      // Arrange
-      $this->setupOTWithMocks([[
-          'code' => 500
-      ]]);
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 500
+        ]]);
 
-      $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
-      $bogusApiKey = '12345678';
-      $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
-      $bogusToken = 'T1==TEST';
-      $bogusSipUri = 'sip:john@doe.com';
-      $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $bogusApiKey = '12345678';
+        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $bogusToken = 'T1==TEST';
+        $bogusSipUri = 'sip:john@doe.com';
+        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
-      $sipCall = null;
-      // Act
-      try {
-          $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri);
-          $this->assertNull($sipCall);
-      } catch (\Exception $e) {
-          $this->assertNull($sipCall);
-      }
+        $sipCall = null;
+        // Act
+        try {
+            $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri);
+            $this->assertNull($sipCall);
+        } catch (\Exception $e) {
+            $this->assertNull($sipCall);
+        }
     }
 
     public function testSipCallFrom()
     {
-      // Arrange
-      $this->setupOTWithMocks([[
-        'code' => 200,
-        'headers' => [
-          'Content-Type' => 'application/json'
-        ],
-        'path' => 'v2/project/APIKEY/dial'
-      ]]);
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/dial'
+        ]]);
 
-      $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
-      $bogusApiKey = '12345678';
-      $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
-      $bogusToken = 'T1==TEST';
-      $bogusSipUri = 'sip:john@doe.com';
-      $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $bogusApiKey = '12345678';
+        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $bogusToken = 'T1==TEST';
+        $bogusSipUri = 'sip:john@doe.com';
+        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
-      $from = "+0034123445566@opentok.me";
+        $from = "+0034123445566@opentok.me";
 
-      // Act
-      $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri, array(
-        'from' => $from
-      ));
+        // Act
+        $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri, array(
+            'from' => $from
+        ));
 
-      // Assert
-      $this->assertInstanceOf('OpenTok\SipCall', $sipCall);
-      $this->assertNotNull($sipCall->id);
-      $this->assertNotNull($sipCall->connectionId);
-      $this->assertNotNull($sipCall->streamId);
+        // Assert
+        $this->assertInstanceOf('OpenTok\SipCall', $sipCall);
+        $this->assertNotNull($sipCall->id);
+        $this->assertNotNull($sipCall->connectionId);
+        $this->assertNotNull($sipCall->streamId);
 
-      $this->assertCount(1, $this->historyContainer);
-      $request = $this->historyContainer[0]['request'];
+        $this->assertCount(1, $this->historyContainer);
+        $request = $this->historyContainer[0]['request'];
 
-      $body = json_decode($request->getBody());
-      $this->assertEquals($from, $body->sip->from);
+        $body = json_decode($request->getBody());
+        $this->assertEquals($from, $body->sip->from);
     }
 }
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/

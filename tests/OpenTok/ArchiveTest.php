@@ -202,30 +202,30 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
 
     public function testAllowsUnknownProperties()
     {
-      $this->setupOT();
+        $this->setupOT();
 
-      // Set up fixtures
-      $archiveData = array(
-          'createdAt' => 1394394801000,
-          'duration' => 0,
-          'id' => '063e72a4-64b4-43c8-9da5-eca071daab89',
-          'name' => 'showtime',
-          'partnerId' => 854511,
-          'reason' => '',
-          'sessionId' => '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-',
-          'size' => 0,
-          'status' => 'started',
-          'url' => null,
-          'notarealproperty' => 'not a real value'
-      );
+        // Set up fixtures
+        $archiveData = array(
+            'createdAt' => 1394394801000,
+            'duration' => 0,
+            'id' => '063e72a4-64b4-43c8-9da5-eca071daab89',
+            'name' => 'showtime',
+            'partnerId' => 854511,
+            'reason' => '',
+            'sessionId' => '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-',
+            'size' => 0,
+            'status' => 'started',
+            'url' => null,
+            'notarealproperty' => 'not a real value'
+        );
 
-      $archive = new Archive($archiveData, array(
-          'apiKey' => $this->API_KEY,
-          'apiSecret' => $this->API_SECRET,
-          'client' => $this->client
-      ));
+        $archive = new Archive($archiveData, array(
+            'apiKey' => $this->API_KEY,
+            'apiSecret' => $this->API_SECRET,
+            'client' => $this->client
+        ));
 
-      $this->assertInstanceOf('OpenTok\Archive', $archive);
+        $this->assertInstanceOf('OpenTok\Archive', $archive);
     }
 
     /**
@@ -233,55 +233,55 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
      */
     public function testRejectsBadArchiveData()
     {
-      $this->setupOT();
+        $this->setupOT();
 
-      // Set up fixtures
-      $badArchiveData = array(
-          'createdAt' => 'imnotanumber',
-          'duration' => 0,
-          'id' => '063e72a4-64b4-43c8-9da5-eca071daab89',
-          'name' => 'showtime',
-          'partnerId' => 854511,
-          'reason' => '',
-          'sessionId' => '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-',
-          'size' => 0,
-          'status' => 'started',
-          'url' => null
-      );
+        // Set up fixtures
+        $badArchiveData = array(
+            'createdAt' => 'imnotanumber',
+            'duration' => 0,
+            'id' => '063e72a4-64b4-43c8-9da5-eca071daab89',
+            'name' => 'showtime',
+            'partnerId' => 854511,
+            'reason' => '',
+            'sessionId' => '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-',
+            'size' => 0,
+            'status' => 'started',
+            'url' => null
+        );
 
-      $archive = new Archive($badArchiveData, array(
-          'apiKey' => $this->API_KEY,
-          'apiSecret' => $this->API_SECRET,
-          'client' => $this->client
-      ));
+        $archive = new Archive($badArchiveData, array(
+            'apiKey' => $this->API_KEY,
+            'apiSecret' => $this->API_SECRET,
+            'client' => $this->client
+        ));
     }
 
     public function testAllowsPausedStatus()
     {
-      $this->setupOT();
+        $this->setupOT();
 
-      // Set up fixtures
-      $archiveData = array(
-          'createdAt' => 1394394801000,
-          'duration' => 0,
-          'id' => '063e72a4-64b4-43c8-9da5-eca071daab89',
-          'name' => 'showtime',
-          'partnerId' => 854511,
-          'reason' => '',
-          'sessionId' => '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-',
-          'size' => 0,
-          'status' => 'paused',
-          'url' => null,
-      );
+        // Set up fixtures
+        $archiveData = array(
+            'createdAt' => 1394394801000,
+            'duration' => 0,
+            'id' => '063e72a4-64b4-43c8-9da5-eca071daab89',
+            'name' => 'showtime',
+            'partnerId' => 854511,
+            'reason' => '',
+            'sessionId' => '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-',
+            'size' => 0,
+            'status' => 'paused',
+            'url' => null,
+        );
 
-      $archive = new Archive($archiveData, array(
-          'apiKey' => $this->API_KEY,
-          'apiSecret' => $this->API_SECRET,
-          'client' => $this->client
-      ));
+        $archive = new Archive($archiveData, array(
+            'apiKey' => $this->API_KEY,
+            'apiSecret' => $this->API_SECRET,
+            'client' => $this->client
+        ));
 
-      $this->assertInstanceOf('OpenTok\Archive', $archive);
-      $this->assertEquals($archiveData['status'], $archive->status);
+        $this->assertInstanceOf('OpenTok\Archive', $archive);
+        $this->assertEquals($archiveData['status'], $archive->status);
     }
 
     public function testSerializesToJson()
@@ -313,7 +313,8 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
     }
     // TODO: test deleted archive can not be stopped or deleted again
 
-    private function decodeToken($token) {
+    private function decodeToken($token)
+    {
 
     }
 }

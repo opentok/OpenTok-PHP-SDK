@@ -32,34 +32,35 @@ class TestHelpers {
         ));
     }
 
-    public static function validateOpenTokAuthHeader($apiKey, $apiSecret, $token) {
-      if (!isset($token)) {
-        return false;
-      }
+    public static function validateOpenTokAuthHeader($apiKey, $apiSecret, $token)
+    {
+        if (!isset($token)) {
+            return false;
+        }
 
-      try {
-        $decodedToken = JWT::decode($token, $apiSecret, array('HS256'));
-      } catch(\Exception $e) {
-        return false;
-      }
+        try {
+            $decodedToken = JWT::decode($token, $apiSecret, array('HS256'));
+        } catch(\Exception $e) {
+            return false;
+        }
 
-      if (!property_exists($decodedToken, 'iss') || $decodedToken->iss !== $apiKey) {
-        return false;
-      }
+        if (!property_exists($decodedToken, 'iss') || $decodedToken->iss !== $apiKey) {
+            return false;
+        }
 
-      if (!property_exists($decodedToken, 'ist') || 'project' !== $decodedToken->ist) {
-        return false;
-      }
+        if (!property_exists($decodedToken, 'ist') || 'project' !== $decodedToken->ist) {
+            return false;
+        }
 
-      if (!property_exists($decodedToken, 'exp') || time() >= $decodedToken->exp) {
-        return false;
-      }
+        if (!property_exists($decodedToken, 'exp') || time() >= $decodedToken->exp) {
+            return false;
+        }
 
-      if (!property_exists($decodedToken, 'jti')) {
-        return false;
-      }
+        if (!property_exists($decodedToken, 'jti')) {
+            return false;
+        }
 
-      return true;
+        return true;
     }
 
     public static function mocksToResponses($mocks, $basePath)
@@ -69,9 +70,9 @@ class TestHelpers {
             $headers = !empty($mock['headers']) ? $mock['headers'] : [];
             $body = null;
             if (!empty($mock['body'])) {
-              $body = $mock['body'];
+                $body = $mock['body'];
             } else if (!empty($mock['path'])) {
-              $body = file_get_contents($basePath . $mock['path']);
+                $body = file_get_contents($basePath . $mock['path']);
             }
             return new Response($code, $headers, $body);
         }, $mocks);

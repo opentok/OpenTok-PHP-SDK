@@ -15,7 +15,8 @@ class Broadcast {
     private $isStopped = false;
     private $client;
 
-    public function __construct($broadcastData, $options = array()) {
+    public function __construct($broadcastData, $options = array())
+    {
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array(
             'apiKey' => null,

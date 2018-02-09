@@ -51,7 +51,7 @@ class OpenTok {
 
         $this->client = isset($client) ? $client : new Client();
         if (!$this->client->isConfigured()) {
-          $this->client->configure($apiKey, $apiSecret, $apiUrl);
+            $this->client->configure($apiKey, $apiSecret, $apiUrl);
         }
         $this->apiKey = $apiKey;
         $this->apiSecret = $apiSecret;
@@ -284,7 +284,7 @@ class OpenTok {
     {
         // support for deprecated method signature, remove in v3.0.0 (not before)
         if (!is_array($options)) {
-          $options = array('name' => $options);
+            $options = array('name' => $options);
         }
 
         // unpack optional arguments (merging with default values) into named variables

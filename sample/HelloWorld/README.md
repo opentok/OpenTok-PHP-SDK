@@ -80,7 +80,7 @@ stored in the cache for later use.
 
 ```php
 // If a sessionId has already been created, retrieve it from the cache
-$sessionId = $app->cache->getOrCreate('sessionId', array(), function() use ($app) {
+$sessionId = $app->cache->getOrCreate('sessionId', array(), function () use ($app) {
     // If the sessionId hasn't been created, create it now and store it
     $session = $app->opentok->createSession();
     return $session->getSessionId();

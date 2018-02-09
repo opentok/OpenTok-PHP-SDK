@@ -48,9 +48,9 @@ class Client
         $this->apiSecret = $apiSecret;
 
         if (empty($options['handler'])) {
-          $handlerStack = HandlerStack::create();
+            $handlerStack = HandlerStack::create();
         } else {
-          $handlerStack = $options['handler'];
+            $handlerStack = $options['handler'];
         }
 
         $handler = Middleware::mapRequest(function (RequestInterface $request) {
@@ -71,7 +71,8 @@ class Client
         $this->configured = true;
     }
 
-    public function isConfigured() {
+    public function isConfigured()
+    {
         return $this->configured;
     }
 
@@ -232,10 +233,10 @@ class Client
         $request = new Request('GET', '/v2/project/'.$this->apiKey.'/archive');
         $queryParams = [];
         if ($offset != 0) {
-          $queryParams['offset'] = $offset;
+            $queryParams['offset'] = $offset;
         }
         if (!empty($count)) {
-          $queryParams['count'] = $count;
+            $queryParams['count'] = $count;
         }
         try {
             $response = $this->client->send($request, [
@@ -320,8 +321,8 @@ class Client
     public function updateLayout($resourceId, $layout, $resourceType = 'broadcast')
     {
         $request = new Request(
-          'PUT',
-          '/v2/project/'.$this->apiKey.'/'.$resourceType.'/'.$resourceId.'/layout'
+            'PUT',
+            '/v2/project/'.$this->apiKey.'/'.$resourceType.'/'.$resourceId.'/layout'
         );
         try {
             $response = $this->client->send($request, [
@@ -355,12 +356,12 @@ class Client
     public function dial($sessionId, $token, $sipUri, $options)
     {
         $body = array(
-          'sessionId' => $sessionId,
-          'token' => $token,
-          'sip' => array(
-            'uri' => $sipUri,
-            'secure' => $options['secure']
-          )
+            'sessionId' => $sessionId,
+            'token' => $token,
+            'sip' => array(
+                'uri' => $sipUri,
+                'secure' => $options['secure']
+            )
         );
 
         if (isset($options) && array_key_exists('headers', $options) && sizeof($options['headers']) > 0) {
