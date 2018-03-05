@@ -16,7 +16,7 @@ Add this package (`opentok/opentok`) to your `composer.json` file, or just run t
 command line:
 
 ```
-$ ./composer.phar require opentok/opentok 3.1.x
+$ ./composer.phar require opentok/opentok 4.0.x
 ```
 
 ## Manually:
