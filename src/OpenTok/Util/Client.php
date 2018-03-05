@@ -95,7 +95,7 @@ class Client
         $request = new Request('POST', '/session/create');
         try {
             $response = $this->client->send($request, [
-                'debug' => true,
+                'debug' => $this->isDebug(),
                 'form_params' => $this->postFieldsForOptions($options)
             ]);
             $sessionXml = $this->getResponseXml($response);
@@ -143,6 +143,7 @@ class Client
 
         try {
             $response = $this->client->send($request, [
+                'debug' => $this->isDebug(),
                 'json' => array_merge(
                     array( 'sessionId' => $sessionId ),
                     $options
@@ -165,7 +166,9 @@ class Client
         );
 
         try {
-            $response = $this->client->send($request);
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug()
+            ]);
             $archiveJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
             // TODO: what happens with JSON parse errors?
@@ -181,7 +184,9 @@ class Client
             '/v2/project/'.$this->apiKey.'/archive/'.$archiveId
         );
         try {
-            $response = $this->client->send($request);
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug()
+            ]);
             $archiveJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
             $this->handleException($e);
@@ -198,7 +203,9 @@ class Client
             ['Content-Type' => 'application/json']
         );
         try {
-            $response = $this->client->send($request);
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug()
+            ]);
             if ($response->getStatusCode() != 204) {
                 json_decode($response->getBody(), true);
             }
@@ -217,7 +224,9 @@ class Client
             ['Content-Type' => 'application/json']
         );
         try {
-            $response = $this->client->send($request);
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug()
+            ]);
             if ($response->getStatusCode() != 204) {
                 json_decode($response->getBody(), true);
             }
@@ -240,7 +249,8 @@ class Client
         }
         try {
             $response = $this->client->send($request, [
-              'query' => $queryParams
+                'debug' => $this->isDebug(),
+                'query' => $queryParams
             ]);
             $archiveListJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
@@ -259,10 +269,11 @@ class Client
 
         try {
             $response = $this->client->send($request, [
-              'json' => [
-                'sessionId' => $sessionId,
-                'layout' => $options['layout']->jsonSerialize()
-              ]
+                'debug' => $this->isDebug(),
+                'json' => [
+                    'sessionId' => $sessionId,
+                    'layout' => $options['layout']->jsonSerialize()
+                ]
             ]);
             $broadcastJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
@@ -280,7 +291,9 @@ class Client
         );
 
         try {
-            $response = $this->client->send($request);
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug()
+            ]);
             $broadcastJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
             $this->handleBroadcastException($e);
@@ -295,7 +308,9 @@ class Client
             '/v2/project/'.$this->apiKey.'/broadcast/'.$broadcastId
         );
         try {
-            $response = $this->client->send($request);
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug()
+            ]);
             $broadcastJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
             $this->handleBroadcastException($e);
@@ -310,7 +325,9 @@ class Client
             '/v2/project/'.$this->apiKey.'/'.$resourceType.'/'.$resourceId.'/layout'
         );
         try {
-            $response = $this->client->send($request);
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug()
+            ]);
             $layoutJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
             $this->handleException($e);
@@ -326,6 +343,7 @@ class Client
         );
         try {
             $response = $this->client->send($request, [
+                'debug' => $this->isDebug(),
                 'json' => $layout->jsonSerialize()
             ]);
             $layoutJson = json_decode($response->getBody(), true);
@@ -343,6 +361,7 @@ class Client
         );
         try {
             $response = $this->client->send($request, [
+                'debug' => $this->isDebug(),
                 'json' => $properties
             ]);
             if ($response->getStatusCode() != 204) {
@@ -380,6 +399,7 @@ class Client
 
         try {
             $response = $this->client->send($request, [
+                'debug' => $this->isDebug(),
                 'json' => $body
             ]);
             $sipJson = json_decode($response->getBody(), true);
@@ -472,4 +492,8 @@ class Client
         }
     }
 
+    private function isDebug()
+    {
+      return defined('OPENTOK_DEBUG');
+    }
 }

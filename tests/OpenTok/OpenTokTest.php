@@ -16,7 +16,7 @@ use OpenTok\Util\Client;
 
 use OpenTok\TestHelpers;
 
-// define('DEBUG', true);
+define('OPENTOK_DEBUG', true);
 
 class OpenTokTest extends PHPUnit_Framework_TestCase
 {
@@ -57,9 +57,6 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
             'https://api.opentok.com',
             $clientOptions
         );
-        if (defined('DEBUG')) {
-            $this->client->addSubscriber(LogPlugin::getDebugPlugin());
-        }
 
         // Push history onto handler stack *after* configuring client to
         // ensure auth header is added before history handler is invoked
