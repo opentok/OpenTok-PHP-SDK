@@ -41,6 +41,9 @@ use OpenTok\Exception\ArchiveUnexpectedValueException;
 * For archives with the status "stopped" or "failed", this string describes the reason
 * the archive stopped (such as "maximum duration exceeded") or failed.
 *
+* @property string $resolution
+* The resolution of the archive.
+*
 * @property string $sessionId
 * The session ID of the OpenTok session associated with this archive.
 *
@@ -133,6 +136,7 @@ class Archive {
             case 'hasVideo':
             case 'hasAudio':
             case 'outputMode':
+            case 'resolution':
                 return $this->data[$name];
                 break;
             default:
