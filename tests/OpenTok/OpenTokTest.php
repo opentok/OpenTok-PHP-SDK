@@ -688,6 +688,102 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(OutputMode::INDIVIDUAL, $archive->outputMode);
     }
 
+    public function testStartsArchiveResolutionSD()
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/archive/session_resolution-sd'
+        ]]);
+
+        // This sessionId was generated using a different apiKey, but this method doesn't do any
+        // decoding to check, so its fine.
+        $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
+
+        // Act
+        $archive = $this->opentok->startArchive($sessionId, array(
+            'resolution' => '640x480'
+        ));
+
+        // Assert
+        $this->assertCount(1, $this->historyContainer);
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive', $request->getUri()->getPath());
+        $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
+        $this->assertEquals('https', $request->getUri()->getScheme());
+
+        $contentType = $request->getHeaderLine('Content-Type');
+        $this->assertNotEmpty($contentType);
+        $this->assertEquals('application/json', $contentType);
+
+        $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        // TODO: test the dynamically built User Agent string
+        $userAgent = $request->getHeaderLine('User-Agent');
+        $this->assertNotEmpty($userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.0.0', $userAgent);
+
+        $body = json_decode($request->getBody());
+        $this->assertEquals($sessionId, $body->sessionId);
+        $this->assertEquals('640x480', $body->resolution);
+
+        $this->assertInstanceOf('OpenTok\Archive', $archive);
+    }
+
+    public function testStartsArchiveResolutionHD()
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/archive/session_resolution-hd'
+        ]]);
+
+        // This sessionId was generated using a different apiKey, but this method doesn't do any
+        // decoding to check, so its fine.
+        $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
+
+        // Act
+        $archive = $this->opentok->startArchive($sessionId, array(
+            'resolution' => '1280x720'
+        ));
+
+        // Assert
+        $this->assertCount(1, $this->historyContainer);
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive', $request->getUri()->getPath());
+        $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
+        $this->assertEquals('https', $request->getUri()->getScheme());
+
+        $contentType = $request->getHeaderLine('Content-Type');
+        $this->assertNotEmpty($contentType);
+        $this->assertEquals('application/json', $contentType);
+
+        $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        // TODO: test the dynamically built User Agent string
+        $userAgent = $request->getHeaderLine('User-Agent');
+        $this->assertNotEmpty($userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.0.0', $userAgent);
+
+        $body = json_decode($request->getBody());
+        $this->assertEquals($sessionId, $body->sessionId);
+        $this->assertEquals('1280x720', $body->resolution);
+
+        $this->assertInstanceOf('OpenTok\Archive', $archive);
+    }
+
     public function testStopsArchive()
     {
         // Arrange

@@ -118,6 +118,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($this->archiveData['hasVideo'], $this->archive->hasVideo);
         $this->assertEquals($this->archiveData['hasAudio'], $this->archive->hasAudio);
         $this->assertEquals($this->archiveData['outputMode'], $this->archive->outputMode);
+        $this->assertEquals($this->archiveData['resolution'], $this->archive->resolution);
     }
 
     public function testStopsArchive()
