@@ -43,7 +43,8 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
             'url' => null,
             'hasVideo' => false,
             'hasAudio' => true,
-            'outputMode' => 'composed'
+            'outputMode' => 'composed',
+            'resolution' => '640x480'
         );
 
         $this->archive = new Archive($this->archiveData, array(
