@@ -43,7 +43,8 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
             'url' => null,
             'hasVideo' => false,
             'hasAudio' => true,
-            'outputMode' => 'composed'
+            'outputMode' => 'composed',
+            'resolution' => '640x480'
         );
 
         $this->archive = new Archive($this->archiveData, array(
@@ -118,6 +119,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($this->archiveData['hasVideo'], $this->archive->hasVideo);
         $this->assertEquals($this->archiveData['hasAudio'], $this->archive->hasAudio);
         $this->assertEquals($this->archiveData['outputMode'], $this->archive->outputMode);
+        $this->assertEquals($this->archiveData['resolution'], $this->archive->resolution);
     }
 
     public function testStopsArchive()

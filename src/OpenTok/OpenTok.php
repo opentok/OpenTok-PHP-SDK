@@ -292,10 +292,11 @@ class OpenTok {
             'name' => null,
             'hasVideo' => true,
             'hasAudio' => true,
-            'outputMode' => OutputMode::COMPOSED
+            'outputMode' => OutputMode::COMPOSED,
+            'resolution' => '640x480'
         );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($name, $hasVideo, $hasAudio, $outputMode) = array_values($options);
+        list($name, $hasVideo, $hasAudio, $outputMode, $resolution) = array_values($options);
 
         // validate arguments
         Validators::validateSessionId($sessionId);
@@ -303,6 +304,7 @@ class OpenTok {
         Validators::validateArchiveHasVideo($hasVideo);
         Validators::validateArchiveHasAudio($hasAudio);
         Validators::validateArchiveOutputMode($outputMode);
+        Validators::validateArchiveResolution($resolution);
 
         // make API call
         $archiveData = $this->client->startArchive($sessionId, $options);
