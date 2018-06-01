@@ -38,7 +38,7 @@ In order to create a release, the following should be completed in order.
    "-alpha.1" in each file except samples and documentation. Then make another commit with the
    message "Begin development on next version".
 1. Push the changes to the source repository: `git push origin master; git push --tags origin`s
-1. Generate a phar archive for distribution using [Box](http://box-project.org/): `box build`. Be sure that the
+1. Generate a phar archive for distribution using [Box](https://github.com/box-project/box2): `box build`. Be sure that the
    dependencies in the `/vendor` directory are current before building. Upload it to the GitHub Release. Add
    release notes with a description of changes and fixes.
 
