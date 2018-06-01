@@ -43,7 +43,8 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
             'url' => null,
             'hasVideo' => false,
             'hasAudio' => true,
-            'outputMode' => 'composed'
+            'outputMode' => 'composed',
+            'resolution' => '640x480'
         );
 
         $this->archive = new Archive($this->archiveData, array(
@@ -118,6 +119,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($this->archiveData['hasVideo'], $this->archive->hasVideo);
         $this->assertEquals($this->archiveData['hasAudio'], $this->archive->hasAudio);
         $this->assertEquals($this->archiveData['outputMode'], $this->archive->outputMode);
+        $this->assertEquals($this->archiveData['resolution'], $this->archive->resolution);
     }
 
     public function testStopsArchive()
@@ -154,7 +156,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.0.0', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.0.1-alpha.1', $userAgent);
 
         // TODO: test the properties of the actual archive object
         $this->assertEquals('stopped', $this->archive->status);
@@ -193,7 +195,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.0.0', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.0.1-alpha.1', $userAgent);
 
         $this->assertTrue($success);
         // TODO: assert that all properties of the archive object were cleared

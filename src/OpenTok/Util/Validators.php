@@ -145,6 +145,12 @@ class Validators
             throw new InvalidArgumentException('Unknown output mode: '.print_r($outputMode, true));
         }
     }
+    public static function validateArchiveResolution($resolution)
+    {
+        if (!(is_string($resolution))) {
+            throw new InvalidArgumentException('The resolution must be a string: '.print_r($resolution, true));
+        }
+    }
     public static function validateArchiveId($archiveId)
     {
         if ( !is_string($archiveId) || preg_match(self::$guidRegEx, $archiveId) ) {
