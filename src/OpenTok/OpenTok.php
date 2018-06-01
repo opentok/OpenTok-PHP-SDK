@@ -315,7 +315,7 @@ class OpenTok {
             $errorMessage = "Resolution must be a valid string";
             throw new UnexpectedValueException($errorMessage);
         }
-
+        // we don't validate the actual resolution so if we add resolutions, we don't artificially block functionality
         // make API call
         $archiveData = $this->client->startArchive($sessionId, $options);
 
