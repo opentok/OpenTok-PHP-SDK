@@ -313,6 +313,9 @@ class OpenTok {
         } else if(!empty($resolution) && $outputMode === OutputMode::INDIVIDUAL) {
             $errorMessage = "Resolution can't be specified for Individual Archives";
             throw new UnexpectedValueException($errorMessage);
+        } else if (!is_string($resolution)) {
+            $errorMessage = "Resolution must be a valid string";
+            throw new UnexpectedValueException($errorMessage);
         }
 
         // make API call
