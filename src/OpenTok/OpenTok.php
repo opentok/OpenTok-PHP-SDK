@@ -304,16 +304,14 @@ class OpenTok {
         Validators::validateArchiveHasAudio($hasAudio);
         Validators::validateArchiveOutputMode($outputMode);
 
-        if (is_null($resolution) && $outputMode === OutputMode::COMPOSED) {
+        if ((is_null($resolution) || empty($resolution)) && $outputMode === OutputMode::COMPOSED) {
             $options['resolution'] = "640x480";
-        } else if(is_null($resolution) && $outputMode === OutputMode::INDIVIDUAL) {
+        } else if((is_null($resolution) || empty($resolution)) && $outputMode === OutputMode::INDIVIDUAL) {
             unset($options['resolution']);
-        } else if(!empty($resolution) && $outputMode === OutputMode::COMPOSED && is_string($resolution)) {
-            $options['resolution'] = $resolution;
         } else if(!empty($resolution) && $outputMode === OutputMode::INDIVIDUAL) {
             $errorMessage = "Resolution can't be specified for Individual Archives";
             throw new UnexpectedValueException($errorMessage);
-        } else if (!is_string($resolution)) {
+        } else if(!empty($resolution) && $outputMode === OutputMode::COMPOSED && !is_string($resolution)) {
             $errorMessage = "Resolution must be a valid string";
             throw new UnexpectedValueException($errorMessage);
         }
