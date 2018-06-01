@@ -286,25 +286,32 @@ class OpenTok {
         if (!is_array($options)) {
             $options = array('name' => $options);
         }
-
+        
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array(
             'name' => null,
             'hasVideo' => true,
             'hasAudio' => true,
             'outputMode' => OutputMode::COMPOSED,
-            'resolution' => '640x480'
+            'resolution' => null,
         );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
         list($name, $hasVideo, $hasAudio, $outputMode, $resolution) = array_values($options);
-
         // validate arguments
         Validators::validateSessionId($sessionId);
         Validators::validateArchiveName($name);
         Validators::validateArchiveHasVideo($hasVideo);
         Validators::validateArchiveHasAudio($hasAudio);
         Validators::validateArchiveOutputMode($outputMode);
-        Validators::validateArchiveResolution($resolution);
+
+        if (is_null($resolution) && $outputMode === OutputMode::COMPOSED) {
+            $options['resolution'] = "640x480";
+        } else if(is_null($resolution) && $outputMode === OutputMode::INDIVIDUAL) {
+            unset($options['resolution']);
+        } else if(!empty($resolution) && $outputMode === OutputMode::COMPOSED) {
+            $options['resolution'] = $resolution;
+            Validators::validateArchiveResolution($resolution);
+        }
 
         // make API call
         $archiveData = $this->client->startArchive($sessionId, $options);
