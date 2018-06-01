@@ -308,9 +308,11 @@ class OpenTok {
             $options['resolution'] = "640x480";
         } else if(is_null($resolution) && $outputMode === OutputMode::INDIVIDUAL) {
             unset($options['resolution']);
-        } else if(!empty($resolution) && $outputMode === OutputMode::COMPOSED) {
+        } else if(!empty($resolution) && $outputMode === OutputMode::COMPOSED && is_string($resolution)) {
             $options['resolution'] = $resolution;
-            Validators::validateArchiveResolution($resolution);
+        } else if(!empty($resolution) && $outputMode === OutputMode::INDIVIDUAL) {
+            $errorMessage = "Resolution can't be specified for Individual Archives";
+            throw new UnexpectedValueException($errorMessage);
         }
 
         // make API call
