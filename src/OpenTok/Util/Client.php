@@ -247,7 +247,7 @@ class Client
         return true;
     }
 
-    public function listArchives($offset, $count)
+    public function listArchives($offset, $count, $sessionId)
     {
         $request = new Request('GET', '/v2/project/'.$this->apiKey.'/archive');
         $queryParams = [];
@@ -256,6 +256,9 @@ class Client
         }
         if (!empty($count)) {
             $queryParams['count'] = $count;
+        }
+        if (!empty($sessionId)) {
+            $queryParams['sessionId'] = $sessionId;
         }
         try {
             $response = $this->client->send($request, [
