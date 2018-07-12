@@ -193,7 +193,28 @@ method (see "Creating Sessions," above).
 For more information on archiving, see the
 [OpenTok archiving](https://tokbox.com/opentok/tutorials/archiving/) programming guide.
 
+## Sending Signals
 
+Once a Session is created, you can send signals to everyone in the session or to a specific connection.
+You can send a signal by calling the `signal($sessionId, $options)` method of the
+`OpenTok\OpenTok` class. The `$options` parameter is an associative array used to set the data, type, and connection Id. Please keep in mind
+that the `connectionId` is an optional parameter and should be to used to send a signal to a specific connection.
+
+```php
+
+// Send a signal to a specific connection
+$opentok->signal($sessionId, array(
+    'connectionId' => 'da9cb410-e29b-4c2d-ab9e-fe65bf83fcaf',
+    'data' => 'some signal message'
+    'type' => 'signal type'
+));
+
+// Send a signal to everyone in the session
+$opentok->signal($sessionId, array(
+    'data' => 'some signal message'
+    'type' => 'signal type'
+));
+```
 # Samples
 
 There are two sample applications included in this repository. To get going as fast as possible, clone the whole

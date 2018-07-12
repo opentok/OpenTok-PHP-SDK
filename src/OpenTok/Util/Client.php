@@ -24,6 +24,12 @@ use OpenTok\Exception\BroadcastException;
 use OpenTok\Exception\BroadcastDomainException;
 use OpenTok\Exception\BroadcastUnexpectedValueException;
 use OpenTok\Exception\BroadcastAuthenticationException;
+
+use OpenTok\Exception\SignalException;
+use OpenTok\Exception\SignalDomainException;
+use OpenTok\Exception\SignalUnexpectedValueException;
+use OpenTok\Exception\SignalAuthenticationException;
+
 use OpenTok\MediaMode;
 
 // TODO: build this dynamically
@@ -409,6 +415,50 @@ class Client
         return $sipJson;
     }
 
+    public function signal($sessionId, $options)
+    {
+        // set up the request
+        $request = new Request('POST', '/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/signal');
+
+        try {
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug(),
+                'json' => array_merge(
+                    $options
+                )
+            ]);
+            if ($response->getStatusCode() != 204) {
+                json_decode($response->getBody(), true);
+            }
+        } catch (\Exception $e) {
+            $this->handleSignalingException($e);
+            return false;
+        }
+        return true;
+    }
+
+    public function signalWithConnectionId($sessionId, $connectionId, $options)
+    {
+        // set up the request
+        $request = new Request('POST', '/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/connection/'.$connectionId.'/signal');
+
+        try {
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug(),
+                'json' => array_merge(
+                    $options
+                )
+            ]);
+            if ($response->getStatusCode() != 204) {
+                json_decode($response->getBody(), true);
+            }
+        } catch (\Exception $e) {
+            $this->handleSignalingException($e);
+            return false;
+        }
+        return true;
+    }
+
     // Helpers
 
     private function postFieldsForOptions($options)
@@ -489,6 +539,22 @@ class Client
         } catch (Exception $oe) {
             // TODO: check if this works because BroadcastException is an interface not a class
             throw new BroadcastException($e->getMessage(), null, $oe->getPrevious());
+        }
+    }
+
+    private function handleSignalingException($e)
+    {
+        try {
+            $this->handleException($e);
+        } catch (AuthenticationException $ae) {
+            throw new SignalAuthenticationException($this->apiKey, $this->apiSecret, null, $ae->getPrevious());
+        } catch (DomainException $de) {
+            throw new SignalDomainException($e->getMessage(), null, $de->getPrevious());
+        } catch (UnexpectedValueException $uve) {
+            throw new SignalUnexpectedValueException($e->getMessage(), null, $uve->getPrevious());
+        } catch (Exception $oe) {
+            // TODO: check if this works because SignalException is an interface not a class
+            throw new SignalException($e->getMessage(), null, $oe->getPrevious());
         }
     }
 

@@ -566,6 +566,52 @@ class OpenTok {
         return new SipCall($sipJson);
     }
 
+    /**
+     * Initiate a signal
+     *
+     * @param string $sessionId The OpenTok SessionId where the participant being called
+     * will join.
+     *
+     *
+     * @param array $options This array defines the payload for the signal. This array includes the
+     * following keys, of which type and connectionId are optional:
+     *
+     * <ul>
+     *
+     *    <li><code>'type'</code> (string) &mdash; Type: String</li>
+     *    <li><code>'connectionId'</code> (string) &mdash; ConnectionId: String</li>
+     *    <li><code>'data'</code> (string) &mdash; Data: String</li>
+     *
+     * </ul>
+     *
+     * @return Signal The Signal, which contains the signal payload and connection.
+     */
+    public function signal($sessionId, $options=array())
+    {
+        // unpack optional arguments (merging with default values) into named variables
+        $defaults = array(
+            'type' => null,
+            'data' => null,
+            'connectionId'   => null,
+        );
+        $options = array_merge($defaults, array_intersect_key($options, $defaults));
+        list($type, $data, $connectionId) = array_values($options);
+
+        // validate arguments
+        Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
+
+        unset($options['connectionId']);
+        if (is_null($connectionId) || empty($connectionId)) {
+            // make API call without connectionId
+            return $this->client->signal($sessionId, $options);
+        } else {
+            Validators::validateConnectionId($connectionId); 
+            // make API call with connectionId
+            return $this->client->signalWithConnectionId($sessionId, $connectionId, $options);
+        }
+
+    }
+
     /** @internal */
     private function _sign_string($string, $secret)
     {

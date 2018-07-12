@@ -1442,5 +1442,92 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $body = json_decode($request->getBody());
         $this->assertEquals($from, $body->sip->from);
     }
+
+    public function testSignalData()
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 204
+        ]]);
+
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $bogusApiKey = '12345678';
+        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+
+        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+
+        $options = array(
+            'data' => 'apple',
+            'type' => 'signal type sample'
+        );
+
+        // Act
+        $this->opentok->signal($sessionId, $options);
+
+                // Assert
+        $this->assertCount(1, $this->historyContainer);
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/session/'.$sessionId.'/signal', $request->getUri()->getPath());
+        $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
+        $this->assertEquals('https', $request->getUri()->getScheme());
+
+        $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        // TODO: test the dynamically built User Agent string
+        $userAgent = $request->getHeaderLine('User-Agent');
+        $this->assertNotEmpty($userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.1.1-alpha.1', $userAgent);
+
+        $body = json_decode($request->getBody());
+        $this->assertEquals('apple', $body->data);
+        $this->assertEquals('signal type sample', $body->type);        
+    }
+
+    public function testSignalWithConnectionId()
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 204
+        ]]);
+
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $bogusApiKey = '12345678';
+        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $connectionId = 'da9cb410-e29b-4c2d-ab9e-fe65bf83fcaf';
+
+        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+
+        $options = array(
+            'connectionId' => $connectionId,
+            'data' => 'random message'
+        );
+
+        // Act
+        $this->opentok->signal($sessionId, $options);
+
+        $this->assertCount(1, $this->historyContainer);
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/session/'.$sessionId.'/connection/'.$connectionId.'/signal', $request->getUri()->getPath());
+        $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
+        $this->assertEquals('https', $request->getUri()->getScheme());
+
+        $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        // TODO: test the dynamically built User Agent string
+        $userAgent = $request->getHeaderLine('User-Agent');
+        $this->assertNotEmpty($userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.1.1-alpha.1', $userAgent);
+
+        $body = json_decode($request->getBody());
+        $this->assertEquals('random message', $body->data);
+        
+    }
+
 }
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/
