@@ -205,6 +205,7 @@ use OpenTok\OpenTok;
 // Force disconnect a client connection
 $opentok->forceDisconnect($sessionId, $connectionId);
 ```
+## Sending Signals
 
 Once a Session is created, you can send signals to everyone in the session or to a specific connection.
 You can send a signal by calling the `signal($sessionId, $options)` method of the
