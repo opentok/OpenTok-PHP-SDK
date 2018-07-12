@@ -399,7 +399,6 @@ class OpenTok {
     {
         // validate params
         Validators::validateOffsetAndCount($offset, $count);
-        Validators::validateSessionId($sessionId);
 
         $archiveListData = $this->client->listArchives($offset, $count, $sessionId);
         return new ArchiveList($archiveListData, array( 'client' => $this->client ));
