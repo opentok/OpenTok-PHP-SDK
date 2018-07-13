@@ -1313,6 +1313,45 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.1.1-alpha.1', $userAgent);
     }
 
+    public function testGetStream()
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => '/v2/project/APIKEY/session/SESSIONID/stream/STREAMID/get'
+        ]]);
+
+        $sessionId = 'SESSIONID';
+        $streamId = '8b732909-0a06-46a2-8ea8-074e64d43422';
+
+        // Act
+        $streamData = $this->opentok->getStream($sessionId, $streamId);
+        // Assert
+        $this->assertCount(1, $this->historyContainer);        
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertEquals('GET', strtoupper($request->getMethod()));
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/session/'.$sessionId.'/stream/'.$streamId, $request->getUri()->getPath());
+        $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
+        $this->assertEquals('https', $request->getUri()->getScheme());
+
+        $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        $this->assertInstanceOf('OpenTok\Stream', $streamData);
+        $this->assertNotNull($streamData->id);
+        $this->assertNotNull($streamData->name);
+        $this->assertNotNull($streamData->videoType);
+        $this->assertNotNull($streamData->layoutClassList);
+        
+        $userAgent = $request->getHeaderLine('User-Agent');
+        $this->assertNotEmpty($userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.1.1-alpha.1', $userAgent);
+    }
+
 
     public function testSipCall()
     {

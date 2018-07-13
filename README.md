@@ -112,6 +112,27 @@ $token = $session->generateToken(array(
 ));
 ```
 
+## Working with Streams
+
+You can get information about a stream by calling the `getStream($sessionId, $streamId)` method of the
+`OpenTok\OpenTok` class, or by calling the `getStream($streamId)` method on the `OpenTok\Session`
+instance after creating it.
+
+```php
+use OpenTok\Session;
+
+// Get stream info from just a sessionId (fetched from a database)
+$stream = $opentok->getStream($sessionId, $streamId);
+// Get stream info by calling the method on the Session (returned from createSession)
+$stream = $session->getStream($streamId);
+
+// Stream properties
+$stream->id; // string with the stream ID
+$stream->videoType; // string with the video type
+$stream->name; // string with the name
+$stream->layoutClassList; // array with the layout class list
+```
+
 ## Working with Archives
 
 You can only archive sessions that use the OpenTok Media Router
