@@ -193,7 +193,6 @@ method (see "Creating Sessions," above).
 For more information on archiving, see the
 [OpenTok archiving](https://tokbox.com/opentok/tutorials/archiving/) programming guide.
 
-## Sending Signals
 ## Force Disconnect
 
 Your application server can disconnect a client from an OpenTok session by calling the `forceDisconnect($sessionId, $connectionId)` 
