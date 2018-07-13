@@ -203,17 +203,28 @@ that the `connectionId` is an optional parameter and should be to used to send a
 ```php
 
 // Send a signal to a specific connection
-$opentok->signal($sessionId, array(
+
+$signalOptions = array(
     'connectionId' => 'da9cb410-e29b-4c2d-ab9e-fe65bf83fcaf',
     'data' => 'some signal message'
     'type' => 'signal type'
-));
+);
+$opentok->signal($sessionId, $signalOptions);
+
+# Send a signal from an Session instance (returned from createSession)
+$session->signal($options);
 
 // Send a signal to everyone in the session
-$opentok->signal($sessionId, array(
+$signalOptions = array(
     'data' => 'some signal message'
     'type' => 'signal type'
-));
+);
+$opentok->signal($sessionId, $signalOptions);
+
+# Send a signal from an Session instance (returned from createSession)
+$session->signal($options);
+
+
 ```
 # Samples
 

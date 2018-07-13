@@ -145,6 +145,26 @@ class Session
         return $this->opentok->generateToken($this->sessionId, $options);
     }
 
+    /**
+     * Initiate a signal
+     *
+     * @param array $options This array defines the payload for the signal. This array includes the
+     * following keys, of which type and connectionId are optional:
+     *
+     * <ul>
+     *
+     *    <li><code>'type'</code> (string) &mdash; Type: String</li>
+     *    <li><code>'connectionId'</code> (string) &mdash; ConnectionId: String</li>
+     *    <li><code>'data'</code> (string) &mdash; Data: String</li>
+     *
+     * </ul>
+     *
+     */
+    public function signal($options=array())
+    {
+        $this->opentok->signal($this->sessionId, $options);
+    }
+
 }
 
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/

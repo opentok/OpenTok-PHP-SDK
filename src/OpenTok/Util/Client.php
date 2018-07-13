@@ -432,9 +432,7 @@ class Client
             }
         } catch (\Exception $e) {
             $this->handleSignalingException($e);
-            return false;
         }
-        return true;
     }
 
     public function signalWithConnectionId($sessionId, $connectionId, $options)
@@ -454,9 +452,7 @@ class Client
             }
         } catch (\Exception $e) {
             $this->handleSignalingException($e);
-            return false;
         }
-        return true;
     }
 
     // Helpers

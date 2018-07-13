@@ -584,7 +584,6 @@ class OpenTok {
      *
      * </ul>
      *
-     * @return Signal The Signal, which contains the signal payload and connection.
      */
     public function signal($sessionId, $options=array())
     {
@@ -603,11 +602,11 @@ class OpenTok {
         unset($options['connectionId']);
         if (is_null($connectionId) || empty($connectionId)) {
             // make API call without connectionId
-            return $this->client->signal($sessionId, $options);
+            $this->client->signal($sessionId, $options);
         } else {
             Validators::validateConnectionId($connectionId); 
             // make API call with connectionId
-            return $this->client->signalWithConnectionId($sessionId, $connectionId, $options);
+            $this->client->signalWithConnectionId($sessionId, $connectionId, $options);
         }
 
     }
