@@ -194,6 +194,17 @@ For more information on archiving, see the
 [OpenTok archiving](https://tokbox.com/opentok/tutorials/archiving/) programming guide.
 
 ## Sending Signals
+## Force Disconnect
+
+Your application server can disconnect a client from an OpenTok session by calling the `forceDisconnect($sessionId, $connectionId)` 
+method of the `OpenTok\OpenTok` class.
+
+```php
+use OpenTok\OpenTok;
+
+// Force disconnect a client connection
+$opentok->forceDisconnect($sessionId, $connectionId);
+```
 
 Once a Session is created, you can send signals to everyone in the session or to a specific connection.
 You can send a signal by calling the `signal($sessionId, $options)` method of the
@@ -201,6 +212,7 @@ You can send a signal by calling the `signal($sessionId, $options)` method of th
 that the `connectionId` is an optional parameter and should be to used to send a signal to a specific connection.
 
 ```php
+use OpenTok\OpenTok;
 
 // Send a signal to a specific connection
 
