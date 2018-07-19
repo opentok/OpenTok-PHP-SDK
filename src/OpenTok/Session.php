@@ -146,23 +146,24 @@ class Session
     }
 
     /**
-     * Initiate a signal
+     * Initiate a signal using the Session class returned from the createSession method
      *
-     * @param array $options This array defines the payload for the signal. This array includes the
-     * following keys, of which type and connectionId are optional:
+     * @param array $payload This array defines the payload for the signal. This array includes the
+     * following keys, of which type is optional:
      *
      * <ul>
      *
      *    <li><code>'type'</code> (string) &mdash; Type: String</li>
-     *    <li><code>'connectionId'</code> (string) &mdash; ConnectionId: String</li>
      *    <li><code>'data'</code> (string) &mdash; Data: String</li>
      *
      * </ul>
+     * 
+     * @param string $connectionId An optional parameter used to send the signal to a specific connection in a session.
      *
      */
-    public function signal($options=array())
+    public function signal($payload, $connectionId=null)
     {
-        $this->opentok->signal($this->sessionId, $options);
+        $this->opentok->signal($this->sessionId, $payload, $connectionId);
     }
 
 }

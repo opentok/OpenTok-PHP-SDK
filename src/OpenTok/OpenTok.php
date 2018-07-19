@@ -569,44 +569,45 @@ class OpenTok {
     /**
      * Initiate a signal
      *
-     * @param string $sessionId The OpenTok SessionId where the participant being called
-     * will join.
+     * @param string $sessionId The OpenTok SessionId where the connected client(s) will receive the signal.
      *
      *
-     * @param array $options This array defines the payload for the signal. This array includes the
-     * following keys, of which type and connectionId are optional:
+     * @param array $payload This array defines the payload for the signal. This array includes the
+     * following keys, of which type is optional:
      *
      * <ul>
      *
      *    <li><code>'type'</code> (string) &mdash; Type: String</li>
-     *    <li><code>'connectionId'</code> (string) &mdash; ConnectionId: String</li>
      *    <li><code>'data'</code> (string) &mdash; Data: String</li>
      *
      * </ul>
-     *
+     * 
+     * 
+     * @param string $connectionId An optional parameter used to send the signal to a specific connection in a session.
      */
-    public function signal($sessionId, $options=array())
+    public function signal($sessionId, $payload, $connectionId=null)
     {
+
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array(
             'type' => null,
             'data' => null,
-            'connectionId'   => null,
         );
-        $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($type, $data, $connectionId) = array_values($options);
+        
+        $payload = array_merge($defaults, array_intersect_key($payload, $defaults));
+        list($type, $data) = array_values($payload);
 
         // validate arguments
         Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
-
-        unset($options['connectionId']);
+        Validators::validateSignalPayload($payload);
+        
         if (is_null($connectionId) || empty($connectionId)) {
             // make API call without connectionId
-            $this->client->signal($sessionId, $options);
+            $this->client->signal($sessionId, $payload);
         } else {
             Validators::validateConnectionId($connectionId); 
             // make API call with connectionId
-            $this->client->signalWithConnectionId($sessionId, $connectionId, $options);
+            $this->client->signal($sessionId, $payload, $connectionId);
         }
 
     }
