@@ -208,8 +208,16 @@ $opentok->forceDisconnect($sessionId, $connectionId);
 
 Once a Session is created, you can send signals to everyone in the session or to a specific connection.
 You can send a signal by calling the `signal($sessionId, $options)` method of the
-`OpenTok\OpenTok` class. The `$options` parameter is an associative array used to set the data, type, and connection Id. Please keep in mind
-that the `connectionId` is an optional parameter and should be to used to send a signal to a specific connection.
+`OpenTok\OpenTok` class. The `$options` parameter is an associative array used to set the
+following:
+
+* `data` (string) -- The data string for the signal.
+
+* `type` (string) -- &mdash; (Optional) The type string for the signal.
+
+* `connectionId` (string) -- (Optional) The connection ID of a client connected to the session.
+   If you specify this value, the signal is sent to the specified client. Otherwise, the signal
+   is sent to all clients connected to the session.
 
 ```php
 use OpenTok\OpenTok;
@@ -223,7 +231,7 @@ $signalOptions = array(
 );
 $opentok->signal($sessionId, $signalOptions);
 
-# Send a signal from an Session instance (returned from createSession)
+// Send a signal from an Session instance (returned from createSession)
 $session->signal($options);
 
 // Send a signal to everyone in the session
@@ -233,9 +241,11 @@ $signalOptions = array(
 );
 $opentok->signal($sessionId, $signalOptions);
 
-# Send a signal from an Session instance (returned from createSession)
+// Send a signal from an Session instance (returned from createSession)
 $session->signal($options);
 
+For more information, see the [OpenTok signaling developer
+guide](https://tokbox.com/developer/guides/signaling/).
 
 ```
 # Samples

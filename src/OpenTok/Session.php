@@ -146,16 +146,19 @@ class Session
     }
 
     /**
-     * Initiate a signal
+     * Send a signal to clients (or a specific client) connected to the session.
      *
      * @param array $options This array defines the payload for the signal. This array includes the
      * following keys, of which type and connectionId are optional:
      *
      * <ul>
      *
-     *    <li><code>'type'</code> (string) &mdash; Type: String</li>
-     *    <li><code>'connectionId'</code> (string) &mdash; ConnectionId: String</li>
-     *    <li><code>'data'</code> (string) &mdash; Data: String</li>
+     *    <li><code>'data'</code> (string) &mdash; The data string for the signal.</li>
+     *    <li><code>'type'</code> (string) &mdash; (Optional) The type string for the signal.</li>
+     *    <li><code>'connectionId'</code> (string) &mdash;  (Optional) The connection ID of
+     *      a client connected to the session. If you specify this value, the signal is
+     *      sent to the specified client. Otherwise, the signal is sent to all clients
+     *      connected to the session.</li>
      *
      * </ul>
      *
