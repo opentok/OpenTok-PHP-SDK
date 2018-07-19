@@ -567,9 +567,9 @@ class OpenTok {
     }
 
     /**
-     * Initiate a signal
+     * Sends a signal to clients (or a specific client) connected to an OpenTok session.
      *
-     * @param string $sessionId The OpenTok SessionId where the connected client(s) will receive the signal.
+     * @param string $sessionId The OpenTok session ID where the signal will be sent.
      *
      *
      * @param array $payload This array defines the payload for the signal. This array includes the
@@ -577,8 +577,8 @@ class OpenTok {
      *
      * <ul>
      *
-     *    <li><code>'type'</code> (string) &mdash; Type: String</li>
-     *    <li><code>'data'</code> (string) &mdash; Data: String</li>
+     *    <li><code>'data'</code> (string) &mdash; The data string for the signal.</li>
+     *    <li><code>'type'</code> (string) &mdash; (Optional) The type string for the signal.</li>
      *
      * </ul>
      * 

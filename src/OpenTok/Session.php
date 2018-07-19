@@ -146,15 +146,15 @@ class Session
     }
 
     /**
-     * Initiate a signal using the Session class returned from the createSession method
+     * Sends a signal to clients (or a specific client) connected to the session.
      *
      * @param array $payload This array defines the payload for the signal. This array includes the
      * following keys, of which type is optional:
      *
      * <ul>
      *
-     *    <li><code>'type'</code> (string) &mdash; Type: String</li>
-     *    <li><code>'data'</code> (string) &mdash; Data: String</li>
+     *    <li><code>'data'</code> (string) &mdash; The data string for the signal.</li>
+     *    <li><code>'type'</code> (string) &mdash; (Optional) The type string for the signal.</li>
      *
      * </ul>
      * 
