@@ -569,46 +569,45 @@ class OpenTok {
     /**
      * Sends a signal to clients (or a specific client) connected to an OpenTok session.
      *
-     * @param string $sessionId The OpenTok session ID where the signal will be sent
+     * @param string $sessionId The OpenTok session ID where the signal will be sent.
      *
      *
-     * @param array $options This array defines the payload for the signal. This array includes the
-     * following keys, of which type and connectionId are optional:
+     * @param array $payload This array defines the payload for the signal. This array includes the
+     * following keys, of which type is optional:
      *
      * <ul>
      *
      *    <li><code>'data'</code> (string) &mdash; The data string for the signal.</li>
      *    <li><code>'type'</code> (string) &mdash; (Optional) The type string for the signal.</li>
-     *    <li><code>'connectionId'</code> (string) &mdash;  (Optional) The connection ID of
-     *      a client connected to the session. If you specify this value, the signal is
-     *      sent to the specified client. Otherwise, the signal is sent to all clients
-     *      connected to the session.</li>
      *
      * </ul>
-     *
+     * 
+     * 
+     * @param string $connectionId An optional parameter used to send the signal to a specific connection in a session.
      */
-    public function signal($sessionId, $options=array())
+    public function signal($sessionId, $payload, $connectionId=null)
     {
+
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array(
             'type' => null,
             'data' => null,
-            'connectionId'   => null,
         );
-        $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($type, $data, $connectionId) = array_values($options);
+        
+        $payload = array_merge($defaults, array_intersect_key($payload, $defaults));
+        list($type, $data) = array_values($payload);
 
         // validate arguments
         Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
-
-        unset($options['connectionId']);
+        Validators::validateSignalPayload($payload);
+        
         if (is_null($connectionId) || empty($connectionId)) {
             // make API call without connectionId
-            $this->client->signal($sessionId, $options);
+            $this->client->signal($sessionId, $payload);
         } else {
             Validators::validateConnectionId($connectionId); 
             // make API call with connectionId
-            $this->client->signalWithConnectionId($sessionId, $connectionId, $options);
+            $this->client->signal($sessionId, $payload, $connectionId);
         }
 
     }

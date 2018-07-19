@@ -415,10 +415,14 @@ class Client
         return $sipJson;
     }
 
-    public function signal($sessionId, $options)
+    public function signal($sessionId, $options=array(), $connectionId=null)
     {
         // set up the request
-        $request = new Request('POST', '/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/signal');
+
+        
+        $request = is_null($connectionId) || empty($connectionId) ? 
+                new Request('POST', '/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/signal')
+                : new Request('POST', '/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/connection/'.$connectionId.'/signal');
 
         try {
             $response = $this->client->send($request, [
