@@ -74,7 +74,7 @@ class Validators
     public static function validateSignalPayload($payload)
     {
         list($type, $data) = array_values($payload);
-        if(!is_string($data) || is_null($data)){
+        if(!is_string($data) || is_null($data || is_null($type))){
             throw new InvalidArgumentException(
                 'Signal Payload cannot be null: '.print_r($payload, true)
             );

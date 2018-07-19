@@ -590,8 +590,8 @@ class OpenTok {
 
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array(
-            'type' => null,
-            'data' => null,
+            'type' => '',
+            'data' => '',
         );
         
         $payload = array_merge($defaults, array_intersect_key($payload, $defaults));

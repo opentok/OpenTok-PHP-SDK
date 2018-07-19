@@ -208,11 +208,44 @@ class SessionTest extends PHPUnit_Framework_TestCase
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $session = new Session($this->opentok, $sessionId);
         
-        $signalOptions = array(
+        $payload = array(
             'data' => 'apple',
             'type' => 'signal type sample'
         );
-        $session->signal($signalOptions);
+        $session->signal($payload);
+
+    }
+
+    public function testEmptySignal()
+    {
+        $this->setupOTWithMocks([[
+            'code' => 204
+        ]]);
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $session = new Session($this->opentok, $sessionId);
+        $payload = array();
+        
+        // Act
+        try {
+            $session->signal($sessionId, $payload);
+        } catch (\Exception $e) {
+        }
+
+    }
+
+    public function testSignalWithConnectionId()
+    {
+        $this->setupOTWithMocks([[
+            'code' => 204
+        ]]);
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $session = new Session($this->opentok, $sessionId);
+        $connectionId = 'da9cb410-e29b-4c2d-ab9e-fe65bf83fcaf';
+        $payload = array(
+            'type' => 'some type',
+            'data' => 'some data'
+        );        
+        $session->signal($payload, $connectionId);
 
     }
 }
