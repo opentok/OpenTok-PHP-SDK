@@ -567,7 +567,7 @@ class OpenTok {
     }
 
     /**
-     * Send a signal to clients (or a specific client) connected to an OpenTok session.
+     * Sends a signal to clients (or a specific client) connected to an OpenTok session.
      *
      * @param string $sessionId The OpenTok session ID where the signal will be sent
      *

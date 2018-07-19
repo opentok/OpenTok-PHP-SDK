@@ -146,7 +146,7 @@ class Session
     }
 
     /**
-     * Send a signal to clients (or a specific client) connected to the session.
+     * Sends a signal to clients (or a specific client) connected to the session.
      *
      * @param array $options This array defines the payload for the signal. This array includes the
      * following keys, of which type and connectionId are optional:
