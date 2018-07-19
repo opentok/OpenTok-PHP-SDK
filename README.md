@@ -208,7 +208,11 @@ $opentok->forceDisconnect($sessionId, $connectionId);
 
 Once a Session is created, you can send signals to everyone in the session or to a specific connection.
 You can send a signal by calling the `signal($sessionId, $payload, $connectionId)` method of the
-`OpenTok\OpenTok` class. The `$payload` parameter is an associative array used to set the
+`OpenTok\OpenTok` class.
+
+The `$sessionId` parameter is the session ID of the session.
+
+The `$payload` parameter is an associative array used to set the
 following:
 
 * `data` (string) -- The data string for the signal.
@@ -219,6 +223,9 @@ The `$connectionId` parameter is an optional string used to specify the connecti
 a client connected to the session. If you specify this value, the signal is sent to
 the specified client. Otherwise, the signal is sent to all clients connected to the session.
 
+You can also send a signal by calling the `signal($payload, $connectionId)` method of the
+`OpenTok\Session` class.
+
 ```php
 use OpenTok\OpenTok;
 
@@ -228,10 +235,10 @@ $signalPayload = array(
     'type' => 'signal type'
 );
 $connectionId = 'da9cb410-e29b-4c2d-ab9e-fe65bf83fcaf';
-$opentok->signal($sessionId, $signalOptions, $connectionId);
+$opentok->signal($sessionId, $signalPayload, $connectionId);
 
 // Send a signal to a specific client, using a Session instance
-// (returned from OpenTok.createSession())
+// (returned from OpenTok->createSession())
 $session->signal($signalPayload, $connectionId);
 
 // Send a signal to everyone in the session
@@ -239,10 +246,10 @@ $signalPayload = array(
     'data' => 'some signal message',
     'type' => 'signal type'
 );
-$opentok->signal($sessionId, $signalOptions);
+$opentok->signal($sessionId, $signalPayload);
 
 // Send a signal to all clients using n Session instance
-// (returned from OpenTok.createSession())
+// (returned from OpenTok->createSession())
 $session->signal($signalPayload);
 
 For more information, see the [OpenTok signaling developer
