@@ -1,5 +1,9 @@
 <?php
 
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
+
 use OpenTok\OpenTok;
 use OpenTok\OpenTokTestCase;
 use OpenTok\Session;
@@ -7,6 +11,8 @@ use OpenTok\MediaMode;
 use OpenTok\ArchiveMode;
 
 use OpenTok\TestHelpers;
+use OpenTok\Util\Client;
+
 
 class SessionTest extends PHPUnit_Framework_TestCase
 {
@@ -14,11 +20,52 @@ class SessionTest extends PHPUnit_Framework_TestCase
     protected $API_SECRET;
     protected $opentok;
 
+    protected static $mockBasePath;
+    
+    public static function setUpBeforeClass()
+    {
+        self::$mockBasePath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'mock' . DIRECTORY_SEPARATOR;
+    }
+
     public function setUp()
     {
         $this->API_KEY = defined('API_KEY') ? API_KEY : '12345678';
         $this->API_SECRET = defined('API_SECRET') ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
         $this->opentok = new OpenTok($this->API_KEY, $this->API_SECRET);
+    }
+
+    public function setupOTWithMocks($mocks)
+    {
+        $this->API_KEY = defined('API_KEY') ? API_KEY : '12345678';
+        $this->API_SECRET = defined('API_SECRET') ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
+
+        if (is_array($mocks)) {
+            $responses = TestHelpers::mocksToResponses($mocks, self::$mockBasePath);
+        } else {
+            $responses = [];
+        }
+
+        $mock = new MockHandler($responses);
+        $handlerStack = HandlerStack::create($mock);
+        $clientOptions = [
+            'handler' => $handlerStack
+        ];
+
+        $this->client = new Client();
+        $this->client->configure(
+            $this->API_KEY,
+            $this->API_SECRET,
+            'https://api.opentok.com',
+            $clientOptions
+        );
+
+        // Push history onto handler stack *after* configuring client to
+        // ensure auth header is added before history handler is invoked
+        $this->historyContainer = [];
+        $history = Middleware::history($this->historyContainer);
+        $handlerStack->push($history);
+
+        $this->opentok = new OpenTok($this->API_KEY, $this->API_SECRET, array('client' => $this->client));
     }
 
     public function testSessionWithId()
@@ -151,6 +198,55 @@ class SessionTest extends PHPUnit_Framework_TestCase
 
         $this->assertNotEmpty($decodedToken['sig']);
         $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
+    }
+
+    public function testSignal()
+    {
+        $this->setupOTWithMocks([[
+            'code' => 204
+        ]]);
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $session = new Session($this->opentok, $sessionId);
+        
+        $payload = array(
+            'data' => 'apple',
+            'type' => 'signal type sample'
+        );
+        $session->signal($payload);
+
+    }
+
+    public function testEmptySignal()
+    {
+        $this->setupOTWithMocks([[
+            'code' => 204
+        ]]);
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $session = new Session($this->opentok, $sessionId);
+        $payload = array();
+        
+        // Act
+        try {
+            $session->signal($sessionId, $payload);
+        } catch (\Exception $e) {
+        }
+
+    }
+
+    public function testSignalWithConnectionId()
+    {
+        $this->setupOTWithMocks([[
+            'code' => 204
+        ]]);
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $session = new Session($this->opentok, $sessionId);
+        $connectionId = 'da9cb410-e29b-4c2d-ab9e-fe65bf83fcaf';
+        $payload = array(
+            'type' => 'some type',
+            'data' => 'some data'
+        );        
+        $session->signal($payload, $connectionId);
+
     }
 }
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/
