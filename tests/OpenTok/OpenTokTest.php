@@ -1549,5 +1549,53 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         }
     }
 
+    public function testSignalConnectionException()
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 404
+        ]]);
+
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $bogusApiKey = '12345678';
+        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $connectionId = 'da9cb410-e29b-4c2d-ab9e-fe65bf83fcaf';
+        $payload = array(
+            'type' => 'rest',
+            'data' => 'random message'
+        );
+        
+        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+        
+        $this->expectException('OpenTok\Exception\SignalConnectionException');
+        // Act
+        $this->opentok->signal($sessionId, $payload, $connectionId);
+    }
+
+    public function testSignalUnexpectedValueException()
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 413
+        ]]);
+
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $bogusApiKey = '12345678';
+        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $connectionId = 'da9cb410-e29b-4c2d-ab9e-fe65bf83fcaf';
+        $payload = array(
+            'type' => 'rest',
+            'data' => 'more than 128 bytes'
+        );
+        
+        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+        
+        $this->expectException('OpenTok\Exception\SignalUnexpectedValueException');
+        
+        // Act
+        $this->opentok->signal($sessionId, $payload, $connectionId);
+        
+    }
+
 }
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/

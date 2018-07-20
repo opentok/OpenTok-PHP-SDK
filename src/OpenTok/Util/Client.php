@@ -26,7 +26,7 @@ use OpenTok\Exception\BroadcastUnexpectedValueException;
 use OpenTok\Exception\BroadcastAuthenticationException;
 
 use OpenTok\Exception\SignalException;
-use OpenTok\Exception\SignalDomainException;
+use OpenTok\Exception\SignalConnectionException;
 use OpenTok\Exception\SignalUnexpectedValueException;
 use OpenTok\Exception\SignalAuthenticationException;
 
@@ -544,17 +544,25 @@ class Client
 
     private function handleSignalingException($e)
     {
-        try {
-            $this->handleException($e);
-        } catch (AuthenticationException $ae) {
-            throw new SignalAuthenticationException($this->apiKey, $this->apiSecret, null, $ae->getPrevious());
-        } catch (DomainException $de) {
-            throw new SignalDomainException($e->getMessage(), null, $de->getPrevious());
-        } catch (UnexpectedValueException $uve) {
-            throw new SignalUnexpectedValueException($e->getMessage(), null, $uve->getPrevious());
-        } catch (Exception $oe) {
-            // TODO: check if this works because SignalException is an interface not a class
-            throw new SignalException($e->getMessage(), null, $oe->getPrevious());
+        $responseCode = $e->getResponse()->getStatusCode();
+        switch($responseCode) {
+            case 400:
+                $message = 'One of the signal properties — data, type, sessionId or connectionId — is invalid.';
+                throw new SignalUnexpectedValueException($message, $responseCode);
+                break;
+            case 403:
+                throw new SignalAuthenticationException($this->apiKey, $this->apiSecret, null, $e);
+                break;
+            case 404:
+                $message = 'The client specified by the connectionId property is not connected to the session.';
+                throw new SignalConnectionException($message, $responseCode);
+                break;
+            case 413:
+                $message = 'The type string exceeds the maximum length (128 bytes), or the data string exceeds the maximum size (8 kB).';
+                throw new SignalUnexpectedValueException($message, $responseCode);
+                break;
+            default:
+                break;
         }
     }
 
