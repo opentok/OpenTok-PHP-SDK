@@ -439,26 +439,6 @@ class Client
         }
     }
 
-    public function signalWithConnectionId($sessionId, $connectionId, $options)
-    {
-        // set up the request
-        $request = new Request('POST', '/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/connection/'.$connectionId.'/signal');
-
-        try {
-            $response = $this->client->send($request, [
-                'debug' => $this->isDebug(),
-                'json' => array_merge(
-                    $options
-                )
-            ]);
-            if ($response->getStatusCode() != 204) {
-                json_decode($response->getBody(), true);
-            }
-        } catch (\Exception $e) {
-            $this->handleSignalingException($e);
-        }
-    }
-
     // Helpers
 
     private function postFieldsForOptions($options)
