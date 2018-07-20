@@ -217,7 +217,7 @@ following:
 
 * `data` (string) -- The data string for the signal. You can send a maximum of 8kB.
 
-* `type` (string) -- &mdash; (Optional) The type string for the signal. You can only send a maximum of 128 characters, and only the following character are allowed: A-Z, a-z, numbers (0-9), '-', '_', and '~'.
+* `type` (string) -- &mdash; (Optional) The type string for the signal. You can send a maximum of 128 characters, and only the following characters are allowed: A-Z, a-z, numbers (0-9), '-', '_', and '~'.
 
 The `$connectionId` parameter is an optional string used to specify the connection ID of
 a client connected to the session. If you specify this value, the signal is sent to
