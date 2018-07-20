@@ -577,11 +577,11 @@ class OpenTok {
      *
      * <ul>
      *
-     *    <li><code>'data'</code> (string) &mdash; The data string for the signal.</li>
-     *    <li><code>'type'</code> (string) &mdash; (Optional) The type string for the signal.</li>
+     *    <li><code>'data'</code> (string) &mdash; The data string for the signal. Please keep in mind that you can only send a maximum of 8kB.</li>
+     *    <li><code>'type'</code> (string) &mdash; (Optional) The type string for the signal. Please keep in mind that you can only send a maximum of 128 characters and only the following are allowed (A-Z and a-z), numbers (0-9), '-', '_', and '~'. </li>
      *
      * </ul>
-     * 
+     *
      * 
      * @param string $connectionId An optional parameter used to send the signal to a specific connection in a session.
      */

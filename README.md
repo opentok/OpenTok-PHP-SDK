@@ -215,9 +215,9 @@ The `$sessionId` parameter is the session ID of the session.
 The `$payload` parameter is an associative array used to set the
 following:
 
-* `data` (string) -- The data string for the signal.
+* `data` (string) -- The data string for the signal. Please keep in mind that you can only send a maximum of 8kB.
 
-* `type` (string) -- &mdash; (Optional) The type string for the signal.
+* `type` (string) -- &mdash; (Optional) The type string for the signal. Please keep in mind that you can only send a maximum of 128 characters and only the following are allowed (A-Z and a-z), numbers (0-9), '-', '_', and '~'.
 
 The `$connectionId` parameter is an optional string used to specify the connection ID of
 a client connected to the session. If you specify this value, the signal is sent to
