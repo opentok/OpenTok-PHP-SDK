@@ -262,6 +262,14 @@ class Client
 
     public function startBroadcast($sessionId, $options)
     {
+        $optionsJson = [
+            'sessionId' => $sessionId,
+            'layout' => $options['layout']->jsonSerialize()
+        ];
+        unset($options['layout']);
+
+        $optionsJson = array_merge($optionsJson, $options);
+
         $request = new Request(
             'POST',
             '/v2/project/'.$this->apiKey.'/broadcast'
@@ -270,10 +278,7 @@ class Client
         try {
             $response = $this->client->send($request, [
                 'debug' => $this->isDebug(),
-                'json' => [
-                    'sessionId' => $sessionId,
-                    'layout' => $options['layout']->jsonSerialize()
-                ]
+                'json' => $optionsJson
             ]);
             $broadcastJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {

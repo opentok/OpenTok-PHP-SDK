@@ -286,7 +286,7 @@ class OpenTok {
         if (!is_array($options)) {
             $options = array('name' => $options);
         }
-        
+
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array(
             'name' => null,
@@ -417,7 +417,7 @@ class OpenTok {
         $defaults = array(
             'layout' => Layout::getBestFit()
         );
-        $options = array_merge($defaults, array_intersect_key($options, $defaults));
+        $options = array_merge($defaults, $options);
         list($layout) = array_values($options);
 
         // validate arguments
