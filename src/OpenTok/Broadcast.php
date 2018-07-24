@@ -55,6 +55,9 @@ class Broadcast {
             case 'partnerId':
             case 'sessionId':
             case 'broadcastUrls':
+            case 'status':
+            case 'maxDuration':
+            case 'resolution':
                 return $this->data[$name];
                 break;
             case 'hlsUrl':
