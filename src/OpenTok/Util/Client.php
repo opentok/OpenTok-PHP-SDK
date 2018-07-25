@@ -378,6 +378,24 @@ class Client
         }
     }
 
+    public function getStream($sessionId, $streamId) {
+        $request = new Request(
+            'GET',
+            '/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/stream/'.$streamId
+        );
+
+        try {
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug()
+            ]);
+            $streamJson = json_decode($response->getBody(), true);
+        } catch (\Exception $e) {
+            $this->handleException($e);
+            return;
+        }
+        return $streamJson;
+    }
+
     public function dial($sessionId, $token, $sipUri, $options)
     {
         $body = array(

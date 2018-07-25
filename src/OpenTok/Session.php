@@ -167,6 +167,19 @@ class Session
         $this->opentok->signal($this->sessionId, $payload, $connectionId);
     }
 
+    /**
+     * Gets an Stream object for the given stream ID.
+     *
+     * @param String $streamId The stream ID.
+     *
+     * @return Stream The Stream object.
+     */
+
+    public function getStream($streamId)
+    {
+        return $this->opentok->getStream($this->sessionId, $streamId);
+    }
+
 }
 
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/

@@ -3,6 +3,7 @@
 namespace OpenTok;
 
 use OpenTok\Session;
+use OpenTok\Stream;
 use OpenTok\Archive;
 use OpenTok\Broadcast;
 use OpenTok\Layout;
@@ -488,6 +489,27 @@ class OpenTok {
 
         // make API call
         $this->client->updateStream($sessionId, $streamId, $properties);
+    }
+
+    /**
+     * Gets an Stream object for the given stream ID.
+     * 
+     * @param String $sessionId The session ID.
+     *
+     * @param String $streamId The stream ID.
+     *
+     * @return Stream The Stream object.
+     */
+
+    public function getStream($sessionId, $streamId)
+    {
+        Validators::validateSessionId($sessionId);
+        Validators::validateStreamId($streamId);
+      
+        // make API call
+        $streamData = $this->client->getStream($sessionId, $streamId);
+        return new Stream($streamData);
+        
     }
 
     /**
