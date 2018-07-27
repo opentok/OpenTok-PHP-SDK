@@ -180,6 +180,17 @@ class Session
         return $this->opentok->getStream($this->sessionId, $streamId);
     }
 
+    /**
+     * Force disconnects a specific client connected to an OpenTok session.
+     *
+     * @param string $connectionId The connectionId of the connection in a session.
+     */
+
+    public function forceDisconnect($connectionId)
+    {
+        return $this->opentok->forceDisconnect($this->sessionId, $connectionId);
+    }
+
 }
 
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/
