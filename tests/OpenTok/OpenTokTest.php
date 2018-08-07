@@ -7,6 +7,8 @@ use GuzzleHttp\Middleware;
 use OpenTok\OpenTok;
 use OpenTok\OpenTokTestCase;
 use OpenTok\Session;
+use OpenTok\Stream;
+use OpenTok\StreamList;
 use OpenTok\Role;
 use OpenTok\Layout;
 use OpenTok\MediaMode;
@@ -1651,6 +1653,47 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // Act
         $this->opentok->signal($sessionId, $payload, $connectionId);
         
+    }
+
+    public function testListStreams()
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => '/v2/project/APIKEY/session/SESSIONID/stream/get'
+        ]]);
+
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $bogusApiKey = '12345678';
+        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+
+        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+
+        // Act
+        $streamList = $this->opentok->listStreams($sessionId);
+
+        // Assert
+        $this->assertCount(1, $this->historyContainer);
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertEquals('GET', strtoupper($request->getMethod()));
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/session/'.$sessionId.'/stream/', $request->getUri()->getPath());
+        $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
+        $this->assertEquals('https', $request->getUri()->getScheme());
+
+        $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        // TODO: test the dynamically built User Agent string
+        $userAgent = $request->getHeaderLine('User-Agent');
+        $this->assertNotEmpty($userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.1.1-alpha.1', $userAgent);
+
+        $this->assertInstanceOf('OpenTok\StreamList', $streamList);
+
     }
 
 }
