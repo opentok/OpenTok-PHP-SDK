@@ -401,9 +401,17 @@ class OpenTok {
         return new ArchiveList($archiveListData, array( 'client' => $this->client ));
     }
 
+    /**
+     * Force disconnects a specific client connected to an OpenTok session.
+     *
+     * @param string $sessionId The OpenTok session ID where the signal will be sent.
+     *
+     * @param string $connectionId The connectionId of the connection in a session.
+     */
+
     public function forceDisconnect($sessionId, $connectionId)
     {
-        Validators::validateSessionId($sessionId);
+        Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
         Validators::validateConnectionId($connectionId);
 
         return $this->client->forceDisconnect($sessionId, $connectionId);

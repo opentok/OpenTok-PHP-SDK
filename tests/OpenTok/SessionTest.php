@@ -286,5 +286,18 @@ class SessionTest extends PHPUnit_Framework_TestCase
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.1.1-alpha.1', $userAgent);
     }
+
+    public function testForceDisconnect()
+    {
+        $this->setupOTWithMocks([[
+            'code' => 204
+        ]]);
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $session = new Session($this->opentok, $sessionId);
+        $connectionId = '063e72a4-64b4-43c8-9da5-eca071daab89';
+        
+        $session->forceDisconnect($connectionId);
+
+    }
 }
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/

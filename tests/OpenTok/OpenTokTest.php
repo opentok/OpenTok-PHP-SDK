@@ -1023,9 +1023,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
             'code' => 204
         ]]);
 
-        // This sessionId was generated using a different apiKey, but this method doesn't do any
-        // decoding to check, so its fine.
-        $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
 
         $connectionId = '063e72a4-64b4-43c8-9da5-eca071daab89';
 
@@ -1054,6 +1052,25 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.1.1-alpha.1', $userAgent);
 
         $this->assertTrue($success);
+    }
+
+
+    public function testForceDisconnectConnectionException()
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 404
+        ]]);
+
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+
+        $connectionId = '063e72a4-64b4-43c8-9da5-eca071daab89';
+
+        $this->expectException('OpenTok\Exception\ForceDisconnectConnectionException');        
+
+        // Act
+        $this->opentok->forceDisconnect($sessionId, $connectionId);
+
     }
 
     public function testStartsBroadcast()
