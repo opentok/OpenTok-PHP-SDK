@@ -144,53 +144,7 @@ class Session
     {
         return $this->opentok->generateToken($this->sessionId, $options);
     }
-
-    /**
-     * Sends a signal to clients (or a specific client) connected to the session.
-     *
-     * @param array $payload This array defines the payload for the signal. This array includes the
-     * following keys, of which type is optional:
-     *
-     * <ul>
-     *
-     *    <li><code>'data'</code> (string) &mdash; The data string for the signal. You can send a maximum of 8kB.</li>
-     *    <li><code>'type'</code> (string) &mdash; (Optional) The type string for the signal. You can send a maximum of 128 characters,
-     *      and only the following characters are allowed: A-Z, a-z, numbers (0-9), '-', '_', and '~'. </li>
-     *
-     * </ul>
-     * 
-     * @param string $connectionId An optional parameter used to send the signal to a specific connection in a session.
-     *
-     */
-    public function signal($payload, $connectionId=null)
-    {
-        $this->opentok->signal($this->sessionId, $payload, $connectionId);
-    }
-
-    /**
-     * Gets an Stream object for the given stream ID.
-     *
-     * @param String $streamId The stream ID.
-     *
-     * @return Stream The Stream object.
-     */
-
-    public function getStream($streamId)
-    {
-        return $this->opentok->getStream($this->sessionId, $streamId);
-    }
-
-    /**
-     * Force disconnects a specific client connected to an OpenTok session.
-     *
-     * @param string $connectionId The connectionId of the connection in a session.
-     */
-
-    public function forceDisconnect($connectionId)
-    {
-        return $this->opentok->forceDisconnect($this->sessionId, $connectionId);
-    }
-
+    
 }
 
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/

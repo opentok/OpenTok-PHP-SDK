@@ -115,16 +115,13 @@ $token = $session->generateToken(array(
 ## Working with Streams
 
 You can get information about a stream by calling the `getStream($sessionId, $streamId)` method of the
-`OpenTok\OpenTok` class, or by calling the `getStream($streamId)` method on the `OpenTok\Session`
-instance after creating it.
+`OpenTok\OpenTok` class.
 
 ```php
 use OpenTok\Session;
 
 // Get stream info from just a sessionId (fetched from a database)
 $stream = $opentok->getStream($sessionId, $streamId);
-// Get stream info by calling the method on the Session (returned from createSession)
-$stream = $session->getStream($streamId);
 
 // Stream properties
 $stream->id; // string with the stream ID
@@ -244,8 +241,6 @@ The `$connectionId` parameter is an optional string used to specify the connecti
 a client connected to the session. If you specify this value, the signal is sent to
 the specified client. Otherwise, the signal is sent to all clients connected to the session.
 
-You can also send a signal by calling the `signal($payload, $connectionId)` method of the
-`OpenTok\Session` class.
 
 ```php
 use OpenTok\OpenTok;
@@ -258,25 +253,17 @@ $signalPayload = array(
 $connectionId = 'da9cb410-e29b-4c2d-ab9e-fe65bf83fcaf';
 $opentok->signal($sessionId, $signalPayload, $connectionId);
 
-// Send a signal to a specific client, using a Session instance
-// (returned from OpenTok->createSession())
-$session->signal($signalPayload, $connectionId);
-
 // Send a signal to everyone in the session
 $signalPayload = array(
     'data' => 'some signal message',
     'type' => 'signal type'
 );
 $opentok->signal($sessionId, $signalPayload);
-
-// Send a signal to all clients using n Session instance
-// (returned from OpenTok->createSession())
-$session->signal($signalPayload);
+```
 
 For more information, see the [OpenTok signaling developer
 guide](https://tokbox.com/developer/guides/signaling/).
 
-```
 # Samples
 
 There are two sample applications included in this repository. To get going as fast as possible, clone the whole
