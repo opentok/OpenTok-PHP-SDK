@@ -8,7 +8,6 @@ class StreamList {
 
     public function __construct($streamListData)
     {
-
         $this->data = $streamListData;
     }
 
