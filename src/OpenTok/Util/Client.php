@@ -24,6 +24,16 @@ use OpenTok\Exception\BroadcastException;
 use OpenTok\Exception\BroadcastDomainException;
 use OpenTok\Exception\BroadcastUnexpectedValueException;
 use OpenTok\Exception\BroadcastAuthenticationException;
+
+use OpenTok\Exception\SignalException;
+use OpenTok\Exception\SignalConnectionException;
+use OpenTok\Exception\SignalUnexpectedValueException;
+use OpenTok\Exception\SignalAuthenticationException;
+
+use OpenTok\Exception\ForceDisconnectConnectionException;
+use OpenTok\Exception\ForceDisconnectUnexpectedValueException;
+use OpenTok\Exception\ForceDisconnectAuthenticationException;
+
 use OpenTok\MediaMode;
 
 // TODO: build this dynamically
@@ -231,7 +241,7 @@ class Client
                 json_decode($response->getBody(), true);
             }
         } catch (\Exception $e) {
-            $this->handleException($e);
+            $this->handleForceDisconnectException($e);
             return false;
         }
         return true;
@@ -375,6 +385,24 @@ class Client
         }
     }
 
+    public function getStream($sessionId, $streamId) {
+        $request = new Request(
+            'GET',
+            '/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/stream/'.$streamId
+        );
+
+        try {
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug()
+            ]);
+            $streamJson = json_decode($response->getBody(), true);
+        } catch (\Exception $e) {
+            $this->handleException($e);
+            return;
+        }
+        return $streamJson;
+    }
+
     public function dial($sessionId, $token, $sipUri, $options)
     {
         $body = array(
@@ -410,6 +438,30 @@ class Client
             $this->handleException($e);
         }
         return $sipJson;
+    }
+
+    public function signal($sessionId, $options=array(), $connectionId=null)
+    {
+        // set up the request
+
+        
+        $request = is_null($connectionId) || empty($connectionId) ? 
+                new Request('POST', '/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/signal')
+                : new Request('POST', '/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/connection/'.$connectionId.'/signal');
+
+        try {
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug(),
+                'json' => array_merge(
+                    $options
+                )
+            ]);
+            if ($response->getStatusCode() != 204) {
+                json_decode($response->getBody(), true);
+            }
+        } catch (\Exception $e) {
+            $this->handleSignalingException($e);
+        }
     }
 
     // Helpers
@@ -492,6 +544,50 @@ class Client
         } catch (Exception $oe) {
             // TODO: check if this works because BroadcastException is an interface not a class
             throw new BroadcastException($e->getMessage(), null, $oe->getPrevious());
+        }
+    }
+
+    private function handleSignalingException($e)
+    {
+        $responseCode = $e->getResponse()->getStatusCode();
+        switch($responseCode) {
+            case 400:
+                $message = 'One of the signal properties — data, type, sessionId or connectionId — is invalid.';
+                throw new SignalUnexpectedValueException($message, $responseCode);
+                break;
+            case 403:
+                throw new SignalAuthenticationException($this->apiKey, $this->apiSecret, null, $e);
+                break;
+            case 404:
+                $message = 'The client specified by the connectionId property is not connected to the session.';
+                throw new SignalConnectionException($message, $responseCode);
+                break;
+            case 413:
+                $message = 'The type string exceeds the maximum length (128 bytes), or the data string exceeds the maximum size (8 kB).';
+                throw new SignalUnexpectedValueException($message, $responseCode);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private function handleForceDisconnectException($e)
+    {
+        $responseCode = $e->getResponse()->getStatusCode();
+        switch($responseCode) {
+            case 400:
+                $message = 'One of the arguments — sessionId or connectionId — is invalid.';
+                throw new ForceDisconnectUnexpectedValueException($message, $responseCode);
+                break;
+            case 403:
+                throw new ForceDisconnectAuthenticationException($this->apiKey, $this->apiSecret, null, $e);
+                break;
+            case 404:
+                $message = 'The client specified by the connectionId property is not connected to the session.';
+                throw new ForceDisconnectConnectionException($message, $responseCode);
+                break;
+            default:
+                break;
         }
     }
 
