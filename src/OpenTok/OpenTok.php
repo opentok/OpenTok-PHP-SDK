@@ -4,6 +4,7 @@ namespace OpenTok;
 
 use OpenTok\Session;
 use OpenTok\Stream;
+use OpenTok\StreamList;
 use OpenTok\Archive;
 use OpenTok\Broadcast;
 use OpenTok\Layout;
@@ -518,6 +519,25 @@ class OpenTok {
         $streamData = $this->client->getStream($sessionId, $streamId);
         return new Stream($streamData);
         
+    }
+
+    /**
+     * Returns a StreamList Object for the given session ID.
+     * 
+     * @param String $sessionId The session ID.
+     *
+     * @return StreamList A StreamList object. Call the items() method of the StreamList object
+     * to return an array of Stream objects.     
+     */
+
+    public function listStreams($sessionId)
+    {
+        Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
+      
+        // make API call
+        $streamListData = $this->client->listStreams($sessionId);
+        return new StreamList($streamListData);
+    
     }
 
     /**

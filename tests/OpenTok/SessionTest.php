@@ -7,6 +7,8 @@ use GuzzleHttp\Middleware;
 use OpenTok\OpenTok;
 use OpenTok\OpenTokTestCase;
 use OpenTok\Session;
+use OpenTok\Stream;
+use OpenTok\StreamList;
 use OpenTok\MediaMode;
 use OpenTok\ArchiveMode;
 
@@ -200,7 +202,6 @@ class SessionTest extends PHPUnit_Framework_TestCase
         $this->assertNotEmpty($decodedToken['sig']);
         $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
     }
-
 
 }
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/

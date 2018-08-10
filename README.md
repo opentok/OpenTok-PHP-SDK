@@ -130,6 +130,18 @@ $stream->name; // string with the name
 $stream->layoutClassList; // array with the layout class list
 ```
 
+You can get information about all the streams in a session by calling the `listStreams($sessionId)` method of the
+`OpenTok\OpenTok` class.
+
+```php
+use OpenTok\Session;
+
+// Get list of streams from just a sessionId (fetched from a database)
+$streamList = $opentok->listStreams($sessionId);
+
+$streamList->totalCount(); // total count
+```
+
 ## Working with Archives
 
 You can only archive sessions that use the OpenTok Media Router

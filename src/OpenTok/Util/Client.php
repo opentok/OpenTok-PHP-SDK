@@ -400,6 +400,24 @@ class Client
         return $streamJson;
     }
 
+    public function listStreams($sessionId)
+    {
+        $request = new Request(
+            'GET',
+            '/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/stream/'
+        );
+        try {
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug(),
+            ]);
+            $streamListJson = json_decode($response->getBody(), true);
+        } catch (\Exception $e) {
+            $this->handleException($e);
+            return;
+        }
+        return $streamListJson;
+    }
+
     public function dial($sessionId, $token, $sipUri, $options)
     {
         $body = array(
