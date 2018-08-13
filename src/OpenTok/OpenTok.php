@@ -390,8 +390,9 @@ class OpenTok {
      * recent archive. If you do not specify an offset, 0 is used.
      * @param integer $count Optional. The number of archives to be returned. The maximum number of
      * archives returned is 1000.
-     * @param string $sessionId Optional. The OpenTok SessionIdwhere the participant being called
-     * will join.
+     * @param string $sessionId Optional. The OpenTok session Id for which you want to retrieve Archives for. If no session Id
+     * is specified, the method will return archives from all sessions created with the API key.
+     * 
      * @return ArchiveList An ArchiveList object. Call the items() method of the ArchiveList object
      * to return an array of Archive objects.
      */
