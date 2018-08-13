@@ -38,7 +38,7 @@ use OpenTok\MediaMode;
 
 // TODO: build this dynamically
 /** @internal */
-define('OPENTOK_SDK_VERSION', '4.1.1-alpha.1');
+define('OPENTOK_SDK_VERSION', '4.1.2-alpha.1');
 /** @internal */
 define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
 
@@ -247,7 +247,7 @@ class Client
         return true;
     }
 
-    public function listArchives($offset, $count)
+    public function listArchives($offset, $count, $sessionId)
     {
         $request = new Request('GET', '/v2/project/'.$this->apiKey.'/archive');
         $queryParams = [];
@@ -256,6 +256,9 @@ class Client
         }
         if (!empty($count)) {
             $queryParams['count'] = $count;
+        }
+        if (!empty($sessionId)) {
+            $queryParams['sessionId'] = $sessionId;
         }
         try {
             $response = $this->client->send($request, [
