@@ -983,10 +983,13 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
             'headers' => [
                 'Content-Type' => 'application/json'
             ],
-            'path' => 'v2/project/APIKEY/archive/get_second'
+            'path' => 'v2/project/APIKEY/archive/get_third'
         ]]);
 
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $bogusApiKey = '12345678';
+        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
         // Act
         $archiveList = $this->opentok->listArchives(0, null, $sessionId);
@@ -1006,11 +1009,14 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.1.2-alpha.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.1.1-alpha.1', $userAgent);
 
         $this->assertInstanceOf('OpenTok\ArchiveList', $archiveList);
-        $this->assertEquals(1, $archiveList->totalCount());
-        $this->assertEquals('832641bf-5dbf-41a1-ad94-fea213e59a92', $archiveList->getItems()[0]->id);
+        $this->assertEquals(2, $archiveList->totalCount());
+        $this->assertEquals($sessionId, $archiveList->getItems()[0]->sessionId);
+        $this->assertEquals($sessionId, $archiveList->getItems()[1]->sessionId);        
+        $this->assertEquals('b8f64de1-e218-4091-9544-4cbf369fc238', $archiveList->getItems()[0]->id);
+        $this->assertEquals('832641bf-5dbf-41a1-ad94-fea213e59a92', $archiveList->getItems()[1]->id);        
     }
 
     /**
