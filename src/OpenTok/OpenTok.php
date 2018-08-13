@@ -390,15 +390,21 @@ class OpenTok {
      * recent archive. If you do not specify an offset, 0 is used.
      * @param integer $count Optional. The number of archives to be returned. The maximum number of
      * archives returned is 1000.
+     * @param string $sessionId Optional. The OpenTok session Id for which you want to retrieve Archives for. If no session Id
+     * is specified, the method will return archives from all sessions created with the API key.
+     * 
      * @return ArchiveList An ArchiveList object. Call the items() method of the ArchiveList object
      * to return an array of Archive objects.
      */
-    public function listArchives($offset=0, $count=null)
+    public function listArchives($offset=0, $count=null, $sessionId=null)
     {
         // validate params
         Validators::validateOffsetAndCount($offset, $count);
+        if (!is_null($sessionId)) {
+            Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
+        }
 
-        $archiveListData = $this->client->listArchives($offset, $count);
+        $archiveListData = $this->client->listArchives($offset, $count, $sessionId);
         return new ArchiveList($archiveListData, array( 'client' => $this->client ));
     }
 
