@@ -1,0 +1,26 @@
+{
+  "count" : 2,
+  "items" : [ {
+    "createdAt" : 1394396753000,
+    "duration" : 24,
+    "id" : "b8f64de1-e218-4091-9544-4cbf369fc238",
+    "name" : "showtime again",
+    "partnerId" : 12345678,
+    "reason" : "",
+    "sessionId" : "1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI",
+    "size" : 2227849,
+    "status" : "available",
+    "url" : "http://tokbox.com.archive2.s3.amazonaws.com/854511%2Fb8f64de1-e218-4091-9544-4cbf369fc238%2Farchive.mp4?Expires=1394397391&AWSAccessKeyId=AKIAI6LQCPIXYVWCQV6Q&Signature=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+  }, {
+    "createdAt" : 1394321113000,
+    "duration" : 1294,
+    "id" : "832641bf-5dbf-41a1-ad94-fea213e59a92",
+    "name" : "showtime",
+    "partnerId" : 12345678,
+    "reason" : "",
+    "sessionId" : "1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI",
+    "size" : 42165242,
+    "status" : "available",
+    "url" : "http://tokbox.com.archive2.s3.amazonaws.com/854511%2F832641bf-5dbf-41a1-ad94-fea213e59a92%2Farchive.mp4?Expires=1394397391&AWSAccessKeyId=AKIAI6LQCPIXYVWCQV6Q&Signature=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+  } ]
+}
