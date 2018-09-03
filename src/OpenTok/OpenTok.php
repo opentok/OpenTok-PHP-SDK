@@ -3,6 +3,8 @@
 namespace OpenTok;
 
 use OpenTok\Session;
+use OpenTok\Stream;
+use OpenTok\StreamList;
 use OpenTok\Archive;
 use OpenTok\Broadcast;
 use OpenTok\Layout;
@@ -388,21 +390,35 @@ class OpenTok {
      * recent archive. If you do not specify an offset, 0 is used.
      * @param integer $count Optional. The number of archives to be returned. The maximum number of
      * archives returned is 1000.
+     * @param string $sessionId Optional. The OpenTok session Id for which you want to retrieve Archives for. If no session Id
+     * is specified, the method will return archives from all sessions created with the API key.
+     * 
      * @return ArchiveList An ArchiveList object. Call the items() method of the ArchiveList object
      * to return an array of Archive objects.
      */
-    public function listArchives($offset=0, $count=null)
+    public function listArchives($offset=0, $count=null, $sessionId=null)
     {
         // validate params
         Validators::validateOffsetAndCount($offset, $count);
+        if (!is_null($sessionId)) {
+            Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
+        }
 
-        $archiveListData = $this->client->listArchives($offset, $count);
+        $archiveListData = $this->client->listArchives($offset, $count, $sessionId);
         return new ArchiveList($archiveListData, array( 'client' => $this->client ));
     }
 
+    /**
+     * Force disconnects a specific client connected to an OpenTok session.
+     *
+     * @param string $sessionId The OpenTok session ID where the signal will be sent.
+     *
+     * @param string $connectionId The connectionId of the connection in a session.
+     */
+
     public function forceDisconnect($sessionId, $connectionId)
     {
-        Validators::validateSessionId($sessionId);
+        Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
         Validators::validateConnectionId($connectionId);
 
         return $this->client->forceDisconnect($sessionId, $connectionId);
@@ -491,6 +507,46 @@ class OpenTok {
     }
 
     /**
+     * Gets an Stream object for the given stream ID.
+     * 
+     * @param String $sessionId The session ID.
+     *
+     * @param String $streamId The stream ID.
+     *
+     * @return Stream The Stream object.
+     */
+
+    public function getStream($sessionId, $streamId)
+    {
+        Validators::validateSessionId($sessionId);
+        Validators::validateStreamId($streamId);
+      
+        // make API call
+        $streamData = $this->client->getStream($sessionId, $streamId);
+        return new Stream($streamData);
+        
+    }
+
+    /**
+     * Returns a StreamList Object for the given session ID.
+     * 
+     * @param String $sessionId The session ID.
+     *
+     * @return StreamList A StreamList object. Call the items() method of the StreamList object
+     * to return an array of Stream objects.     
+     */
+
+    public function listStreams($sessionId)
+    {
+        Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
+      
+        // make API call
+        $streamListData = $this->client->listStreams($sessionId);
+        return new StreamList($streamListData);
+    
+    }
+
+    /**
      * Initiate an outgoing SIP call
      *
      * @param string $sessionId The OpenTok SessionIdwhere the participant being called
@@ -564,6 +620,52 @@ class OpenTok {
         }
 
         return new SipCall($sipJson);
+    }
+
+    /**
+     * Sends a signal to clients (or a specific client) connected to an OpenTok session.
+     *
+     * @param string $sessionId The OpenTok session ID where the signal will be sent.
+     *
+     *
+     * @param array $payload This array defines the payload for the signal. This array includes the
+     * following keys, of which type is optional:
+     *
+     * <ul>
+     *
+     *    <li><code>'data'</code> (string) &mdash; The data string for the signal. You can send a maximum of 8kB.</li>
+     *    <li><code>'type'</code> (string) &mdash; (Optional) The type string for the signal. You can send a maximum of 128 characters, and only the following characters are allowed: A-Z, a-z, numbers (0-9), '-', '_', and '~'. </li>
+     *
+     * </ul>
+     *
+     * 
+     * @param string $connectionId An optional parameter used to send the signal to a specific connection in a session.
+     */
+    public function signal($sessionId, $payload, $connectionId=null)
+    {
+
+        // unpack optional arguments (merging with default values) into named variables
+        $defaults = array(
+            'type' => '',
+            'data' => '',
+        );
+        
+        $payload = array_merge($defaults, array_intersect_key($payload, $defaults));
+        list($type, $data) = array_values($payload);
+
+        // validate arguments
+        Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
+        Validators::validateSignalPayload($payload);
+        
+        if (is_null($connectionId) || empty($connectionId)) {
+            // make API call without connectionId
+            $this->client->signal($sessionId, $payload);
+        } else {
+            Validators::validateConnectionId($connectionId); 
+            // make API call with connectionId
+            $this->client->signal($sessionId, $payload, $connectionId);
+        }
+
     }
 
     /** @internal */
