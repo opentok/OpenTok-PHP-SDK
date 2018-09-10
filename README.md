@@ -174,6 +174,13 @@ $archiveId = $archive->id;
 
 If you set the `outputMode` option to `OutputMode::INDIVIDUAL`, it causes each stream in the archive to be recorded to its own individual file. Please note that you cannot specify the resolution when you set the `outputMode` option to `OutputMode::INDIVIDUAL`. The `OutputMode::COMPOSED` setting (the default) causes all streams in the archive to be recorded to a single (composed) file.
 
+Note that you can also create an automatically archived session, by passing in `ArchiveMode::ALWAYS`
+as the `archiveMode` key of the `options` parameter passed into the `OpenTok->createSession()`
+method (see "Creating Sessions," above).
+
+For more information on archiving, see the
+[OpenTok archiving](https://tokbox.com/opentok/tutorials/archiving/) programming guide.
+
 You can stop the recording of a started Archive using the `stopArchive($archiveId)` method of the
 `OpenTok\OpenTok` object. You can also do this using the `stop()` method of the
 `OpenTok\Archive` instance.
@@ -216,12 +223,22 @@ $archives = $archiveList->getItems();
 $totalCount = $archiveList->totalCount();
 ```
 
-Note that you can also create an automatically archived session, by passing in `ArchiveMode::ALWAYS`
-as the `archiveMode` key of the `options` parameter passed into the `OpenTok->createSession()`
-method (see "Creating Sessions," above).
+For composed archives, you can change the layout dynamically, using the `updateArchiveLayout($archiveId, $layoutType)` method:
 
-For more information on archiving, see the
-[OpenTok archiving](https://tokbox.com/opentok/tutorials/archiving/) programming guide.
+You can use the `Layout` class to set the layout types: `Layout::getHorizontalPresentation()`, `Layout::getVerticalPresentation()`,  `Layout::getPIP()`, `Layout::getBestFit()`, `Layout::createCustom()`.
+
+```php
+$layoutType = Layout::getHorizontalPresentation();
+$opentok->setArchiveLayout($archiveId, $layoutType);
+
+// For custom Layouts, you can do the following
+$options = array(
+    'stylesheet' => 'stream.instructor {position: absolute; width: 100%;  height:50%;}'
+);
+
+$layoutType = Layout::createCustom($options);
+$opentok->setArchiveLayout($archiveId, $layoutType);
+```
 
 ## Force Disconnect
 
