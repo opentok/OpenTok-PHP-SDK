@@ -422,7 +422,7 @@ class OpenTok {
         Validators::validateArchiveId($archiveId);
         Validators::validateLayout($layoutType);
         
-        $this->client->setArchiveLayout($archiveId, $payload);
+        $this->client->setArchiveLayout($archiveId, $layoutType);
     }
     
 
