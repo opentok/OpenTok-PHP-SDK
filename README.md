@@ -2,13 +2,13 @@
 
 [![Build Status](https://travis-ci.org/opentok/OpenTok-PHP-SDK.svg)](https://travis-ci.org/opentok/OpenTok-PHP-SDK)
 
-The OpenTok PHP SDK lets you generate [sessions](http://tokbox.com/opentok/tutorials/create-session/) and
-[tokens](http://tokbox.com/opentok/tutorials/create-token/) for [OpenTok](http://www.tokbox.com/)
-applications, and [archive](http://tokbox.com/opentok/tutorials/archiving/) sessions.
+The OpenTok PHP SDK lets you generate [sessions](http://tokbox.com/developer/guides/create-session/) and
+[tokens](http://tokbox.com/developer/guides/create-token/) for [OpenTok](http://www.tokbox.com/)
+applications, and [archive](http://tokbox.com/developer/guides/archiving/) sessions.
 It also includes  methods for working with OpenTok
-[archives](http://localhost:9778/developer/guides/archiving), working with OpenTok
-[SIP interconnect](http://localhost:9778/developer/guides/sip), and
-[disconnecting clients from sessions](http://localhost:9778/developer/guides/moderation/rest/).
+[archives](http://tokbox.com/developer/guides/archiving), working with OpenTok
+[SIP interconnect](http://tokbox.com/developer/guides/sip), and
+[disconnecting clients from sessions](http://tokbox.com/developer/guides/moderation/rest/).
 
 ## Installation
 
@@ -20,7 +20,7 @@ Add this package (`opentok/opentok`) to your `composer.json` file, or just run t
 command line:
 
 ```
-$ ./composer.phar require opentok/opentok 4.1.x
+$ ./composer.phar require opentok/opentok 4.2.x
 ```
 
 ### Manually:
@@ -164,11 +164,11 @@ $archive = $opentok->startArchive($sessionId);
 
 // Create an archive using custom options
 $archiveOptions = array(
-    'name' => 'Important Presentation',      // default: null
-    'hasAudio' => true,                      // default: true
-    'hasVideo' => true,                      // default: true
-    'outputMode' => OutputMode::COMPOSED,    // default: OutputMode::COMPOSED
-    'resolution' => '1280x720'               // default: '640x480'
+    'name' => 'Important Presentation',     // default: null
+    'hasAudio' => true,                     // default: true
+    'hasVideo' => true,                     // default: true
+    'outputMode' => OutputMode::COMPOSED,   // default: OutputMode::COMPOSED
+    'resolution' => '1280x720'              // default: '640x480'
 );
 $archive = $opentok->startArchive($sessionId, $archiveOptions);
 
@@ -243,7 +243,7 @@ Setting the layout of composed archives is optional. By default, composed archiv
 archives](https://tokbox.com/developer/guides/archiving/layout-control.html)).
 
 For more information on archiving, see the
-[OpenTok archiving](https://tokbox.com/opentok/tutorials/archiving/) programming guide.
+[OpenTok archiving](https://tokbox.com/developer/guides/archiving/) developer guide.
 
 ### Working with Broadcasts
 
