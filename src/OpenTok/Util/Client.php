@@ -366,6 +366,24 @@ class Client
         return $layoutJson;
     }
 
+    public function setArchiveLayout($archiveId, $layout)
+    {
+        $request = new Request(
+            'PUT',
+            '/v2/project/'.$this->apiKey.'/archive/'.$archiveId.'/layout'
+        );
+        try {
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug(),
+                'json' => $layout->jsonSerialize()
+            ]);
+            $layoutJson = json_decode($response->getBody(), true);
+        } catch (\Exception $e) {
+            $this->handleException($e);
+        }
+        return $layoutJson;
+    }
+
     public function updateStream($sessionId, $streamId, $properties)
     {
         $request = new Request(

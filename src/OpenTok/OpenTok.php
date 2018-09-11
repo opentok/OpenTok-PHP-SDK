@@ -408,6 +408,24 @@ class OpenTok {
         return new ArchiveList($archiveListData, array( 'client' => $this->client ));
     }
 
+
+    /**
+     * Updates the stream layout in an OpenTok Archive.
+     *
+     * @param string $archiveId The OpenTok archive ID.
+     *
+     * @param string $layout The connectionId of the connection in a session.
+     */
+
+    public function setArchiveLayout($archiveId, $layoutType)
+    {
+        Validators::validateArchiveId($archiveId);
+        Validators::validateLayout($layoutType);
+        
+        $this->client->setArchiveLayout($archiveId, $layoutType);
+    }
+    
+
     /**
      * Force disconnects a specific client connected to an OpenTok session.
      *
