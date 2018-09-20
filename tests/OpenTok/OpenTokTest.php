@@ -439,6 +439,42 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
     // TODO: write tests for passing invalid $expireTime and $data to generateToken
     // TODO: write tests for passing extraneous properties to generateToken
 
+    public function testGeneratesTokenWithInitialLayoutClassList()
+    {
+        // Arrange
+        $this->setupOT();
+        // This sessionId is a fixture designed by using a known but bogus apiKey and apiSecret
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $bogusApiKey = '12345678';
+        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+
+        $initialLayouClassList = array('focus', 'main');
+
+        // Act
+        $token = $opentok->generateToken($sessionId, array(
+            'initialLayoutClassList' => $initialLayouClassList
+        ));
+
+        // Assert
+        $this->assertInternalType('string', $token);
+
+        $decodedToken = TestHelpers::decodeToken($token);
+        $this->assertEquals($sessionId, $decodedToken['session_id']);
+        $this->assertEquals($bogusApiKey, $decodedToken['partner_id']);
+        $this->assertNotEmpty($decodedToken['nonce']);
+        $this->assertNotEmpty($decodedToken['create_time']);
+        $this->assertArrayNotHasKey('connection_data', $decodedToken);
+        $this->assertEquals('publisher', $decodedToken['role']);
+        $this->assertEquals(join(" ", $initialLayouClassList), $decodedToken['initial_layout_class_list']);
+
+        // TODO: should all tokens have a default expire time even if it wasn't specified?
+        //$this->assertNotEmpty($decodedToken['expire_time']);
+
+        $this->assertNotEmpty($decodedToken['sig']);
+        $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
+    }
+
     /**
      * @expectedException InvalidArgumentException
      */

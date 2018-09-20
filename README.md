@@ -93,7 +93,8 @@ Once a Session is created, you can start generating Tokens for clients to use wh
 You can generate a token either by calling the `generateToken($sessionId, $options)` method of the
 `OpenTok\OpenTok` class, or by calling the `generateToken($options)` method on the `OpenTok\Session`
 instance after creating it. The `$options` parameter is an optional array used to set the role,
-expire time, and connection data of the Token.
+expire time, and connection data of the Token. For layout control in archives and broadcasts, 
+the initial layout class list of streams published from connections using this token can be set as well.
 
 ```php
 use OpenTok\Session;
@@ -108,7 +109,8 @@ $token = $session->generateToken();
 $token = $session->generateToken(array(
     'role'       => Role::MODERATOR,
     'expireTime' => time()+(7 * 24 * 60 * 60), // in one week
-    'data'       => 'name=Johnny'
+    'data'       => 'name=Johnny',
+    'initialLayoutClassList' => array('focus')
 ));
 ```
 
@@ -239,6 +241,8 @@ $options = array(
 $layoutType = Layout::createCustom($options);
 $opentok->setArchiveLayout($archiveId, $layoutType);
 ```
+
+You can set the initial layout class for a client's streams by setting the layout option when you create the token for the client, using the `$opentok->generateToken()` method. And you can change the layout classes for streams in a session by calling the `$opentok->setStreamClassLists(sessionId, classListArray)` method.
 
 ## Force Disconnect
 
