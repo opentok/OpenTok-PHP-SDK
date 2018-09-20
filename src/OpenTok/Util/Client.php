@@ -439,6 +439,29 @@ class Client
         return $streamListJson;
     }
 
+    public function setStreamClassLists($sessionId, $payload)
+    {
+        $itemsPayload = array(
+            'items' => $payload
+        );
+        $request = new Request(
+            'PUT',
+            'v2/project/'.$this->apiKey.'/session/'.$sessionId.'/stream'
+        );
+
+        try {
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug(),
+                'json' => $itemsPayload
+            ]);
+            if ($response->getStatusCode() != 200) {
+                json_decode($response->getBody(), true);
+            }
+        } catch (\Exception $e) {
+            $this->handleException($e);
+        }
+    }
+
     public function dial($sessionId, $token, $sipUri, $options)
     {
         $body = array(

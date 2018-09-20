@@ -296,6 +296,20 @@ class Validators
         }
     }
 
+    public static function validateLayoutClassListItem($layoutClassList)
+    {
+        if (!is_string($layoutClassList['id'])) {
+            throw new InvalidArgumentException('Each element in the streamClassArray must have an id string.');
+        }
+
+        if (!is_array($layoutClassList)) {
+            throw new InvalidArgumentException('Each element in the streamClassArray must have a layoutClassList array.');
+        }
+        if (!is_array($layoutClassList['layoutClassList'])) {
+            throw new InvalidArgumentException('Each element in the layoutClassList array must be a string (defining class names).');            
+        }
+    }
+
     // Helpers
 
     // credit: http://stackoverflow.com/a/173479

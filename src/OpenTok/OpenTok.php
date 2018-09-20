@@ -86,6 +86,15 @@ class OpenTok {
      *    describing the end-user. For example, you can pass the user ID, name, or other data
      *    describing the end-user. The length of the string is limited to 1000 characters.
      *    This data cannot be updated once it is set.</li>
+     *    
+     *    <li><code>initialLayoutClassList</code> (array) &mdash; An array of class names (strings)
+     *      to be used as the initial layout classes for streams published by the client. Layout
+     *      classes are used in customizing the layout of videos in
+     *      <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/">live streaming
+     *      broadcasts</a> and
+     *      <a href="https://tokbox.com/developer/guides/archiving/layout-control.html">composed
+     *      archives</a>.
+     *    </li>
      *
      * </ul>
      *
@@ -97,10 +106,11 @@ class OpenTok {
         $defaults = array(
             'role' => Role::PUBLISHER,
             'expireTime' => null,
-            'data' => null
+            'data' => null,
+            'initialLayoutClassList' => array(''),
         );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($role, $expireTime, $data) = array_values($options);
+        list($role, $expireTime, $data, $initialLayoutClassList) = array_values($options);
 
         // additional token data
         $createTime = time();
@@ -111,10 +121,12 @@ class OpenTok {
         Validators::validateRole($role);
         Validators::validateExpireTime($expireTime, $createTime);
         Validators::validateData($data);
+        Validators::validateLayoutClassList($initialLayoutClassList, 'JSON');
 
         $dataString = "session_id=$sessionId&create_time=$createTime&role=$role&nonce=$nonce" .
             (($expireTime) ? "&expire_time=$expireTime" : '') .
-            (($data) ? "&connection_data=" . urlencode($data) : '');
+            (($data) ? "&connection_data=" . urlencode($data) : '') .
+            ((!empty($initialLayoutClassList)) ? "&initial_layout_class_list=" . urlencode(join(" ",$initialLayoutClassList)) : '');
         $sig = $this->_sign_string($dataString, $this->apiSecret);
 
         return "T1==" . base64_encode("partner_id=$this->apiKey&sig=$sig:$dataString");
@@ -423,6 +435,29 @@ class OpenTok {
         Validators::validateLayout($layoutType);
         
         $this->client->setArchiveLayout($archiveId, $layoutType);
+    }
+
+    /**
+     * Sets the layout class list for streams in a session. Layout classes are used in
+     * the layout for composed archives and live streaming broadcasts. For more information, see
+     * <a href="https://tokbox.com/developer/guides/archiving/layout-control.html">Customizing
+     * the video layout for composed archives</a> and
+     * <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/#configuring-video-layout-for-opentok-live-streaming-broadcasts">Configuring
+     * video layout for OpenTok live streaming broadcasts</a>.
+     * @param string $sessionId The session ID of the session the streams belong to.
+     *
+     * @param array $classListArray The connectionId of the connection in a session.
+     */
+
+    public function setStreamClassLists($sessionId, $classListArray=array())
+    {
+        Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
+        
+        foreach ($classListArray as $item ){
+            Validators::validateLayoutClassListItem($item);            
+        }
+        
+        $this->client->setStreamClassLists($sessionId, $classListArray);
     }
     
 
