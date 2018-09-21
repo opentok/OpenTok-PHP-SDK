@@ -9,17 +9,19 @@ use OpenTok\Exception\InvalidArgumentException;
 use OpenTok\Exception\ArchiveUnexpectedValueException;
 
 /**
-* Represents data from a Sip Call
+* Represents data from a SIP Call
 *
 * @property string $id
 * The unique identifier of the call that is created.
 *
 * @property string $connectionId
 * The unique identifier of the connection that represents the SIP call in
-* the session. You can use this value to disconnect the SIP call using the moderation API.
+* the session. You can use this value to disconnect the SIP call using OpenTok.forceDisconnect()
+* method.
 *
 * @property string $streamId
-* The id of the stream connected to the session streaming the audio received from the SIP call.
+* The ID of the stream connected to the OpenTok session streaming the audio received from
+* the SIP call.
 */
 class SipCall {
 

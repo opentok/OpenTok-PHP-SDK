@@ -5,9 +5,9 @@ namespace OpenTok;
 use OpenTok\Util\BasicEnum;
 
 /**
- * Defines values for the archiveMode parameter of the \OpenTok\OpenTok->createSession() method
- * and the return value for the \OpenTok\Session->getArchiveMode() method.
- *
+ * Defines values for the archiveMode parameter of the OpenTok->createSession method and
+ * the return value for the Session->getArchiveMode() method.
+ * <p>
  * See <a href="OpenTok.OpenTok.html#method_createSession">OpenTok->createSession()</a>
  * and <a href="OpenTok.Archive.html#method_getArchiveMode">Session->getArchiveMode()</a>.
  */
