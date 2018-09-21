@@ -97,7 +97,8 @@ Once a Session is created, you can start generating Tokens for clients to use wh
 You can generate a token either by calling the `generateToken($sessionId, $options)` method of the
 `OpenTok\OpenTok` class, or by calling the `generateToken($options)` method on the `OpenTok\Session`
 instance after creating it. The `$options` parameter is an optional array used to set the role,
-expire time, and connection data of the Token.
+expire time, and connection data of the Token. For layout control in archives and broadcasts, 
+the initial layout class list of streams published from connections using this token can be set as well.
 
 ```php
 use OpenTok\Session;
@@ -112,7 +113,8 @@ $token = $session->generateToken();
 $token = $session->generateToken(array(
     'role'       => Role::MODERATOR,
     'expireTime' => time()+(7 * 24 * 60 * 60), // in one week
-    'data'       => 'name=Johnny'
+    'data'       => 'name=Johnny',
+    'initialLayoutClassList' => array('focus')
 ));
 ```
 
@@ -178,7 +180,11 @@ $archiveId = $archive->id;
 
 If you set the `outputMode` option to `OutputMode::INDIVIDUAL`, it causes each stream in the archive to be recorded to its own individual file. Please note that you cannot specify the resolution when you set the `outputMode` option to `OutputMode::INDIVIDUAL`. The `OutputMode::COMPOSED` setting (the default) causes all streams in the archive to be recorded to a single (composed) file.
 
-You can stop the recording of a started Archive using the `stopArchive($archiveId)` method of the
+Note that you can also create an automatically archived session, by passing in `ArchiveMode::ALWAYS`
+as the `archiveMode` key of the `options` parameter passed into the `OpenTok->createSession()`
+method (see "Creating Sessions," above).
+
+You can stop the recording of a started archive using the `stopArchive($archiveId)` method of the
 `OpenTok\OpenTok` object. You can also do this using the `stop()` method of the
 `OpenTok\Archive` instance.
 
@@ -220,11 +226,7 @@ $archives = $archiveList->getItems();
 $totalCount = $archiveList->totalCount();
 ```
 
-Note that you can also create an automatically archived session, by passing in `ArchiveMode::ALWAYS`
-as the `archiveMode` key of the `options` parameter passed into the `OpenTok->createSession()`
-method (see "Creating Sessions," above).
-
-For composed archives, you can set change the layout dynamically, using the `OpenTok->updateArchiveLayout($archiveId, $layout)` method:
+For composed archives, you can change the layout dynamically, using the `updateArchiveLayout($archiveId, $layoutType)` method:
 
 ```php
 use OpenTok\OpenTok;
@@ -250,9 +252,10 @@ For more information on archiving, see the
 You can only start live streaming broadcasts for sessions that use the OpenTok Media Router
 (sessions with the media mode set to routed).
 
-You can start the live streaming broadcast of an OpenTok Session using the `startBroadcast($sessionId, $options)` method
-of the `OpenTok\OpenTok` class. This will return an `OpenTok\Broadcast` instance. The parameter
-`$options` is an optional array and is used to assign a layout type for the broadcast. ()
+Start the live streaming broadcast of an OpenTok Session using the
+`startBroadcast($sessionId, $options)` method of the `OpenTok\OpenTok` class.
+This will return an `OpenTok\Broadcast` instance. The `$options` parameter is
+an optional array used to assign a layout type for the broadcast.
 
 ```php
 // Start a live streaming broadcast of a session
@@ -269,10 +272,6 @@ $broadcast = $opentok->startBroadcast($sessionId, $options);
 $broadcastId = $broadcast->id;
 ```
 
-Setting the layout of live streaming broadcasts is optional. By default, broadcasts use the
-"best fit" layout (see [Configuring video layout for OpenTok live streaming
-broadcasts](https://tokbox.com/developer/guides/broadcast/live-streaming/#configuring-video-layout-for-opentok-live-streaming-broadcasts)).
-
 You can stop the live streaming broadcast using the `stopBroadcast($broadcastId)` method of the
 `OpenTok\OpenTok` object. You can also do this using the `stop()` method of the
 `OpenTok\Broadcast` instance.
@@ -280,6 +279,7 @@ You can stop the live streaming broadcast using the `stopBroadcast($broadcastId)
 ```php
 // Stop a broadcast from an broadcast ID (fetched from database)
 $opentok->stopBroadcast($broadcastId);
+
 // Stop a broadcast from an Broadcast instance (returned from startBroadcast)
 $broadcast->stop();
 ```
@@ -291,7 +291,8 @@ use the `getBroadcast($broadcastId)` method of the `OpenTok\OpenTok` class.
 $broadcast = $opentok->getBroadcast($broadcastId);
 ```
 
-You can set change the layout dynamically, using the `OpenTok->updateBroadcastLayout($broadcastId, $layout)` method:
+You can set change the layout dynamically, using the
+`OpenTok->updateBroadcastLayout($broadcastId, $layout)` method:
 
 ```php
 use OpenTok\OpenTok;
@@ -299,11 +300,31 @@ use OpenTok\OpenTok;
 $layout Layout::getPIP(); // Or use another get method of the Layout class.
 $opentok->updateBroadcastLayout($broadcastId, $layout);
 ```
+You can use the `Layout` class to set the layout types:
+`Layout::getHorizontalPresentation()`, `Layout::getVerticalPresentation()`,  `Layout::getPIP()`,
+`Layout::getBestFit()`, `Layout::createCustom()`.
+
+```php
+$layoutType = Layout::getHorizontalPresentation();
+$opentok->setArchiveLayout($archiveId, $layoutType);
+
+// For custom Layouts, you can do the following
+$options = array(
+    'stylesheet' => 'stream.instructor {position: absolute; width: 100%;  height:50%;}'
+);
+
+$layoutType = Layout::createCustom($options);
+$opentok->setArchiveLayout($archiveId, $layoutType);
+```
 
 You can set the initial layout class for a client's streams by setting the `layout` option when
 you create the token for the client, using the `OpenTok->generateToken()` method or the
 `Session->generateToken()` method. And you can change the layout classes for a stream
 by calling the `OpenTok->updateStream()` method.
+
+Setting the layout of live streaming broadcasts is optional. By default, broadcasts use the
+"best fit" layout (see [Configuring video layout for OpenTok live streaming
+broadcasts](https://tokbox.com/developer/guides/broadcast/live-streaming/#configuring-video-layout-for-opentok-live-streaming-broadcasts)).
 
 For more information on live streaming broadcasts, see the
 [OpenTok live streaming broadcasts](https://tokbox.com/developer/guides/broadcast/live-streaming/)
