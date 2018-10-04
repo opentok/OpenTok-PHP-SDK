@@ -38,7 +38,7 @@ use OpenTok\MediaMode;
 
 // TODO: build this dynamically
 /** @internal */
-define('OPENTOK_SDK_VERSION', '4.1.2-alpha.1');
+define('OPENTOK_SDK_VERSION', '4.2.1-alpha.1');
 /** @internal */
 define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
 
@@ -461,6 +461,7 @@ class Client
             $this->handleException($e);
         }
     }
+
 
     public function dial($sessionId, $token, $sipUri, $options)
     {

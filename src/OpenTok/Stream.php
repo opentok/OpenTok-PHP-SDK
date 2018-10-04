@@ -20,12 +20,11 @@ namespace OpenTok;
 * @property String $videoType
 * The type of video in the stream, which is set to either "camera" or "screen".
 */
+
 class Stream {
 
-  /** @ignore */
     private $data;
 
-    /** @ignore */
     public function __construct($streamData)
     {
 

@@ -9,6 +9,7 @@ namespace OpenTok\Exception;
 class SignalConnectionException extends \OpenTok\Exception\DomainException implements \OpenTok\Exception\SignalException
 {
   /** @ignore */
+
   public function __construct($message, $code)
   {
       parent::__construct($message, $code);

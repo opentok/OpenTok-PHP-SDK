@@ -634,7 +634,7 @@ class OpenTok {
      * Gets an Stream object, providing information on a given stream.
      * 
      * @param String $sessionId The session ID for the OpenTok session containing the stream.
-     *
+     * 
      * @param String $streamId The stream ID.
      *
      * @return Stream The Stream object.
@@ -652,14 +652,14 @@ class OpenTok {
     }
 
     /**
-     * Returns a StreamList object for the given session.
+     * Returns a StreamList Object for the given session ID.
      * 
      * @param String $sessionId The session ID.
      *
-     * @return StreamList A StreamList object. Call the
-     * <a href="StreamList.html#method_getItems">OpenTok->getItems()</a> method of
-     * the StreamList object to return an array of Stream objects.
+     * @return StreamList A StreamList object. Call the items() method of the StreamList object
+     * to return an array of Stream objects.     
      */
+
     public function listStreams($sessionId)
     {
         Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
