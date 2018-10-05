@@ -38,7 +38,7 @@ use OpenTok\MediaMode;
 
 // TODO: build this dynamically
 /** @internal */
-define('OPENTOK_SDK_VERSION', '4.2.1-alpha.1');
+define('OPENTOK_SDK_VERSION', '4.3.0');
 /** @internal */
 define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
 
@@ -366,6 +366,24 @@ class Client
         return $layoutJson;
     }
 
+    public function setArchiveLayout($archiveId, $layout)
+    {
+        $request = new Request(
+            'PUT',
+            '/v2/project/'.$this->apiKey.'/archive/'.$archiveId.'/layout'
+        );
+        try {
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug(),
+                'json' => $layout->jsonSerialize()
+            ]);
+            $layoutJson = json_decode($response->getBody(), true);
+        } catch (\Exception $e) {
+            $this->handleException($e);
+        }
+        return $layoutJson;
+    }
+
     public function updateStream($sessionId, $streamId, $properties)
     {
         $request = new Request(
@@ -420,6 +438,30 @@ class Client
         }
         return $streamListJson;
     }
+
+    public function setStreamClassLists($sessionId, $payload)
+    {
+        $itemsPayload = array(
+            'items' => $payload
+        );
+        $request = new Request(
+            'PUT',
+            'v2/project/'.$this->apiKey.'/session/'.$sessionId.'/stream'
+        );
+
+        try {
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug(),
+                'json' => $itemsPayload
+            ]);
+            if ($response->getStatusCode() != 200) {
+                json_decode($response->getBody(), true);
+            }
+        } catch (\Exception $e) {
+            $this->handleException($e);
+        }
+    }
+
 
     public function dial($sessionId, $token, $sipUri, $options)
     {

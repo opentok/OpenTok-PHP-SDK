@@ -8,6 +8,8 @@ namespace OpenTok\Exception;
 */
 class SignalUnexpectedValueException extends \OpenTok\Exception\UnexpectedValueException implements \OpenTok\Exception\SignalException
 {
+  /** @ignore */
+
   public function __construct($message, $code)
   {
       parent::__construct($message, $code);

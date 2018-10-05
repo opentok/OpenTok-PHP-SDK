@@ -86,6 +86,15 @@ class OpenTok {
      *    describing the end-user. For example, you can pass the user ID, name, or other data
      *    describing the end-user. The length of the string is limited to 1000 characters.
      *    This data cannot be updated once it is set.</li>
+     *    
+     *    <li><code>initialLayoutClassList</code> (array) &mdash; An array of class names (strings)
+     *      to be used as the initial layout classes for streams published by the client. Layout
+     *      classes are used in customizing the layout of videos in
+     *      <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/">live streaming
+     *      broadcasts</a> and
+     *      <a href="https://tokbox.com/developer/guides/archiving/layout-control.html">composed
+     *      archives</a>.
+     *    </li>
      *
      * </ul>
      *
@@ -97,10 +106,11 @@ class OpenTok {
         $defaults = array(
             'role' => Role::PUBLISHER,
             'expireTime' => null,
-            'data' => null
+            'data' => null,
+            'initialLayoutClassList' => array(''),
         );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($role, $expireTime, $data) = array_values($options);
+        list($role, $expireTime, $data, $initialLayoutClassList) = array_values($options);
 
         // additional token data
         $createTime = time();
@@ -111,10 +121,12 @@ class OpenTok {
         Validators::validateRole($role);
         Validators::validateExpireTime($expireTime, $createTime);
         Validators::validateData($data);
+        Validators::validateLayoutClassList($initialLayoutClassList, 'JSON');
 
         $dataString = "session_id=$sessionId&create_time=$createTime&role=$role&nonce=$nonce" .
             (($expireTime) ? "&expire_time=$expireTime" : '') .
-            (($data) ? "&connection_data=" . urlencode($data) : '');
+            (($data) ? "&connection_data=" . urlencode($data) : '') .
+            ((!empty($initialLayoutClassList)) ? "&initial_layout_class_list=" . urlencode(join(" ",$initialLayoutClassList)) : '');
         $sig = $this->_sign_string($dataString, $this->apiSecret);
 
         return "T1==" . base64_encode("partner_id=$this->apiKey&sig=$sig:$dataString");
@@ -408,12 +420,53 @@ class OpenTok {
         return new ArchiveList($archiveListData, array( 'client' => $this->client ));
     }
 
+
     /**
-     * Force disconnects a specific client connected to an OpenTok session.
+     * Updates the stream layout in an OpenTok Archive.
      *
-     * @param string $sessionId The OpenTok session ID where the signal will be sent.
+     * @param string $archiveId The OpenTok archive ID.
      *
-     * @param string $connectionId The connectionId of the connection in a session.
+     * @param string $layout The connectionId of the connection in a session.
+     */
+
+    public function setArchiveLayout($archiveId, $layoutType)
+    {
+        Validators::validateArchiveId($archiveId);
+        Validators::validateLayout($layoutType);
+        
+        $this->client->setArchiveLayout($archiveId, $layoutType);
+    }
+
+    /**
+     * Sets the layout class list for streams in a session. Layout classes are used in
+     * the layout for composed archives and live streaming broadcasts. For more information, see
+     * <a href="https://tokbox.com/developer/guides/archiving/layout-control.html">Customizing
+     * the video layout for composed archives</a> and
+     * <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/#configuring-video-layout-for-opentok-live-streaming-broadcasts">Configuring
+     * video layout for OpenTok live streaming broadcasts</a>.
+     * @param string $sessionId The session ID of the session the streams belong to.
+     *
+     * @param array $classListArray The connectionId of the connection in a session.
+     */
+
+    public function setStreamClassLists($sessionId, $classListArray=array())
+    {
+        Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
+        
+        foreach ($classListArray as $item ){
+            Validators::validateLayoutClassListItem($item);            
+        }
+        
+        $this->client->setStreamClassLists($sessionId, $classListArray);
+    }
+    
+
+    /**
+     * Disconnects a specific client from an OpenTok session.
+     *
+     * @param string $sessionId The OpenTok session ID that the client is connected to.
+     *
+     * @param string $connectionId The connection ID of the connection in the session.
      */
 
     public function forceDisconnect($sessionId, $connectionId)
@@ -424,6 +477,24 @@ class OpenTok {
         return $this->client->forceDisconnect($sessionId, $connectionId);
     }
 
+    /**
+     * Starts a live streaming broadcast of an OpenTok session.
+     *
+     * @param String $sessionId The session ID of the session to be broadcast.
+     *
+     * @param Array $options (Optional) An array with options for the broadcast. This array has
+     * the following properties:
+     * <ul>
+     *   <li><code>layout</code> (Layout) &mdash; (Optional) An object defining the initial
+     *     layout type of the broadcast. If you do not specify an initial layout type,
+     *     the broadcast stream uses the Best Fit layout type. For more information, see
+     *     <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/#configuring-live-streaming-video-layout">Configuring
+     *     Video Layout for the OpenTok live streaming feature</a>.
+     *   </li>
+     * </ul>
+     *
+     * @return Broadcast An object with properties defining the broadcast.
+     */
     public function startBroadcast($sessionId, $options=array())
     {
         // unpack optional arguments (merging with default values) into named variables
@@ -446,6 +517,11 @@ class OpenTok {
         return new Broadcast($broadcastData, array( 'client' => $this->client ));
     }
 
+    /**
+     * Stops a broadcast.
+     *
+     * @param String $broadcastId The ID of the broadcast.
+     */
     public function stopBroadcast($broadcastId)
     {
         // validate arguments
@@ -459,6 +535,13 @@ class OpenTok {
         ));
     }
 
+    /**
+     * Gets information about an OpenTok broadcast.
+     *
+     * @param String $broadcastId The ID of the broadcast.
+     *
+     * @return Broadcast An object with properties defining the broadcast.
+     */
     public function getBroadcast($broadcastId)
     {
         Validators::validateBroadcastId($broadcastId);
@@ -476,6 +559,16 @@ class OpenTok {
     //     return Layout::fromData($layoutData);
     // }
 
+    /**
+     * Updates the layout of the broadcast.
+     * <p>
+     * See <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/#configuring-video-layout-for-opentok-live-streaming-broadcasts">Configuring
+     * video layout for OpenTok live streaming broadcasts</a>.
+     *
+     * @param String $broadcastId The ID of the broadcast.
+     *
+     * @param Layout $layout An object defining the layout type for the broadcast.
+     */
     public function updateBroadcastLayout($broadcastId, $layout)
     {
         Validators::validateBroadcastId($broadcastId);
@@ -488,6 +581,37 @@ class OpenTok {
         $this->client->updateLayout($broadcastId, $layout, 'broadcast');
     }
 
+    /**
+    * Sets the layout class list for a stream. Layout classes are used in
+    * the layout for composed archives and live streaming broadcasts.
+    * <p>
+    * For more information, see
+    * <a href="https://tokbox.com/developer/guides/archiving/layout-control.html">Customizing
+    * the video layout for composed archives</a> and
+    * <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/#configuring-video-layout-for-opentok-live-streaming-broadcasts">Configuring
+    * video layout for OpenTok live streaming broadcasts</a>.
+    *
+    * <p>
+    * You can set the initial layout class list for streams published by a client when you generate
+    * the token used by the client to connect to the session. See the
+    * <a href="#method_generateToken">OpenTok->generateToken()</a> method.
+    *
+    * @param string $sessionId The session ID of the session the stream belongs to.
+    *
+    * @param string $streamId The stream ID.
+    *
+    * @param array $properties An array containing one property: <code>$layoutClassList</code>.
+    * This property is an array of class names (strings) to apply to the
+    * stream. Set <code>$layoutClassList</code> to an empty array to clear the layout class list for
+    * a stream. For example, this code sets the stream to use two classes:
+    * <p>
+    * <pre>
+    * $streamProperties = array(
+    *   '$layoutClassList' => array('bottom', 'right')
+    * );
+    * $opentok->updateStream($sessionId, $streamId, $streamProperties);
+    * </pre>
+    */
     public function updateStream($sessionId, $streamId, $properties = array())
     {
         // unpack optional arguments (merging with default values) into named variables
@@ -507,10 +631,10 @@ class OpenTok {
     }
 
     /**
-     * Gets an Stream object for the given stream ID.
+     * Gets an Stream object, providing information on a given stream.
      * 
-     * @param String $sessionId The session ID.
-     *
+     * @param String $sessionId The session ID for the OpenTok session containing the stream.
+     * 
      * @param String $streamId The stream ID.
      *
      * @return Stream The Stream object.
@@ -547,33 +671,43 @@ class OpenTok {
     }
 
     /**
-     * Initiate an outgoing SIP call
+     * Initiates an outgoing SIP call.
+     * <p>
+     * For more information, see the
+     * <a href="https://tokbox.com/developer/guides/sip">OpenTok SIP Interconnect
+     * developer guide</a>.
      *
-     * @param string $sessionId The OpenTok SessionIdwhere the participant being called
+     * @param string $sessionId The ID of the OpenTok session that the participant being called
      * will join.
      *
-     * @param string $token The token for conecting to an OpenTok session. This is the same
-     * as the one created by Session.generateToken.
+     * @param string $token The OpenTok token to be used for the participant being called.
+     * You can add token data to identify that the participant is on a SIP endpoint or for
+     * other identifying data, such as phone numbers. Generate a token using the
+     * <a href="#method_generateToken">OpenTok->generateToken()</a> or
+     * <a href="OpenTok.Session.html#method_generateToken">Session->generateToken()</a>
+     * method.
      *
-     * @param string $sipUrl The SIP Uri to be used as destination of the SIP Call initiated from
+     * @param string $sipUri The SIP URI to be used as destination of the SIP Call initiated from
      * OpenTok to the Third Party SIP Platform.
-     * If the SIP Uri contains a transport=tlsheader, the negotiation between TokBox and
-     * the SIP Endpoint will be done securely. Note that this will only apply to the negotiation
-     * itself, and not to the transmission of audio. If you also need the latter, please see the
-     * "secure" property.
-     * Example of secure call negotiation:
-     * "sip:access@thirparty.com;transport=tls"
-     * Example of insecure call negotiation:
-     * "sip:access@thirparty.com"
+     * <p>
+     * If the URI contains a transport=tlsheader, the negotiation between TokBox and
+     * the SIP endpoint will be done securely. Note that this will only apply to the negotiation
+     * itself, and not to the transmission of audio. To have audio transmission be encrypted,
+     * see the "secure" property of the <code>options</code> parameter.
+     * <p>
+     * This is an example of secure call negotiation: "sip:access@thirparty.com;transport=tls".
+     * <p>
+     * This is an example of insecure call negotiation: "sip:access@thirparty.com".
      *
-     * @param array $options This array defines options for the token. This array includes the
+     * @param array $options This array defines options for the token. It includes the
      * following keys, all of which are optional:
      *
      * <ul>
      *
      *    <li><code>'headers'</code> (array) &mdash; Headers​: Custom Headers to be added to the
      *    SIP INVITE request initiated from OpenTok to the Third Party SIP Platform. All of this
-     *    custom headers must start with the "X-" prefix, or a Bad Request (400) will be thrown.</li>
+     *    custom headers must start with the "X-" prefix, or a Bad Request (400) will be
+     *    thrown.</li>
      *
      *    <li><code>'auth'</code> (array) &mdash; Auth​: Username and Password to be used in the SIP
      *    INVITE request for HTTP Digest authentication in case this is required by the Third Party
@@ -581,18 +715,31 @@ class OpenTok {
      *
      *     <ul>
      *
-     *       <li><code>'username'</code> (string) &mdash; Username: String</li>
+     *       <li><code>'username'</code> (string) &mdash; The username to be used
+     *       in the the SIP INVITE​ request for HTTP digest authentication (if one
+     *       is required).</li>
      *
-     *       <li><code>'password'</code> (string) &mdash; Password: String</li>
+     *       <li><code>'password'</code> (string) &mdash; The password to be used
+     *       in the the SIP INVITE​ request for HTTP digest authentication.</li>
      *
      *     </ul>
      *
-     *    <li><code>'secure'</code> (int) &mdash; Secure​: Boolean (true or false) flag that indicates
-     *    whether the media must be transmitted encrypted or not.</li>
+     *    <li><code>'secure'</code> (Boolean) &mdash; Indicates whether the media
+     *    must be transmitted encrypted (true, the default) or not (false).</li>
+     *
+     *    <li><code>'from'</code> (string) &mdash; The number or string that will be sent to
+     *    the final SIP number as the caller. It must be a string in the form of
+     *    "from@example.com", where from can be a string or a number. If from is set to a number
+     *    (for example, "14155550101@example.com"), it will show up as the incoming number
+     *    on PSTN phones. If from is undefined or set to a string (for example, "joe@example.com"),
+     *    +00000000 will show up as the incoming number on PSTN phones.</li>
      *
      * </ul>
      *
-     * @return SipCall The SipCall, which contains the ids of the Sip connection.
+     * @return SipCall An object contains the OpenTok connection ID and stream ID
+     * for the SIP call's connection in the OpenTok session. You can use the connection ID
+     * to terminate the SIP call, using the
+     * <a href="#method_forceDisconnect">OpenTok->forceDisconnect()</a> method.
      */
     public function dial($sessionId, $token, $sipUri, $options=array())
     {

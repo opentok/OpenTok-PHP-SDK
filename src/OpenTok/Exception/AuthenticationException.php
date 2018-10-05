@@ -8,6 +8,7 @@ namespace OpenTok\Exception;
  */
 class AuthenticationException extends \OpenTok\Exception\DomainException implements \OpenTok\Exception\Exception
 {
+  /** @ignore */
     public function __construct($apiKey, $apiSecret, $code = 0, $previous)
     {
         $message = 'The OpenTok API credentials were rejected. apiKey='.$apiKey.', apiSecret='.$apiSecret;
