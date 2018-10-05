@@ -1813,7 +1813,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.1.2-alpha.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.2.1-alpha.1', $userAgent);
     }
 
     public function testsSetArchiveLayoutWithCustom()
@@ -1859,7 +1859,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.1.2-alpha.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.2.1-alpha.1', $userAgent);
     }
 
 }
