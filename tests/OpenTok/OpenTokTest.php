@@ -496,7 +496,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         ]]);
 
         // This sessionId was generated using a different apiKey, but this method doesn't do any
-        // decoding to check, so its fine.
+        // decoding to check, so it's fine.
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
         // Act
@@ -546,7 +546,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         ]]);
 
         // This sessionId was generated using a different apiKey, but this method doesn't do any
-        // decoding to check, so its fine.
+        // decoding to check, so it's fine.
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
         // Act
@@ -594,7 +594,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         ]]);
 
         // This sessionId was generated using a different apiKey, but this method doesn't do any
-        // decoding to check, so its fine.
+        // decoding to check, so it's fine.
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
         // Act
@@ -641,7 +641,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         ]]);
 
         // This sessionId was generated using a different apiKey, but this method doesn't do any
-        // decoding to check, so its fine.
+        // decoding to check, so it's fine.
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
         // Act
@@ -689,7 +689,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         ]]);
 
         // This sessionId was generated using a different apiKey, but this method doesn't do any
-        // decoding to check, so its fine.
+        // decoding to check, so it's fine.
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
         // Act
@@ -738,7 +738,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         ]]);
 
         // This sessionId was generated using a different apiKey, but this method doesn't do any
-        // decoding to check, so its fine.
+        // decoding to check, so it's fine.
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
         // Act
@@ -786,7 +786,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         ]]);
 
         // This sessionId was generated using a different apiKey, but this method doesn't do any
-        // decoding to check, so its fine.
+        // decoding to check, so it's fine.
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
         // Act
@@ -1167,7 +1167,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         ]]);
 
         // This sessionId was generated using a different apiKey, but this method doesn't do any
-        // decoding to check, so its fine.
+        // decoding to check, so it's fine.
         $sessionId = '2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4';
 
         // Act
@@ -1216,7 +1216,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         ]]);
 
         // This sessionId was generated using a different apiKey, but this method doesn't do any
-        // decoding to check, so its fine.
+        // decoding to check, so it's fine.
         $sessionId = '2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4';
 
         $maxDuration = 5400;
