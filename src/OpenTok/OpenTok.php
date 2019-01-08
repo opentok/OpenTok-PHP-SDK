@@ -504,7 +504,7 @@ class OpenTok {
         $defaults = array(
             'layout' => Layout::getBestFit()
         );
-        $options = array_merge($defaults, array_intersect_key($options, $defaults));
+        $options = array_merge($defaults, $options);
         list($layout) = array_values($options);
 
         // validate arguments

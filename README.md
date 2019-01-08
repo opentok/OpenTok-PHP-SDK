@@ -20,7 +20,7 @@ Add this package (`opentok/opentok`) to your `composer.json` file, or just run t
 command line:
 
 ```
-$ ./composer.phar require opentok/opentok 4.3.x
+$ ./composer.phar require opentok/opentok 4.4.x
 ```
 
 ### Manually:
@@ -255,16 +255,18 @@ You can only start live streaming broadcasts for sessions that use the OpenTok M
 Start the live streaming broadcast of an OpenTok Session using the
 `startBroadcast($sessionId, $options)` method of the `OpenTok\OpenTok` class.
 This will return an `OpenTok\Broadcast` instance. The `$options` parameter is
-an optional array used to assign a layout type for the broadcast.
+an optional array used to assign broadcast options such as layout, maxDuration, resolution, and more.
 
 ```php
 // Start a live streaming broadcast of a session
 $broadcast = $opentok->startBroadcast($sessionId);
 
 
-// Start a live streaming broadcast of a session, setting a layout type
+// Start a live streaming broadcast of a session, using broadcast options
 $options = array(
-    'layout' => Layout::getBestFit()
+    'layout' => Layout::getBestFit(),
+    'maxDuration' => 5400,
+    'resolution' => '1280x720'
 );
 $broadcast = $opentok->startBroadcast($sessionId, $options);
 
