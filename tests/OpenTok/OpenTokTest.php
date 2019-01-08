@@ -496,7 +496,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         ]]);
 
         // This sessionId was generated using a different apiKey, but this method doesn't do any
-        // decoding to check, so its fine.
+        // decoding to check, so it's fine.
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
         // Act
@@ -546,7 +546,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         ]]);
 
         // This sessionId was generated using a different apiKey, but this method doesn't do any
-        // decoding to check, so its fine.
+        // decoding to check, so it's fine.
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
         // Act
@@ -594,7 +594,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         ]]);
 
         // This sessionId was generated using a different apiKey, but this method doesn't do any
-        // decoding to check, so its fine.
+        // decoding to check, so it's fine.
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
         // Act
@@ -641,7 +641,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         ]]);
 
         // This sessionId was generated using a different apiKey, but this method doesn't do any
-        // decoding to check, so its fine.
+        // decoding to check, so it's fine.
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
         // Act
@@ -689,7 +689,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         ]]);
 
         // This sessionId was generated using a different apiKey, but this method doesn't do any
-        // decoding to check, so its fine.
+        // decoding to check, so it's fine.
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
         // Act
@@ -738,7 +738,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         ]]);
 
         // This sessionId was generated using a different apiKey, but this method doesn't do any
-        // decoding to check, so its fine.
+        // decoding to check, so it's fine.
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
         // Act
@@ -786,7 +786,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         ]]);
 
         // This sessionId was generated using a different apiKey, but this method doesn't do any
-        // decoding to check, so its fine.
+        // decoding to check, so it's fine.
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
         // Act
@@ -1167,7 +1167,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         ]]);
 
         // This sessionId was generated using a different apiKey, but this method doesn't do any
-        // decoding to check, so its fine.
+        // decoding to check, so it's fine.
         $sessionId = '2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4';
 
         // Act
@@ -1197,6 +1197,64 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('OpenTok\Broadcast', $broadcast);
         $this->assertInternalType('string', $broadcast->id);
         $this->assertEquals($sessionId, $broadcast->sessionId);
+        $this->assertInternalType('array', $broadcast->broadcastUrls);
+        $this->assertArrayHasKey('hls', $broadcast->broadcastUrls);
+        $this->assertInternalType('string', $broadcast->broadcastUrls['hls']);
+        $this->assertInternalType('string', $broadcast->hlsUrl);
+        $this->assertFalse($broadcast->isStopped);
+    }
+
+    public function testStartBroadcastWithOptions()
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => '/v2/project/APIKEY/broadcast/session_layout-bestfit'
+        ]]);
+
+        // This sessionId was generated using a different apiKey, but this method doesn't do any
+        // decoding to check, so it's fine.
+        $sessionId = '2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4';
+
+        $maxDuration = 5400;
+        $resolution = '1280x720';
+        $broadcastOptions = [
+            'maxDuration' => $maxDuration,
+            'resolution' => $resolution,
+        ];
+
+        // Act
+        $broadcast = $this->opentok->startBroadcast($sessionId, $broadcastOptions);
+
+        // Assert
+        $this->assertCount(1, $this->historyContainer);
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/broadcast', $request->getUri()->getPath());
+        $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
+        $this->assertEquals('https', $request->getUri()->getScheme());
+
+        $contentType = $request->getHeaderLine('Content-Type');
+        $this->assertNotEmpty($contentType);
+        $this->assertEquals('application/json', $contentType);
+
+        $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        // TODO: test the dynamically built User Agent string
+        $userAgent = $request->getHeaderLine('User-Agent');
+        $this->assertNotEmpty($userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.3.0', $userAgent);
+
+        $this->assertInstanceOf('OpenTok\Broadcast', $broadcast);
+        $this->assertInternalType('string', $broadcast->id);
+        $this->assertEquals($sessionId, $broadcast->sessionId);
+        $this->assertEquals($maxDuration, $broadcast->maxDuration);
+        $this->assertEquals($resolution, $broadcast->resolution);        
         $this->assertInternalType('array', $broadcast->broadcastUrls);
         $this->assertArrayHasKey('hls', $broadcast->broadcastUrls);
         $this->assertInternalType('string', $broadcast->broadcastUrls['hls']);
