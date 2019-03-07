@@ -1,0 +1,22 @@
+{
+  "count" : 2,
+  "items" : [ {
+    "id":"6706b658-2eba-42cc-b4d2-7d01a104d182",
+    "sessionId":"2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4",
+    "projectId":854511,
+    "createdAt":1472435660275,
+    "broadcastUrls":null,
+    "updatedAt":1472435660275,
+    "status":"stopped",
+    "partnerId":854511
+  }, {
+   "id":"7706b658-2eba-42cc-b4d2-7d01a104d102",
+    "sessionId":"2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4",
+    "projectId":854511,
+    "createdAt":1472435660275,
+    "broadcastUrls":null,
+    "updatedAt":1472435660275,
+    "status":"started",
+    "partnerId":854511
+  } ]
+}

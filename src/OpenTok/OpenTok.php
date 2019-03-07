@@ -550,6 +550,33 @@ class OpenTok {
         return new Broadcast($broadcastData, array( 'client' => $this->client ));
     }
 
+    /**
+     * Returns an BroadcastList. The <code>items()</code> method of this object returns a list of
+     * broadcasts that are completed and in-progress, for your API key.
+     *
+     * @param integer $offset Optional. The index offset of the first broadcast. 0 is offset of the
+     * most recently started broadcast. 1 is the offset of the broadcast that started prior to the most
+     * recent boradcast. If you do not specify an offset, 0 is used.
+     * @param integer $count Optional. The number of broadcasts to be returned. The maximum number of
+     * broadcasts returned is 1000.
+     * @param string $sessionId Optional. The OpenTok session Id for which you want to retrieve Broadcast for. If no session Id
+     * is specified, the method will return broadcasts from all sessions created with the API key.
+     * 
+     * @return BroadcastList An BroadcastList object. Call the items() method of the BroadcastList object
+     * to return an array of Broadcast objects.
+     */
+    public function listBroadcasts($offset=0, $count=null, $sessionId=null)
+    {
+        // validate params
+        Validators::validateOffsetAndCount($offset, $count);
+        if (!is_null($sessionId)) {
+            Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
+        }
+
+        $broadcastListData = $this->client->listBroadcasts($offset, $count, $sessionId);
+        return new BroadcastList($broadcastListData, array( 'client' => $this->client ));
+    }
+
     // TODO: not yet implemented by the platform
     // public function getBroadcastLayout($broadcastId)
     // {
