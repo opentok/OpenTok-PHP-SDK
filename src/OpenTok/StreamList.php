@@ -11,9 +11,7 @@ class StreamList
     /** @ignore */
     private $data;
 
-    /**
-     * @var array
-     */
+    /** @ignore */
     private $items;
 
     /** @ignore */
