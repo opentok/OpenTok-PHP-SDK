@@ -38,7 +38,7 @@ use OpenTok\MediaMode;
 
 // TODO: build this dynamically
 /** @internal */
-define('OPENTOK_SDK_VERSION', '4.4.1');
+define('OPENTOK_SDK_VERSION', '4.5.0');
 /** @internal */
 define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
 
@@ -333,6 +333,32 @@ class Client
             $this->handleBroadcastException($e);
         }
         return $broadcastJson;
+    }
+
+    public function listBroadcasts($offset, $count, $sessionId)
+    {
+        $request = new Request('GET', '/v2/project/'.$this->apiKey.'/broadcast');
+        $queryParams = [];
+        if ($offset != 0) {
+            $queryParams['offset'] = $offset;
+        }
+        if (!empty($count)) {
+            $queryParams['count'] = $count;
+        }
+        if (!empty($sessionId)) {
+            $queryParams['sessionId'] = $sessionId;
+        }
+        try {
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug(),
+                'query' => $queryParams
+            ]);
+            $broadcastListJson = json_decode($response->getBody(), true);
+        } catch (\Exception $e) {
+            $this->handleException($e);
+            return;
+        }
+        return $broadcastListJson;
     }
 
     public function getLayout($resourceId, $resourceType = 'broadcast')

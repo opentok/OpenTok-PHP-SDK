@@ -20,7 +20,7 @@ Add this package (`opentok/opentok`) to your `composer.json` file, or just run t
 command line:
 
 ```
-$ ./composer.phar require opentok/opentok 4.4.x
+$ ./composer.phar require opentok/opentok 4.5.x
 ```
 
 ### Manually:
@@ -226,13 +226,13 @@ $archives = $archiveList->getItems();
 $totalCount = $archiveList->totalCount();
 ```
 
-For composed archives, you can change the layout dynamically, using the `updateArchiveLayout($archiveId, $layoutType)` method:
+For composed archives, you can change the layout dynamically, using the `setArchiveLayout($archiveId, $layoutType)` method:
 
 ```php
 use OpenTok\OpenTok;
 
-$layout Layout::getPIP(); // Or use another get method of the Layout class.
-$opentok->updateArchiveLayout($archiveId, $layout);
+$layout = Layout::getPIP(); // Or use another method of the Layout class.
+$opentok->setArchiveLayout($archiveId, $layout);
 ```
 
 You can set the initial layout class for a client's streams by setting the `layout` option when
@@ -293,13 +293,27 @@ use the `getBroadcast($broadcastId)` method of the `OpenTok\OpenTok` class.
 $broadcast = $opentok->getBroadcast($broadcastId);
 ```
 
+You can also get a list of all the Broadcasts you've created (up to 1000) with your API Key. This is
+done using the `listBroadcasts($offset, $count)` method of the `OpenTok/OpenTok` class. The parameters
+`$offset` and `$count` are optional and can help you paginate through the results. This will return
+an instance of the `OpenTok\BroadcastList` class.
+
+```php
+$broadcastList = $opentok->listBroadcasts();
+
+// Get an array of OpenTok\Broadcast instances
+$broadcasts = $broadcastList->getItems();
+// Get the total number of Broadcasts for this API Key
+$totalCount = $broadcastList->totalCount();
+```
+
 You can set change the layout dynamically, using the
 `OpenTok->updateBroadcastLayout($broadcastId, $layout)` method:
 
 ```php
 use OpenTok\OpenTok;
 
-$layout Layout::getPIP(); // Or use another get method of the Layout class.
+$layout = Layout::getPIP(); // Or use another method of the Layout class.
 $opentok->updateBroadcastLayout($broadcastId, $layout);
 ```
 You can use the `Layout` class to set the layout types:
@@ -308,7 +322,7 @@ You can use the `Layout` class to set the layout types:
 
 ```php
 $layoutType = Layout::getHorizontalPresentation();
-$opentok->setArchiveLayout($archiveId, $layoutType);
+$opentok->updateBroadcastLayout($broadcastId, $layoutType);
 
 // For custom Layouts, you can do the following
 $options = array(
@@ -316,7 +330,7 @@ $options = array(
 );
 
 $layoutType = Layout::createCustom($options);
-$opentok->setArchiveLayout($archiveId, $layoutType);
+$opentok->updateBroadcastLayout($broadcastId, $layoutType);
 ```
 
 You can set the initial layout class for a client's streams by setting the `layout` option when
@@ -343,6 +357,7 @@ use OpenTok\OpenTok;
 // Force disconnect a client connection
 $opentok->forceDisconnect($sessionId, $connectionId);
 ```
+
 ### Sending Signals
 
 Once a Session is created, you can send signals to everyone in the session or to a specific connection.
@@ -385,7 +400,7 @@ $opentok->signal($sessionId, $signalPayload);
 For more information, see the [OpenTok signaling developer
 guide](https://tokbox.com/developer/guides/signaling/).
 
-## Working with SIP Interconnect
+### Working with SIP Interconnect
 
 You can add an audio-only stream from an external third-party SIP gateway using the SIP
 Interconnect feature. This requires a SIP URI, the session ID you wish to add the audio-only
@@ -414,59 +429,6 @@ $opentok->dial($sessionId, $token, $sipUri, $options);
 
 For more information, see the [OpenTok SIP Interconnect developer
 guide](https://tokbox.com/developer/guides/sip/).
-
-## Force Disconnect
-
-Your application server can disconnect a client from an OpenTok session by calling the `forceDisconnect($sessionId, $connectionId)` 
-method of the `OpenTok\OpenTok` class.
-
-```php
-use OpenTok\OpenTok;
-
-// Force disconnect a client connection
-$opentok->forceDisconnect($sessionId, $connectionId);
-```
-## Sending Signals
-
-Once a Session is created, you can send signals to everyone in the session or to a specific connection.
-You can send a signal by calling the `signal($sessionId, $payload, $connectionId)` method of the
-`OpenTok\OpenTok` class.
-
-The `$sessionId` parameter is the session ID of the session.
-
-The `$payload` parameter is an associative array used to set the
-following:
-
-* `data` (string) -- The data string for the signal. You can send a maximum of 8kB.
-
-* `type` (string) -- &mdash; (Optional) The type string for the signal. You can send a maximum of 128 characters, and only the following characters are allowed: A-Z, a-z, numbers (0-9), '-', '_', and '~'.
-
-The `$connectionId` parameter is an optional string used to specify the connection ID of
-a client connected to the session. If you specify this value, the signal is sent to
-the specified client. Otherwise, the signal is sent to all clients connected to the session.
-
-
-```php
-use OpenTok\OpenTok;
-
-// Send a signal to a specific client
-$signalPayload = array(
-    'data' => 'some signal message',
-    'type' => 'signal type'
-);
-$connectionId = 'da9cb410-e29b-4c2d-ab9e-fe65bf83fcaf';
-$opentok->signal($sessionId, $signalPayload, $connectionId);
-
-// Send a signal to everyone in the session
-$signalPayload = array(
-    'data' => 'some signal message',
-    'type' => 'signal type'
-);
-$opentok->signal($sessionId, $signalPayload);
-```
-
-For more information, see the [OpenTok signaling developer
-guide](https://tokbox.com/developer/guides/signaling/).
 
 ## Samples
 
