@@ -226,13 +226,13 @@ $archives = $archiveList->getItems();
 $totalCount = $archiveList->totalCount();
 ```
 
-For composed archives, you can change the layout dynamically, using the `updateArchiveLayout($archiveId, $layoutType)` method:
+For composed archives, you can change the layout dynamically, using the `setArchiveLayout($archiveId, $layoutType)` method:
 
 ```php
 use OpenTok\OpenTok;
 
-$layout Layout::getPIP(); // Or use another get method of the Layout class.
-$opentok->updateArchiveLayout($archiveId, $layout);
+$layout = Layout::getPIP(); // Or use another method of the Layout class.
+$opentok->setArchiveLayout($archiveId, $layout);
 ```
 
 You can set the initial layout class for a client's streams by setting the `layout` option when
@@ -293,13 +293,27 @@ use the `getBroadcast($broadcastId)` method of the `OpenTok\OpenTok` class.
 $broadcast = $opentok->getBroadcast($broadcastId);
 ```
 
+You can also get a list of all the Broadcasts you've created (up to 1000) with your API Key. This is
+done using the `listBroadcasts($offset, $count)` method of the `OpenTok/OpenTok` class. The parameters
+`$offset` and `$count` are optional and can help you paginate through the results. This will return
+an instance of the `OpenTok\BroadcastList` class.
+
+```php
+$broadcastList = $opentok->listBroadcasts();
+
+// Get an array of OpenTok\Broadcast instances
+$broadcasts = $broadcastList->getItems();
+// Get the total number of Broadcasts for this API Key
+$totalCount = $broadcastList->totalCount();
+```
+
 You can set change the layout dynamically, using the
 `OpenTok->updateBroadcastLayout($broadcastId, $layout)` method:
 
 ```php
 use OpenTok\OpenTok;
 
-$layout Layout::getPIP(); // Or use another get method of the Layout class.
+$layout = Layout::getPIP(); // Or use another method of the Layout class.
 $opentok->updateBroadcastLayout($broadcastId, $layout);
 ```
 You can use the `Layout` class to set the layout types:
@@ -308,7 +322,7 @@ You can use the `Layout` class to set the layout types:
 
 ```php
 $layoutType = Layout::getHorizontalPresentation();
-$opentok->setArchiveLayout($archiveId, $layoutType);
+$opentok->updateBroadcastLayout($broadcastId, $layoutType);
 
 // For custom Layouts, you can do the following
 $options = array(
@@ -316,7 +330,7 @@ $options = array(
 );
 
 $layoutType = Layout::createCustom($options);
-$opentok->setArchiveLayout($archiveId, $layoutType);
+$opentok->updateBroadcastLayout($broadcastId, $layoutType);
 ```
 
 You can set the initial layout class for a client's streams by setting the `layout` option when

@@ -402,7 +402,7 @@ class OpenTok {
      * recent archive. If you do not specify an offset, 0 is used.
      * @param integer $count Optional. The number of archives to be returned. The maximum number of
      * archives returned is 1000.
-     * @param string $sessionId Optional. The OpenTok session Id for which you want to retrieve Archives for. If no session Id
+     * @param string $sessionId Optional. The OpenTok session ID for which you want to retrieve archives. If no session ID
      * is specified, the method will return archives from all sessions created with the API key.
      * 
      * @return ArchiveList An ArchiveList object. Call the items() method of the ArchiveList object
@@ -426,7 +426,7 @@ class OpenTok {
      *
      * @param string $archiveId The OpenTok archive ID.
      *
-     * @param string $layout The connectionId of the connection in a session.
+     * @param Layout $layoutType An object defining the new layout.
      */
 
     public function setArchiveLayout($archiveId, $layoutType)
@@ -439,14 +439,20 @@ class OpenTok {
 
     /**
      * Sets the layout class list for streams in a session. Layout classes are used in
-     * the layout for composed archives and live streaming broadcasts. For more information, see
+     * the layout for composed archives and live streaming broadcasts.
+     * <p>
+     * For more information, see
      * <a href="https://tokbox.com/developer/guides/archiving/layout-control.html">Customizing
      * the video layout for composed archives</a> and
      * <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/#configuring-video-layout-for-opentok-live-streaming-broadcasts">Configuring
      * video layout for OpenTok live streaming broadcasts</a>.
      * @param string $sessionId The session ID of the session the streams belong to.
      *
-     * @param array $classListArray The connectionId of the connection in a session.
+     * @param Array $classListArray An array of objects defining the new class lists
+     * for stream. Each item in the array includes two properties: the stream ID
+     * and an array of class names (strings) to apply to the stream.
+     * Use empty array to clear the layout class list for
+     * a stream.
      */
 
     public function setStreamClassLists($sessionId, $classListArray=array())
@@ -556,13 +562,13 @@ class OpenTok {
      *
      * @param integer $offset Optional. The index offset of the first broadcast. 0 is offset of the
      * most recently started broadcast. 1 is the offset of the broadcast that started prior to the most
-     * recent boradcast. If you do not specify an offset, 0 is used.
+     * recent broadcast. If you do not specify an offset, 0 is used.
      * @param integer $count Optional. The number of broadcasts to be returned. The maximum number of
      * broadcasts returned is 1000.
-     * @param string $sessionId Optional. The OpenTok session Id for which you want to retrieve Broadcast for. If no session Id
+     * @param string $sessionId Optional. The OpenTok session ID for which you want to retrieve broadcasts. If no session ID
      * is specified, the method will return broadcasts from all sessions created with the API key.
      * 
-     * @return BroadcastList An BroadcastList object. Call the items() method of the BroadcastList object
+     * @return BroadcastList A BroadcastList object. Call the <code>items()</code> method of the BroadcastList object
      * to return an array of Broadcast objects.
      */
     public function listBroadcasts($offset=0, $count=null, $sessionId=null)
