@@ -705,9 +705,7 @@ class OpenTok {
      * <ul>
      *
      *    <li><code>'headers'</code> (array) &mdash; Headers​: Custom Headers to be added to the
-     *    SIP INVITE request initiated from OpenTok to the Third Party SIP Platform. All of this
-     *    custom headers must start with the "X-" prefix, or a Bad Request (400) will be
-     *    thrown.</li>
+     *    SIP INVITE request initiated from OpenTok to the Third Party SIP Platform.</li>
      *
      *    <li><code>'auth'</code> (array) &mdash; Auth​: Username and Password to be used in the SIP
      *    INVITE request for HTTP Digest authentication in case this is required by the Third Party
