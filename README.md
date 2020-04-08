@@ -1,11 +1,13 @@
 # OpenTok PHP SDK
 
-[![Build Status](https://travis-ci.org/opentok/OpenTok-PHP-SDK.svg)](https://travis-ci.org/opentok/OpenTok-PHP-SDK)
+[![Build Status](https://travis-ci.org/opentok/OpenTok-PHP-SDK.svg)](https://travis-ci.org/opentok/OpenTok-PHP-SDK) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)
+
+<img src="https://assets.tokbox.com/img/vonage/Vonage_VideoAPI_black.svg" height="48px" alt="Tokbox is now known as Vonage" />
 
 The OpenTok PHP SDK lets you generate [sessions](http://tokbox.com/developer/guides/create-session/) and
 [tokens](http://tokbox.com/developer/guides/create-token/) for [OpenTok](http://www.tokbox.com/)
 applications, and [archive](http://tokbox.com/developer/guides/archiving/) sessions.
-It also includes  methods for working with OpenTok
+It also includes methods for working with OpenTok
 [archives](http://tokbox.com/developer/guides/archiving), working with OpenTok
 [SIP interconnect](http://tokbox.com/developer/guides/sip), and
 [disconnecting clients from sessions](http://tokbox.com/developer/guides/moderation/rest/).
@@ -56,12 +58,12 @@ $opentok = new OpenTok($apiKey, $apiSecret);
 To create an OpenTok Session, use the `createSession($options)` method of the
 `OpenTok\OpenTok` class. The `$options` parameter is an optional array used to specify the following:
 
-* Setting whether the session will use the OpenTok Media Router or attempt to send streams directly
+- Setting whether the session will use the OpenTok Media Router or attempt to send streams directly
   between clients.
 
-* Setting whether the session will automatically create archives (implies use of routed session)
+- Setting whether the session will automatically create archives (implies use of routed session)
 
-* Specifying a location hint.
+- Specifying a location hint.
 
 The `getSessionId()` method of the `OpenTok\Session` instance returns the session ID,
 which you use to identify the session in the OpenTok client libraries.
@@ -97,7 +99,7 @@ Once a Session is created, you can start generating Tokens for clients to use wh
 You can generate a token either by calling the `generateToken($sessionId, $options)` method of the
 `OpenTok\OpenTok` class, or by calling the `generateToken($options)` method on the `OpenTok\Session`
 instance after creating it. The `$options` parameter is an optional array used to set the role,
-expire time, and connection data of the Token. For layout control in archives and broadcasts, 
+expire time, and connection data of the Token. For layout control in archives and broadcasts,
 the initial layout class list of streams published from connections using this token can be set as well.
 
 ```php
@@ -302,8 +304,9 @@ use OpenTok\OpenTok;
 $layout Layout::getPIP(); // Or use another get method of the Layout class.
 $opentok->updateBroadcastLayout($broadcastId, $layout);
 ```
+
 You can use the `Layout` class to set the layout types:
-`Layout::getHorizontalPresentation()`, `Layout::getVerticalPresentation()`,  `Layout::getPIP()`,
+`Layout::getHorizontalPresentation()`, `Layout::getVerticalPresentation()`, `Layout::getPIP()`,
 `Layout::getBestFit()`, `Layout::createCustom()`.
 
 ```php
@@ -334,7 +337,7 @@ developer guide.
 
 ### Force a Client to Disconnect
 
-Your application server can disconnect a client from an OpenTok session by calling the `forceDisconnect($sessionId, $connectionId)` 
+Your application server can disconnect a client from an OpenTok session by calling the `forceDisconnect($sessionId, $connectionId)`
 method of the `OpenTok\OpenTok` class.
 
 ```php
@@ -343,6 +346,7 @@ use OpenTok\OpenTok;
 // Force disconnect a client connection
 $opentok->forceDisconnect($sessionId, $connectionId);
 ```
+
 ### Sending Signals
 
 Once a Session is created, you can send signals to everyone in the session or to a specific connection.
@@ -354,14 +358,13 @@ The `$sessionId` parameter is the session ID of the session.
 The `$payload` parameter is an associative array used to set the
 following:
 
-* `data` (string) -- The data string for the signal. You can send a maximum of 8kB.
+- `data` (string) -- The data string for the signal. You can send a maximum of 8kB.
 
-* `type` (string) -- &mdash; (Optional) The type string for the signal. You can send a maximum of 128 characters, and only the following characters are allowed: A-Z, a-z, numbers (0-9), '-', '_', and '~'.
+- `type` (string) -- &mdash; (Optional) The type string for the signal. You can send a maximum of 128 characters, and only the following characters are allowed: A-Z, a-z, numbers (0-9), '-', '\_', and '~'.
 
 The `$connectionId` parameter is an optional string used to specify the connection ID of
 a client connected to the session. If you specify this value, the signal is sent to
 the specified client. Otherwise, the signal is sent to all clients connected to the session.
-
 
 ```php
 use OpenTok\OpenTok;
@@ -417,7 +420,7 @@ guide](https://tokbox.com/developer/guides/sip/).
 
 ## Force Disconnect
 
-Your application server can disconnect a client from an OpenTok session by calling the `forceDisconnect($sessionId, $connectionId)` 
+Your application server can disconnect a client from an OpenTok session by calling the `forceDisconnect($sessionId, $connectionId)`
 method of the `OpenTok\OpenTok` class.
 
 ```php
@@ -426,6 +429,7 @@ use OpenTok\OpenTok;
 // Force disconnect a client connection
 $opentok->forceDisconnect($sessionId, $connectionId);
 ```
+
 ## Sending Signals
 
 Once a Session is created, you can send signals to everyone in the session or to a specific connection.
@@ -437,14 +441,13 @@ The `$sessionId` parameter is the session ID of the session.
 The `$payload` parameter is an associative array used to set the
 following:
 
-* `data` (string) -- The data string for the signal. You can send a maximum of 8kB.
+- `data` (string) -- The data string for the signal. You can send a maximum of 8kB.
 
-* `type` (string) -- &mdash; (Optional) The type string for the signal. You can send a maximum of 128 characters, and only the following characters are allowed: A-Z, a-z, numbers (0-9), '-', '_', and '~'.
+- `type` (string) -- &mdash; (Optional) The type string for the signal. You can send a maximum of 128 characters, and only the following characters are allowed: A-Z, a-z, numbers (0-9), '-', '\_', and '~'.
 
 The `$connectionId` parameter is an optional string used to specify the connection ID of
 a client connected to the session. If you specify this value, the signal is sent to
 the specified client. Otherwise, the signal is sent to all clients connected to the session.
-
 
 ```php
 use OpenTok\OpenTok;
@@ -473,9 +476,9 @@ guide](https://tokbox.com/developer/guides/signaling/).
 There are three sample applications included in this repository. To get going as fast as possible, clone the whole
 repository and follow the Walkthroughs:
 
-*  [HelloWorld](sample/HelloWorld/README.md)
-*  [Archiving](sample/Archiving/README.md)
-*  [SipCall](sample/SipCall/README.md)
+- [HelloWorld](sample/HelloWorld/README.md)
+- [Archiving](sample/Archiving/README.md)
+- [SipCall](sample/SipCall/README.md)
 
 ## Documentation
 
@@ -513,8 +516,8 @@ This version of the SDK includes support for working with OpenTok archives.
 The names of many methods of the API have changed. Many method names have
 changed to use camel case, including the following:
 
-* `\OpenTok\OpenTok->createSession()`
-* `\OpenTok\OpenTok->generateToken()`
+- `\OpenTok\OpenTok->createSession()`
+- `\OpenTok\OpenTok->generateToken()`
 
 Note also that the `options` parameter of the `OpenTok->createSession()` method has a `mediaMode`
 property instead of a `p2p` property.
@@ -530,9 +533,11 @@ docs directory of the SDK.
 Interested in contributing? We :heart: pull requests! See the [Development](DEVELOPING.md) and
 [Contribution](CONTRIBUTING.md) guidelines.
 
-## Support
+## Getting Help
 
-See <https://support.tokbox.com> for all our support options.
+We love to hear from you so if you have questions, comments or find a bug in the project, let us know! You can either:
 
-Find a bug? File it on the [Issues](https://github.com/opentok/opentok-php-sdk/issues) page. Hint:
-test cases are really helpful!
+- Open an issue on this repository
+- See <https://support.tokbox.com/> for support options
+- Tweet at us! We're [@VonageDev on Twitter](https://twitter.com/VonageDev)
+- Or [join the Vonage Developer Community Slack](https://developer.nexmo.com/community/slack)
