@@ -228,13 +228,13 @@ $archives = $archiveList->getItems();
 $totalCount = $archiveList->totalCount();
 ```
 
-For composed archives, you can change the layout dynamically, using the `updateArchiveLayout($archiveId, $layoutType)` method:
+For composed archives, you can change the layout dynamically, using the `setArchiveLayout($archiveId, $layoutType)` method:
 
 ```php
 use OpenTok\OpenTok;
 
-$layout Layout::getPIP(); // Or use another get method of the Layout class.
-$opentok->updateArchiveLayout($archiveId, $layout);
+$layout = Layout::getPIP(); // Or use another get method of the Layout class.
+$opentok->setArchiveLayout($archiveId, $layout);
 ```
 
 You can set the initial layout class for a client's streams by setting the `layout` option when
