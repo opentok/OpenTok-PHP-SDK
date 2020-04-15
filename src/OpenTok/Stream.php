@@ -5,8 +5,8 @@ namespace OpenTok;
 /**
 * Represents a stream in an OpenTok session.
 * <p>
-* See <a href="OpenTok.html#method_getStream">OpenTok.getStream()</a> and
-* <a href="OpenTok.html#method_listStreams">OpenTok.listStreams()</a>.
+* See <a href="OpenTok.OpenTok.html#method_getStream">OpenTok.getStream()</a> and
+* <a href="OpenTok.OpenTok.html#method_listStreams">OpenTok.listStreams()</a>.
 *
 * @property String $id
 * The stream ID.
