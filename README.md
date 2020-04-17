@@ -53,6 +53,30 @@ use OpenTok\OpenTok;
 $opentok = new OpenTok($apiKey, $apiSecret);
 ```
 
+#### Initialization Options
+
+The `OpenTok\OpenTok` object just allow for some overrides of values when special needs arise, such as
+needing to point to a different datacenter or change the timeout of the underlying HTTP client. For
+these situations, you can pass an array of additional options as the third parameter.
+
+We allow the following options:
+* `apiUrl` - Change the domain that the SDK points to. Useful when needing to select a specific datacenter
+or point to a mock version of the API for testing
+* `client` - Custom API client that inherits from `OpenTok\Utils\Client`, useful for customizing an HTTP client
+* `timeout` - Change the default HTTP timeout, which defaults to forever. You can pass a number of seconds to change the timeout.
+
+```php
+use OpenTok\OpenTok;
+use MyCompany\CustomOpenTokClient;
+
+$options = [
+    'apiUrl' => 'https://custom.domain.com/',
+    'client' => new CustomOpenTokClient(),
+    'timeout' => 10,
+]
+$opentok = new OpenTok($apiKey, $apiSecret, $options);
+```
+
 ### Creating Sessions
 
 To create an OpenTok Session, use the `createSession($options)` method of the

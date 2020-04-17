@@ -1,22 +1,23 @@
 <?php
 
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Middleware;
-
-use OpenTok\OpenTok;
-use OpenTok\OpenTokTestCase;
-use OpenTok\Session;
-use OpenTok\Stream;
-use OpenTok\StreamList;
 use OpenTok\Role;
 use OpenTok\Layout;
-use OpenTok\MediaMode;
-use OpenTok\ArchiveMode;
-use OpenTok\OutputMode;
-use OpenTok\Util\Client;
+use OpenTok\Stream;
 
+use OpenTok\OpenTok;
+use OpenTok\Session;
+use OpenTok\MediaMode;
+use OpenTok\OutputMode;
+use OpenTok\StreamList;
+use OpenTok\ArchiveMode;
 use OpenTok\TestHelpers;
+use OpenTok\Util\Client;
+use GuzzleHttp\Middleware;
+use GuzzleHttp\HandlerStack;
+
+use OpenTok\OpenTokTestCase;
+use GuzzleHttp\Handler\MockHandler;
+use OpenTok\Exception\InvalidArgumentException;
 
 define('OPENTOK_DEBUG', true);
 
@@ -1920,5 +1921,67 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
     }
 
+    /**
+     * Makes sure that Guzzle internally keeps a null/indefinate timeout by default
+     * This makes sure that internal existing behavior has not changed
+     */
+    public function testDefaultTimeoutDefaultsToNull()
+    {
+        $this->setupOT();
+
+        $opentokReflection = new \ReflectionClass($this->opentok);
+        $opentokClient = $opentokReflection->getProperty('client');
+        $opentokClient->setAccessible(true);
+        $opentokClient = $opentokClient->getValue($this->opentok);
+        $opentokClientReflection = new \ReflectionClass($opentokClient);
+
+        /** @var \GuzzleHttp\Client $guzzleClient */
+        $guzzleClient = $opentokClientReflection->getProperty('client');
+        $guzzleClient->setAccessible(true);
+        $guzzleClient = $guzzleClient->getValue($opentokClient);
+
+        $this->assertSame(null, $guzzleClient->getConfig('timeout'));
+    }
+
+    /**
+     * Makes sure that Guzzle gets configured with a user defined timeout
+     */
+    public function testDefaultTimeoutCanBeOverriden()
+    {
+        $opentok = new OpenTok('1234', 'abd', ['timeout' => 400]);
+
+        $opentokReflection = new \ReflectionClass($opentok);
+        $opentokClient = $opentokReflection->getProperty('client');
+        $opentokClient->setAccessible(true);
+        $opentokClient = $opentokClient->getValue($opentok);
+        $opentokClientReflection = new \ReflectionClass($opentokClient);
+
+        /** @var \GuzzleHttp\Client $guzzleClient */
+        $guzzleClient = $opentokClientReflection->getProperty('client');
+        $guzzleClient->setAccessible(true);
+        $guzzleClient = $guzzleClient->getValue($opentokClient);
+
+        $this->assertSame(400, $guzzleClient->getConfig('timeout'));
+    }
+
+    /**
+     * User-provided default timeout must be numeric
+     */
+    public function testDefaultTimeoutErrorsIfNotNumeric()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Default Timeout must be a number greater than zero');
+        new OpenTok('1234', 'abd', ['timeout' => 'bob']);
+    }
+
+    /**
+     * User-provided default timeout must be greater than 0
+     */
+    public function testDefaultTimeoutErrorsIfLessThanZero()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Default Timeout must be a number greater than zero');
+        new OpenTok('1234', 'abd', ['timeout' => -1]);
+    }
 }
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/
