@@ -41,19 +41,29 @@ class OpenTok {
     public function __construct($apiKey, $apiSecret, $options = array())
     {
         // unpack optional arguments (merging with default values) into named variables
-        $defaults = array('apiUrl' => 'https://api.opentok.com', 'client' => null);
+        $defaults = array(
+            'apiUrl' => 'https://api.opentok.com',
+            'client' => null,
+            'timeout' => null // In the future we should set this to 2
+        );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($apiUrl, $client) = array_values($options);
+        list($apiUrl, $client, $timeout) = array_values($options);
 
         // validate arguments
         Validators::validateApiKey($apiKey);
         Validators::validateApiSecret($apiSecret);
         Validators::validateApiUrl($apiUrl);
         Validators::validateClient($client);
+        Validators::validateDefaultTimeout($timeout);
 
         $this->client = isset($client) ? $client : new Client();
         if (!$this->client->isConfigured()) {
-            $this->client->configure($apiKey, $apiSecret, $apiUrl);
+            $this->client->configure(
+                $apiKey,
+                $apiSecret,
+                $apiUrl,
+                ['timeout' => $timeout]
+            );
         }
         $this->apiKey = $apiKey;
         $this->apiSecret = $apiSecret;
