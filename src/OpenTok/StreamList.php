@@ -3,7 +3,7 @@
 namespace OpenTok;
 
 /**
- * An object, returned by the <a href="OpenTok.html#method_listStreams">OpenTok.listStreams()</a>
+ * An object, returned by the <a href="OpenTok.OpenTok.html#method_listStreams">OpenTok.listStreams()</a>
  * method, representing a list of streams in an OpenTok session.
  */
 class StreamList

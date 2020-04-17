@@ -6,14 +6,14 @@ use OpenTok\Util\Validators;
 
 /**
  * Defines the object passed in as the $layout parameter of the
- * OpenTok->updateArchiveLayout() and OpenTok->updateArchiveLayout() methods.
+ * OpenTok->setArchiveLayout() and OpenTok->updateBroadcastLayout() methods.
  * <p>
  * To instantiate a Layout object, call one of the static methods of the Layout class:
  * <code>getBestFit()</code>, <code>getPIP()</code>, <code>getVerticalPresentation()</code>,
- * <code>getHorizontalPresentation()</code>,or  <code>createCustom()</code>.
+ * <code>getHorizontalPresentation()</code>, or <code>createCustom()</code>.
  * <p>
- * See <a href="OpenTok.html#method_updateArchiveLayout">OpenTok->updateArchiveLayout()</a>,
- * <a href="OpenTok.html#method_updateBroadcastLayout">OpenTok->updateBroadcastLayout()</a>,
+ * See <a href="OpenTok.OpenTok.html#method_setArchiveLayout">OpenTok->setArchiveLayout()</a>,
+ * <a href="OpenTok.OpenTok.html#method_updateBroadcastLayout">OpenTok->updateBroadcastLayout()</a>,
  * <a href="https://tokbox.com/developer/guides/archiving/layout-control.html">Customizing
  * the video layout for composed archives</a>, and
  * <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/#configuring-video-layout-for-opentok-live-streaming-broadcasts">Configuring
