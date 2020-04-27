@@ -38,7 +38,7 @@ use OpenTok\MediaMode;
 
 // TODO: build this dynamically
 /** @internal */
-define('OPENTOK_SDK_VERSION', '4.4.1');
+define('OPENTOK_SDK_VERSION', '4.5.0');
 /** @internal */
 define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
 
@@ -57,11 +57,23 @@ class Client
         $this->apiKey = $apiKey;
         $this->apiSecret = $apiSecret;
 
+        $clientOptions = [
+            'base_uri' => $apiUrl,
+            'headers' => [
+                'User-Agent' => OPENTOK_SDK_USER_AGENT . ' ' . \GuzzleHttp\default_user_agent(),
+            ],
+        ];
+
+        if (!empty($options['timeout'])) {
+            $clientOptions['timeout'] = $options['timeout'];
+        }
+
         if (empty($options['handler'])) {
             $handlerStack = HandlerStack::create();
         } else {
             $handlerStack = $options['handler'];
         }
+        $clientOptions['handler'] = $handlerStack;
 
         $handler = Middleware::mapRequest(function (RequestInterface $request) {
             $authHeader = $this->createAuthHeader();
@@ -69,15 +81,7 @@ class Client
         });
         $handlerStack->push($handler);
 
-        $ua = OPENTOK_SDK_USER_AGENT . ' ' . \GuzzleHttp\default_user_agent();
-        $this->client = new \GuzzleHttp\Client([
-            'base_uri' => $apiUrl,
-            'handler' => $handlerStack,
-            'headers' => [
-                'User-Agent' => $ua
-            ]
-        ]);
-
+        $this->client = new \GuzzleHttp\Client($clientOptions);
         $this->configured = true;
     }
 

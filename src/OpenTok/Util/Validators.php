@@ -310,6 +310,18 @@ class Validators
         }
     }
 
+    public static function validateDefaultTimeout($timeout)
+    {
+        // Guzzle defaults to "null" instead of 0, so allowing that through
+        if (is_null($timeout)) {
+            return;
+        }
+
+        if (!is_numeric($timeout) || ($timeout < 0)) {
+            throw new InvalidArgumentException('Default Timeout must be a number greater than zero');
+        }
+    }
+
     // Helpers
 
     // credit: http://stackoverflow.com/a/173479
