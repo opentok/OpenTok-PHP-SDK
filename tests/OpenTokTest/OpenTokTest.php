@@ -23,6 +23,9 @@ class OpenTokTest extends TestCase
     protected $API_KEY;
     protected $API_SECRET;
 
+    /**
+     * @var OpenTok
+     */
     protected $opentok;
     protected $client;
 
@@ -1604,18 +1607,15 @@ class OpenTokTest extends TestCase
         ]]);
 
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
-        $bogusApiKey = '12345678';
-        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
         $bogusToken = 'T1==TEST';
         $bogusSipUri = 'sip:john@doe.com';
-        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
         $from = "+0034123445566@opentok.me";
 
         // Act
-        $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri, array(
+        $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri, [
             'from' => $from
-        ));
+        ]);
 
         // Assert
         $this->assertInstanceOf('OpenTok\SipCall', $sipCall);

@@ -478,7 +478,7 @@ class Client
             )
         );
 
-        if (isset($options) && array_key_exists('headers', $options) && sizeof($options['headers']) > 0) {
+        if (isset($options) && array_key_exists('headers', $options) && count($options['headers']) > 0) {
             $body['sip']['headers'] = $options['headers'];
         }
 

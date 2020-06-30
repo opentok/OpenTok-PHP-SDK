@@ -741,12 +741,12 @@ class OpenTok
      * to terminate the SIP call, using the
      * <a href="#method_forceDisconnect">OpenTok->forceDisconnect()</a> method.
      */
-    public function dial($sessionId, $token, $sipUri, $options = array())
+    public function dial($sessionId, $token, $sipUri, $options = [])
     {
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array(
             'auth' => null,
-            'headers' => null,
+            'headers' => [],
             'secure' => true,
             'from' => null,
         );
