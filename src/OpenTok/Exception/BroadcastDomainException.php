@@ -10,4 +10,3 @@ namespace OpenTok\Exception;
 class BroadcastDomainException extends \OpenTok\Exception\DomainException implements \OpenTok\Exception\BroadcastException
 {
 }
-/* vim: set ts=4 sw=4 tw=100 sts=4 et :*/
