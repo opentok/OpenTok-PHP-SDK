@@ -10,7 +10,8 @@ use OpenTok\Util\Validators;
 /**
 * A class for accessing an array of Archive objects.
 */
-class ArchiveList {
+class ArchiveList
+{
 
     /**
     * @internal
@@ -79,7 +80,7 @@ class ArchiveList {
     {
         if (!$this->items) {
             $items = array();
-            foreach($this->data['items'] as $archiveData) {
+            foreach ($this->data['items'] as $archiveData) {
                 $items[] = new Archive($archiveData, array( 'client' => $this->client ));
             }
             $this->items = $items;

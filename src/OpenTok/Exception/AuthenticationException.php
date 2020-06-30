@@ -11,8 +11,8 @@ class AuthenticationException extends \OpenTok\Exception\DomainException impleme
   /** @ignore */
     public function __construct($apiKey, $apiSecret, $code = 0, $previous)
     {
-        $message = 'The OpenTok API credentials were rejected. apiKey='.$apiKey.', apiSecret='.$apiSecret;
-         parent::__construct($message, $code, $previous);
+        $message = 'The OpenTok API credentials were rejected. apiKey=' . $apiKey . ', apiSecret=' . $apiSecret;
+        parent::__construct($message, $code, $previous);
     }
 }
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/

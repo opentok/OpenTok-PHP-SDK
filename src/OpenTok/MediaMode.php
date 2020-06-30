@@ -8,7 +8,8 @@ use OpenTok\Util\BasicEnum;
  * Defines values for the mediaMode parameter of the \OpenTok\OpenTok->createSession()
  * method.
  */
-abstract class MediaMode extends BasicEnum {
+abstract class MediaMode extends BasicEnum
+{
     /**
     *   The session will send streams using the OpenTok Media Router.
     */

@@ -4,7 +4,6 @@ namespace OpenTok;
 
 use OpenTok\Util\Client;
 use OpenTok\Util\Validators;
-
 use OpenTok\Exception\InvalidArgumentException;
 use OpenTok\Exception\ArchiveUnexpectedValueException;
 
@@ -23,7 +22,8 @@ use OpenTok\Exception\ArchiveUnexpectedValueException;
 * The ID of the stream connected to the OpenTok session streaming the audio received from
 * the SIP call.
 */
-class SipCall {
+class SipCall
+{
 
     /** @internal */
     private $data;
@@ -42,7 +42,7 @@ class SipCall {
     /** @internal */
     public function __get($name)
     {
-        switch($name) {
+        switch ($name) {
             case 'id':
             case 'connectionId':
             case 'streamId':

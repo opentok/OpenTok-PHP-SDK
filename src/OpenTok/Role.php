@@ -8,7 +8,8 @@ use OpenTok\Util\BasicEnum;
  * Defines values for the role parameter of the \OpenTok\OpenTok->generateToken()
  * method.
  */
-abstract class Role extends BasicEnum {
+abstract class Role extends BasicEnum
+{
     /**
     *   A subscriber can only subscribe to streams.
     */

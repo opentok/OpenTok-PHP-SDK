@@ -8,10 +8,9 @@ namespace OpenTok\Exception;
 */
 class ForceDisconnectUnexpectedValueException extends \OpenTok\Exception\UnexpectedValueException implements \OpenTok\Exception\ForceDisconnectException
 {
-  /** @ignore */
-
-  public function __construct($message, $code)
-  {
-      parent::__construct($message, $code);
-  }
+    /** @ignore */
+    public function __construct($message, $code)
+    {
+        parent::__construct($message, $code);
+    }
 }

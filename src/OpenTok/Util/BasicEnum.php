@@ -5,12 +5,15 @@ namespace OpenTok\Util;
 /**
 * @internal
 */
-abstract class BasicEnum {
+abstract class BasicEnum
+{
     private static $constCacheArray = null;
 
     private static function getConstants()
     {
-        if (self::$constCacheArray === null) self::$constCacheArray = array();
+        if (self::$constCacheArray === null) {
+            self::$constCacheArray = array();
+        }
 
         $calledClass = get_called_class();
         if (!array_key_exists($calledClass, self::$constCacheArray)) {

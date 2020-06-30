@@ -57,7 +57,6 @@ class Session
         $this->location = $location;
         $this->mediaMode = $mediaMode;
         $this->archiveMode = $archiveMode;
-
     }
 
     /**

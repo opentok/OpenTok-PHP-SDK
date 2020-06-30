@@ -9,31 +9,25 @@ use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Psr7\Request;
 use Psr\Http\Message\RequestInterface;
 use Firebase\JWT\JWT;
-
 use OpenTok\Exception\Exception;
 use OpenTok\Exception\DomainException;
 use OpenTok\Exception\UnexpectedValueException;
 use OpenTok\Exception\AuthenticationException;
-
 use OpenTok\Exception\ArchiveException;
 use OpenTok\Exception\ArchiveDomainException;
 use OpenTok\Exception\ArchiveUnexpectedValueException;
 use OpenTok\Exception\ArchiveAuthenticationException;
-
 use OpenTok\Exception\BroadcastException;
 use OpenTok\Exception\BroadcastDomainException;
 use OpenTok\Exception\BroadcastUnexpectedValueException;
 use OpenTok\Exception\BroadcastAuthenticationException;
-
 use OpenTok\Exception\SignalException;
 use OpenTok\Exception\SignalConnectionException;
 use OpenTok\Exception\SignalUnexpectedValueException;
 use OpenTok\Exception\SignalAuthenticationException;
-
 use OpenTok\Exception\ForceDisconnectConnectionException;
 use OpenTok\Exception\ForceDisconnectUnexpectedValueException;
 use OpenTok\Exception\ForceDisconnectAuthenticationException;
-
 use OpenTok\MediaMode;
 
 // TODO: build this dynamically
@@ -96,7 +90,7 @@ class Client
             'ist' => 'project',
             'iss' => $this->apiKey,
             'iat' => time(), // this is in seconds
-            'exp' => time()+(5 * 60),
+            'exp' => time() + (5 * 60),
             'jti' => uniqid(),
         );
         return JWT::encode($token, $this->apiSecret);
@@ -153,7 +147,7 @@ class Client
     public function startArchive($sessionId, $options)
     {
         // set up the request
-        $request = new Request('POST', '/v2/project/'.$this->apiKey.'/archive');
+        $request = new Request('POST', '/v2/project/' . $this->apiKey . '/archive');
 
         try {
             $response = $this->client->send($request, [
@@ -175,7 +169,7 @@ class Client
         // set up the request
         $request = new Request(
             'POST',
-            '/v2/project/'.$this->apiKey.'/archive/'.$archiveId.'/stop',
+            '/v2/project/' . $this->apiKey . '/archive/' . $archiveId . '/stop',
             ['Content-Type' => 'application/json']
         );
 
@@ -195,7 +189,7 @@ class Client
     {
         $request = new Request(
             'GET',
-            '/v2/project/'.$this->apiKey.'/archive/'.$archiveId
+            '/v2/project/' . $this->apiKey . '/archive/' . $archiveId
         );
         try {
             $response = $this->client->send($request, [
@@ -213,7 +207,7 @@ class Client
     {
         $request = new Request(
             'DELETE',
-            '/v2/project/'.$this->apiKey.'/archive/'.$archiveId,
+            '/v2/project/' . $this->apiKey . '/archive/' . $archiveId,
             ['Content-Type' => 'application/json']
         );
         try {
@@ -230,11 +224,11 @@ class Client
         return true;
     }
 
-    public function forceDisconnect($sessionId,$connectionId)
+    public function forceDisconnect($sessionId, $connectionId)
     {
         $request = new Request(
             'DELETE',
-            '/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/connection/'.$connectionId,
+            '/v2/project/' . $this->apiKey . '/session/' . $sessionId . '/connection/' . $connectionId,
             ['Content-Type' => 'application/json']
         );
         try {
@@ -253,7 +247,7 @@ class Client
 
     public function listArchives($offset, $count, $sessionId)
     {
-        $request = new Request('GET', '/v2/project/'.$this->apiKey.'/archive');
+        $request = new Request('GET', '/v2/project/' . $this->apiKey . '/archive');
         $queryParams = [];
         if ($offset != 0) {
             $queryParams['offset'] = $offset;
@@ -281,7 +275,7 @@ class Client
     {
         $request = new Request(
             'POST',
-            '/v2/project/'.$this->apiKey.'/broadcast'
+            '/v2/project/' . $this->apiKey . '/broadcast'
         );
 
         $optionsJson = [
@@ -307,7 +301,7 @@ class Client
     {
         $request = new Request(
             'POST',
-            '/v2/project/'.$this->apiKey.'/broadcast/'.$broadcastId.'/stop',
+            '/v2/project/' . $this->apiKey . '/broadcast/' . $broadcastId . '/stop',
             ['Content-Type' => 'application/json']
         );
 
@@ -326,7 +320,7 @@ class Client
     {
         $request = new Request(
             'GET',
-            '/v2/project/'.$this->apiKey.'/broadcast/'.$broadcastId
+            '/v2/project/' . $this->apiKey . '/broadcast/' . $broadcastId
         );
         try {
             $response = $this->client->send($request, [
@@ -343,7 +337,7 @@ class Client
     {
         $request = new Request(
             'GET',
-            '/v2/project/'.$this->apiKey.'/'.$resourceType.'/'.$resourceId.'/layout'
+            '/v2/project/' . $this->apiKey . '/' . $resourceType . '/' . $resourceId . '/layout'
         );
         try {
             $response = $this->client->send($request, [
@@ -360,7 +354,7 @@ class Client
     {
         $request = new Request(
             'PUT',
-            '/v2/project/'.$this->apiKey.'/'.$resourceType.'/'.$resourceId.'/layout'
+            '/v2/project/' . $this->apiKey . '/' . $resourceType . '/' . $resourceId . '/layout'
         );
         try {
             $response = $this->client->send($request, [
@@ -378,7 +372,7 @@ class Client
     {
         $request = new Request(
             'PUT',
-            '/v2/project/'.$this->apiKey.'/archive/'.$archiveId.'/layout'
+            '/v2/project/' . $this->apiKey . '/archive/' . $archiveId . '/layout'
         );
         try {
             $response = $this->client->send($request, [
@@ -396,7 +390,7 @@ class Client
     {
         $request = new Request(
             'PUT',
-            '/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/stream/'.$streamId
+            '/v2/project/' . $this->apiKey . '/session/' . $sessionId . '/stream/' . $streamId
         );
         try {
             $response = $this->client->send($request, [
@@ -411,10 +405,11 @@ class Client
         }
     }
 
-    public function getStream($sessionId, $streamId) {
+    public function getStream($sessionId, $streamId)
+    {
         $request = new Request(
             'GET',
-            '/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/stream/'.$streamId
+            '/v2/project/' . $this->apiKey . '/session/' . $sessionId . '/stream/' . $streamId
         );
 
         try {
@@ -433,7 +428,7 @@ class Client
     {
         $request = new Request(
             'GET',
-            '/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/stream/'
+            '/v2/project/' . $this->apiKey . '/session/' . $sessionId . '/stream/'
         );
         try {
             $response = $this->client->send($request, [
@@ -454,7 +449,7 @@ class Client
         );
         $request = new Request(
             'PUT',
-            'v2/project/'.$this->apiKey.'/session/'.$sessionId.'/stream'
+            'v2/project/' . $this->apiKey . '/session/' . $sessionId . '/stream'
         );
 
         try {
@@ -494,7 +489,7 @@ class Client
         }
 
         // set up the request
-        $request = new Request('POST', '/v2/project/'.$this->apiKey.'/call');
+        $request = new Request('POST', '/v2/project/' . $this->apiKey . '/call');
 
         try {
             $response = $this->client->send($request, [
@@ -508,14 +503,14 @@ class Client
         return $sipJson;
     }
 
-    public function signal($sessionId, $options=array(), $connectionId=null)
+    public function signal($sessionId, $options = array(), $connectionId = null)
     {
         // set up the request
 
         
-        $request = is_null($connectionId) || empty($connectionId) ? 
-                new Request('POST', '/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/signal')
-                : new Request('POST', '/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/connection/'.$connectionId.'/signal');
+        $request = is_null($connectionId) || empty($connectionId) ?
+                new Request('POST', '/v2/project/' . $this->apiKey . '/session/' . $sessionId . '/signal')
+                : new Request('POST', '/v2/project/' . $this->apiKey . '/session/' . $sessionId . '/connection/' . $connectionId . '/signal');
 
         try {
             $response = $this->client->send($request, [
@@ -565,12 +560,12 @@ class Client
                 );
             } else {
                 throw new DomainException(
-                    'The OpenTok API request failed: '. json_decode($e->getResponse()->getBody(true))->message,
+                    'The OpenTok API request failed: ' . json_decode($e->getResponse()->getBody(true))->message,
                     null,
                     $e
                 );
             }
-        } else if ($e instanceof ServerException) {
+        } elseif ($e instanceof ServerException) {
             // will catch all 5xx errors
             throw new UnexpectedValueException(
                 'The OpenTok API server responded with an error: ' . json_decode($e->getResponse()->getBody(true))->message,
@@ -618,7 +613,7 @@ class Client
     private function handleSignalingException($e)
     {
         $responseCode = $e->getResponse()->getStatusCode();
-        switch($responseCode) {
+        switch ($responseCode) {
             case 400:
                 $message = 'One of the signal properties — data, type, sessionId or connectionId — is invalid.';
                 throw new SignalUnexpectedValueException($message, $responseCode);
@@ -642,7 +637,7 @@ class Client
     private function handleForceDisconnectException($e)
     {
         $responseCode = $e->getResponse()->getStatusCode();
-        switch($responseCode) {
+        switch ($responseCode) {
             case 400:
                 $message = 'One of the arguments — sessionId or connectionId — is invalid.';
                 throw new ForceDisconnectUnexpectedValueException($message, $responseCode);
@@ -661,6 +656,6 @@ class Client
 
     private function isDebug()
     {
-      return defined('OPENTOK_DEBUG');
+        return defined('OPENTOK_DEBUG');
     }
 }
