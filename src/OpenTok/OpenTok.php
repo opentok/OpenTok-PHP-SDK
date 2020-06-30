@@ -2,16 +2,6 @@
 
 namespace OpenTok;
 
-use OpenTok\Session;
-use OpenTok\Stream;
-use OpenTok\StreamList;
-use OpenTok\Archive;
-use OpenTok\Broadcast;
-use OpenTok\Layout;
-use OpenTok\Role;
-use OpenTok\MediaMode;
-use OpenTok\ArchiveMode;
-use OpenTok\OutputMode;
 use OpenTok\Util\Client;
 use OpenTok\Util\Validators;
 use OpenTok\Exception\UnexpectedValueException;
@@ -137,7 +127,7 @@ class OpenTok
             (($expireTime) ? "&expire_time=$expireTime" : '') .
             (($data) ? "&connection_data=" . urlencode($data) : '') .
             ((!empty($initialLayoutClassList)) ? "&initial_layout_class_list=" . urlencode(join(" ", $initialLayoutClassList)) : '');
-        $sig = $this->_sign_string($dataString, $this->apiSecret);
+        $sig = $this->signString($dataString, $this->apiSecret);
 
         return "T1==" . base64_encode("partner_id=$this->apiKey&sig=$sig:$dataString");
     }
@@ -825,7 +815,7 @@ class OpenTok
     }
 
     /** @internal */
-    private function _sign_string($string, $secret)
+    private function signString($string, $secret)
     {
         return hash_hmac("sha1", $string, $secret);
     }

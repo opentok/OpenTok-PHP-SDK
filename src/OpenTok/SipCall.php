@@ -2,11 +2,6 @@
 
 namespace OpenTok;
 
-use OpenTok\Util\Client;
-use OpenTok\Util\Validators;
-use OpenTok\Exception\InvalidArgumentException;
-use OpenTok\Exception\ArchiveUnexpectedValueException;
-
 /**
 * Represents data from a SIP Call
 *

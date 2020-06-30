@@ -2,7 +2,6 @@
 
 namespace OpenTok\Util;
 
-use function GuzzleHttp\default_user_agent;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Exception\ClientException;
@@ -22,7 +21,6 @@ use OpenTok\Exception\BroadcastException;
 use OpenTok\Exception\BroadcastDomainException;
 use OpenTok\Exception\BroadcastUnexpectedValueException;
 use OpenTok\Exception\BroadcastAuthenticationException;
-use OpenTok\Exception\SignalException;
 use OpenTok\Exception\SignalConnectionException;
 use OpenTok\Exception\SignalUnexpectedValueException;
 use OpenTok\Exception\SignalAuthenticationException;
@@ -30,6 +28,8 @@ use OpenTok\Exception\ForceDisconnectConnectionException;
 use OpenTok\Exception\ForceDisconnectUnexpectedValueException;
 use OpenTok\Exception\ForceDisconnectAuthenticationException;
 use OpenTok\MediaMode;
+
+use function GuzzleHttp\default_user_agent;
 
 // TODO: build this dynamically
 /** @internal */

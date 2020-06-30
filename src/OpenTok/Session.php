@@ -2,9 +2,6 @@
 
 namespace OpenTok;
 
-use OpenTok\OpenTok;
-use OpenTok\MediaMode;
-use OpenTok\ArchiveMode;
 use OpenTok\Util\Validators;
 
 /**
@@ -39,7 +36,7 @@ class Session
     /**
      * @internal
      */
-    function __construct($opentok, $sessionId, $properties = array())
+    public function __construct($opentok, $sessionId, $properties = array())
     {
         // unpack arguments
         $defaults = array('mediaMode' => MediaMode::ROUTED, 'archiveMode' => ArchiveMode::MANUAL, 'location' => null);

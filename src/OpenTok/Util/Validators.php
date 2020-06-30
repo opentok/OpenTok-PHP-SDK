@@ -18,9 +18,9 @@ use JohnStevenson\JsonWorks\Utils as JsonUtils;
 */
 class Validators
 {
-    static $guidRegEx = '/^\[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}\$/';
-    static $archiveSchemaUri;
-    static $broadcastSchemaUri;
+    public static $guidRegEx = '/^\[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}\$/';
+    public static $archiveSchemaUri;
+    public static $broadcastSchemaUri;
 
     public static function validateApiKey($apiKey)
     {
