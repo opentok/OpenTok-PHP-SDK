@@ -47,7 +47,6 @@ class SipCall
             case 'connectionId':
             case 'streamId':
                 return $this->data[$name];
-                break;
             default:
                 return null;
         }

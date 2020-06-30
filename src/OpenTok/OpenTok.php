@@ -251,7 +251,7 @@ class OpenTok
         // check response
         $sessionId = $sessionXml->Session->session_id;
         if (!$sessionId) {
-            $errorMessage = 'Failed to create a session. Server response: ' . (string)$sessionXml;
+            $errorMessage = 'Failed to create a session. Server response: ' . $sessionXml;
             throw new UnexpectedValueException($errorMessage);
         }
 
@@ -772,7 +772,7 @@ class OpenTok
         // check response
         $id = $sipJson['id'];
         if (!$id) {
-            $errorMessage = 'Failed to initiate a SIP call. Server response: ' . (string)$sipJson;
+            $errorMessage = 'Failed to initiate a SIP call. Server response: ' . $sipJson;
             throw new UnexpectedValueException($errorMessage);
         }
 

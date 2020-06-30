@@ -138,7 +138,6 @@ class Archive
             case 'outputMode':
             case 'resolution':
                 return $this->data[$name];
-                break;
             default:
                 return null;
         }

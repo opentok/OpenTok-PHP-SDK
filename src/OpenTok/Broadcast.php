@@ -92,13 +92,10 @@ class Broadcast
             case 'maxDuration':
             case 'resolution':
                 return $this->data[$name];
-                break;
             case 'hlsUrl':
                 return $this->data['broadcastUrls']['hls'];
-                break;
             case 'isStopped':
                 return $this->isStopped;
-                break;
             default:
                 return null;
         }

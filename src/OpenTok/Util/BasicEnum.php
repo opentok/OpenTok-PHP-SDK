@@ -7,7 +7,7 @@ namespace OpenTok\Util;
 */
 abstract class BasicEnum
 {
-    private static $constCacheArray = null;
+    private static $constCacheArray;
 
     private static function getConstants()
     {

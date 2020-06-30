@@ -24,13 +24,13 @@ class Layout
     // NOTE: after PHP 5.3.0 support is dropped, the class can implement JsonSerializable
 
     /** @ignore */
-    private static $bestFit = null;
+    private static $bestFit;
     /** @ignore */
-    private static $pip = null;
+    private static $pip;
     /** @ignore */
-    private static $verticalPresentation = null;
+    private static $verticalPresentation;
     /** @ignore */
-    private static $horizontalPresentation = null;
+    private static $horizontalPresentation;
 
     /**
      * Returns a Layout object defining the "best fit" predefined layout type.

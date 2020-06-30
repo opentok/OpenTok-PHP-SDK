@@ -20,14 +20,6 @@ class ArchiveList
     /**
     * @internal
     */
-    private $apiKey;
-    /**
-    * @internal
-    */
-    private $apiSecret;
-    /**
-    * @internal
-    */
     private $client;
     /**
     * @internal

@@ -41,7 +41,6 @@ class Stream
             case 'name':
             case 'layoutClassList':
                 return $this->data[$name];
-                break;
             default:
                 return null;
         }

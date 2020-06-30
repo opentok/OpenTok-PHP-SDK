@@ -2,6 +2,7 @@
 
 namespace OpenTok\Util;
 
+use function GuzzleHttp\default_user_agent;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Exception\ClientException;
@@ -54,7 +55,7 @@ class Client
         $clientOptions = [
             'base_uri' => $apiUrl,
             'headers' => [
-                'User-Agent' => OPENTOK_SDK_USER_AGENT . ' ' . \GuzzleHttp\default_user_agent(),
+                'User-Agent' => OPENTOK_SDK_USER_AGENT . ' ' . default_user_agent(),
             ],
         ];
 
@@ -617,18 +618,14 @@ class Client
             case 400:
                 $message = 'One of the signal properties — data, type, sessionId or connectionId — is invalid.';
                 throw new SignalUnexpectedValueException($message, $responseCode);
-                break;
             case 403:
                 throw new SignalAuthenticationException($this->apiKey, $this->apiSecret, null, $e);
-                break;
             case 404:
                 $message = 'The client specified by the connectionId property is not connected to the session.';
                 throw new SignalConnectionException($message, $responseCode);
-                break;
             case 413:
                 $message = 'The type string exceeds the maximum length (128 bytes), or the data string exceeds the maximum size (8 kB).';
                 throw new SignalUnexpectedValueException($message, $responseCode);
-                break;
             default:
                 break;
         }
@@ -641,14 +638,11 @@ class Client
             case 400:
                 $message = 'One of the arguments — sessionId or connectionId — is invalid.';
                 throw new ForceDisconnectUnexpectedValueException($message, $responseCode);
-                break;
             case 403:
                 throw new ForceDisconnectAuthenticationException($this->apiKey, $this->apiSecret, null, $e);
-                break;
             case 404:
                 $message = 'The client specified by the connectionId property is not connected to the session.';
                 throw new ForceDisconnectConnectionException($message, $responseCode);
-                break;
             default:
                 break;
         }
