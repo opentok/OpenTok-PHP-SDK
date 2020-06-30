@@ -1,18 +1,19 @@
 <?php
 
-namespace OpenTok;
+namespace OpenTokTest;
 
 use GuzzleHttp\Psr7\Response;
 use \Firebase\JWT\JWT;
 
-class TestHelpers {
+class TestHelpers
+{
     // TODO: untested, unused
     public static function decodeSessionId($sessionId)
     {
         $trimmedSessionId = substr($sessionId, 2);
         $parts = explode('-', $trimmedSessionId);
         $data = array();
-        foreach($parts as $part) {
+        foreach ($parts as $part) {
             $decodedPart = base64_decode($part);
             $dataItems = explode('~', $decodedPart);
             $data = array_merge($data, $dataItems);
@@ -40,7 +41,7 @@ class TestHelpers {
 
         try {
             $decodedToken = JWT::decode($token, $apiSecret, array('HS256'));
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return false;
         }
 
@@ -71,7 +72,7 @@ class TestHelpers {
             $body = null;
             if (!empty($mock['body'])) {
                 $body = $mock['body'];
-            } else if (!empty($mock['path'])) {
+            } elseif (!empty($mock['path'])) {
                 $body = file_get_contents($basePath . $mock['path']);
             }
             return new Response($code, $headers, $body);

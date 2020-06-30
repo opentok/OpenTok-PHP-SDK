@@ -1,74 +1,35 @@
 <?php
 
+namespace OpenTokTest;
+
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
-
 use OpenTok\OpenTok;
-use OpenTok\OpenTokTestCase;
 use OpenTok\Session;
-use OpenTok\Stream;
-use OpenTok\StreamList;
 use OpenTok\MediaMode;
 use OpenTok\ArchiveMode;
-
-use OpenTok\TestHelpers;
 use OpenTok\Util\Client;
+use PHPUnit\Framework\TestCase;
 
-
-class SessionTest extends PHPUnit_Framework_TestCase
+class SessionTest extends TestCase
 {
     protected $API_KEY;
     protected $API_SECRET;
     protected $opentok;
 
     protected static $mockBasePath;
-    
+
     public static function setUpBeforeClass()
     {
         self::$mockBasePath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'mock' . DIRECTORY_SEPARATOR;
     }
-    
+
     public function setUp()
     {
         $this->API_KEY = defined('API_KEY') ? API_KEY : '12345678';
         $this->API_SECRET = defined('API_SECRET') ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
         $this->opentok = new OpenTok($this->API_KEY, $this->API_SECRET);
-    }
-
-
-    private function setupOTWithMocks($mocks)
-    {
-        $this->API_KEY = defined('API_KEY') ? API_KEY : '12345678';
-        $this->API_SECRET = defined('API_SECRET') ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
-
-        if (is_array($mocks)) {
-            $responses = TestHelpers::mocksToResponses($mocks, self::$mockBasePath);
-        } else {
-            $responses = [];
-        }
-
-        $mock = new MockHandler($responses);
-        $handlerStack = HandlerStack::create($mock);
-        $clientOptions = [
-            'handler' => $handlerStack
-        ];
-
-        $this->client = new Client();
-        $this->client->configure(
-            $this->API_KEY,
-            $this->API_SECRET,
-            'https://api.opentok.com',
-            $clientOptions
-        );
-
-        // Push history onto handler stack *after* configuring client to
-        // ensure auth header is added before history handler is invoked
-        $this->historyContainer = [];
-        $history = Middleware::history($this->historyContainer);
-        $handlerStack->push($history);
-
-        $this->opentok = new OpenTok($this->API_KEY, $this->API_SECRET, array('client' => $this->client));
     }
 
     public function testSessionWithId()
@@ -139,10 +100,10 @@ class SessionTest extends PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider badParameterProvider
-     * @expectedException InvalidArgumentException
      */
     public function testInitializationWithBadParams($sessionId, $props)
     {
+        $this->expectException('InvalidArgumentException');
         if (!$props || empty($props)) {
             $session = new Session($this->opentok, $sessionId);
         } else {

@@ -1,16 +1,16 @@
 <?php
 
+namespace OpenTokTest;
+
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
-
 use OpenTok\Archive;
-use OpenTok\OpenTokTestCase;
 use OpenTok\Util\Client;
+use PHPUnit\Framework\TestCase;
 
-use OpenTok\TestHelpers;
-
-class ArchiveTest extends PHPUnit_Framework_TestCase {
+class ArchiveTest extends TestCase
+{
 
     // Fixtures
     protected $archiveData;
@@ -230,11 +230,9 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         $this->assertInstanceOf('OpenTok\Archive', $archive);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testRejectsBadArchiveData()
     {
+        $this->expectException('InvalidArgumentException');
         $this->setupOT();
 
         // Set up fixtures
@@ -312,12 +310,6 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         // Assert
         $this->assertInternalType('array', $archiveArray);
         $this->assertEquals($this->archiveData, $archiveArray);
-    }
-    // TODO: test deleted archive can not be stopped or deleted again
-
-    private function decodeToken($token)
-    {
-
     }
 }
 /* vim: set ts=4 sw=4 tw=100 sts=4 et :*/
