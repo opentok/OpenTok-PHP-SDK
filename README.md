@@ -239,9 +239,9 @@ $archive->delete();
 ```
 
 You can also get a list of all the Archives you've created (up to 1000) with your API Key. This is
-done using the `listArchives($offset, $count)` method of the `OpenTok/OpenTok` class. The parameters
-`$offset` and `$count` are optional and can help you paginate through the results. This will return
-an instance of the `OpenTok\ArchiveList` class.
+done using the `listArchives($offset, $count, $sessionId)` method of the `OpenTok/OpenTok` class. The parameters
+`$offset`, `$count`, and `$sessionId` are optional and can help you paginate through the results, and subset the
+data by a specific session. This will return an instance of the `OpenTok\ArchiveList` class.
 
 ```php
 $archiveList = $opentok->listArchives();
