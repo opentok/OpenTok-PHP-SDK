@@ -5,9 +5,13 @@ Sessions, list archives that have been created, download the recordings, and del
 
 ## Running the App
 
-First, download the dependencies using [Composer](http://getcomposer.org) in this directory.
+First, download the dependencies using [Composer](http://getcomposer.org) in this directory as well
+as the root SDK directory
 
 ```
+$ cd ../../
+$ composer.phar install
+$ cd sample/Archiving
 $ ../../composer.phar install
 ```
 

@@ -1,11 +1,18 @@
 <?php
 
-$autoloader = __DIR__.'/../vendor/autoload.php';
+$autoloader = __DIR__ . '/../vendor/autoload.php';
+$sdkAutoloader = __DIR__ . '/../../../vendor/autoload.php';
+
 if (!file_exists($autoloader)) {
-  die('You must run `composer install` in the sample app directory');
+    die('You must run `composer install` in the sample app directory');
+}
+
+if (!file_exists($sdkAutoloader)) {
+    die('You must run `composer install` in the SDK root directory');
 }
 
 require($autoloader);
+require($sdkAutoloader);
 
 use Slim\Slim;
 use Gregwar\Cache\Cache;
@@ -16,7 +23,7 @@ use OpenTok\MediaMode;
 use OpenTok\OutputMode;
 
 // PHP CLI webserver compatibility, serving static files
-$filename = __DIR__.preg_replace('#(\?.*)$#', '', $_SERVER['REQUEST_URI']);
+$filename = __DIR__ . preg_replace('#(\?.*)$#', '', $_SERVER['REQUEST_URI']);
 if (php_sapi_name() === 'cli-server' && is_file($filename)) {
     return false;
 }
@@ -28,13 +35,13 @@ if (!(getenv('API_KEY') && getenv('API_SECRET'))) {
 
 // Initialize Slim application
 $app = new Slim(array(
-    'templates.path' => __DIR__.'/../templates',
-    'view' => new \Slim\Views\Twig()
+    'templates.path' => __DIR__ . '/../templates',
+    'view' => new \Slim\Views\Twig(),
 ));
 
 // Intialize a cache, store it in the app container
 $app->container->singleton('cache', function () {
-    return new Cache;
+    return new Cache();
 });
 
 // Initialize OpenTok instance, store it in the app contianer
@@ -95,13 +102,13 @@ $app->get('/history', function () use ($app) {
     $archives = $app->opentok->listArchives($offset, 5);
 
     $toArray = function ($archive) {
-      return $archive->toArray();
+        return $archive->toArray();
     };
 
     $app->render('history.html', array(
         'archives' => array_map($toArray, $archives->getItems()),
-        'showPrevious' => $page > 1 ? '/history?page='.($page-1) : null,
-        'showNext' => $archives->totalCount() > $offset + 5 ? '/history?page='.($page+1) : null
+        'showPrevious' => $page > 1 ? '/history?page=' . ($page - 1) : null,
+        'showNext' => $archives->totalCount() > $offset + 5 ? '/history?page=' . ($page + 1) : null
     ));
 });
 

@@ -6,9 +6,13 @@ connect and conduct a group chat.
 
 ## Running the App
 
-First, download the dependencies using [Composer](http://getcomposer.org) in this directory.
+First, download the dependencies using [Composer](http://getcomposer.org) in this directory as well
+as the root SDK directory
 
 ```
+$ cd ../../
+$ composer.phar install
+$ cd sample/HelloWorld
 $ ../../composer.phar install
 ```
 
@@ -37,12 +41,13 @@ be explore further at each of the websites linked above.
 
 ### Main Controller (web/index.php)
 
-The first thing done in this file is to require the autoloader which pulls in all the dependencies
+The first thing done in this file is to require the autoloaders which pulls in all the dependencies
 that were installed by Composer. We now have the Slim framework, the Cache library, and most
 importantly the OpenTok SDK available.
 
 ```php
 require($autoloader);
+require($sdkAutoloader);
 
 use Slim\Slim;
 use Gregwar\Cache\Cache;

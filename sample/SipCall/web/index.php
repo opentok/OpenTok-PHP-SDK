@@ -1,15 +1,18 @@
 <?php
 
-$autoloader = __DIR__.'/../vendor/autoload.php';
+$autoloader = __DIR__ . '/../vendor/autoload.php';
+$sdkAutoloader = __DIR__ . '/../../../vendor/autoload.php';
+
 if (!file_exists($autoloader)) {
-  die('You must run `composer install` in the sample app directory');
+    die('You must run `composer install` in the sample app directory');
+}
+
+if (!file_exists($sdkAutoloader)) {
+    die('You must run `composer install` in the SDK root directory');
 }
 
 require($autoloader);
-
-// remove this before push
-$autoloader2 = __DIR__.'/../../../vendor/autoload.php';
-require($autoloader2);
+require($sdkAutoloader);
 
 use Slim\Slim;
 use Gregwar\Cache\Cache;
@@ -18,7 +21,7 @@ use OpenTok\OpenTok;
 use OpenTok\MediaMode;
 
 // PHP CLI webserver compatibility, serving static files
-$filename = __DIR__.preg_replace('#(\?.*)$#', '', $_SERVER['REQUEST_URI']);
+$filename = __DIR__ . preg_replace('#(\?.*)$#', '', $_SERVER['REQUEST_URI']);
 if (php_sapi_name() === 'cli-server' && is_file($filename)) {
     return false;
 }
@@ -30,12 +33,12 @@ if (!(getenv('API_KEY') && getenv('API_SECRET') && getenv('SIP_URI') && getenv('
 
 // Initialize Slim application
 $app = new Slim(array(
-    'templates.path' => __DIR__.'/../templates'
+    'templates.path' => __DIR__ . '/../templates'
 ));
 
 // Intialize a cache, store it in the app container
 $app->container->singleton('cache', function () {
-    return new Cache;
+    return new Cache();
 });
 
 // Initialize OpenTok instance, store it in the app contianer
