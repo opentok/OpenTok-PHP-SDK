@@ -8,7 +8,8 @@ use OpenTok\Util\BasicEnum;
  * Defines values for the mediaMode parameter of the \OpenTok\OpenTok->createSession()
  * method.
  */
-abstract class MediaMode extends BasicEnum {
+abstract class MediaMode extends BasicEnum
+{
     /**
     *   The session will send streams using the OpenTok Media Router.
     */
@@ -19,5 +20,3 @@ abstract class MediaMode extends BasicEnum {
     */
     const RELAYED = 'enabled';
 }
-
-/* vim: set ts=4 sw=4 tw=100 sts=4 et :*/

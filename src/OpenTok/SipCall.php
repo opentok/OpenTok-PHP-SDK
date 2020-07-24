@@ -2,12 +2,6 @@
 
 namespace OpenTok;
 
-use OpenTok\Util\Client;
-use OpenTok\Util\Validators;
-
-use OpenTok\Exception\InvalidArgumentException;
-use OpenTok\Exception\ArchiveUnexpectedValueException;
-
 /**
 * Represents data from a SIP Call
 *
@@ -23,7 +17,8 @@ use OpenTok\Exception\ArchiveUnexpectedValueException;
 * The ID of the stream connected to the OpenTok session streaming the audio received from
 * the SIP call.
 */
-class SipCall {
+class SipCall
+{
 
     /** @internal */
     private $data;
@@ -42,12 +37,11 @@ class SipCall {
     /** @internal */
     public function __get($name)
     {
-        switch($name) {
+        switch ($name) {
             case 'id':
             case 'connectionId':
             case 'streamId':
                 return $this->data[$name];
-                break;
             default:
                 return null;
         }
@@ -62,5 +56,3 @@ class SipCall {
         return json_encode($this->data);
     }
 }
-
-/* vim: set ts=4 sw=4 tw=100 sts=4 et :*/

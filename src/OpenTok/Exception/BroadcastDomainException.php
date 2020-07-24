@@ -7,7 +7,6 @@ namespace OpenTok\Exception;
 * Defines an exception thrown when a call to a broadcast method results in an error response from
 * the server.
 */
-class BroadcastDomainException extends \OpenTok\Exception\DomainException implements \OpenTok\Exception\BroadcastException
+class BroadcastDomainException extends DomainException implements BroadcastException
 {
 }
-/* vim: set ts=4 sw=4 tw=100 sts=4 et :*/
