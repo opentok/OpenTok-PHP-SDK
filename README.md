@@ -13,7 +13,7 @@ It also includes methods for working with OpenTok
 [disconnecting clients from sessions](http://tokbox.com/developer/guides/moderation/rest/).
 
 ## Requirements
- * PHP >=7.1
+ * PHP >=7.2.5
 
 ## Installation
 
