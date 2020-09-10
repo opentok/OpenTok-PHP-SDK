@@ -7,6 +7,8 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Psr7\Request;
+use OpenTok\Exception\GenericArchiveException;
+use OpenTok\Exception\GenericBroadcastException;
 use Psr\Http\Message\RequestInterface;
 use Firebase\JWT\JWT;
 
@@ -482,7 +484,7 @@ class Client
             )
         );
 
-        if (isset($options) && array_key_exists('headers', $options) && sizeof($options['headers']) > 0) {
+        if (isset($options) && array_key_exists('headers', $options) && is_array($options['headers']) && count($options['headers']) > 0) {
             $body['sip']['headers'] = $options['headers'];
         }
 
@@ -594,8 +596,7 @@ class Client
         } catch (UnexpectedValueException $uve) {
             throw new ArchiveUnexpectedValueException($e->getMessage(), null, $uve->getPrevious());
         } catch (Exception $oe) {
-            // TODO: check if this works because ArchiveException is an interface not a class
-            throw new ArchiveException($e->getMessage(), null, $oe->getPrevious());
+            throw new GenericArchiveException($e->getMessage(), null, $oe->getPrevious());
         }
     }
 
@@ -611,7 +612,7 @@ class Client
             throw new BroadcastUnexpectedValueException($e->getMessage(), null, $uve->getPrevious());
         } catch (Exception $oe) {
             // TODO: check if this works because BroadcastException is an interface not a class
-            throw new BroadcastException($e->getMessage(), null, $oe->getPrevious());
+            throw new GenericBroadcastException($e->getMessage(), null, $oe->getPrevious());
         }
     }
 

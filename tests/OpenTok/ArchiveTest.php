@@ -9,8 +9,9 @@ use OpenTok\OpenTokTestCase;
 use OpenTok\Util\Client;
 
 use OpenTok\TestHelpers;
+use PHPUnit\Framework\TestCase;
 
-class ArchiveTest extends PHPUnit_Framework_TestCase {
+class ArchiveTest extends TestCase {
 
     // Fixtures
     protected $archiveData;
@@ -22,7 +23,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
 
     protected static $mockBasePath;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass() :void
     {
         self::$mockBasePath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'mock' . DIRECTORY_SEPARATOR;
     }
@@ -230,11 +231,9 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         $this->assertInstanceOf('OpenTok\Archive', $archive);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testRejectsBadArchiveData()
     {
+        $this->expectException(InvalidArgumentException::class);
         $this->setupOT();
 
         // Set up fixtures
@@ -296,7 +295,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         $archiveJson = $this->archive->toJson();
 
         // Assert
-        $this->assertInternalType('string', $archiveJson);
+        $this->assertIsString($archiveJson);
         $this->assertNotNull(json_encode($archiveJson));
     }
 
@@ -310,7 +309,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         $archiveArray = $this->archive->toArray();
 
         // Assert
-        $this->assertInternalType('array', $archiveArray);
+        $this->assertIsArray($archiveArray);
         $this->assertEquals($this->archiveData, $archiveArray);
     }
     // TODO: test deleted archive can not be stopped or deleted again

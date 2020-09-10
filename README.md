@@ -12,6 +12,9 @@ It also includes methods for working with OpenTok
 [SIP interconnect](http://tokbox.com/developer/guides/sip), and
 [disconnecting clients from sessions](http://tokbox.com/developer/guides/moderation/rest/).
 
+## Requirements
+ * PHP >=7.1
+
 ## Installation
 
 ### Composer (recommended):
@@ -73,7 +76,7 @@ $options = [
     'apiUrl' => 'https://custom.domain.com/',
     'client' => new CustomOpenTokClient(),
     'timeout' => 10,
-]
+];
 $opentok = new OpenTok($apiKey, $apiSecret, $options);
 ```
 

@@ -18,10 +18,11 @@ use GuzzleHttp\HandlerStack;
 use OpenTok\OpenTokTestCase;
 use GuzzleHttp\Handler\MockHandler;
 use OpenTok\Exception\InvalidArgumentException;
+use PHPUnit\Framework\TestCase;
 
 define('OPENTOK_DEBUG', true);
 
-class OpenTokTest extends PHPUnit_Framework_TestCase
+class OpenTokTest extends TestCase
 {
     protected $API_KEY;
     protected $API_SECRET;
@@ -31,7 +32,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
 
     protected static $mockBasePath;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass() : void
     {
         self::$mockBasePath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'mock' . DIRECTORY_SEPARATOR;
     }
@@ -297,11 +298,9 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         );
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testFailsWhenCreatingRelayedAutoArchivedSession()
     {
+        $this->expectException(InvalidArgumentException::class);
         // Arrange
         $this->setupOT();
 
@@ -328,7 +327,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $token = $opentok->generateToken($sessionId);
 
         // Assert
-        $this->assertInternalType('string', $token);
+        $this->assertIsString($token);
 
         $decodedToken = TestHelpers::decodeToken($token);
         $this->assertEquals($sessionId, $decodedToken['session_id']);
@@ -359,7 +358,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $token = $opentok->generateToken($sessionId, array('role' => Role::MODERATOR));
 
         // Assert
-        $this->assertInternalType('string', $token);
+        $this->assertIsString($token);
 
         $decodedToken = TestHelpers::decodeToken($token);
         $this->assertEquals($sessionId, $decodedToken['session_id']);
@@ -391,7 +390,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $token = $opentok->generateToken($sessionId, array('expireTime' => $inOneHour ));
 
         // Assert
-        $this->assertInternalType('string', $token);
+        $this->assertIsString($token);
 
         $decodedToken = TestHelpers::decodeToken($token);
         $this->assertEquals($sessionId, $decodedToken['session_id']);
@@ -421,7 +420,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $token = $opentok->generateToken($sessionId, array('data' => $userStatus ));
 
         // Assert
-        $this->assertInternalType('string', $token);
+        $this->assertIsString($token);
 
         $decodedToken = TestHelpers::decodeToken($token);
         $this->assertEquals($sessionId, $decodedToken['session_id']);
@@ -458,7 +457,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         ));
 
         // Assert
-        $this->assertInternalType('string', $token);
+        $this->assertIsString($token);
 
         $decodedToken = TestHelpers::decodeToken($token);
         $this->assertEquals($sessionId, $decodedToken['session_id']);
@@ -476,11 +475,9 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testFailsWhenGeneratingTokenUsingInvalidRole()
     {
+        $this->expectException(InvalidArgumentException::class);
         $this->setupOT();
         $token = $this->opentok->generateToken('SESSIONID', array('role' => 'notarole'));
     }
@@ -1056,11 +1053,9 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('832641bf-5dbf-41a1-ad94-fea213e59a92', $archiveList->getItems()[1]->id);        
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testFailsWhenListingArchivesWithTooLargeCount()
     {
+        $this->expectException(InvalidArgumentException::class);
         // Arrange
         $this->setupOTWithMocks([[
             'code' => 200,
@@ -1196,12 +1191,12 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.5.0', $userAgent);
 
         $this->assertInstanceOf('OpenTok\Broadcast', $broadcast);
-        $this->assertInternalType('string', $broadcast->id);
+        $this->assertIsString($broadcast->id);
         $this->assertEquals($sessionId, $broadcast->sessionId);
-        $this->assertInternalType('array', $broadcast->broadcastUrls);
+        $this->assertIsArray($broadcast->broadcastUrls);
         $this->assertArrayHasKey('hls', $broadcast->broadcastUrls);
-        $this->assertInternalType('string', $broadcast->broadcastUrls['hls']);
-        $this->assertInternalType('string', $broadcast->hlsUrl);
+        $this->assertIsString($broadcast->broadcastUrls['hls']);
+        $this->assertIsString($broadcast->hlsUrl);
         $this->assertFalse($broadcast->isStopped);
     }
 
@@ -1252,14 +1247,14 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.5.0', $userAgent);
 
         $this->assertInstanceOf('OpenTok\Broadcast', $broadcast);
-        $this->assertInternalType('string', $broadcast->id);
+        $this->assertIsString($broadcast->id);
         $this->assertEquals($sessionId, $broadcast->sessionId);
         $this->assertEquals($maxDuration, $broadcast->maxDuration);
-        $this->assertEquals($resolution, $broadcast->resolution);        
-        $this->assertInternalType('array', $broadcast->broadcastUrls);
+        $this->assertEquals($resolution, $broadcast->resolution);
+        $this->assertIsArray($broadcast->broadcastUrls);
         $this->assertArrayHasKey('hls', $broadcast->broadcastUrls);
-        $this->assertInternalType('string', $broadcast->broadcastUrls['hls']);
-        $this->assertInternalType('string', $broadcast->hlsUrl);
+        $this->assertIsString($broadcast->broadcastUrls['hls']);
+        $this->assertIsString($broadcast->hlsUrl);
         $this->assertFalse($broadcast->isStopped);
     }
 
@@ -1743,6 +1738,8 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
             $this->opentok->signal($sessionId, $payload);
         } catch (\Exception $e) {
         }
+
+        $this->expectNotToPerformAssertions();
     }
 
     public function testSignalConnectionException()
