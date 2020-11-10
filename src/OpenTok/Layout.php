@@ -19,17 +19,18 @@ use OpenTok\Util\Validators;
  * <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/#configuring-video-layout-for-opentok-live-streaming-broadcasts">Configuring
  * video layout for OpenTok live streaming broadcasts</a>.
  */
-class Layout {
+class Layout
+{
     // NOTE: after PHP 5.3.0 support is dropped, the class can implement JsonSerializable
 
     /** @ignore */
-    private static $bestFit = null;
+    private static $bestFit;
     /** @ignore */
-    private static $pip = null;
+    private static $pip;
     /** @ignore */
-    private static $verticalPresentation = null;
+    private static $verticalPresentation;
     /** @ignore */
-    private static $horizontalPresentation = null;
+    private static $horizontalPresentation;
 
     /**
      * Returns a Layout object defining the "best fit" predefined layout type.
@@ -81,7 +82,7 @@ class Layout {
      * @param array $options An array containing one property: <code>$stylesheet<code>,
      * which is a string containing the stylesheet to be used for the layout.
      */
-   public static function createCustom($options)
+    public static function createCustom($options)
     {
         // unpack optional arguments (merging with default values) into named variables
         // NOTE: the default value of stylesheet=null will not pass validation, this essentially

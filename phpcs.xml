@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<ruleset name="PSR12">
+    <rule ref="PSR12"/>
+    <file>./src</file>
+</ruleset>

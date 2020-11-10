@@ -1,31 +1,31 @@
 <?php
 
+namespace OpenTokTest;
+
 use OpenTok\Role;
 use OpenTok\Layout;
-use OpenTok\Stream;
-
 use OpenTok\OpenTok;
-use OpenTok\Session;
 use OpenTok\MediaMode;
+use ArgumentCountError;
 use OpenTok\OutputMode;
-use OpenTok\StreamList;
 use OpenTok\ArchiveMode;
-use OpenTok\TestHelpers;
 use OpenTok\Util\Client;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\HandlerStack;
-
-use OpenTok\OpenTokTestCase;
+use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Handler\MockHandler;
 use OpenTok\Exception\InvalidArgumentException;
 
 define('OPENTOK_DEBUG', true);
 
-class OpenTokTest extends PHPUnit_Framework_TestCase
+class OpenTokTest extends TestCase
 {
     protected $API_KEY;
     protected $API_SECRET;
 
+    /**
+     * @var OpenTok
+     */
     protected $opentok;
     protected $client;
 
@@ -297,11 +297,9 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         );
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testFailsWhenCreatingRelayedAutoArchivedSession()
     {
+        $this->expectException('InvalidArgumentException');
         // Arrange
         $this->setupOT();
 
@@ -476,11 +474,9 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testFailsWhenGeneratingTokenUsingInvalidRole()
     {
+        $this->expectException('InvalidArgumentException');
         $this->setupOT();
         $token = $this->opentok->generateToken('SESSIONID', array('role' => 'notarole'));
     }
@@ -1056,11 +1052,9 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('832641bf-5dbf-41a1-ad94-fea213e59a92', $archiveList->getItems()[1]->id);        
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testFailsWhenListingArchivesWithTooLargeCount()
     {
+        $this->expectException('InvalidArgumentException');
         // Arrange
         $this->setupOTWithMocks([[
             'code' => 200,
@@ -1504,7 +1498,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertNotNull($streamData->name);
         $this->assertNotNull($streamData->videoType);
         $this->assertNotNull($streamData->layoutClassList);
-        
+
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.5.0', $userAgent);
@@ -1613,18 +1607,15 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         ]]);
 
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
-        $bogusApiKey = '12345678';
-        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
         $bogusToken = 'T1==TEST';
         $bogusSipUri = 'sip:john@doe.com';
-        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
         $from = "+0034123445566@opentok.me";
 
         // Act
-        $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri, array(
+        $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri, [
             'from' => $from
-        ));
+        ]);
 
         // Assert
         $this->assertInstanceOf('OpenTok\SipCall', $sipCall);
@@ -1735,9 +1726,9 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $bogusApiKey = '12345678';
         $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
         $payload = array();
-        
+
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
-        
+
         // Act
         try {
             $this->opentok->signal($sessionId, $payload);
@@ -1760,9 +1751,9 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
             'type' => 'rest',
             'data' => 'random message'
         );
-        
+
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
-        
+
         $this->expectException('OpenTok\Exception\SignalConnectionException');
         // Act
         $this->opentok->signal($sessionId, $payload, $connectionId);
@@ -1783,14 +1774,14 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
             'type' => 'rest',
             'data' => 'more than 128 bytes'
         );
-        
+
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
-        
+
         $this->expectException('OpenTok\Exception\SignalUnexpectedValueException');
-        
+
         // Act
         $this->opentok->signal($sessionId, $payload, $connectionId);
-        
+
     }
 
     public function testListStreams()
@@ -1984,4 +1975,4 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         new OpenTok('1234', 'abd', ['timeout' => -1]);
     }
 }
-/* vim: set ts=4 sw=4 tw=100 sts=4 et :*/
+

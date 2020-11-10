@@ -25,14 +25,6 @@ command line:
 $ ./composer.phar require opentok/opentok 4.4.x
 ```
 
-### Manually:
-
-Download the `opentok.phar` file for the latest release from the [Releases](https://github.com/opentok/opentok-php-sdk/releases)
-page.
-
-Place `opentok.phar` in the [include_path](http://www.php.net/manual/en/ini.core.php#ini.include-path) OR
-require it in any script which uses the `OpenTok\*` classes.
-
 ## Usage
 
 ### Initializing
@@ -239,9 +231,9 @@ $archive->delete();
 ```
 
 You can also get a list of all the Archives you've created (up to 1000) with your API Key. This is
-done using the `listArchives($offset, $count)` method of the `OpenTok/OpenTok` class. The parameters
-`$offset` and `$count` are optional and can help you paginate through the results. This will return
-an instance of the `OpenTok\ArchiveList` class.
+done using the `listArchives($offset, $count, $sessionId)` method of the `OpenTok/OpenTok` class. The parameters
+`$offset`, `$count`, and `$sessionId` are optional and can help you paginate through the results, and subset the
+data by a specific session. This will return an instance of the `OpenTok\ArchiveList` class.
 
 ```php
 $archiveList = $opentok->listArchives();
@@ -514,9 +506,7 @@ Reference documentation is available at
 You need an OpenTok API key and API secret, which you can obtain by logging into your
 [TokBox account](https://tokbox.com/account).
 
-The OpenTok PHP SDK requires PHP 5.6+ or PHP 7+
-
-For PHP 5.5 and lower please use PHP SDK v2.5
+The OpenTok PHP SDK requires PHP 7.2 or higher.
 
 ## Release Notes
 

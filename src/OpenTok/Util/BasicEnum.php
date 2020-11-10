@@ -5,12 +5,15 @@ namespace OpenTok\Util;
 /**
 * @internal
 */
-abstract class BasicEnum {
-    private static $constCacheArray = null;
+abstract class BasicEnum
+{
+    private static $constCacheArray;
 
     private static function getConstants()
     {
-        if (self::$constCacheArray === null) self::$constCacheArray = array();
+        if (self::$constCacheArray === null) {
+            self::$constCacheArray = array();
+        }
 
         $calledClass = get_called_class();
         if (!array_key_exists($calledClass, self::$constCacheArray)) {
@@ -39,4 +42,3 @@ abstract class BasicEnum {
         return in_array($value, $values, $strict = true);
     }
 }
-/* vim: set ts=4 sw=4 tw=100 sts=4 et :*/

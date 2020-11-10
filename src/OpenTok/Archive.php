@@ -4,7 +4,6 @@ namespace OpenTok;
 
 use OpenTok\Util\Client;
 use OpenTok\Util\Validators;
-
 use OpenTok\Exception\InvalidArgumentException;
 use OpenTok\Exception\ArchiveUnexpectedValueException;
 
@@ -77,7 +76,8 @@ use OpenTok\Exception\ArchiveUnexpectedValueException;
 * set to null. The download URL is obfuscated, and the file is only available from the URL for
 * 10 minutes. To generate a new URL, call the Archive.listArchives() or OpenTok.getArchive() method.
 */
-class Archive {
+class Archive
+{
     // NOTE: after PHP 5.3.0 support is dropped, the class can implement JsonSerializable
 
     /** @internal */
@@ -122,7 +122,7 @@ class Archive {
         if ($this->isDeleted) {
             // TODO: throw an logic error about not being able to stop an archive thats deleted
         }
-        switch($name) {
+        switch ($name) {
             case 'createdAt':
             case 'duration':
             case 'id':
@@ -138,7 +138,6 @@ class Archive {
             case 'outputMode':
             case 'resolution':
                 return $this->data[$name];
-                break;
             default:
                 return null;
         }
@@ -218,5 +217,3 @@ class Archive {
         return $this->data;
     }
 }
-
-/* vim: set ts=4 sw=4 tw=100 sts=4 et :*/

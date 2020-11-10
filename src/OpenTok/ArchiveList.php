@@ -10,20 +10,13 @@ use OpenTok\Util\Validators;
 /**
 * A class for accessing an array of Archive objects.
 */
-class ArchiveList {
+class ArchiveList
+{
 
     /**
     * @internal
     */
     private $data;
-    /**
-    * @internal
-    */
-    private $apiKey;
-    /**
-    * @internal
-    */
-    private $apiSecret;
     /**
     * @internal
     */
@@ -79,7 +72,7 @@ class ArchiveList {
     {
         if (!$this->items) {
             $items = array();
-            foreach($this->data['items'] as $archiveData) {
+            foreach ($this->data['items'] as $archiveData) {
                 $items[] = new Archive($archiveData, array( 'client' => $this->client ));
             }
             $this->items = $items;
@@ -87,5 +80,3 @@ class ArchiveList {
         return $this->items;
     }
 }
-
-/* vim: set ts=4 sw=4 tw=100 sts=4 et :*/

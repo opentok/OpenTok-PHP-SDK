@@ -12,7 +12,7 @@ use OpenTok\Util\Validators;
 * Represents a broadcast of an OpenTok session.
 *
 * @property int $createdAt
-* The timestamp when the broadcast was created, expressed in seconds since the Unix epoch. 
+* The timestamp when the broadcast was created, expressed in seconds since the Unix epoch.
 *
 * @property int $updatedAt
 * The time the broadcast was started or stopped, expressed in seconds since the Unix epoch.
@@ -35,7 +35,8 @@ use OpenTok\Util\Validators;
 * @property boolean $isStopped
 * Whether the broadcast is stopped (true) or in progress (false).
 */
-class Broadcast {
+class Broadcast
+{
     // NOTE: after PHP 5.3.0 support is dropped, the class can implement JsonSerializable
 
     /** @ignore */
@@ -91,13 +92,10 @@ class Broadcast {
             case 'maxDuration':
             case 'resolution':
                 return $this->data[$name];
-                break;
             case 'hlsUrl':
                 return $this->data['broadcastUrls']['hls'];
-                break;
             case 'isStopped':
                 return $this->isStopped;
-                break;
             default:
                 return null;
         }
