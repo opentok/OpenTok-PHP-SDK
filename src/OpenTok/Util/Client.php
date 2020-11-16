@@ -33,7 +33,7 @@ use function GuzzleHttp\default_user_agent;
 
 // TODO: build this dynamically
 /** @internal */
-define('OPENTOK_SDK_VERSION', '4.5.0');
+define('OPENTOK_SDK_VERSION', '4.6.0');
 /** @internal */
 define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
 
