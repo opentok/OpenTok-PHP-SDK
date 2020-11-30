@@ -9,6 +9,7 @@ use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Psr7\Request;
 use Psr\Http\Message\RequestInterface;
 use Firebase\JWT\JWT;
+use GuzzleHttp\Exception\RequestException;
 use OpenTok\Exception\Exception;
 use OpenTok\Exception\DomainException;
 use OpenTok\Exception\UnexpectedValueException;
@@ -27,6 +28,7 @@ use OpenTok\Exception\SignalAuthenticationException;
 use OpenTok\Exception\ForceDisconnectConnectionException;
 use OpenTok\Exception\ForceDisconnectUnexpectedValueException;
 use OpenTok\Exception\ForceDisconnectAuthenticationException;
+use OpenTok\Exception\SignalNetworkConnectionException;
 use OpenTok\MediaMode;
 
 use function GuzzleHttp\default_user_agent;
@@ -45,6 +47,10 @@ class Client
     protected $apiKey;
     protected $apiSecret;
     protected $configured = false;
+
+    /**
+     * @var \GuzzleHttp\Client
+     */
     protected $client;
 
     public function configure($apiKey, $apiSecret, $apiUrl, $options = array())
@@ -52,31 +58,36 @@ class Client
         $this->apiKey = $apiKey;
         $this->apiSecret = $apiSecret;
 
-        $clientOptions = [
-            'base_uri' => $apiUrl,
-            'headers' => [
-                'User-Agent' => OPENTOK_SDK_USER_AGENT . ' ' . default_user_agent(),
-            ],
-        ];
-
-        if (!empty($options['timeout'])) {
-            $clientOptions['timeout'] = $options['timeout'];
-        }
-
-        if (empty($options['handler'])) {
-            $handlerStack = HandlerStack::create();
+        if (isset($options['client'])) {
+            $this->client = $options['client'];
         } else {
-            $handlerStack = $options['handler'];
+            $clientOptions = [
+                'base_uri' => $apiUrl,
+                'headers' => [
+                    'User-Agent' => OPENTOK_SDK_USER_AGENT . ' ' . default_user_agent(),
+                ],
+            ];
+
+            if (!empty($options['timeout'])) {
+                $clientOptions['timeout'] = $options['timeout'];
+            }
+
+            if (empty($options['handler'])) {
+                $handlerStack = HandlerStack::create();
+            } else {
+                $handlerStack = $options['handler'];
+            }
+            $clientOptions['handler'] = $handlerStack;
+
+            $handler = Middleware::mapRequest(function (RequestInterface $request) {
+                $authHeader = $this->createAuthHeader();
+                return $request->withHeader('X-OPENTOK-AUTH', $authHeader);
+            });
+            $handlerStack->push($handler);
+
+            $this->client = new \GuzzleHttp\Client($clientOptions);
         }
-        $clientOptions['handler'] = $handlerStack;
 
-        $handler = Middleware::mapRequest(function (RequestInterface $request) {
-            $authHeader = $this->createAuthHeader();
-            return $request->withHeader('X-OPENTOK-AUTH', $authHeader);
-        });
-        $handlerStack->push($handler);
-
-        $this->client = new \GuzzleHttp\Client($clientOptions);
         $this->configured = true;
     }
 
@@ -504,27 +515,42 @@ class Client
         return $sipJson;
     }
 
-    public function signal($sessionId, $options = array(), $connectionId = null)
+    /**
+     * Signal either an entire session or a specific connection in a session
+     *
+     * @param string $sessionId ID of the session to send the signal to
+     * @param array{type: string, data: mixed} $payload Signal payload to send
+     * @param string $connectionId ID of the connection to send the signal to
+     *
+     * @todo Mark $payload as required, as you cannot send an empty signal request body
+     *
+     * @throws SignalNetworkConnectionException
+     * @throws \Exception
+     */
+    public function signal($sessionId, $payload = [], $connectionId = null)
     {
         // set up the request
-
-        
+        $requestRoot = '/v2/project/' . $this->apiKey . '/session/' . $sessionId;
         $request = is_null($connectionId) || empty($connectionId) ?
-                new Request('POST', '/v2/project/' . $this->apiKey . '/session/' . $sessionId . '/signal')
-                : new Request('POST', '/v2/project/' . $this->apiKey . '/session/' . $sessionId . '/connection/' . $connectionId . '/signal');
+            new Request('POST', $requestRoot . '/signal')
+            : new Request('POST', $requestRoot . '/connection/' . $connectionId . '/signal');
 
         try {
             $response = $this->client->send($request, [
                 'debug' => $this->isDebug(),
                 'json' => array_merge(
-                    $options
+                    $payload
                 )
             ]);
             if ($response->getStatusCode() != 204) {
                 json_decode($response->getBody(), true);
             }
-        } catch (\Exception $e) {
+        } catch (ClientException $e) {
             $this->handleSignalingException($e);
+        } catch (RequestException $e) {
+            throw new SignalNetworkConnectionException('Unable to communicate with host', -1, $e);
+        } catch (\Exception $e) {
+            throw $e;
         }
     }
 
@@ -611,7 +637,7 @@ class Client
         }
     }
 
-    private function handleSignalingException($e)
+    private function handleSignalingException(ClientException $e)
     {
         $responseCode = $e->getResponse()->getStatusCode();
         switch ($responseCode) {
@@ -624,7 +650,8 @@ class Client
                 $message = 'The client specified by the connectionId property is not connected to the session.';
                 throw new SignalConnectionException($message, $responseCode);
             case 413:
-                $message = 'The type string exceeds the maximum length (128 bytes), or the data string exceeds the maximum size (8 kB).';
+                $message = 'The type string exceeds the maximum length (128 bytes),'
+                    . ' or the data string exceeds the maximum size (8 kB).';
                 throw new SignalUnexpectedValueException($message, $responseCode);
             default:
                 break;

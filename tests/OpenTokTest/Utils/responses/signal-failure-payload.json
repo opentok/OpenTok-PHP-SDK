@@ -1,0 +1,5 @@
+{
+    "code": 15202,
+    "message": "Signal payload 'data' must be set",
+    "description": "Signal payload 'data' must be set"
+  }
