@@ -317,7 +317,7 @@ You can set change the layout dynamically, using the
 ```php
 use OpenTok\OpenTok;
 
-$layout Layout::getPIP(); // Or use another get method of the Layout class.
+$layout = Layout::getPIP(); // Or use another get method of the Layout class.
 $opentok->updateBroadcastLayout($broadcastId, $layout);
 ```
 
@@ -336,6 +336,13 @@ $options = array(
 
 $layoutType = Layout::createCustom($options);
 $opentok->setArchiveLayout($archiveId, $layoutType);
+```
+
+You can also set the Screenshare Layout by calling the `setScreenshareType()` method on a layout object.
+
+```php
+$layout = Layout::getBestFit(); // Other types are not currently supported
+$layout->setScreenshareType(Layout::LAYOUT_VERTICAL);
 ```
 
 You can set the initial layout class for a client's streams by setting the `layout` option when

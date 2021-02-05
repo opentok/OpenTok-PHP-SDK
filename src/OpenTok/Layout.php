@@ -22,9 +22,10 @@ use OpenTok\Util\Validators;
 class Layout implements \JsonSerializable
 {
     public const LAYOUT_BESTFIT = 'bestFit';
+    public const LAYOUT_CUSTOM = 'custom';
+    public const LAYOUT_HORIZONTAL = 'horizontalPresentation';
     public const LAYOUT_PIP = 'pip';
     public const LAYOUT_VERTICAL = 'verticalPresentation';
-    public const LAYOUT_HORIZONTAL = 'horizontalPresentation';
 
     /**
      * Type of layout that we are sending
@@ -32,6 +33,13 @@ class Layout implements \JsonSerializable
      * @ignore
      * */
     private $type;
+
+    /**
+     * Type of layout to use for screen sharing
+     * @var string
+     * @ignore
+     */
+    private $screenshareType;
 
     /**
      * Custom stylesheet if our type is 'custom'
@@ -59,14 +67,14 @@ class Layout implements \JsonSerializable
         // NOTE: the default value of stylesheet=null will not pass validation, this essentially
         //       means that stylesheet is not optional. its still purposely left as part of the
         //       $options argument so that it can become truly optional in the future.
-        $defaults = array('stylesheet' => null);
+        $defaults = ['stylesheet' => null];
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
         list($stylesheet) = array_values($options);
 
         // validate arguments
         Validators::validateLayoutStylesheet($stylesheet);
 
-        return new Layout('custom', $stylesheet);
+        return new Layout(static::LAYOUT_CUSTOM, $stylesheet);
     }
 
     /** @ignore */
@@ -111,6 +119,27 @@ class Layout implements \JsonSerializable
         return new Layout(static::LAYOUT_HORIZONTAL);
     }
 
+    public function setScreenshareType(string $screenshareType): Layout
+    {
+        if ($this->type === Layout::LAYOUT_BESTFIT) {
+            $layouts = [
+                Layout::LAYOUT_BESTFIT,
+                Layout::LAYOUT_HORIZONTAL,
+                Layout::LAYOUT_PIP,
+                Layout::LAYOUT_VERTICAL
+            ];
+
+            if (!in_array($screenshareType, $layouts)) {
+                throw new \RuntimeException('Screenshare type must be of a valid layout type');
+            }
+
+            $this->screenshareType = $screenshareType;
+            return $this;
+        }
+
+        throw new \RuntimeException('Screenshare type cannot be set on a layout type other than bestFit');
+    }
+
     public function jsonSerialize()
     {
         return $this->toArray();
@@ -134,6 +163,12 @@ class Layout implements \JsonSerializable
         if (isset($this->stylesheet)) {
             $data['stylesheet'] = $this->stylesheet;
         }
+
+        // omit 'screenshareType' property unless it is explicitly defined
+        if (isset($this->screenshareType)) {
+            $data['screenshareType'] = $this->screenshareType;
+        }
+
         return $data;
     }
 }
