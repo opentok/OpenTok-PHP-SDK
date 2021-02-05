@@ -19,61 +19,32 @@ use OpenTok\Util\Validators;
  * <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/#configuring-video-layout-for-opentok-live-streaming-broadcasts">Configuring
  * video layout for OpenTok live streaming broadcasts</a>.
  */
-class Layout
+class Layout implements \JsonSerializable
 {
-    // NOTE: after PHP 5.3.0 support is dropped, the class can implement JsonSerializable
-
-    /** @ignore */
-    private static $bestFit;
-    /** @ignore */
-    private static $pip;
-    /** @ignore */
-    private static $verticalPresentation;
-    /** @ignore */
-    private static $horizontalPresentation;
+    public const LAYOUT_BESTFIT = 'bestFit';
+    public const LAYOUT_PIP = 'pip';
+    public const LAYOUT_VERTICAL = 'verticalPresentation';
+    public const LAYOUT_HORIZONTAL = 'horizontalPresentation';
 
     /**
-     * Returns a Layout object defining the "best fit" predefined layout type.
-     */
-    public static function getBestFit()
-    {
-        if (is_null(self::$bestFit)) {
-            self::$bestFit = new Layout('bestFit');
-        }
-        return self::$bestFit;
-    }
+     * Type of layout that we are sending
+     * @var string
+     * @ignore
+     * */
+    private $type;
 
     /**
-     * Returns a Layout object defining the "picture-in-picture" predefined layout type.
+     * Custom stylesheet if our type is 'custom'
+     * @var string
+     * @ignore
      */
-    public static function getPIP()
-    {
-        if (is_null(self::$pip)) {
-            self::$pip = new Layout('pip');
-        }
-        return self::$pip;
-    }
+    private $stylesheet;
 
-    /**
-     * Returns a Layout object defining the "vertical presentation" predefined layout type.
-     */
-    public static function getVerticalPresentation()
+    /** @ignore */
+    private function __construct(string $type, ?string $stylesheet = null)
     {
-        if (is_null(self::$verticalPresentation)) {
-            self::$verticalPresentation = new Layout('verticalPresentation');
-        }
-        return self::$verticalPresentation;
-    }
-
-    /**
-     * Returns a Layout object defining the "horizontal presentation" predefined layout type.
-     */
-    public static function getHorizontalPresentation()
-    {
-        if (is_null(self::$horizontalPresentation)) {
-            self::$horizontalPresentation = new Layout('horizontalPresentation');
-        }
-        return self::$horizontalPresentation;
+        $this->type = $type;
+        $this->stylesheet = $stylesheet;
     }
 
     /**
@@ -82,7 +53,7 @@ class Layout
      * @param array $options An array containing one property: <code>$stylesheet<code>,
      * which is a string containing the stylesheet to be used for the layout.
      */
-    public static function createCustom($options)
+    public static function createCustom(array $options): Layout
     {
         // unpack optional arguments (merging with default values) into named variables
         // NOTE: the default value of stylesheet=null will not pass validation, this essentially
@@ -99,28 +70,61 @@ class Layout
     }
 
     /** @ignore */
-    public static function fromData($layoutData)
+    public static function fromData(array $layoutData): Layout
     {
         if (array_key_exists('stylesheet', $layoutData)) {
             return new Layout($layoutData['type'], $layoutData['stylesheet']);
-        } else {
-            return new Layout($layoutData['type']);
         }
+
+        return new Layout($layoutData['type']);
     }
 
-    /** @ignore */
-    private $type;
-    /** @ignore */
-    private $stylesheet;
-
-    /** @ignore */
-    private function __construct($type, $stylesheet = null)
+    /**
+     * Returns a Layout object defining the "best fit" predefined layout type.
+     */
+    public static function getBestFit(): Layout
     {
-        $this->type = $type;
-        $this->stylesheet = $stylesheet;
+        return new Layout(static::LAYOUT_BESTFIT);
+    }
+
+    /**
+     * Returns a Layout object defining the "picture-in-picture" predefined layout type.
+     */
+    public static function getPIP(): Layout
+    {
+        return new Layout(static::LAYOUT_PIP);
+    }
+
+    /**
+     * Returns a Layout object defining the "vertical presentation" predefined layout type.
+     */
+    public static function getVerticalPresentation(): Layout
+    {
+        return new Layout(static::LAYOUT_VERTICAL);
+    }
+
+    /**
+     * Returns a Layout object defining the "horizontal presentation" predefined layout type.
+     */
+    public static function getHorizontalPresentation(): Layout
+    {
+        return new Layout(static::LAYOUT_HORIZONTAL);
     }
 
     public function jsonSerialize()
+    {
+        return $this->toArray();
+    }
+
+    /**
+     * Return a json-encoded string representation of the layout
+     */
+    public function toJson(): string
+    {
+        return json_encode($this->jsonSerialize());
+    }
+
+    public function toArray(): array
     {
         $data = array(
             'type' => $this->type
@@ -131,10 +135,5 @@ class Layout
             $data['stylesheet'] = $this->stylesheet;
         }
         return $data;
-    }
-
-    public function toJson()
-    {
-        return json_encode($this->jsonSerialize());
     }
 }
