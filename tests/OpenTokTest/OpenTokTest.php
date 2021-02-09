@@ -1715,6 +1715,9 @@ class OpenTokTest extends TestCase
         $this->assertEquals('rest', $body->type);        
     }
 
+    /**
+     * @todo Fix this test, not even sure what it's supposed to be doing honestly.
+     */
     public function testSignalWithEmptyPayload()
     {
         // Arrange
