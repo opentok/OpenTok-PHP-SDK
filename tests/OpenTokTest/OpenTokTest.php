@@ -578,7 +578,10 @@ class OpenTokTest extends TestCase
         // TODO: test the properties of the actual archive object
     }
 
-    // this is the deprecated method signature, remove in v3.0.0 (and not before)
+    /**
+     * this is the deprecated method signature, remove in v3.0.0 (and not before)
+     * @todo Remove this when `startArchive` removes string support
+     */
     public function testStartsArchiveNamedDeprecated()
     {
         // Arrange
@@ -595,7 +598,7 @@ class OpenTokTest extends TestCase
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
         // Act
-        $archive = $this->opentok->startArchive($sessionId, 'showtime');
+        @$archive = $this->opentok->startArchive($sessionId, 'showtime');
 
         // Assert
         $this->assertCount(1, $this->historyContainer);

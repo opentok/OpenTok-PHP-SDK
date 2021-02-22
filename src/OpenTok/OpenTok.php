@@ -2,10 +2,11 @@
 
 namespace OpenTok;
 
+use OpenTok\Layout;
 use OpenTok\Util\Client;
 use OpenTok\Util\Validators;
-use OpenTok\Exception\UnexpectedValueException;
 use OpenTok\Exception\InvalidArgumentException;
+use OpenTok\Exception\UnexpectedValueException;
 
 /**
 * Contains methods for creating OpenTok sessions, generating tokens, and working with archives.
@@ -296,13 +297,17 @@ class OpenTok
      * @return Archive The Archive object, which includes properties defining the archive, including
      * the archive ID.
      */
-    public function startArchive($sessionId, $options = array())
+    public function startArchive(string $sessionId, $options = []): Archive
     {
         // support for deprecated method signature, remove in v3.0.0 (not before)
         if (!is_array($options)) {
+            trigger_error(
+                'Archive options passed as a string is deprecated, please pass an array with a name key',
+                E_USER_DEPRECATED
+            );
             $options = array('name' => $options);
         }
-        
+
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array(
             'name' => null,
@@ -425,17 +430,11 @@ class OpenTok
 
     /**
      * Updates the stream layout in an OpenTok Archive.
-     *
-     * @param string $archiveId The OpenTok archive ID.
-     *
-     * @param string $layout The connectionId of the connection in a session.
      */
-
-    public function setArchiveLayout($archiveId, $layoutType)
+    public function setArchiveLayout(string $archiveId, Layout $layoutType): void
     {
         Validators::validateArchiveId($archiveId);
-        Validators::validateLayout($layoutType);
-        
+
         $this->client->setArchiveLayout($archiveId, $layoutType);
     }
 
@@ -497,7 +496,7 @@ class OpenTok
      *
      * @return Broadcast An object with properties defining the broadcast.
      */
-    public function startBroadcast($sessionId, $options = array())
+    public function startBroadcast(string $sessionId, array $options = []): Broadcast
     {
         // unpack optional arguments (merging with default values) into named variables
         // NOTE: although the server can be authoritative about the default value of layout, its
@@ -571,14 +570,9 @@ class OpenTok
      *
      * @param Layout $layout An object defining the layout type for the broadcast.
      */
-    public function updateBroadcastLayout($broadcastId, $layout)
+    public function updateBroadcastLayout(string $broadcastId, Layout $layout): void
     {
         Validators::validateBroadcastId($broadcastId);
-        Validators::validateLayout($layout);
-
-        // TODO: platform implementation does not meet API Review spec
-        // $layoutData = $this->client->updateLayout($broadcastId, $layout, 'broadcast');
-        // return Layout::fromData($layoutData);
 
         $this->client->updateLayout($broadcastId, $layout, 'broadcast');
     }

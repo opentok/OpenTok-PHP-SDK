@@ -2,36 +2,37 @@
 
 namespace OpenTok\Util;
 
+use OpenTok\Layout;
+use Firebase\JWT\JWT;
+use OpenTok\MediaMode;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Psr7\Request;
-use Psr\Http\Message\RequestInterface;
-use Firebase\JWT\JWT;
-use GuzzleHttp\Exception\RequestException;
 use OpenTok\Exception\Exception;
 use OpenTok\Exception\DomainException;
-use OpenTok\Exception\UnexpectedValueException;
-use OpenTok\Exception\AuthenticationException;
+use Psr\Http\Message\RequestInterface;
 use OpenTok\Exception\ArchiveException;
-use OpenTok\Exception\ArchiveDomainException;
-use OpenTok\Exception\ArchiveUnexpectedValueException;
-use OpenTok\Exception\ArchiveAuthenticationException;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ServerException;
 use OpenTok\Exception\BroadcastException;
-use OpenTok\Exception\BroadcastDomainException;
-use OpenTok\Exception\BroadcastUnexpectedValueException;
-use OpenTok\Exception\BroadcastAuthenticationException;
-use OpenTok\Exception\SignalConnectionException;
-use OpenTok\Exception\SignalUnexpectedValueException;
-use OpenTok\Exception\SignalAuthenticationException;
-use OpenTok\Exception\ForceDisconnectConnectionException;
-use OpenTok\Exception\ForceDisconnectUnexpectedValueException;
-use OpenTok\Exception\ForceDisconnectAuthenticationException;
-use OpenTok\Exception\SignalNetworkConnectionException;
-use OpenTok\MediaMode;
-
+use GuzzleHttp\Exception\RequestException;
 use function GuzzleHttp\default_user_agent;
+use OpenTok\Exception\ArchiveDomainException;
+use OpenTok\Exception\AuthenticationException;
+use OpenTok\Exception\BroadcastDomainException;
+use OpenTok\Exception\UnexpectedValueException;
+use OpenTok\Exception\SignalConnectionException;
+use OpenTok\Exception\SignalAuthenticationException;
+use OpenTok\Exception\ArchiveAuthenticationException;
+use OpenTok\Exception\SignalUnexpectedValueException;
+use OpenTok\Exception\ArchiveUnexpectedValueException;
+use OpenTok\Exception\BroadcastAuthenticationException;
+use OpenTok\Exception\SignalNetworkConnectionException;
+use OpenTok\Exception\BroadcastUnexpectedValueException;
+use OpenTok\Exception\ForceDisconnectConnectionException;
+
+use OpenTok\Exception\ForceDisconnectAuthenticationException;
+use OpenTok\Exception\ForceDisconnectUnexpectedValueException;
 
 // TODO: build this dynamically
 /** @internal */
@@ -154,18 +155,15 @@ class Client
         return $xml;
     }
 
-    // Archiving API Requests
-
-    public function startArchive($sessionId, $options)
+    public function startArchive(string $sessionId, array $options = []): array
     {
-        // set up the request
         $request = new Request('POST', '/v2/project/' . $this->apiKey . '/archive');
 
         try {
             $response = $this->client->send($request, [
                 'debug' => $this->isDebug(),
                 'json' => array_merge(
-                    array( 'sessionId' => $sessionId ),
+                    ['sessionId' => $sessionId],
                     $options
                 )
             ]);
@@ -283,7 +281,7 @@ class Client
         return $archiveListJson;
     }
 
-    public function startBroadcast($sessionId, $options)
+    public function startBroadcast(string $sessionId, array $options): array
     {
         $request = new Request(
             'POST',
@@ -362,40 +360,36 @@ class Client
         return $layoutJson;
     }
 
-    public function updateLayout($resourceId, $layout, $resourceType = 'broadcast')
+    public function updateLayout(string $resourceId, Layout $layout, string $resourceType = 'broadcast'): void
     {
         $request = new Request(
             'PUT',
             '/v2/project/' . $this->apiKey . '/' . $resourceType . '/' . $resourceId . '/layout'
         );
         try {
-            $response = $this->client->send($request, [
+            $this->client->send($request, [
                 'debug' => $this->isDebug(),
-                'json' => $layout->jsonSerialize()
+                'json' => $layout->toArray()
             ]);
-            $layoutJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
             $this->handleException($e);
         }
-        return $layoutJson;
     }
 
-    public function setArchiveLayout($archiveId, $layout)
+    public function setArchiveLayout(string $archiveId, Layout $layout): void
     {
         $request = new Request(
             'PUT',
             '/v2/project/' . $this->apiKey . '/archive/' . $archiveId . '/layout'
         );
         try {
-            $response = $this->client->send($request, [
+            $this->client->send($request, [
                 'debug' => $this->isDebug(),
-                'json' => $layout->jsonSerialize()
+                'json' => $layout->toArray()
             ]);
-            $layoutJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
             $this->handleException($e);
         }
-        return $layoutJson;
     }
 
     public function updateStream($sessionId, $streamId, $properties)
