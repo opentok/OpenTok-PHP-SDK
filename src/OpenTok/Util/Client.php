@@ -2,36 +2,37 @@
 
 namespace OpenTok\Util;
 
-use Firebase\JWT\JWT;
-use function GuzzleHttp\default_user_agent;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\ServerException;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Middleware;
-use GuzzleHttp\Psr7\Request;
-use OpenTok\Exception\ArchiveAuthenticationException;
-use OpenTok\Exception\ArchiveDomainException;
-use OpenTok\Exception\ArchiveException;
-use OpenTok\Exception\ArchiveUnexpectedValueException;
-use OpenTok\Exception\AuthenticationException;
-use OpenTok\Exception\BroadcastAuthenticationException;
-use OpenTok\Exception\BroadcastDomainException;
-use OpenTok\Exception\BroadcastException;
-use OpenTok\Exception\BroadcastUnexpectedValueException;
-use OpenTok\Exception\DomainException;
-use OpenTok\Exception\Exception;
-use OpenTok\Exception\ForceDisconnectAuthenticationException;
-use OpenTok\Exception\ForceDisconnectConnectionException;
-use OpenTok\Exception\ForceDisconnectUnexpectedValueException;
-use OpenTok\Exception\SignalAuthenticationException;
-use OpenTok\Exception\SignalConnectionException;
-use OpenTok\Exception\SignalNetworkConnectionException;
-use OpenTok\Exception\SignalUnexpectedValueException;
-use OpenTok\Exception\UnexpectedValueException;
 use OpenTok\Layout;
+use Firebase\JWT\JWT;
 use OpenTok\MediaMode;
+use GuzzleHttp\Middleware;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Request;
+use OpenTok\Exception\Exception;
+use OpenTok\Exception\DomainException;
 use Psr\Http\Message\RequestInterface;
+use OpenTok\Exception\ArchiveException;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ServerException;
+use OpenTok\Exception\BroadcastException;
+use GuzzleHttp\Exception\RequestException;
+use function GuzzleHttp\default_user_agent;
+use OpenTok\Exception\ArchiveDomainException;
+use OpenTok\Exception\AuthenticationException;
+use OpenTok\Exception\BroadcastDomainException;
+use OpenTok\Exception\UnexpectedValueException;
+use OpenTok\Exception\SignalConnectionException;
+use OpenTok\Exception\SignalAuthenticationException;
+use OpenTok\Exception\ArchiveAuthenticationException;
+use OpenTok\Exception\SignalUnexpectedValueException;
+use OpenTok\Exception\ArchiveUnexpectedValueException;
+use OpenTok\Exception\BroadcastAuthenticationException;
+use OpenTok\Exception\SignalNetworkConnectionException;
+use OpenTok\Exception\BroadcastUnexpectedValueException;
+use OpenTok\Exception\ForceDisconnectConnectionException;
+
+use OpenTok\Exception\ForceDisconnectAuthenticationException;
+use OpenTok\Exception\ForceDisconnectUnexpectedValueException;
 
 // TODO: build this dynamically
 /** @internal */
@@ -40,8 +41,8 @@ define('OPENTOK_SDK_VERSION', '4.6.3');
 define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
 
 /**
- * @internal
- */
+* @internal
+*/
 class Client
 {
     protected $apiKey;
@@ -116,7 +117,7 @@ class Client
         try {
             $response = $this->client->send($request, [
                 'debug' => $this->isDebug(),
-                'form_params' => $this->postFieldsForOptions($options),
+                'form_params' => $this->postFieldsForOptions($options)
             ]);
             $sessionXml = $this->getResponseXml($response);
         } catch (\RuntimeException $e) {
@@ -168,7 +169,7 @@ class Client
                 'json' => array_merge(
                     ['sessionId' => $sessionId],
                     $options
-                ),
+                )
             ]);
             $archiveJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
@@ -188,7 +189,7 @@ class Client
 
         try {
             $response = $this->client->send($request, [
-                'debug' => $this->isDebug(),
+                'debug' => $this->isDebug()
             ]);
             $archiveJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
@@ -206,7 +207,7 @@ class Client
         );
         try {
             $response = $this->client->send($request, [
-                'debug' => $this->isDebug(),
+                'debug' => $this->isDebug()
             ]);
             $archiveJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
@@ -225,7 +226,7 @@ class Client
         );
         try {
             $response = $this->client->send($request, [
-                'debug' => $this->isDebug(),
+                'debug' => $this->isDebug()
             ]);
             if ($response->getStatusCode() != 204) {
                 json_decode($response->getBody(), true);
@@ -246,7 +247,7 @@ class Client
         );
         try {
             $response = $this->client->send($request, [
-                'debug' => $this->isDebug(),
+                'debug' => $this->isDebug()
             ]);
             if ($response->getStatusCode() != 204) {
                 json_decode($response->getBody(), true);
@@ -274,7 +275,7 @@ class Client
         try {
             $response = $this->client->send($request, [
                 'debug' => $this->isDebug(),
-                'query' => $queryParams,
+                'query' => $queryParams
             ]);
             $archiveListJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
@@ -293,7 +294,7 @@ class Client
 
         $optionsJson = [
             'sessionId' => $sessionId,
-            'layout' => $options['layout']->jsonSerialize(),
+            'layout' => $options['layout']->jsonSerialize()
         ];
         unset($options['layout']);
         $optionsJson = array_merge($optionsJson, $options);
@@ -301,7 +302,7 @@ class Client
         try {
             $response = $this->client->send($request, [
                 'debug' => $this->isDebug(),
-                'json' => $optionsJson,
+                'json' => $optionsJson
             ]);
             $broadcastJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
@@ -320,7 +321,7 @@ class Client
 
         try {
             $response = $this->client->send($request, [
-                'debug' => $this->isDebug(),
+                'debug' => $this->isDebug()
             ]);
             $broadcastJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
@@ -337,7 +338,7 @@ class Client
         );
         try {
             $response = $this->client->send($request, [
-                'debug' => $this->isDebug(),
+                'debug' => $this->isDebug()
             ]);
             $broadcastJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
@@ -354,7 +355,7 @@ class Client
         );
         try {
             $response = $this->client->send($request, [
-                'debug' => $this->isDebug(),
+                'debug' => $this->isDebug()
             ]);
             $layoutJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
@@ -372,7 +373,7 @@ class Client
         try {
             $this->client->send($request, [
                 'debug' => $this->isDebug(),
-                'json' => $layout->toArray(),
+                'json' => $layout->toArray()
             ]);
         } catch (\Exception $e) {
             $this->handleException($e);
@@ -388,7 +389,7 @@ class Client
         try {
             $this->client->send($request, [
                 'debug' => $this->isDebug(),
-                'json' => $layout->toArray(),
+                'json' => $layout->toArray()
             ]);
         } catch (\Exception $e) {
             $this->handleException($e);
@@ -404,7 +405,7 @@ class Client
         try {
             $response = $this->client->send($request, [
                 'debug' => $this->isDebug(),
-                'json' => $properties,
+                'json' => $properties
             ]);
             if ($response->getStatusCode() != 204) {
                 json_decode($response->getBody(), true);
@@ -423,7 +424,7 @@ class Client
 
         try {
             $response = $this->client->send($request, [
-                'debug' => $this->isDebug(),
+                'debug' => $this->isDebug()
             ]);
             $streamJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
@@ -454,7 +455,7 @@ class Client
     public function setStreamClassLists($sessionId, $payload)
     {
         $itemsPayload = array(
-            'items' => $payload,
+            'items' => $payload
         );
         $request = new Request(
             'PUT',
@@ -464,7 +465,7 @@ class Client
         try {
             $response = $this->client->send($request, [
                 'debug' => $this->isDebug(),
-                'json' => $itemsPayload,
+                'json' => $itemsPayload
             ]);
             if ($response->getStatusCode() != 200) {
                 json_decode($response->getBody(), true);
@@ -474,6 +475,7 @@ class Client
         }
     }
 
+
     public function dial($sessionId, $token, $sipUri, $options)
     {
         $body = array(
@@ -481,8 +483,8 @@ class Client
             'token' => $token,
             'sip' => array(
                 'uri' => $sipUri,
-                'secure' => $options['secure'],
-            ),
+                'secure' => $options['secure']
+            )
         );
 
         if (isset($options) && array_key_exists('headers', $options) && count($options['headers']) > 0) {
@@ -502,7 +504,7 @@ class Client
         try {
             $response = $this->client->send($request, [
                 'debug' => $this->isDebug(),
-                'json' => $body,
+                'json' => $body
             ]);
             $sipJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
@@ -528,15 +530,15 @@ class Client
         // set up the request
         $requestRoot = '/v2/project/' . $this->apiKey . '/session/' . $sessionId;
         $request = is_null($connectionId) || empty($connectionId) ?
-        new Request('POST', $requestRoot . '/signal')
-        : new Request('POST', $requestRoot . '/connection/' . $connectionId . '/signal');
+            new Request('POST', $requestRoot . '/signal')
+            : new Request('POST', $requestRoot . '/connection/' . $connectionId . '/signal');
 
         try {
             $response = $this->client->send($request, [
                 'debug' => $this->isDebug(),
                 'json' => array_merge(
                     $payload
-                ),
+                )
             ]);
             if ($response->getStatusCode() != 204) {
                 json_decode($response->getBody(), true);
