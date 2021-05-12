@@ -135,7 +135,9 @@ class Client
     {
         $errorMessage = null;
         $internalErrors = libxml_use_internal_errors(true);
-        $disableEntities = libxml_disable_entity_loader(true);
+        if (\PHP_VERSION_ID < 80000) {
+            $disableEntities = libxml_disable_entity_loader(true);
+        }
         libxml_clear_errors();
         try {
             $body = $response->getBody();
@@ -148,7 +150,9 @@ class Client
         }
         libxml_clear_errors();
         libxml_use_internal_errors($internalErrors);
-        libxml_disable_entity_loader($disableEntities);
+        if (\PHP_VERSION_ID < 80000) {
+            libxml_disable_entity_loader($disableEntities);
+        }
         if ($errorMessage) {
             throw new \RuntimeException('Unable to parse response body into XML: ' . $errorMessage);
         }
