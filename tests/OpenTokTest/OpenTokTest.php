@@ -31,7 +31,7 @@ class OpenTokTest extends TestCase
 
     protected static $mockBasePath;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         self::$mockBasePath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'mock' . DIRECTORY_SEPARATOR;
     }
@@ -326,7 +326,7 @@ class OpenTokTest extends TestCase
         $token = $opentok->generateToken($sessionId);
 
         // Assert
-        $this->assertInternalType('string', $token);
+        $this->assertIsString($token);
 
         $decodedToken = TestHelpers::decodeToken($token);
         $this->assertEquals($sessionId, $decodedToken['session_id']);
@@ -357,7 +357,7 @@ class OpenTokTest extends TestCase
         $token = $opentok->generateToken($sessionId, array('role' => Role::MODERATOR));
 
         // Assert
-        $this->assertInternalType('string', $token);
+        $this->assertIsString($token);
 
         $decodedToken = TestHelpers::decodeToken($token);
         $this->assertEquals($sessionId, $decodedToken['session_id']);
@@ -389,7 +389,7 @@ class OpenTokTest extends TestCase
         $token = $opentok->generateToken($sessionId, array('expireTime' => $inOneHour ));
 
         // Assert
-        $this->assertInternalType('string', $token);
+        $this->assertIsString($token);
 
         $decodedToken = TestHelpers::decodeToken($token);
         $this->assertEquals($sessionId, $decodedToken['session_id']);
@@ -419,7 +419,7 @@ class OpenTokTest extends TestCase
         $token = $opentok->generateToken($sessionId, array('data' => $userStatus ));
 
         // Assert
-        $this->assertInternalType('string', $token);
+        $this->assertIsString($token);
 
         $decodedToken = TestHelpers::decodeToken($token);
         $this->assertEquals($sessionId, $decodedToken['session_id']);
@@ -456,7 +456,7 @@ class OpenTokTest extends TestCase
         ));
 
         // Assert
-        $this->assertInternalType('string', $token);
+        $this->assertIsString($token);
 
         $decodedToken = TestHelpers::decodeToken($token);
         $this->assertEquals($sessionId, $decodedToken['session_id']);
@@ -1193,12 +1193,12 @@ class OpenTokTest extends TestCase
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.6.3', $userAgent);
 
         $this->assertInstanceOf('OpenTok\Broadcast', $broadcast);
-        $this->assertInternalType('string', $broadcast->id);
+        $this->assertIsString($broadcast->id);
         $this->assertEquals($sessionId, $broadcast->sessionId);
-        $this->assertInternalType('array', $broadcast->broadcastUrls);
+        $this->assertIsArray($broadcast->broadcastUrls);
         $this->assertArrayHasKey('hls', $broadcast->broadcastUrls);
-        $this->assertInternalType('string', $broadcast->broadcastUrls['hls']);
-        $this->assertInternalType('string', $broadcast->hlsUrl);
+        $this->assertIsString($broadcast->broadcastUrls['hls']);
+        $this->assertIsString($broadcast->hlsUrl);
         $this->assertFalse($broadcast->isStopped);
     }
 
@@ -1249,14 +1249,14 @@ class OpenTokTest extends TestCase
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.6.3', $userAgent);
 
         $this->assertInstanceOf('OpenTok\Broadcast', $broadcast);
-        $this->assertInternalType('string', $broadcast->id);
+        $this->assertIsString($broadcast->id);
         $this->assertEquals($sessionId, $broadcast->sessionId);
         $this->assertEquals($maxDuration, $broadcast->maxDuration);
         $this->assertEquals($resolution, $broadcast->resolution);        
-        $this->assertInternalType('array', $broadcast->broadcastUrls);
+        $this->assertIsArray($broadcast->broadcastUrls);
         $this->assertArrayHasKey('hls', $broadcast->broadcastUrls);
-        $this->assertInternalType('string', $broadcast->broadcastUrls['hls']);
-        $this->assertInternalType('string', $broadcast->hlsUrl);
+        $this->assertIsString($broadcast->broadcastUrls['hls']);
+        $this->assertIsString($broadcast->hlsUrl);
         $this->assertFalse($broadcast->isStopped);
     }
 
@@ -1738,6 +1738,7 @@ class OpenTokTest extends TestCase
         // Act
         try {
             $this->opentok->signal($sessionId, $payload);
+            $this->assertTrue(true);
         } catch (\Exception $e) {
         }
     }

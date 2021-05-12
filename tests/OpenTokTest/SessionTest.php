@@ -20,12 +20,12 @@ class SessionTest extends TestCase
 
     protected static $mockBasePath;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         self::$mockBasePath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'mock' . DIRECTORY_SEPARATOR;
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->API_KEY = defined('API_KEY') ? API_KEY : '12345678';
         $this->API_SECRET = defined('API_SECRET') ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
@@ -148,7 +148,7 @@ class SessionTest extends TestCase
 
         $token = $session->generateToken();
 
-        $this->assertInternalType('string', $token);
+        $this->assertIsString($token);
         $decodedToken = TestHelpers::decodeToken($token);
         $this->assertEquals($sessionId, $decodedToken['session_id']);
         $this->assertEquals($bogusApiKey, $decodedToken['partner_id']);
