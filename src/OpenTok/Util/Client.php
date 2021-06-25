@@ -532,6 +532,31 @@ class Client
         return $sipJson;
     }
 
+    public function playDTMF(string $sessionId, string $digits, string $connectionId = null): void
+    {
+        $route = sprintf('/v2/projects/%s/session/%s/play-dtmf', $this->apiKey, $sessionId);
+        if ($connectionId) {
+            $route = sprintf(
+                '/v2/projects/%s/session/%s/connection/%s/play-dtmf',
+                $this->apiKey,
+                $sessionId,
+                $connectionId
+            );
+        }
+
+        $request = new Request('POST', $route);
+        try {
+            $this->client->send($request, [
+                'debug' => $this->isDebug(),
+                'json' => [
+                    'digits' => $digits
+                ]
+            ]);
+        } catch (\Exception $e) {
+            $this->handleException($e);
+        }
+    }
+
     /**
      * Signal either an entire session or a specific connection in a session
      *

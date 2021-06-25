@@ -327,6 +327,15 @@ class Validators
         }
     }
 
+    public static function validateDTMFDigits(string $digits): void
+    {
+        if (preg_match('/^[\dp\#\*]+$/', $digits)) {
+            return;
+        }
+
+        throw new InvalidArgumentException('DTMF digits can only support 0-9, p, #, and * characters');
+    }
+
     // Helpers
 
     // credit: http://stackoverflow.com/a/173479
