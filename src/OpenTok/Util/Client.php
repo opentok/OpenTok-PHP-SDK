@@ -2,6 +2,7 @@
 
 namespace OpenTok\Util;
 
+use Exception as GlobalException;
 use OpenTok\Layout;
 use Firebase\JWT\JWT;
 use OpenTok\MediaMode;
@@ -13,6 +14,7 @@ use OpenTok\Exception\DomainException;
 use Psr\Http\Message\RequestInterface;
 use OpenTok\Exception\ArchiveException;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\ServerException;
 use OpenTok\Exception\BroadcastException;
 use GuzzleHttp\Exception\RequestException;
@@ -475,7 +477,18 @@ class Client
         }
     }
 
-
+    /**
+     * @param string $sessionId
+     * @param string $token
+     * @param string $sipUri
+     * @param array{secure: bool, headers?: array<string, string>, auth?: array{username: string, password: string}, from?: string, video?: boolean} $options
+     * @return array{id: string, streamId: string, connectId: string}
+     * @throws AuthenticationException
+     * @throws DomainException
+     * @throws UnexpectedValueException
+     * @throws GlobalException
+     * @throws GuzzleException
+     */
     public function dial($sessionId, $token, $sipUri, $options)
     {
         $body = array(
@@ -487,15 +500,20 @@ class Client
             )
         );
 
-        if (isset($options) && array_key_exists('headers', $options) && count($options['headers']) > 0) {
+        if (array_key_exists('headers', $options) && count($options['headers']) > 0) {
             $body['sip']['headers'] = $options['headers'];
         }
 
-        if (isset($options) && array_key_exists('auth', $options)) {
+        if (array_key_exists('auth', $options)) {
             $body['sip']['auth'] = $options['auth'];
         }
-        if (isset($options) && array_key_exists('from', $options)) {
+
+        if (array_key_exists('from', $options)) {
             $body['sip']['from'] = $options['from'];
+        }
+
+        if (array_key_exists('video', $options)) {
+            $body['sip']['video'] = (bool) $options['video'];
         }
 
         // set up the request
@@ -510,6 +528,7 @@ class Client
         } catch (\Exception $e) {
             $this->handleException($e);
         }
+
         return $sipJson;
     }
 

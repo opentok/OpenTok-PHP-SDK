@@ -743,6 +743,7 @@ class OpenTok
             'headers' => [],
             'secure' => true,
             'from' => null,
+            'video' => false,
         );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
         list($headers, $secure, $from) = array_values($options);

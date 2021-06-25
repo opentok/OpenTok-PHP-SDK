@@ -1633,6 +1633,37 @@ class OpenTokTest extends TestCase
         $this->assertEquals($from, $body->sip->from);
     }
 
+    public function testSipCallVideo()
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/dial'
+        ]]);
+
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $bogusToken = 'T1==TEST';
+        $bogusSipUri = 'sip:john@doe.com';
+
+        // Act
+        $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri, ['video' => true]);
+
+        // Assert
+        $this->assertInstanceOf('OpenTok\SipCall', $sipCall);
+        $this->assertNotNull($sipCall->id);
+        $this->assertNotNull($sipCall->connectionId);
+        $this->assertNotNull($sipCall->streamId);
+
+        $this->assertCount(1, $this->historyContainer);
+        $request = $this->historyContainer[0]['request'];
+
+        $body = json_decode($request->getBody());
+        $this->assertEquals(true, $body->sip->video);
+    }
+
     public function testSignalData()
     {
         // Arrange
