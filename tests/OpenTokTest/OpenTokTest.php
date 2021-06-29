@@ -7,6 +7,9 @@ use OpenTok\Layout;
 use OpenTok\OpenTok;
 use OpenTok\MediaMode;
 use ArgumentCountError;
+use DomainException;
+use Exception;
+use GuzzleHttp\Exception\GuzzleException;
 use OpenTok\OutputMode;
 use OpenTok\ArchiveMode;
 use OpenTok\Util\Client;
@@ -14,7 +17,12 @@ use GuzzleHttp\Middleware;
 use GuzzleHttp\HandlerStack;
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Handler\MockHandler;
+use InvalidArgumentException as GlobalInvalidArgumentException;
+use OpenTok\Exception\AuthenticationException;
+use OpenTok\Exception\DomainException as ExceptionDomainException;
 use OpenTok\Exception\InvalidArgumentException;
+use RuntimeException;
+use OpenTok\Exception\UnexpectedValueException;
 
 define('OPENTOK_DEBUG', true);
 
@@ -1631,6 +1639,118 @@ class OpenTokTest extends TestCase
 
         $body = json_decode($request->getBody());
         $this->assertEquals($from, $body->sip->from);
+    }
+
+    public function testSipCallVideo()
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/dial'
+        ]]);
+
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $bogusToken = 'T1==TEST';
+        $bogusSipUri = 'sip:john@doe.com';
+
+        // Act
+        $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri, ['video' => true]);
+
+        // Assert
+        $this->assertInstanceOf('OpenTok\SipCall', $sipCall);
+        $this->assertNotNull($sipCall->id);
+        $this->assertNotNull($sipCall->connectionId);
+        $this->assertNotNull($sipCall->streamId);
+
+        $this->assertCount(1, $this->historyContainer);
+        $request = $this->historyContainer[0]['request'];
+
+        $body = json_decode($request->getBody());
+        $this->assertEquals(true, $body->sip->video);
+    }
+
+    public function testPlayDTMF()
+    {
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/session/SESSIONID/play-dtmf'
+        ]]);
+
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $digits = '1p713#';
+
+        $this->opentok->playDTMF($sessionId, $digits);
+
+        $this->assertCount(1, $this->historyContainer);
+        $request = $this->historyContainer[0]['request'];
+
+        $body = json_decode($request->getBody());
+        $this->assertEquals($digits, $body->digits);
+    }
+
+    public function testPlayDTMFIntoConnection()
+    {
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/session/SESSIONID/play-dtmf'
+        ]]);
+
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $connectionId = 'da9cb410-e29b-4c2d-ab9e-fe65bf83fcaf';
+        $digits = '1p713#';
+
+        $this->opentok->playDTMF($sessionId, $digits, $connectionId);
+
+        $this->assertCount(1, $this->historyContainer);
+        $request = $this->historyContainer[0]['request'];
+
+        $body = json_decode($request->getBody());
+        $this->assertEquals($digits, $body->digits);
+    }
+
+    public function testDTMFFailsValidation()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('DTMF digits can only support 0-9, p, #, and * characters');
+
+        $this->setupOT();
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $this->opentok->playDTMF($sessionId, 'bob');
+    }
+
+    /**
+     * Tests that we properly handle a 400 error from the API
+     * Ideally with the validator we fail before the API request is even made,
+     * but this will make sure that we still properly handle a 400 error. For
+     * this to work we do send a valid DTMF string however, to satisfy the
+     * validator.
+     */
+    public function testPlayDTMFThrows400(): void
+    {
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('The OpenTok API request failed: Invalid DTMF Digits');
+
+        $this->setupOTWithMocks([[
+            'code' => 400,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/session/SESSIONID/play-dtmf-400'
+        ]]);
+
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $digits = '1p713#';
+
+        $this->opentok->playDTMF($sessionId, $digits);
     }
 
     public function testSignalData()

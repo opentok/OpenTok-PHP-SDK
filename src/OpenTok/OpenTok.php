@@ -743,6 +743,7 @@ class OpenTok
             'headers' => [],
             'secure' => true,
             'from' => null,
+            'video' => false,
         );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
         list($headers, $secure, $from) = array_values($options);
@@ -761,6 +762,29 @@ class OpenTok
         }
 
         return new SipCall($sipJson);
+    }
+
+    /**
+     * Plays a DTMF string into a session or to a specific connection
+     *
+     * @param string $sessionId The ID of the OpenTok session that the participant being called
+     * will join.
+     *
+     * @param string $digits DTMF digits to play
+     * Valid DTMF digits are 0-9, p, #, and * digits. 'p' represents a 500ms pause if a delay is
+     * needed during the input process.
+     *
+     * @param string $connectionId An optional parameter used to send the DTMF tones to a specific connection in a session.
+     *
+     * @return void
+     */
+    public function playDTMF(string $sessionId, string $digits, string $connectionId = null): void
+    {
+        Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
+        Validators::validateDTMFDigits($digits);
+
+        $this->client->playDTMF($sessionId, $digits, $connectionId);
+
     }
 
     /**
