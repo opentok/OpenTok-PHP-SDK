@@ -534,10 +534,10 @@ class Client
 
     public function playDTMF(string $sessionId, string $digits, string $connectionId = null): void
     {
-        $route = sprintf('/v2/projects/%s/session/%s/play-dtmf', $this->apiKey, $sessionId);
+        $route = sprintf('/v2/project/%s/session/%s/play-dtmf', $this->apiKey, $sessionId);
         if ($connectionId) {
             $route = sprintf(
-                '/v2/projects/%s/session/%s/connection/%s/play-dtmf',
+                '/v2/project/%s/session/%s/connection/%s/play-dtmf',
                 $this->apiKey,
                 $sessionId,
                 $connectionId
