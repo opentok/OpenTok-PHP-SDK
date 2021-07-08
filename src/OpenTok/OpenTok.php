@@ -4,6 +4,7 @@ namespace OpenTok;
 
 use OpenTok\Layout;
 use OpenTok\Util\Client;
+use OpenTok\BroadcastList;
 use OpenTok\Util\Validators;
 use OpenTok\Exception\InvalidArgumentException;
 use OpenTok\Exception\UnexpectedValueException;
@@ -476,6 +477,33 @@ class OpenTok
         Validators::validateConnectionId($connectionId);
 
         return $this->client->forceDisconnect($sessionId, $connectionId);
+    }
+
+    /**
+     * Returns an BroadcastList. The <code>items()</code> method of this object returns a list of
+     * broadcasts that are completed and in-progress, for your API key.
+     *
+     * @param integer $offset Optional. The index offset of the first broadcast. 0 is offset of the
+     * most recently started broadcast. 1 is the offset of the broadcast that started prior to the most
+     * recent broadcast. If you do not specify an offset, 0 is used.
+     * @param integer $count Optional. The number of broadcasts to be returned. The maximum number of
+     * broadcasts returned is 1000.
+     * @param string $sessionId Optional. The OpenTok session Id for which you want to retrieve broadcasts for. If no session Id
+     * is specified, the method will return archives from all sessions created with the API key.
+     *
+     * @return BroadcastList An ArchiveList object. Call the items() method of the ArchiveList object
+     * to return an array of Archive objects.
+     */
+    public function listBroadcasts($offset = 0, $count = null, $sessionId = null)
+    {
+        // validate params
+        Validators::validateOffsetAndCount($offset, $count);
+        if (!is_null($sessionId)) {
+            Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
+        }
+
+        $broadcastListData = $this->client->listBroadcasts($offset, $count, $sessionId);
+        return new BroadcastList($broadcastListData, array( 'client' => $this->client ));
     }
 
     /**

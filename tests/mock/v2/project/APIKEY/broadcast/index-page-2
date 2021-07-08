@@ -1,0 +1,24 @@
+{
+  "count" : 1,
+  "items" : [
+    {
+      "id": "1c46ad10-0a81-464c-9759-748b707d3734",
+      "sessionId": "1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI",
+      "projectId": 100,
+      "createdAt": 1437676853000,
+      "updatedAt": 1437676853000,
+      "resolution": "640x480",
+      "broadcastUrls": {
+        "hls" : "http://server/fakepath2/playlist.m3u8",
+        "rtmp": {
+          "foo": {
+            "serverUrl": "rtmp://myfooserver/myfooapps",
+            "streamName": "myfoostreams",
+            "status": "live"
+          }
+        }
+      },
+      "status": "live"
+    }
+  ]
+}

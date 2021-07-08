@@ -11,7 +11,7 @@
     "sessionId": {
       "type": "string"
     },
-    "partnerId": {
+    "projectId": {
       "type": "integer"
     },
     "createdAt": {
@@ -19,6 +19,9 @@
     },
     "updatedAt": {
       "type" : "integer"
+    },
+    "resolution": {
+      "type": "string"
     },
     "broadcastUrls": {
       "oneOf": [
@@ -36,5 +39,5 @@
       ]
     }
   },
-  "required": ["id", "sessionId", "partnerId", "createdAt", "updatedAt"]
+  "required": ["id", "sessionId", "projectId", "createdAt", "updatedAt"]
 }
