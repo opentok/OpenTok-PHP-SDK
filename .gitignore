@@ -6,4 +6,4 @@ vendor/
 phpunit.xml
 sample/*/vendor/
 sample/*/cache/
-composer.lock
+.idea/*
