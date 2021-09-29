@@ -44,6 +44,11 @@
         "rector/rector": "^0.8",
         "phing/phing": "~2.16.0"
     },
+    "scripts": {
+        "phpstan": "./vendor/bin/phpstan",
+        "phpcs": "./vendor/bin/phpcs",
+        "test": "./vendor/bin/phpunit --testdox"
+    },
     "autoload": {
         "psr-4": {
             "OpenTok\\": "src/OpenTok",
