@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenTokTest;
+namespace VonageVideoTest;
 
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;

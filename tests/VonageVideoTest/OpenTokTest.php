@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenTokTest;
+namespace VonageVideoTest;
 
 use OpenTok\Role;
 use OpenTok\Layout;
@@ -130,7 +130,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('https', $request->getUri()->getScheme());
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
@@ -190,7 +190,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('https', $request->getUri()->getScheme());
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
@@ -238,7 +238,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('https', $request->getUri()->getScheme());
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
@@ -283,7 +283,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('https', $request->getUri()->getScheme());
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
@@ -521,7 +521,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
@@ -571,7 +571,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
@@ -622,7 +622,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
@@ -669,7 +669,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
@@ -719,7 +719,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
@@ -768,7 +768,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
@@ -816,7 +816,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
@@ -860,7 +860,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
@@ -899,7 +899,7 @@ class OpenTokTest extends TestCase
         // TODO: this doesn't require Content-Type: application/json, but delete does?
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
@@ -936,7 +936,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
@@ -971,7 +971,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('https', $request->getUri()->getScheme());
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
@@ -1007,7 +1007,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('https', $request->getUri()->getScheme());
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
@@ -1048,7 +1048,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('https', $request->getUri()->getScheme());
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
@@ -1132,7 +1132,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
@@ -1193,7 +1193,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
@@ -1249,7 +1249,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
@@ -1296,7 +1296,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('https', $request->getUri()->getScheme());
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
@@ -1333,7 +1333,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('https', $request->getUri()->getScheme());
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
@@ -1374,7 +1374,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         $body = json_decode($request->getBody());
         $this->assertEquals('pip', $body->type);
@@ -1419,7 +1419,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         $body = json_decode($request->getBody());
         $this->assertEquals('custom', $body->type);
@@ -1465,7 +1465,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         $body = json_decode($request->getBody());
         $this->assertEquals($layoutClassList, $body->layoutClassList);
@@ -1502,7 +1502,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('https', $request->getUri()->getScheme());
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         $this->assertInstanceOf('OpenTok\Stream', $streamData);
         $this->assertNotNull($streamData->id);
@@ -1784,7 +1784,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('https', $request->getUri()->getScheme());
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
@@ -1826,7 +1826,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('https', $request->getUri()->getScheme());
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
@@ -1941,7 +1941,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('https', $request->getUri()->getScheme());
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
@@ -1982,7 +1982,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         $body = json_decode($request->getBody());
         $this->assertEquals('pip', $body->type);
@@ -2027,7 +2027,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         $body = json_decode($request->getBody());
         $this->assertEquals('custom', $body->type);

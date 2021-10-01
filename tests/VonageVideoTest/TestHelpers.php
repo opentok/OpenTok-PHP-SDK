@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenTokTest;
+namespace VonageVideoTest;
 
 use GuzzleHttp\Psr7\Response;
 use \Firebase\JWT\JWT;
@@ -33,7 +33,7 @@ class TestHelpers
         ));
     }
 
-    public static function validateOpenTokAuthHeader($apiKey, $apiSecret, $token)
+    public static function validateVonageVideoAuthHeader($apiKey, $apiSecret, $token)
     {
         if (!isset($token)) {
             return false;

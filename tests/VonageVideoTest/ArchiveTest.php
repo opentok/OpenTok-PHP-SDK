@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenTokTest;
+namespace VonageVideoTest;
 
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -42,7 +42,7 @@ class ArchiveTest extends TestCase
     protected static $mockBasePath;
 
     /**
-     * @var array
+     * @var array<array>
      */
     private $historyContainer;
 
@@ -107,6 +107,7 @@ class ArchiveTest extends TestCase
         // ensure auth header is added before history handler is invoked
         $this->historyContainer = [];
         $history = Middleware::history($this->historyContainer);
+
         $handlerStack->push($history);
     }
 
@@ -154,11 +155,13 @@ class ArchiveTest extends TestCase
             'path' => 'v2/project/APIKEY/archive/ARCHIVEID/stop'
         ]]);
 
+
         $this->setupArchives();
 
         $this->archive->stop();
 
         $this->assertCount(1, $this->historyContainer);
+        ray($this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('POST', strtoupper($request->getMethod()));
@@ -181,7 +184,7 @@ class ArchiveTest extends TestCase
 
         $this->assertEquals(
             true,
-            TestHelpers::validateOpenTokAuthHeader(
+            TestHelpers::validateVonageVideoAuthHeader(
                 $this->API_KEY,
                 $this->API_SECRET,
                 $authString
@@ -229,7 +232,7 @@ class ArchiveTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(
             true,
-            TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString)
+            TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString)
         );
 
         $userAgent = $request->getHeaderLine('User-Agent');

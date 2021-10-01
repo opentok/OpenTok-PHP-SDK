@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenTokTest;
+namespace VonageVideoTest;
 
 use OpenTok\Layout;
 use PHPStan\Testing\TestCase;

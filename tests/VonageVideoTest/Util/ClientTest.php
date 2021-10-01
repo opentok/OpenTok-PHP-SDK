@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenTokTest\Util;
+namespace VonageVideoTest\Util;
 
 use GuzzleHttp\Client as GuzzleHttpClient;
 use GuzzleHttp\Exception\RequestException;
