@@ -32,19 +32,14 @@ use OpenTok\Exception\BroadcastAuthenticationException;
 use OpenTok\Exception\SignalNetworkConnectionException;
 use OpenTok\Exception\BroadcastUnexpectedValueException;
 use OpenTok\Exception\ForceDisconnectConnectionException;
-
 use OpenTok\Exception\ForceDisconnectAuthenticationException;
 use OpenTok\Exception\ForceDisconnectUnexpectedValueException;
 
-// TODO: build this dynamically
 /** @internal */
 define('OPENTOK_SDK_VERSION', '4.9.1');
 /** @internal */
 define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
 
-/**
-* @internal
-*/
 class Client
 {
     protected $apiKey;

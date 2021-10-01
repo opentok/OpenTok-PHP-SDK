@@ -78,16 +78,16 @@ use OpenTok\Exception\ArchiveUnexpectedValueException;
 */
 class Archive
 {
-    // NOTE: after PHP 5.3.0 support is dropped, the class can implement JsonSerializable
-
-    /** @internal */
     private $data;
-    /** @internal */
+
     private $isDeleted;
-    /** @internal */
+
     private $client;
 
-    /** @internal */
+    /**
+     * @param $archiveData
+     * @param array $options
+     */
     public function __construct($archiveData, $options = array())
     {
         // unpack optional arguments (merging with default values) into named variables
