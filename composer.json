@@ -48,7 +48,7 @@
     "autoload": {
         "psr-4": {
             "OpenTok\\": "src/OpenTok",
-            "OpenTokTest\\": "tests/OpenTokTest"
+            "VonageVideoTest\\": "tests/VonageVideoTest"
         }
     }
 }

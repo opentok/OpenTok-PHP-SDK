@@ -67,6 +67,7 @@ class ArchiveTest extends TestCase
             'hasVideo' => false,
             'hasAudio' => true,
             'outputMode' => 'composed',
+            'streamMode' => 'manual',
             'resolution' => '640x480'
         ];
 
@@ -142,6 +143,7 @@ class ArchiveTest extends TestCase
         $this->assertEquals($this->archiveData['hasVideo'], $this->archive->hasVideo);
         $this->assertEquals($this->archiveData['hasAudio'], $this->archive->hasAudio);
         $this->assertEquals($this->archiveData['outputMode'], $this->archive->outputMode);
+        $this->assertEquals($this->archiveData['streamMode'], $this->archive->streamMode);
         $this->assertEquals($this->archiveData['resolution'], $this->archive->resolution);
     }
 
@@ -161,7 +163,6 @@ class ArchiveTest extends TestCase
         $this->archive->stop();
 
         $this->assertCount(1, $this->historyContainer);
-        ray($this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('POST', strtoupper($request->getMethod()));
@@ -195,11 +196,6 @@ class ArchiveTest extends TestCase
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
         $this->assertEquals('stopped', $this->archive->status);
-    }
-
-    public function testCanStartArchiveInManualStreamMode(): void
-    {
-        $this->markTestIncomplete('TODO: placeholder, write this test');
     }
 
     public function testDeletesArchive(): void
@@ -311,11 +307,11 @@ class ArchiveTest extends TestCase
             'url' => null,
         ];
 
-        $archive = new Archive($archiveData, array(
+        $archive = new Archive($archiveData, [
             'apiKey' => $this->API_KEY,
             'apiSecret' => $this->API_SECRET,
             'client' => $this->client
-        ));
+        ]);
 
         $this->assertInstanceOf('OpenTok\Archive', $archive);
         $this->assertEquals($archiveData['status'], $archive->status);

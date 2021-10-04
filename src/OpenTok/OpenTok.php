@@ -28,7 +28,6 @@ class OpenTok
     /** @internal */
     private $client;
 
-    /** @internal */
     public function __construct($apiKey, $apiSecret, $options = array())
     {
         // unpack optional arguments (merging with default values) into named variables
