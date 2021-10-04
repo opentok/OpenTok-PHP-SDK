@@ -288,7 +288,7 @@ class OpenTok
      *    in an error.</li>
      *
      *    <li><code>'streamMode'</code> (String) &mdash; When the archive can have streams added
-     *    manually to them. Default is <code>manual</code></li>
+     *    manually to them. Default is <code>auto</code></li>
      *
      *    <li><code>'outputMode'</code> (OutputMode) &mdash; Whether all streams in the
      *    archive are recorded to a single file (<code>OutputMode::COMPOSED</code>, the default)
@@ -311,14 +311,14 @@ class OpenTok
         }
 
         // unpack optional arguments (merging with default values) into named variables
-        $defaults = array(
+        $defaults = [
             'name' => null,
             'hasVideo' => true,
             'hasAudio' => true,
             'outputMode' => OutputMode::COMPOSED,
             'resolution' => null,
-            'streamMode' => 'manual',
-        );
+            'streamMode' => 'auto',
+        ];
 
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
         [$name, $hasVideo, $hasAudio, $outputMode, $resolution, $streamMode] = array_values($options);

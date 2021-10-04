@@ -488,6 +488,7 @@ class OpenTokTest extends TestCase
         $this->assertNull($archive->url);
         $this->assertTrue($archive->hasVideo);
         $this->assertTrue($archive->hasAudio);
+        $this->assertEquals('auto', $archive->streamMode);
     }
 
     public function testStartsArchiveInManualStreamMode(): void
