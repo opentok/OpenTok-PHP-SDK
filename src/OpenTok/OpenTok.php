@@ -316,17 +316,18 @@ class OpenTok
             'hasVideo' => true,
             'hasAudio' => true,
             'outputMode' => OutputMode::COMPOSED,
-            'steamMode' => 'manual',
             'resolution' => null,
+            'streamMode' => 'manual',
         );
 
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        [$name, $hasVideo, $hasAudio, $outputMode, $resolution] = array_values($options);
+        [$name, $hasVideo, $hasAudio, $outputMode, $resolution, $streamMode] = array_values($options);
 
         Validators::validateSessionId($sessionId);
         Validators::validateArchiveName($name);
         Validators::validateArchiveHasVideo($hasVideo);
         Validators::validateArchiveHasAudio($hasAudio);
+        Validators::validateArchiveHasStreamMode($streamMode);
         Validators::validateArchiveOutputMode($outputMode);
 
         if ((is_null($resolution) || empty($resolution)) && $outputMode === OutputMode::COMPOSED) {

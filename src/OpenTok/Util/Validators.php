@@ -30,12 +30,23 @@ class Validators
             );
         }
     }
+
+    public static function validateArchiveHasStreamMode($streamMode)
+    {
+        if (!is_string($streamMode)) {
+            throw new InvalidArgumentException(
+                'The streamMode was not a string: ' . print_r($streamMode, true)
+            );
+        }
+    }
+
     public static function validateApiSecret($apiSecret)
     {
         if (!(is_string($apiSecret))) {
             throw new InvalidArgumentException('The apiSecret was not a string: ' . print_r($apiSecret, true));
         }
     }
+
     public static function validateApiUrl($apiUrl)
     {
         if (!(is_string($apiUrl) && filter_var($apiUrl, FILTER_VALIDATE_URL))) {
