@@ -283,6 +283,16 @@ class Validators
             );
         }
     }
+
+    public static function validateBroadcastHasStreamMode($streamMode)
+    {
+        if (!is_string($streamMode)) {
+            throw new InvalidArgumentException(
+                'The streamMode was not a string: ' . print_r($streamMode, true)
+            );
+        }
+    }
+
     public static function validateLayout($layout)
     {
         if (!($layout instanceof Layout)) {

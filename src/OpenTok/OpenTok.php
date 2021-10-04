@@ -497,6 +497,8 @@ class OpenTok
      *     <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/#configuring-live-streaming-video-layout">Configuring
      *     Video Layout for the OpenTok live streaming feature</a>.
      *   </li>
+     *    <li><code>'streamMode'</code> (String) &mdash; When the archive can have streams added
+     *    manually to them. Default is <code>auto</code></li>
      * </ul>
      *
      * @return Broadcast An object with properties defining the broadcast.
@@ -507,20 +509,22 @@ class OpenTok
         // NOTE: although the server can be authoritative about the default value of layout, its
         // not preferred to depend on that in the SDK because its then harder to garauntee backwards
         // compatibility
-        $defaults = array(
-            'layout' => Layout::getBestFit()
-        );
-        $options = array_merge($defaults, $options);
-        list($layout) = array_values($options);
+        $defaults = [
+            'layout' => Layout::getBestFit(),
+            'streamMode' => 'auto'
+        ];
 
-        // validate arguments
+        $options = array_merge($defaults, $options);
+
+        [$layout, $streamMode] = array_values($options);
+
         Validators::validateSessionId($sessionId);
+        Validators::validateArchiveHasStreamMode($streamMode);
         Validators::validateLayout($layout);
 
-        // make API call
         $broadcastData = $this->client->startBroadcast($sessionId, $options);
 
-        return new Broadcast($broadcastData, array( 'client' => $this->client ));
+        return new Broadcast($broadcastData, ['client' => $this->client]);
     }
 
     /**

@@ -23,6 +23,9 @@ use OpenTok\Util\Validators;
 * @property string $partnerId
 * Your OpenTok API key.
 *
+* @property string $streamMode
+* Allows for an archive stream to be manually updated to add streams individually
+*
 * @property string $sessionId
 * The OpenTok session ID.
 *
@@ -37,31 +40,28 @@ use OpenTok\Util\Validators;
 */
 class Broadcast
 {
-    // NOTE: after PHP 5.3.0 support is dropped, the class can implement JsonSerializable
-
-    /** @ignore */
     private $data;
-    /** @ignore */
     private $isStopped = false;
-    /** @ignore */
     private $client;
 
-    /** @ignore */
     public function __construct($broadcastData, $options = array())
     {
         // unpack optional arguments (merging with default values) into named variables
-        $defaults = array(
+        $defaults = [
             'apiKey' => null,
             'apiSecret' => null,
             'apiUrl' => 'https://api.opentok.com',
             'client' => null,
-            'isStopped' => false
-        );
+            'isStopped' => false,
+            'streamMode' => 'auto'
+        ];
+
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($apiKey, $apiSecret, $apiUrl, $client, $isStopped) = array_values($options);
+        [$apiKey, $apiSecret, $apiUrl, $client, $isStopped, $streamMode] = array_values($options);
 
         // validate params
         Validators::validateBroadcastData($broadcastData);
+        Validators::validateBroadcastHasStreamMode($streamMode);
         Validators::validateClient($client);
 
         $this->data = $broadcastData;
@@ -69,6 +69,7 @@ class Broadcast
         $this->isStopped = $isStopped;
 
         $this->client = isset($client) ? $client : new Client();
+
         if (!$this->client->isConfigured()) {
             Validators::validateApiKey($apiKey);
             Validators::validateApiSecret($apiSecret);
@@ -91,6 +92,7 @@ class Broadcast
             case 'status':
             case 'maxDuration':
             case 'resolution':
+            case 'streamMode':
                 return $this->data[$name];
             case 'hlsUrl':
                 return $this->data['broadcastUrls']['hls'];

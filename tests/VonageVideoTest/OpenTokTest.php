@@ -1143,6 +1143,53 @@ class OpenTokTest extends TestCase
         $this->assertIsString($broadcast->broadcastUrls['hls']);
         $this->assertIsString($broadcast->hlsUrl);
         $this->assertFalse($broadcast->isStopped);
+        $this->assertEquals('auto', $broadcast->streamMode);
+    }
+
+    public function testStartsBroadcastInManualMode(): void
+    {
+        $this->setupVonageVideoApiWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => '/v2/project/APIKEY/broadcast/session_manual_mode'
+        ]]);
+
+        // This sessionId was generated using a different apiKey, but this method doesn't do any
+        // decoding to check, so it's fine.
+        $sessionId = '2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4';
+
+        $broadcast = $this->opentok->startBroadcast($sessionId);
+
+        $this->assertCount(1, $this->historyContainer);
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/broadcast', $request->getUri()->getPath());
+        $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
+        $this->assertEquals('https', $request->getUri()->getScheme());
+
+        $contentType = $request->getHeaderLine('Content-Type');
+        $this->assertNotEmpty($contentType);
+        $this->assertEquals('application/json', $contentType);
+
+        $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        $userAgent = $request->getHeaderLine('User-Agent');
+        $this->assertNotEmpty($userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
+
+        $this->assertInstanceOf('OpenTok\Broadcast', $broadcast);
+        $this->assertIsString($broadcast->id);
+        $this->assertEquals($sessionId, $broadcast->sessionId);
+        $this->assertIsArray($broadcast->broadcastUrls);
+        $this->assertArrayHasKey('hls', $broadcast->broadcastUrls);
+        $this->assertIsString($broadcast->broadcastUrls['hls']);
+        $this->assertIsString($broadcast->hlsUrl);
+        $this->assertFalse($broadcast->isStopped);
+        $this->assertEquals('manual', $broadcast->streamMode);
     }
 
     public function testStartBroadcastWithOptions(): void
