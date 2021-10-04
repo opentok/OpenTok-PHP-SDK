@@ -81,7 +81,7 @@ class ArchiveTest extends TestCase
     /**
      * @param array<array> $mocks
      */
-    private function setupOpenTokWithMocks(array $mocks): void
+    private function setupVonageVideoApiWithMocks(array $mocks): void
     {
         $this->API_KEY = defined('API_KEY') ? API_KEY : '12345678';
         $this->API_SECRET = defined('API_SECRET') ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
@@ -112,14 +112,14 @@ class ArchiveTest extends TestCase
         $handlerStack->push($history);
     }
 
-    private function setupOpenTok(): void
+    private function setupVonageVideoApi(): void
     {
-        $this->setupOpenTokWithMocks([]);
+        $this->setupVonageVideoApiWithMocks([]);
     }
 
     public function testInitializes(): void
     {
-        $this->setupOpenTok();
+        $this->setupVonageVideoApi();
         $this->setupArchives();
 
         $this->assertInstanceOf(Archive::class, $this->archive);
@@ -127,7 +127,7 @@ class ArchiveTest extends TestCase
 
     public function testReadsProperties(): void
     {
-        $this->setupOpenTok();
+        $this->setupVonageVideoApi();
         $this->setupArchives();
 
         $this->assertEquals($this->archiveData['createdAt'], $this->archive->createdAt);
@@ -149,7 +149,7 @@ class ArchiveTest extends TestCase
 
     public function testStopsArchive(): void
     {
-        $this->setupOpenTokWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -200,7 +200,7 @@ class ArchiveTest extends TestCase
 
     public function testDeletesArchive(): void
     {
-        $this->setupOpenTokWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 204
         ]]);
 
@@ -240,7 +240,7 @@ class ArchiveTest extends TestCase
 
     public function testAllowsUnknownProperties(): void
     {
-        $this->setupOpenTok();
+        $this->setupVonageVideoApi();
 
         $archiveData = [
             'createdAt' => 1394394801000,
@@ -268,7 +268,7 @@ class ArchiveTest extends TestCase
     public function testRejectsBadArchiveData(): void
     {
         $this->expectException('InvalidArgumentException');
-        $this->setupOpenTok();
+        $this->setupVonageVideoApi();
 
         $badArchiveData = [
             'createdAt' => 'imnotanumber',
@@ -292,7 +292,7 @@ class ArchiveTest extends TestCase
 
     public function testAllowsPausedStatus(): void
     {
-        $this->setupOpenTok();
+        $this->setupVonageVideoApi();
 
         $archiveData = [
             'createdAt' => 1394394801000,
@@ -319,7 +319,7 @@ class ArchiveTest extends TestCase
 
     public function testSerializesToJson(): void
     {
-        $this->setupOpenTok();
+        $this->setupVonageVideoApi();
         $this->setupArchives();
 
         $archiveJson = $this->archive->toJson();
@@ -330,7 +330,7 @@ class ArchiveTest extends TestCase
 
     public function testSerializedToArray(): void
     {
-        $this->setupOpenTok();
+        $this->setupVonageVideoApi();
         $this->setupArchives();
 
         $archiveArray = $this->archive->jsonSerialize();

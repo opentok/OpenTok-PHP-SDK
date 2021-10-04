@@ -490,7 +490,54 @@ class OpenTokTest extends TestCase
         $this->assertTrue($archive->hasAudio);
     }
 
-    public function testStartsArchiveNamed()
+    public function testStartsArchiveInManualStreamMode(): void
+    {
+        $this->setupVonageVideoApiWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/archive/manual_mode'
+        ]]);
+
+        // This sessionId was generated using a different apiKey, but this method doesn't do any
+        // decoding to check, so it's fine.
+        $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
+
+        $archive = $this->opentok->startArchive($sessionId);
+
+        $this->assertCount(1, $this->historyContainer);
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive', $request->getUri()->getPath());
+        $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
+        $this->assertEquals('https', $request->getUri()->getScheme());
+
+        $contentType = $request->getHeaderLine('Content-Type');
+        $this->assertNotEmpty($contentType);
+        $this->assertEquals('application/json', $contentType);
+
+        $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        $userAgent = $request->getHeaderLine('User-Agent');
+        $this->assertNotEmpty($userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
+
+        $this->assertInstanceOf(Archive::class, $archive);
+        $this->assertEquals(0, $archive->duration);
+        $this->assertEquals('', $archive->reason);
+        $this->assertEquals('manual', $archive->streamMode);
+        $this->assertEquals('started', $archive->status);
+        $this->assertEquals(OutputMode::COMPOSED, $archive->outputMode);
+        $this->assertNull($archive->name);
+        $this->assertNull($archive->url);
+        $this->assertTrue($archive->hasVideo);
+        $this->assertTrue($archive->hasAudio);
+    }
+
+    public function testStartsArchiveNamed(): void
     {
         $this->setupVonageVideoApiWithMocks([[
             'code' => 200,

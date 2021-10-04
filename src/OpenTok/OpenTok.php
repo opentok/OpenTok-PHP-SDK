@@ -287,6 +287,9 @@ class OpenTok
      *    <code>hasVideo</code> to false, the call to the <code>startArchive()</code> method results
      *    in an error.</li>
      *
+     *    <li><code>'streamMode'</code> (String) &mdash; When the archive can have streams added
+     *    manually to them. Default is <code>manual</code></li>
+     *
      *    <li><code>'outputMode'</code> (OutputMode) &mdash; Whether all streams in the
      *    archive are recorded to a single file (<code>OutputMode::COMPOSED</code>, the default)
      *    or to individual files (<code>OutputMode::INDIVIDUAL</code>).</li>
@@ -313,11 +316,13 @@ class OpenTok
             'hasVideo' => true,
             'hasAudio' => true,
             'outputMode' => OutputMode::COMPOSED,
+            'steamMode' => 'manual',
             'resolution' => null,
         );
+
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($name, $hasVideo, $hasAudio, $outputMode, $resolution) = array_values($options);
-        // validate arguments
+        [$name, $hasVideo, $hasAudio, $outputMode, $resolution] = array_values($options);
+
         Validators::validateSessionId($sessionId);
         Validators::validateArchiveName($name);
         Validators::validateArchiveHasVideo($hasVideo);
