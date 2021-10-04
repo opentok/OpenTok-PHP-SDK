@@ -23,20 +23,35 @@ use OpenTok\Exception\DomainException as ExceptionDomainException;
 use OpenTok\Exception\InvalidArgumentException;
 use RuntimeException;
 use OpenTok\Exception\UnexpectedValueException;
+use OpenTok\Archive;
 
 define('OPENTOK_DEBUG', true);
 
 class OpenTokTest extends TestCase
 {
+    /**
+     * @var string
+     */
     protected $API_KEY;
+
+    /**
+     * @var string
+     */
     protected $API_SECRET;
 
     /**
      * @var OpenTok
      */
     protected $opentok;
+
+    /**
+     * @var Client
+     */
     protected $client;
 
+    /**
+     * @var string
+     */
     protected static $mockBasePath;
 
     public static function setUpBeforeClass(): void
@@ -44,16 +59,14 @@ class OpenTokTest extends TestCase
         self::$mockBasePath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'mock' . DIRECTORY_SEPARATOR;
     }
 
-    private function setupOTWithMocks($mocks)
+    /**
+     * @param array<array> $mocks
+     */
+    private function setupVonageVideoApiWithMocks(array $mocks): void
     {
         $this->API_KEY = defined('API_KEY') ? API_KEY : '12345678';
         $this->API_SECRET = defined('API_SECRET') ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
-
-        if (is_array($mocks)) {
-            $responses = TestHelpers::mocksToResponses($mocks, self::$mockBasePath);
-        } else {
-            $responses = [];
-        }
+        $responses = TestHelpers::mocksToResponses($mocks, self::$mockBasePath);
 
         $mock = new MockHandler($responses);
         $handlerStack = HandlerStack::create($mock);
@@ -75,41 +88,36 @@ class OpenTokTest extends TestCase
         $history = Middleware::history($this->historyContainer);
         $handlerStack->push($history);
 
-        $this->opentok = new OpenTok($this->API_KEY, $this->API_SECRET, array('client' => $this->client));
+        $this->opentok = new OpenTok($this->API_KEY, $this->API_SECRET, ['client' => $this->client]);
     }
 
-    private function setupOT()
+    private function setupVonageVideoApi(): void
     {
-        return $this->setupOTWithMocks([]);
+        $this->setupVonageVideoApiWithMocks([]);
     }
 
-    public function testCanBeInitialized()
+    public function testCanBeInitialized(): void
     {
-        // Arrange
-        $this->setupOT();
-        // Act
-        // Assert
+        $this->setupVonageVideoApi();
         $this->assertInstanceOf('OpenTok\OpenTok', $this->opentok);
     }
 
-    public function testFailsOnInvalidInitialization()
+    public function testFailsOnInvalidInitialization(): void
     {
-        // Arrange
-        $this->setupOT();
+        $this->setupVonageVideoApi();
+
         if (class_exists('ArgumentCountError')) {
             $this->expectException(ArgumentCountError::class);
         } else {
             $this->expectException(PHPUnit_Framework_Error_Warning::class);
         }
+
         $opentok = new OpenTok();
-        // Act
-        // Assert
     }
 
-    public function testCreatesDefaultSession()
+    public function testCreatesDefaultSession(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'text/xml'
@@ -117,12 +125,9 @@ class OpenTokTest extends TestCase
             'path' => 'session/create/relayed'
         ]]);
 
-        // Act
         $session = $this->opentok->createSession();
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
-
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('POST', strtoupper($request->getMethod()));
         $this->assertEquals('/session/create', $request->getUri()->getPath());
@@ -132,7 +137,6 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
@@ -154,19 +158,20 @@ class OpenTokTest extends TestCase
         $params = array_map(function ($item) {
             return explode('=', $item);
         }, explode('&', (string) $request->getBody()));
+
         $found = array_values(array_filter(
             $params,
             function ($item) use ($targetKey) {
                 return is_array($item) ? $item[0] === $targetKey : false;
             }
         ));
+
         return count($found) > 0 ? $found[0][1] : '';
     }
 
-    public function testCreatesMediaRoutedAndLocationSession()
+    public function testCreatesMediaRoutedAndLocationSession(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'text/xml'
@@ -174,13 +179,11 @@ class OpenTokTest extends TestCase
             'path' => 'session/create/routed_location-12.34.56.78'
         ]]);
 
-        // Act
         $session = $this->opentok->createSession(array(
             'location' => '12.34.56.78',
             'mediaMode' => MediaMode::ROUTED
         ));
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
@@ -192,7 +195,6 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
@@ -212,10 +214,9 @@ class OpenTokTest extends TestCase
         );
     }
 
-    public function testCreatesMediaRelayedSession()
+    public function testCreatesMediaRelayedSession(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'text/xml'
@@ -223,12 +224,10 @@ class OpenTokTest extends TestCase
             'path' => 'session/create/relayed'
         ]]);
 
-        // Act
         $session = $this->opentok->createSession(array(
             'mediaMode' => MediaMode::RELAYED
         ));
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
@@ -240,7 +239,6 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
@@ -257,10 +255,9 @@ class OpenTokTest extends TestCase
         );
     }
 
-    public function testCreatesAutoArchivedSession()
+    public function testCreatesAutoArchivedSession(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'text/xml'
@@ -268,12 +265,10 @@ class OpenTokTest extends TestCase
             'path' => 'session/create/alwaysarchived'
         ]]);
 
-        // Act
         $session = $this->opentok->createSession(array(
             'archiveMode' => ArchiveMode::ALWAYS
         ));
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
@@ -285,7 +280,6 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
@@ -305,68 +299,53 @@ class OpenTokTest extends TestCase
         );
     }
 
-    public function testFailsWhenCreatingRelayedAutoArchivedSession()
+    public function testFailsWhenCreatingRelayedAutoArchivedSession(): void
     {
         $this->expectException('InvalidArgumentException');
-        // Arrange
-        $this->setupOT();
+        $this->setupVonageVideoApi();
 
-        // Act
         $session = $this->opentok->createSession(array(
             'mediaMode' => MediaMode::RELAYED,
             'archiveMode' => ArchiveMode::ALWAYS
         ));
-
-        // Assert
     }
 
-    public function testGeneratesToken()
+    public function testGeneratesToken(): void
     {
-        // Arrange
-        $this->setupOT();
+        $this->setupVonageVideoApi();
+
         // This sessionId is a fixture designed by using a known but bogus apiKey and apiSecret
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $bogusApiKey = '12345678';
         $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
-        // Act
         $token = $opentok->generateToken($sessionId);
 
-        // Assert
         $this->assertIsString($token);
-
         $decodedToken = TestHelpers::decodeToken($token);
         $this->assertEquals($sessionId, $decodedToken['session_id']);
         $this->assertEquals($bogusApiKey, $decodedToken['partner_id']);
         $this->assertNotEmpty($decodedToken['nonce']);
         $this->assertNotEmpty($decodedToken['create_time']);
         $this->assertArrayNotHasKey('connection_data', $decodedToken);
-        // TODO: should all tokens have a role of publisher even if this wasn't specified?
-        //$this->assertNotEmpty($decodedToken['role']);
-        // TODO: should all tokens have a default expire time even if it wasn't specified?
-        //$this->assertNotEmpty($decodedToken['expire_time']);
-
         $this->assertNotEmpty($decodedToken['sig']);
         $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
     }
 
-    public function testGeneratesTokenWithRole()
+    public function testGeneratesTokenWithRole(): void
     {
-        // Arrange
-        $this->setupOT();
+        $this->setupVonageVideoApi();
+
         // This sessionId is a fixture designed by using a known but bogus apiKey and apiSecret
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $bogusApiKey = '12345678';
         $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
-        // Act
         $token = $opentok->generateToken($sessionId, array('role' => Role::MODERATOR));
 
-        // Assert
         $this->assertIsString($token);
-
         $decodedToken = TestHelpers::decodeToken($token);
         $this->assertEquals($sessionId, $decodedToken['session_id']);
         $this->assertEquals($bogusApiKey, $decodedToken['partner_id']);
@@ -374,31 +353,23 @@ class OpenTokTest extends TestCase
         $this->assertNotEmpty($decodedToken['create_time']);
         $this->assertArrayNotHasKey('connection_data', $decodedToken);
         $this->assertEquals('moderator', $decodedToken['role']);
-        // TODO: should all tokens have a default expire time even if it wasn't specified?
-        //$this->assertNotEmpty($decodedToken['expire_time']);
-
         $this->assertNotEmpty($decodedToken['sig']);
         $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
     }
 
     public function testGeneratesTokenWithExpireTime()
     {
-        // Arrange
-        $this->setupOT();
+        $this->setupVonageVideoApi();
         // This sessionId is a fixture designed by using a known but bogus apiKey and apiSecret
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $bogusApiKey = '12345678';
         $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
-        // Act
-        // expires in one hour (60 seconds * 60 minutes)
         $inOneHour = time() + (60 * 60);
         $token = $opentok->generateToken($sessionId, array('expireTime' => $inOneHour ));
 
-        // Assert
         $this->assertIsString($token);
-
         $decodedToken = TestHelpers::decodeToken($token);
         $this->assertEquals($sessionId, $decodedToken['session_id']);
         $this->assertEquals($bogusApiKey, $decodedToken['partner_id']);
@@ -414,19 +385,16 @@ class OpenTokTest extends TestCase
 
     public function testGeneratesTokenWithData()
     {
-        // Arrange
-        $this->setupOT();
+        $this->setupVonageVideoApi();
         // This sessionId is a fixture designed by using a known but bogus apiKey and apiSecret
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $bogusApiKey = '12345678';
         $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
-        // Act
         $userStatus = '{nick:"johnny",status:"hey there fellas!"}';
         $token = $opentok->generateToken($sessionId, array('data' => $userStatus ));
 
-        // Assert
         $this->assertIsString($token);
 
         $decodedToken = TestHelpers::decodeToken($token);
@@ -436,20 +404,13 @@ class OpenTokTest extends TestCase
         $this->assertNotEmpty($decodedToken['create_time']);
         $this->assertEquals($userStatus, $decodedToken['connection_data']);
         $this->assertNotEmpty($decodedToken['role']);
-        // TODO: should all tokens have a default expire time even if it wasn't specified?
-        //$this->assertNotEmpty($decodedToken['expire_time']);
-
         $this->assertNotEmpty($decodedToken['sig']);
         $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
     }
 
-    // TODO: write tests for passing invalid $expireTime and $data to generateToken
-    // TODO: write tests for passing extraneous properties to generateToken
-
-    public function testGeneratesTokenWithInitialLayoutClassList()
+    public function testGeneratesTokenWithInitialLayoutClassList(): void
     {
-        // Arrange
-        $this->setupOT();
+        $this->setupVonageVideoApi();
         // This sessionId is a fixture designed by using a known but bogus apiKey and apiSecret
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $bogusApiKey = '12345678';
@@ -458,12 +419,10 @@ class OpenTokTest extends TestCase
 
         $initialLayouClassList = array('focus', 'main');
 
-        // Act
         $token = $opentok->generateToken($sessionId, array(
             'initialLayoutClassList' => $initialLayouClassList
         ));
 
-        // Assert
         $this->assertIsString($token);
 
         $decodedToken = TestHelpers::decodeToken($token);
@@ -474,25 +433,20 @@ class OpenTokTest extends TestCase
         $this->assertArrayNotHasKey('connection_data', $decodedToken);
         $this->assertEquals('publisher', $decodedToken['role']);
         $this->assertEquals(join(" ", $initialLayouClassList), $decodedToken['initial_layout_class_list']);
-
-        // TODO: should all tokens have a default expire time even if it wasn't specified?
-        //$this->assertNotEmpty($decodedToken['expire_time']);
-
         $this->assertNotEmpty($decodedToken['sig']);
         $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
     }
 
-    public function testFailsWhenGeneratingTokenUsingInvalidRole()
+    public function testFailsWhenGeneratingTokenUsingInvalidRole(): void
     {
         $this->expectException('InvalidArgumentException');
-        $this->setupOT();
+        $this->setupVonageVideoApi();
         $token = $this->opentok->generateToken('SESSIONID', array('role' => 'notarole'));
     }
 
-    public function testStartsArchive()
+    public function testStartsArchive(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -504,15 +458,13 @@ class OpenTokTest extends TestCase
         // decoding to check, so it's fine.
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
-        // Act
         $archive = $this->opentok->startArchive($sessionId);
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('POST', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive', $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
@@ -523,12 +475,11 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
 
-        $this->assertInstanceOf('OpenTok\Archive', $archive);
+        $this->assertInstanceOf(Archive::class, $archive);
         $this->assertEquals(0, $archive->duration);
         $this->assertEquals('', $archive->reason);
         $this->assertEquals('started', $archive->status);
@@ -541,8 +492,7 @@ class OpenTokTest extends TestCase
 
     public function testStartsArchiveNamed()
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -554,15 +504,13 @@ class OpenTokTest extends TestCase
         // decoding to check, so it's fine.
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
-        // Act
         $archive = $this->opentok->startArchive($sessionId, array( 'name' => 'showtime' ));
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('POST', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive', $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
@@ -573,7 +521,6 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
@@ -590,10 +537,9 @@ class OpenTokTest extends TestCase
      * this is the deprecated method signature, remove in v3.0.0 (and not before)
      * @todo Remove this when `startArchive` removes string support
      */
-    public function testStartsArchiveNamedDeprecated()
+    public function testStartsArchiveNamedDeprecated(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -605,15 +551,13 @@ class OpenTokTest extends TestCase
         // decoding to check, so it's fine.
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
-        // Act
         @$archive = $this->opentok->startArchive($sessionId, 'showtime');
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('POST', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive', $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
@@ -624,7 +568,6 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
@@ -634,13 +577,11 @@ class OpenTokTest extends TestCase
         $this->assertEquals('showtime', $body->name);
 
         $this->assertInstanceOf('OpenTok\Archive', $archive);
-        // TODO: test the properties of the actual archive object
     }
 
-    public function testStartsArchiveAudioOnly()
+    public function testStartsArchiveAudioOnly(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -652,15 +593,13 @@ class OpenTokTest extends TestCase
         // decoding to check, so it's fine.
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
-        // Act
         $archive = $this->opentok->startArchive($sessionId, array( 'hasVideo' => false ));
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('POST', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive', $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
@@ -669,9 +608,16 @@ class OpenTokTest extends TestCase
         $this->assertEquals('application/json', $contentType);
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
-        $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        // TODO: test the dynamically built User Agent string
+        $this->assertEquals(
+            true,
+            TestHelpers::validateVonageVideoAuthHeader(
+                $this->API_KEY,
+                $this->API_SECRET,
+                $authString
+            )
+        );
+
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
@@ -682,13 +628,11 @@ class OpenTokTest extends TestCase
         $this->assertEquals(true, $body->hasAudio);
 
         $this->assertInstanceOf('OpenTok\Archive', $archive);
-        // TODO: test the properties of the actual archive object
     }
 
-    public function testStartsArchiveIndividualOutput()
+    public function testStartsArchiveIndividualOutput(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -700,17 +644,15 @@ class OpenTokTest extends TestCase
         // decoding to check, so it's fine.
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
-        // Act
         $archive = $this->opentok->startArchive($sessionId, array(
             'outputMode' => OutputMode::INDIVIDUAL
         ));
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('POST', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive', $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
@@ -721,7 +663,6 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
@@ -734,10 +675,9 @@ class OpenTokTest extends TestCase
         $this->assertEquals(OutputMode::INDIVIDUAL, $archive->outputMode);
     }
 
-    public function testStartsArchiveResolutionSD()
+    public function testStartsArchiveResolutionSD(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -749,17 +689,15 @@ class OpenTokTest extends TestCase
         // decoding to check, so it's fine.
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
-        // Act
         $archive = $this->opentok->startArchive($sessionId, array(
             'resolution' => '640x480'
         ));
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('POST', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive', $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
@@ -770,7 +708,6 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
@@ -782,10 +719,9 @@ class OpenTokTest extends TestCase
         $this->assertInstanceOf('OpenTok\Archive', $archive);
     }
 
-    public function testStartsArchiveResolutionHD()
+    public function testStartsArchiveResolutionHD(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -797,17 +733,15 @@ class OpenTokTest extends TestCase
         // decoding to check, so it's fine.
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
-        // Act
         $archive = $this->opentok->startArchive($sessionId, array(
             'resolution' => '1280x720'
         ));
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('POST', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive', $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
@@ -818,7 +752,6 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
@@ -830,10 +763,9 @@ class OpenTokTest extends TestCase
         $this->assertInstanceOf('OpenTok\Archive', $archive);
     }
 
-    public function testStopsArchive()
+    public function testStopsArchive(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -843,15 +775,13 @@ class OpenTokTest extends TestCase
 
         $archiveId = '063e72a4-64b4-43c8-9da5-eca071daab89';
 
-        // Act
         $archive = $this->opentok->stopArchive($archiveId);
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('POST', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive/'.$archiveId.'/stop', $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive/' . $archiveId . '/stop', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
@@ -862,19 +792,17 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
 
         $this->assertInstanceOf('OpenTok\Archive', $archive);
-        // TODO: test the properties of the actual archive object
     }
 
-    public function testGetsArchive()
+    public function testGetsArchive(): void
     {
         // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -884,50 +812,41 @@ class OpenTokTest extends TestCase
 
         $archiveId = '063e72a4-64b4-43c8-9da5-eca071daab89';
 
-        // Act
         $archive = $this->opentok->getArchive($archiveId);
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('GET', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive/'.$archiveId, $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive/' . $archiveId, $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
-
-        // TODO: this doesn't require Content-Type: application/json, but delete does?
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
 
         $this->assertInstanceOf('OpenTok\Archive', $archive);
-        // TODO: test the properties of the actual archive object
     }
 
-    public function testDeletesArchive()
+    public function testDeletesArchive(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 204
         ]]);
 
         $archiveId = '063e72a4-64b4-43c8-9da5-eca071daab89';
 
-        // Act
         $success = $this->opentok->deleteArchive($archiveId);
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('DELETE', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive/'.$archiveId, $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive/' . $archiveId, $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
@@ -938,19 +857,16 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
 
         $this->assertTrue($success);
-        // TODO: test the properties of the actual archive object
     }
 
     public function testListsArchives()
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -958,35 +874,29 @@ class OpenTokTest extends TestCase
             'path' => 'v2/project/APIKEY/archive/get'
         ]]);
 
-        // Act
         $archiveList = $this->opentok->listArchives();
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('GET', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive', $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
 
         $this->assertInstanceOf('OpenTok\ArchiveList', $archiveList);
-        // TODO: test the properties of the actual archiveList object and its contained archive
-        // objects
     }
 
     public function testListsArchivesWithOffsetAndCount()
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -994,22 +904,19 @@ class OpenTokTest extends TestCase
             'path' => 'v2/project/APIKEY/archive/get_second'
         ]]);
 
-        // Act
         $archiveList = $this->opentok->listArchives(1, 1);
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('GET', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive', $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
@@ -1019,10 +926,9 @@ class OpenTokTest extends TestCase
         $this->assertEquals('832641bf-5dbf-41a1-ad94-fea213e59a92', $archiveList->getItems()[0]->id);
     }
 
-    public function testListsArchivesWithSessionId()
+    public function testListsArchivesWithSessionId(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -1033,24 +939,22 @@ class OpenTokTest extends TestCase
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $bogusApiKey = '12345678';
         $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
-        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
-        // Act
+        //@TODO does this work? Looks false positive to me
+        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
         $archiveList = $this->opentok->listArchives(0, null, $sessionId);
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('GET', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive', $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
@@ -1058,16 +962,16 @@ class OpenTokTest extends TestCase
         $this->assertInstanceOf('OpenTok\ArchiveList', $archiveList);
         $this->assertEquals(2, $archiveList->totalCount());
         $this->assertEquals($sessionId, $archiveList->getItems()[0]->sessionId);
-        $this->assertEquals($sessionId, $archiveList->getItems()[1]->sessionId);        
+        $this->assertEquals($sessionId, $archiveList->getItems()[1]->sessionId);
         $this->assertEquals('b8f64de1-e218-4091-9544-4cbf369fc238', $archiveList->getItems()[0]->id);
-        $this->assertEquals('832641bf-5dbf-41a1-ad94-fea213e59a92', $archiveList->getItems()[1]->id);        
+        $this->assertEquals('832641bf-5dbf-41a1-ad94-fea213e59a92', $archiveList->getItems()[1]->id);
     }
 
     public function testFailsWhenListingArchivesWithTooLargeCount()
     {
         $this->expectException('InvalidArgumentException');
-        // Arrange
-        $this->setupOTWithMocks([[
+
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -1075,18 +979,15 @@ class OpenTokTest extends TestCase
             'path' => 'v2/project/APIKEY/archive/get'
         ]]);
 
-        // Act
         $archiveList = $this->opentok->listArchives(0, 1001);
 
-        // Assert
         $this->assertCount(0, $this->historyContainer);
     }
 
     // TODO: sloppy test in a pinch
-    public function testGetsExpiredArchive()
+    public function testGetsExpiredArchive(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -1096,18 +997,15 @@ class OpenTokTest extends TestCase
 
         $archiveId = '063e72a4-64b4-43c8-9da5-eca071daab89';
 
-        // Act
         $archive = $this->opentok->getArchive($archiveId);
 
-        // Assert
         $this->assertInstanceOf('OpenTok\Archive', $archive);
         $this->assertEquals("expired", $archive->status);
     }
 
-    public function testForceDisconnect()
+    public function testForceDisconnect(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 204
         ]]);
 
@@ -1115,15 +1013,13 @@ class OpenTokTest extends TestCase
 
         $connectionId = '063e72a4-64b4-43c8-9da5-eca071daab89';
 
-        // Act
         $success = $this->opentok->forceDisconnect($sessionId, $connectionId);
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('DELETE', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/session/'.$sessionId.'/connection/'.$connectionId, $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/session/' . $sessionId . '/connection/' . $connectionId, $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
@@ -1134,19 +1030,16 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
-
         $this->assertTrue($success);
     }
 
 
-    public function testForceDisconnectConnectionException()
+    public function testForceDisconnectConnectionException(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 404
         ]]);
 
@@ -1154,17 +1047,14 @@ class OpenTokTest extends TestCase
 
         $connectionId = '063e72a4-64b4-43c8-9da5-eca071daab89';
 
-        $this->expectException('OpenTok\Exception\ForceDisconnectConnectionException');        
+        $this->expectException('OpenTok\Exception\ForceDisconnectConnectionException');
 
-        // Act
         $this->opentok->forceDisconnect($sessionId, $connectionId);
-
     }
 
-    public function testStartsBroadcast()
+    public function testStartsBroadcast(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -1176,15 +1066,13 @@ class OpenTokTest extends TestCase
         // decoding to check, so it's fine.
         $sessionId = '2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4';
 
-        // Act
         $broadcast = $this->opentok->startBroadcast($sessionId);
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('POST', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/broadcast', $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/broadcast', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
@@ -1195,7 +1083,6 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
@@ -1210,10 +1097,9 @@ class OpenTokTest extends TestCase
         $this->assertFalse($broadcast->isStopped);
     }
 
-    public function testStartBroadcastWithOptions()
+    public function testStartBroadcastWithOptions(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -1232,15 +1118,13 @@ class OpenTokTest extends TestCase
             'resolution' => $resolution,
         ];
 
-        // Act
         $broadcast = $this->opentok->startBroadcast($sessionId, $broadcastOptions);
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('POST', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/broadcast', $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/broadcast', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
@@ -1251,7 +1135,6 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
@@ -1260,7 +1143,7 @@ class OpenTokTest extends TestCase
         $this->assertIsString($broadcast->id);
         $this->assertEquals($sessionId, $broadcast->sessionId);
         $this->assertEquals($maxDuration, $broadcast->maxDuration);
-        $this->assertEquals($resolution, $broadcast->resolution);        
+        $this->assertEquals($resolution, $broadcast->resolution);
         $this->assertIsArray($broadcast->broadcastUrls);
         $this->assertArrayHasKey('hls', $broadcast->broadcastUrls);
         $this->assertIsString($broadcast->broadcastUrls['hls']);
@@ -1268,12 +1151,9 @@ class OpenTokTest extends TestCase
         $this->assertFalse($broadcast->isStopped);
     }
 
-    // TODO: test startBroadcast with layout
-
-    public function testStopsBroadcast()
+    public function testStopsBroadcast(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -1283,22 +1163,19 @@ class OpenTokTest extends TestCase
 
         $broadcastId = 'BROADCASTID';
 
-        // Act
         $broadcast = $this->opentok->stopBroadcast($broadcastId);
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('POST', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/broadcast/'.$broadcastId.'/stop', $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/broadcast/' . $broadcastId . '/stop', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
@@ -1307,10 +1184,9 @@ class OpenTokTest extends TestCase
         $this->assertTrue($broadcast->isStopped);
     }
 
-    public function testGetsBroadcast()
+    public function testGetsBroadcast(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -1320,22 +1196,19 @@ class OpenTokTest extends TestCase
 
         $broadcastId = 'BROADCASTID';
 
-        // Act
         $broadcast = $this->opentok->getBroadcast($broadcastId);
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('GET', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/broadcast/'.$broadcastId, $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/broadcast/' . $broadcastId, $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
@@ -1343,10 +1216,9 @@ class OpenTokTest extends TestCase
         $this->assertInstanceOf('OpenTok\Broadcast', $broadcast);
     }
 
-    public function testUpdatesBroadcastLayoutWithPredefined()
+    public function testUpdatesBroadcastLayoutWithPredefined(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -1357,15 +1229,13 @@ class OpenTokTest extends TestCase
         $broadcastId = 'BROADCASTID';
         $layout = Layout::getPIP();
 
-        // Act
         $this->opentok->updateBroadcastLayout($broadcastId, $layout);
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('PUT', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/broadcast/'.$broadcastId.'/layout', $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/broadcast/' . $broadcastId . '/layout', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
@@ -1379,16 +1249,14 @@ class OpenTokTest extends TestCase
         $body = json_decode($request->getBody());
         $this->assertEquals('pip', $body->type);
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
     }
 
-    public function testUpdatesBroadcastLayoutWithCustom()
+    public function testUpdatesBroadcastLayoutWithCustom(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -1402,15 +1270,13 @@ class OpenTokTest extends TestCase
             'stylesheet' => $stylesheet
         ));
 
-        // Act
         $this->opentok->updateBroadcastLayout($broadcastId, $layout);
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('PUT', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/broadcast/'.$broadcastId.'/layout', $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/broadcast/' . $broadcastId . '/layout', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
@@ -1425,7 +1291,6 @@ class OpenTokTest extends TestCase
         $this->assertEquals('custom', $body->type);
         $this->assertEquals($stylesheet, $body->stylesheet);
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
@@ -1433,8 +1298,7 @@ class OpenTokTest extends TestCase
 
     public function testUpdatesStreamLayoutClassList()
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -1444,19 +1308,17 @@ class OpenTokTest extends TestCase
 
         $sessionId = 'SESSIONID';
         $streamId = 'STREAMID';
-        $layoutClassList = array('foo', 'bar');
+        $layoutClassList = ['foo', 'bar'];
 
-        // Act
         $this->opentok->updateStream($sessionId, $streamId, array(
             'layoutClassList' => $layoutClassList
         ));
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('PUT', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/session/'.$sessionId.'/stream/'.$streamId, $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/session/' . $sessionId . '/stream/' . $streamId, $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
@@ -1470,16 +1332,14 @@ class OpenTokTest extends TestCase
         $body = json_decode($request->getBody());
         $this->assertEquals($layoutClassList, $body->layoutClassList);
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
     }
 
-    public function testGetStream()
+    public function testGetStream(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -1490,14 +1350,12 @@ class OpenTokTest extends TestCase
         $sessionId = 'SESSIONID';
         $streamId = '8b732909-0a06-46a2-8ea8-074e64d43422';
 
-        // Act
         $streamData = $this->opentok->getStream($sessionId, $streamId);
-        // Assert
-        $this->assertCount(1, $this->historyContainer);        
+        $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('GET', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/session/'.$sessionId.'/stream/'.$streamId, $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/session/' . $sessionId . '/stream/' . $streamId, $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
@@ -1515,10 +1373,9 @@ class OpenTokTest extends TestCase
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
     }
 
-    public function testSipCall()
+    public function testSipCall(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -1531,22 +1388,21 @@ class OpenTokTest extends TestCase
         $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
         $bogusToken = 'T1==TEST';
         $bogusSipUri = 'sip:john@doe.com';
+
+        // @TODO does this work? Looks like false positive to me
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
-        // Act
         $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri);
 
-        // Assert
         $this->assertInstanceOf('OpenTok\SipCall', $sipCall);
         $this->assertNotNull($sipCall->id);
         $this->assertNotNull($sipCall->connectionId);
         $this->assertNotNull($sipCall->streamId);
     }
 
-    public function testSipCallWithAuth()
+    public function testSipCallWithAuth(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'path' => 'v2/project/APIKEY/dial'
         ]]);
@@ -1556,19 +1412,19 @@ class OpenTokTest extends TestCase
         $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
         $bogusToken = 'T1==TEST';
         $bogusSipUri = 'sip:john@doe.com';
+
+        // @TODO does this work? Looks like false positive to me
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
-        $auth = array(
+        $auth = [
             'username' => 'john',
             'password' => 'doe'
-        );
+        ];
 
-        // Act
         $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri, array(
             'auth' => $auth
         ));
 
-        // Assert
         $this->assertInstanceOf('OpenTok\SipCall', $sipCall);
         $this->assertNotNull($sipCall->id);
         $this->assertNotNull($sipCall->connectionId);
@@ -1582,10 +1438,9 @@ class OpenTokTest extends TestCase
         $this->assertEquals($auth['password'], $body->sip->auth->password);
     }
 
-    public function testFailedSipCall()
+    public function testFailedSipCall(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 500
         ]]);
 
@@ -1594,10 +1449,11 @@ class OpenTokTest extends TestCase
         $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
         $bogusToken = 'T1==TEST';
         $bogusSipUri = 'sip:john@doe.com';
+
+        // @TODO does this work? Looks like false positive to me
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
         $sipCall = null;
-        // Act
         try {
             $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri);
             $this->assertNull($sipCall);
@@ -1606,10 +1462,9 @@ class OpenTokTest extends TestCase
         }
     }
 
-    public function testSipCallFrom()
+    public function testSipCallFrom(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -1623,12 +1478,10 @@ class OpenTokTest extends TestCase
 
         $from = "+0034123445566@opentok.me";
 
-        // Act
         $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri, [
             'from' => $from
         ]);
 
-        // Assert
         $this->assertInstanceOf('OpenTok\SipCall', $sipCall);
         $this->assertNotNull($sipCall->id);
         $this->assertNotNull($sipCall->connectionId);
@@ -1641,10 +1494,9 @@ class OpenTokTest extends TestCase
         $this->assertEquals($from, $body->sip->from);
     }
 
-    public function testSipCallVideo()
+    public function testSipCallVideo(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -1656,10 +1508,8 @@ class OpenTokTest extends TestCase
         $bogusToken = 'T1==TEST';
         $bogusSipUri = 'sip:john@doe.com';
 
-        // Act
         $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri, ['video' => true]);
 
-        // Assert
         $this->assertInstanceOf('OpenTok\SipCall', $sipCall);
         $this->assertNotNull($sipCall->id);
         $this->assertNotNull($sipCall->connectionId);
@@ -1672,9 +1522,9 @@ class OpenTokTest extends TestCase
         $this->assertEquals(true, $body->sip->video);
     }
 
-    public function testPlayDTMF()
+    public function testPlayDTMF(): void
     {
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -1694,9 +1544,9 @@ class OpenTokTest extends TestCase
         $this->assertEquals($digits, $body->digits);
     }
 
-    public function testPlayDTMFIntoConnection()
+    public function testPlayDTMFIntoConnection(): void
     {
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -1717,12 +1567,12 @@ class OpenTokTest extends TestCase
         $this->assertEquals($digits, $body->digits);
     }
 
-    public function testDTMFFailsValidation()
+    public function testDTMFFailsValidation(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('DTMF digits can only support 0-9, p, #, and * characters');
 
-        $this->setupOT();
+        $this->setupVonageVideoApi();
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $this->opentok->playDTMF($sessionId, 'bob');
     }
@@ -1739,7 +1589,7 @@ class OpenTokTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('The OpenTok API request failed: Invalid DTMF Digits');
 
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 400,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -1753,10 +1603,9 @@ class OpenTokTest extends TestCase
         $this->opentok->playDTMF($sessionId, $digits);
     }
 
-    public function testSignalData()
+    public function testSignalData(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 204
         ]]);
 
@@ -1766,40 +1615,36 @@ class OpenTokTest extends TestCase
 
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
-        $payload = array(
+        $payload = [
             'data' => 'apple',
             'type' => 'signal type sample'
-        );
+        ];
 
-        // Act
         $this->opentok->signal($sessionId, $payload);
 
-                // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('POST', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/session/'.$sessionId.'/signal', $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/session/' . $sessionId . '/signal', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
 
         $body = json_decode($request->getBody());
         $this->assertEquals('apple', $body->data);
-        $this->assertEquals('signal type sample', $body->type);        
+        $this->assertEquals('signal type sample', $body->type);
     }
 
-    public function testSignalWithConnectionId()
+    public function testSignalWithConnectionId(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 204
         ]]);
 
@@ -1812,39 +1657,37 @@ class OpenTokTest extends TestCase
             'data' => 'random message'
         );
 
+        // @TODO does this work? Looks like false positive to me
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
-        // Act
         $this->opentok->signal($sessionId, $payload, $connectionId);
 
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('POST', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/session/'.$sessionId.'/connection/'.$connectionId.'/signal', $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/session/' . $sessionId . '/connection/' . $connectionId . '/signal', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
 
         $body = json_decode($request->getBody());
         $this->assertEquals('random message', $body->data);
-        $this->assertEquals('rest', $body->type);        
+        $this->assertEquals('rest', $body->type);
     }
 
     /**
      * @todo Fix this test, not even sure what it's supposed to be doing honestly.
      */
-    public function testSignalWithEmptyPayload()
+    public function testSignalWithEmptyPayload(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 204
         ]]);
 
@@ -1863,10 +1706,9 @@ class OpenTokTest extends TestCase
         }
     }
 
-    public function testSignalConnectionException()
+    public function testSignalConnectionException(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 404
         ]]);
 
@@ -1879,6 +1721,7 @@ class OpenTokTest extends TestCase
             'data' => 'random message'
         );
 
+        // @TODO does this work? Looks like false positive to me
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
         $this->expectException('OpenTok\Exception\SignalConnectionException');
@@ -1888,8 +1731,7 @@ class OpenTokTest extends TestCase
 
     public function testSignalUnexpectedValueException()
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 413
         ]]);
 
@@ -1897,24 +1739,23 @@ class OpenTokTest extends TestCase
         $bogusApiKey = '12345678';
         $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
         $connectionId = 'da9cb410-e29b-4c2d-ab9e-fe65bf83fcaf';
-        $payload = array(
+        $payload = [
             'type' => 'rest',
             'data' => 'more than 128 bytes'
-        );
+        ];
 
+        // @TODO does this work? Looks like false positive to me
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
         $this->expectException('OpenTok\Exception\SignalUnexpectedValueException');
 
         // Act
         $this->opentok->signal($sessionId, $payload, $connectionId);
-
     }
 
-    public function testListStreams()
+    public function testListStreams(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -1926,36 +1767,32 @@ class OpenTokTest extends TestCase
         $bogusApiKey = '12345678';
         $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
 
+        // @TODO does this work? Looks like false positive to me
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
-        // Act
         $streamList = $this->opentok->listStreams($sessionId);
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('GET', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/session/'.$sessionId.'/stream/', $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/session/' . $sessionId . '/stream/', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateVonageVideoAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
 
         $this->assertInstanceOf('OpenTok\StreamList', $streamList);
-
     }
 
-    public function testsSetArchiveLayoutWithPredefined()
+    public function testsSetArchiveLayoutWithPredefined(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -1965,15 +1802,13 @@ class OpenTokTest extends TestCase
         $archiveId = 'ARCHIVEID';
         $layout = Layout::getPIP();
 
-        // Act
         $this->opentok->setArchiveLayout($archiveId, $layout);
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('PUT', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive/'.$archiveId.'/layout', $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive/' . $archiveId . '/layout', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
@@ -1987,16 +1822,14 @@ class OpenTokTest extends TestCase
         $body = json_decode($request->getBody());
         $this->assertEquals('pip', $body->type);
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
     }
 
-    public function testsSetArchiveLayoutWithCustom()
+    public function testsSetArchiveLayoutWithCustom(): void
     {
-        // Arrange
-        $this->setupOTWithMocks([[
+        $this->setupVonageVideoApiWithMocks([[
             'code' => 200,
             'headers' => [
                 'Content-Type' => 'application/json'
@@ -2010,15 +1843,13 @@ class OpenTokTest extends TestCase
         );
         $layout = Layout::createCustom($options);
 
-        // Act
         $this->opentok->setArchiveLayout($archiveId, $layout);
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('PUT', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive/'.$archiveId.'/layout', $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive/' . $archiveId . '/layout', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
@@ -2033,7 +1864,6 @@ class OpenTokTest extends TestCase
         $this->assertEquals('custom', $body->type);
         $this->assertEquals($stylesheet, $body->stylesheet);
 
-        // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
@@ -2043,9 +1873,9 @@ class OpenTokTest extends TestCase
      * Makes sure that Guzzle internally keeps a null/indefinate timeout by default
      * This makes sure that internal existing behavior has not changed
      */
-    public function testDefaultTimeoutDefaultsToNull()
+    public function testDefaultTimeoutDefaultsToNull(): void
     {
-        $this->setupOT();
+        $this->setupVonageVideoApi();
 
         $opentokReflection = new \ReflectionClass($this->opentok);
         $opentokClient = $opentokReflection->getProperty('client');
@@ -2064,7 +1894,7 @@ class OpenTokTest extends TestCase
     /**
      * Makes sure that Guzzle gets configured with a user defined timeout
      */
-    public function testDefaultTimeoutCanBeOverriden()
+    public function testDefaultTimeoutCanBeOverriden(): void
     {
         $opentok = new OpenTok('1234', 'abd', ['timeout' => 400]);
 
@@ -2085,7 +1915,7 @@ class OpenTokTest extends TestCase
     /**
      * User-provided default timeout must be numeric
      */
-    public function testDefaultTimeoutErrorsIfNotNumeric()
+    public function testDefaultTimeoutErrorsIfNotNumeric(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Default Timeout must be a number greater than zero');
@@ -2095,11 +1925,10 @@ class OpenTokTest extends TestCase
     /**
      * User-provided default timeout must be greater than 0
      */
-    public function testDefaultTimeoutErrorsIfLessThanZero()
+    public function testDefaultTimeoutErrorsIfLessThanZero(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Default Timeout must be a number greater than zero');
         new OpenTok('1234', 'abd', ['timeout' => -1]);
     }
 }
-
