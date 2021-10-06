@@ -298,7 +298,7 @@ class OpenTok
      * @return Archive The Archive object, which includes properties defining the archive, including
      * the archive ID.
      */
-    public function startArchive(string $sessionId, array $options = []): Archive
+    public function startArchive(string $sessionId, $options = []): Archive
     {
         // support for deprecated method signature, remove in v3.0.0 (not before)
         if (!is_array($options)) {
