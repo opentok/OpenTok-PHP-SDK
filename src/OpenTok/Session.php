@@ -16,18 +16,22 @@ class Session
      * @internal
      */
     protected $sessionId;
+
     /**
      * @internal
      */
     protected $location;
+
     /**
      * @internal
      */
     protected $mediaMode;
+
     /**
      * @internal
      */
     protected $archiveMode;
+
     /**
      * @internal
      */

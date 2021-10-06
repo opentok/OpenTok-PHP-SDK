@@ -3,6 +3,7 @@
 namespace OpenTok\Util;
 
 use Exception as GlobalException;
+use OpenTok\Type\StreamIdListType;
 use OpenTok\Layout;
 use Firebase\JWT\JWT;
 use OpenTok\MediaMode;
@@ -453,6 +454,46 @@ class Client
         }
         return $streamListJson;
     }
+
+    public function muteStreamInSession(string $sessionId, string $streamId)
+    {
+        $request = new Request(
+            'POST',
+            '/v2/project/' . $this->apiKey . '/session/' . $sessionId . '/stream/' . $streamId . '/mute'
+        );
+
+        try {
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug(),
+            ]);
+            $jsonResponse = json_decode($response->getBody(), true);
+        } catch (\Exception $e) {
+            $this->handleException($e);
+            return false;
+        }
+        return $jsonResponse;
+    }
+
+    public function muteStreamsInSession(string $sessionId, StreamIdListType $excludedStreamIds)
+    {
+        $request = new Request(
+            'POST',
+            '/v2/project/' . $this->apiKey . '/session/' . $sessionId . '/mute'
+        );
+
+        try {
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug(),
+                'json' => $excludedStreamIds
+            ]);
+            $jsonResponse = json_decode($response->getBody(), true);
+        } catch (\Exception $e) {
+            $this->handleException($e);
+            return false;
+        }
+        return $jsonResponse;
+    }
+
 
     public function setStreamClassLists($sessionId, $payload)
     {

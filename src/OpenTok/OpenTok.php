@@ -3,6 +3,7 @@
 namespace OpenTok;
 
 use OpenTok\Layout;
+use OpenTok\Type\StreamIdListType;
 use OpenTok\Util\Client;
 use OpenTok\Util\Validators;
 use OpenTok\Exception\InvalidArgumentException;
@@ -101,7 +102,7 @@ class OpenTok
      *
      * @return string The token string.
      */
-    public function generateToken($sessionId, $options = array())
+    public function generateToken(string $sessionId, array $options = []): string
     {
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array(
@@ -206,7 +207,7 @@ class OpenTok
     * when using the OpenTok.js library, use this session ID when calling the
     * <code>OT.initSession()</code> method.
     */
-    public function createSession($options = array())
+    public function createSession(array $options = []): Session
     {
         if (
             array_key_exists('archiveMode', $options) &&
@@ -297,7 +298,7 @@ class OpenTok
      * @return Archive The Archive object, which includes properties defining the archive, including
      * the archive ID.
      */
-    public function startArchive(string $sessionId, $options = []): Archive
+    public function startArchive(string $sessionId, array $options = []): Archive
     {
         // support for deprecated method signature, remove in v3.0.0 (not before)
         if (!is_array($options)) {
@@ -370,11 +371,12 @@ class OpenTok
      *
      * @return Archive The Archive object.
      */
-    public function getArchive($archiveId)
+    public function getArchive(string $archiveId): Archive
     {
         Validators::validateArchiveId($archiveId);
 
         $archiveData = $this->client->getArchive($archiveId);
+
         return new Archive($archiveData, array( 'client' => $this->client ));
     }
 
@@ -393,7 +395,7 @@ class OpenTok
      * @throws ArchiveException There archive status is not "available", "updated",
      * or "deleted".
      */
-    public function deleteArchive($archiveId)
+    public function deleteArchive(string $archiveId): bool
     {
         Validators::validateArchiveId($archiveId);
 
@@ -407,23 +409,24 @@ class OpenTok
      * @param integer $offset Optional. The index offset of the first archive. 0 is offset of the
      * most recently started archive. 1 is the offset of the archive that started prior to the most
      * recent archive. If you do not specify an offset, 0 is used.
-     * @param integer $count Optional. The number of archives to be returned. The maximum number of
+     * @param integer|null $count Optional. The number of archives to be returned. The maximum number of
      * archives returned is 1000.
-     * @param string $sessionId Optional. The OpenTok session Id for which you want to retrieve Archives for. If no session Id
+     * @param string|null $sessionId Optional. The OpenTok session Id for which you want to retrieve Archives for. If no session Id
      * is specified, the method will return archives from all sessions created with the API key.
      *
      * @return ArchiveList An ArchiveList object. Call the items() method of the ArchiveList object
      * to return an array of Archive objects.
      */
-    public function listArchives($offset = 0, $count = null, $sessionId = null)
+    public function listArchives(int $offset = 0, int $count = null, string $sessionId = null): ArchiveList
     {
-        // validate params
         Validators::validateOffsetAndCount($offset, $count);
+
         if (!is_null($sessionId)) {
             Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
         }
 
         $archiveListData = $this->client->listArchives($offset, $count, $sessionId);
+
         return new ArchiveList($archiveListData, array( 'client' => $this->client ));
     }
 
@@ -450,17 +453,16 @@ class OpenTok
      * @param array $classListArray The connectionId of the connection in a session.
      */
 
-    public function setStreamClassLists($sessionId, $classListArray = array())
+    public function setStreamClassLists($sessionId, array $classListArray = []): void
     {
         Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
-        
+
         foreach ($classListArray as $item) {
             Validators::validateLayoutClassListItem($item);
         }
-        
+
         $this->client->setStreamClassLists($sessionId, $classListArray);
     }
-    
 
     /**
      * Disconnects a specific client from an OpenTok session.
@@ -470,12 +472,39 @@ class OpenTok
      * @param string $connectionId The connection ID of the connection in the session.
      */
 
-    public function forceDisconnect($sessionId, $connectionId)
+    public function forceDisconnect(string $sessionId, string $connectionId): bool
     {
         Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
         Validators::validateConnectionId($connectionId);
 
         return $this->client->forceDisconnect($sessionId, $connectionId);
+    }
+
+    public function muteStreamInSession(string $sessionId, string $streamId): bool
+    {
+        Validators::validateSessionId($sessionId);
+        Validators::validateStreamId($streamId);
+
+        try {
+            $this->client->muteStreamInSession($sessionId, $streamId);
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function muteStreamsInSession(string $sessionId, StreamIdListType $excludeStreams): bool
+    {
+        Validators::validateSessionId($sessionId);
+
+        try {
+            $this->client->muteStreamsInSession($sessionId, $excludeStreams);
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -523,7 +552,7 @@ class OpenTok
      *
      * @param String $broadcastId The ID of the broadcast.
      */
-    public function stopBroadcast($broadcastId)
+    public function stopBroadcast(string $broadcastId): Broadcast
     {
         // validate arguments
         Validators::validateBroadcastId($broadcastId);
@@ -543,7 +572,7 @@ class OpenTok
      *
      * @return Broadcast An object with properties defining the broadcast.
      */
-    public function getBroadcast($broadcastId)
+    public function getBroadcast(string $broadcastId): Broadcast
     {
         Validators::validateBroadcastId($broadcastId);
 
@@ -608,12 +637,13 @@ class OpenTok
     * $opentok->updateStream($sessionId, $streamId, $streamProperties);
     * </pre>
     */
-    public function updateStream($sessionId, $streamId, $properties = array())
+    public function updateStream(string $sessionId, string $streamId, array $properties = []): void
     {
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array(
             'layoutClassList' => array()
         );
+
         $properties = array_merge($defaults, array_intersect_key($properties, $defaults));
         list($layoutClassList) = array_values($properties);
 
@@ -636,7 +666,7 @@ class OpenTok
      * @return Stream The Stream object.
      */
 
-    public function getStream($sessionId, $streamId)
+    public function getStream(string $sessionId, string $streamId): Stream
     {
         Validators::validateSessionId($sessionId);
         Validators::validateStreamId($streamId);
