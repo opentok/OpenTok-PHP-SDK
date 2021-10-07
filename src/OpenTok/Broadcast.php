@@ -40,10 +40,27 @@ use OpenTok\Util\Validators;
 */
 class Broadcast
 {
+    /**
+     * @internal
+     */
     private $data;
+
+    /**
+     * @internal
+     */
     private $isStopped = false;
+
+    /**
+     * @var Client
+     * @internal
+     */
     private $client;
 
+    /**
+     * @param $broadcastData
+     * @param array $options
+     * @internal
+     */
     public function __construct($broadcastData, $options = array())
     {
         // unpack optional arguments (merging with default values) into named variables

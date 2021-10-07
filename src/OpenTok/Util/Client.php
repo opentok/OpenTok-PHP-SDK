@@ -40,6 +40,9 @@ define('OPENTOK_SDK_VERSION', '4.9.1');
 /** @internal */
 define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
 
+/**
+ * @internal
+ */
 class Client
 {
     protected $apiKey;

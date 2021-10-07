@@ -81,13 +81,24 @@ use OpenTok\Exception\ArchiveUnexpectedValueException;
 */
 class Archive
 {
+    /**
+     * @internal
+     */
     private $data;
 
+    /**
+     * @internal
+     */
     private $isDeleted;
 
+    /**
+     * @var mixed|Client
+     * @internal
+     */
     private $client;
 
     /**
+     * @internal
      * @param $archiveData
      * @param array $options
      */

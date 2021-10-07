@@ -20,14 +20,28 @@ use OpenTok\Exception\UnexpectedValueException;
 */
 class OpenTok
 {
-
-    /** @internal */
+    /**
+     * @internal
+     */
     private $apiKey;
-    /** @internal */
+
+    /**
+     * @internal
+     */
     private $apiSecret;
-    /** @internal */
+
+    /**
+     * @var Client
+     * @internal
+     */
     private $client;
 
+    /**
+     * @param $apiKey
+     * @param $apiSecret
+     * @param array $options
+     * @internal
+     */
     public function __construct($apiKey, $apiSecret, $options = array())
     {
         // unpack optional arguments (merging with default values) into named variables
