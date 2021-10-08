@@ -34,6 +34,10 @@ use OpenTok\Util\Validators;
 *
 * @property boolean $isStopped
 * Whether the broadcast is stopped (true) or in progress (false).
+*
+* @property string $streamMode
+* Allows for an archive stream to be manually updated to add streams individually.
+* Default is set to <code>auto</code>.
 */
 class Broadcast
 {
@@ -55,14 +59,16 @@ class Broadcast
             'apiSecret' => null,
             'apiUrl' => 'https://api.opentok.com',
             'client' => null,
-            'isStopped' => false
+            'isStopped' => false,
+            'streamMode' => 'auto'
         );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($apiKey, $apiSecret, $apiUrl, $client, $isStopped) = array_values($options);
+        list($apiKey, $apiSecret, $apiUrl, $client, $isStopped, $streamMode) = array_values($options);
 
         // validate params
         Validators::validateBroadcastData($broadcastData);
         Validators::validateClient($client);
+        Validators::validateHasStreamMode($streamMode);
 
         $this->data = $broadcastData;
 
@@ -91,6 +97,7 @@ class Broadcast
             case 'status':
             case 'maxDuration':
             case 'resolution':
+            case 'streamMode':
                 return $this->data[$name];
             case 'hlsUrl':
                 return $this->data['broadcastUrls']['hls'];

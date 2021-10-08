@@ -283,6 +283,9 @@ class OpenTok
      *    <code>hasVideo</code> to false, the call to the <code>startArchive()</code> method results
      *    in an error.</li>
      *
+     *    <li><code>'streamMode'</code> (String) &mdash; When the archive can have streams added
+     *    manually to them. Default is <code>auto</code></li>
+     *
      *    <li><code>'hasAudio'</code> (Boolean) &mdash; Whether the archive will record audio
      *    (true, the default) or not (false). If you set both <code>hasAudio</code> and
      *    <code>hasVideo</code> to false, the call to the <code>startArchive()</code> method results
@@ -315,15 +318,17 @@ class OpenTok
             'hasAudio' => true,
             'outputMode' => OutputMode::COMPOSED,
             'resolution' => null,
+            'streamMode' => 'auto'
         );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($name, $hasVideo, $hasAudio, $outputMode, $resolution) = array_values($options);
+        list($name, $hasVideo, $hasAudio, $outputMode, $resolution, $streamMode) = array_values($options);
         // validate arguments
         Validators::validateSessionId($sessionId);
         Validators::validateArchiveName($name);
         Validators::validateArchiveHasVideo($hasVideo);
         Validators::validateArchiveHasAudio($hasAudio);
         Validators::validateArchiveOutputMode($outputMode);
+        Validators::validateHasStreamMode($streamMode);
 
         if ((is_null($resolution) || empty($resolution)) && $outputMode === OutputMode::COMPOSED) {
             $options['resolution'] = "640x480";
@@ -503,14 +508,16 @@ class OpenTok
         // not preferred to depend on that in the SDK because its then harder to garauntee backwards
         // compatibility
         $defaults = array(
-            'layout' => Layout::getBestFit()
+            'layout' => Layout::getBestFit(),
+            'streamMode' => 'auto'
         );
         $options = array_merge($defaults, $options);
-        list($layout) = array_values($options);
+        list($layout, $streamMode) = array_values($options);
 
         // validate arguments
         Validators::validateSessionId($sessionId);
         Validators::validateLayout($layout);
+        Validators::validateHasStreamMode($streamMode);
 
         // make API call
         $broadcastData = $this->client->startBroadcast($sessionId, $options);

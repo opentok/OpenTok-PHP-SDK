@@ -49,6 +49,10 @@ use OpenTok\Exception\ArchiveUnexpectedValueException;
 * @property string $size
 * The size of the MP4 file. For archives that have not been generated, this value is set to 0.
 *
+* @property string $streamMode
+* Allows for an archive stream to be manually updated to add streams individually.
+* Default is set to <code>auto</code>.
+*
 * @property string $status
 * The status of the archive, which can be one of the following:
 *
@@ -137,6 +141,7 @@ class Archive
             case 'hasAudio':
             case 'outputMode':
             case 'resolution':
+            case 'streamMode':
                 return $this->data[$name];
             default:
                 return null;
