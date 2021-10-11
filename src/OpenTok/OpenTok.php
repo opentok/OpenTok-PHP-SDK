@@ -478,6 +478,45 @@ class OpenTok
         return $this->client->forceDisconnect($sessionId, $connectionId);
     }
 
+    public function muteStreamInSession(string $sessionId, string $streamId): bool
+    {
+        // @TODO just one example for the need to refactor: these validation methods
+        // should be deprecated because typehinting is taking care of the validation unless
+        // we make the validators do more work eg. regex
+        Validators::validateSessionId($sessionId);
+        Validators::validateStreamId($streamId);
+
+        try {
+            $this->client->muteStreamInSession($sessionId, $streamId);
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param string $sessionId
+     * @param array<string> $excludeStreams
+     * @return bool
+     */
+    public function muteStreamsInSession(string $sessionId, array $excludeStreams): bool
+    {
+        Validators::validateSessionId($sessionId);
+
+        foreach ($excludeStreams as $streamId) {
+            Validators::validateStreamId($streamId);
+        }
+
+        try {
+            $this->client->muteStreamsInSession($sessionId, $excludeStreams);
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * Starts a live streaming broadcast of an OpenTok session.
      *
