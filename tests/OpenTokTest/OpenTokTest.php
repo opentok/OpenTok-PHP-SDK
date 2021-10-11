@@ -1377,6 +1377,40 @@ class OpenTokTest extends TestCase
         $this->assertTrue($result);
     }
 
+    public function testThrowsExceptionWhenInvalidStreamId(): void
+    {
+        $this->setupOTWithMocks([[
+            'code' => 422,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => '/v2/project/APIKEY/session/SESSIONID/mute'
+        ]]);
+
+        $streamId = 'TEST1';
+        $sessionId = 'SESSIONID';
+
+        $result = $this->opentok->muteStreamInSession($sessionId, $streamId);
+        $this->assertFalse($result);
+    }
+
+    public function testThrowsExceptionWhenInvalidStreamIds(): void
+    {
+        $this->setupOTWithMocks([[
+            'code' => 422,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => '/v2/project/APIKEY/session/SESSIONID/mute'
+        ]]);
+
+        $streamIds = ['TEST1', 'TEST2'];
+        $sessionId = 'SESSIONID';
+
+        $result = $this->opentok->muteStreamsInSession($sessionId, $streamIds);
+        $this->assertFalse($result);
+    }
+
     public function testCannotMuteStreamsWithWrongTypePayload(): void
     {
         $this->expectException(\TypeError::class);
@@ -1394,6 +1428,22 @@ class OpenTokTest extends TestCase
 
         $result = $this->opentok->muteStreamsInSession($sessionId, $streamIdsString);
         $this->assertFalse($result);
+    }
+
+    public function testWillThrowClientExceptionWhenMutingInvalidStreamId()
+    {
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => '/v2/project/APIKEY/session/SESSIONID/mute'
+        ]]);
+
+        $streamIdsString = implode(',', ['TEST1', 'TEST2']);
+        $sessionId = 'SESSIONID';
+
+        $result = $this->opentok->muteStreamInSession($sessionId, $streamIdsString);
     }
 
     public function testUpdatesBroadcastLayoutWithPredefined()
