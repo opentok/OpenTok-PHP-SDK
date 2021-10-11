@@ -1380,7 +1380,7 @@ class OpenTokTest extends TestCase
     public function testThrowsExceptionWhenInvalidStreamId(): void
     {
         $this->setupOTWithMocks([[
-            'code' => 422,
+            'code' => 404,
             'headers' => [
                 'Content-Type' => 'application/json'
             ],
@@ -1397,7 +1397,7 @@ class OpenTokTest extends TestCase
     public function testThrowsExceptionWhenInvalidStreamIds(): void
     {
         $this->setupOTWithMocks([[
-            'code' => 422,
+            'code' => 404,
             'headers' => [
                 'Content-Type' => 'application/json'
             ],
