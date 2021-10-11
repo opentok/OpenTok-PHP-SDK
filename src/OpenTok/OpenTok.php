@@ -478,6 +478,15 @@ class OpenTok
         return $this->client->forceDisconnect($sessionId, $connectionId);
     }
 
+    /**
+     * Mute a stream in an OpenTok session
+     *
+     * @param string $sessionId The OpenTok session ID that the client is connected to
+     *
+     * @param string $streamId The OpenTok streamId to be muted in the session
+     *
+     * @return bool
+     */
     public function muteStreamInSession(string $sessionId, string $streamId): bool
     {
         // @TODO just one example for the need to refactor: these validation methods
@@ -496,8 +505,12 @@ class OpenTok
     }
 
     /**
-     * @param string $sessionId
-     * @param array<string> $excludeStreams
+     * Mute multiple streams in an OpenTok session
+     *
+     * @param string $sessionId The OpenTok session ID that the client is connected to.
+     *
+     * @param array<string> $excludeStreams An array of valid OpenTok stream IDs to mute
+     *
      * @return bool
      */
     public function muteStreamsInSession(string $sessionId, array $excludeStreams): bool
