@@ -1641,9 +1641,8 @@ class OpenTokTest extends TestCase
         $this->assertEquals($from, $body->sip->from);
     }
 
-    public function testSipCallVideo()
+    public function testSipCallVideo(): void
     {
-        // Arrange
         $this->setupOTWithMocks([[
             'code' => 200,
             'headers' => [
@@ -1655,15 +1654,47 @@ class OpenTokTest extends TestCase
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $bogusToken = 'T1==TEST';
         $bogusSipUri = 'sip:john@doe.com';
-
-        // Act
         $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri, ['video' => true]);
 
-        // Assert
         $this->assertInstanceOf('OpenTok\SipCall', $sipCall);
         $this->assertNotNull($sipCall->id);
         $this->assertNotNull($sipCall->connectionId);
         $this->assertNotNull($sipCall->streamId);
+        $this->assertEquals(false, $sipCall->observeForceMute);
+
+        $this->assertCount(1, $this->historyContainer);
+        $request = $this->historyContainer[0]['request'];
+
+        $body = json_decode($request->getBody());
+        $this->assertEquals(true, $body->sip->video);
+    }
+
+    public function testSipCallVideoWithObserveForceMute(): void
+    {
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/dialForceMute'
+        ]]);
+
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $bogusToken = 'T1==TEST';
+        $bogusSipUri = 'sip:john@doe.com';
+
+        $optionsPayload = [
+            'video' => true,
+            'observeForceMute' => true
+        ];
+
+        $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri, $optionsPayload);
+
+        $this->assertInstanceOf('OpenTok\SipCall', $sipCall);
+        $this->assertNotNull($sipCall->id);
+        $this->assertNotNull($sipCall->connectionId);
+        $this->assertNotNull($sipCall->streamId);
+        $this->assertEquals(true, $sipCall->observeForceMute);
 
         $this->assertCount(1, $this->historyContainer);
         $request = $this->historyContainer[0]['request'];
