@@ -18,7 +18,8 @@ namespace OpenTok;
 * the SIP call.
 *
 * @property bool $observeForceMute
-* Boolean to show whether the SIP call honors the force mute action.
+* Whether the SIP call honors
+* <a href="https://tokbox.com/developer/guides/moderation/#force_mute">force mute moderation</a>.
 */
 class SipCall
 {

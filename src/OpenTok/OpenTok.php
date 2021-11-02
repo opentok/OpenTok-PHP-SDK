@@ -720,11 +720,9 @@ class OpenTok
      *    <li><code>'secure'</code> (Boolean) &mdash; Indicates whether the media
      *    must be transmitted encrypted (true, the default) or not (false).</li>
      *
-     *    <li><code>'observeForceMute'</code> (Boolean) &mdash; A Boolean flag that
-     *    determines whether the SIP endpoint should honor the force mute action.
-     *    The force mute action allows a moderator to force clients to
-     *    mute audio in streams they publish. It defaults to False if moderator does not want to observe
-     *    force mute a stream and set to True if the moderator wants to observe force mute a stream.</li>
+     *    <li><code>'observeForceMute'</code> (Boolean) &mdash; Whether the SIP endpoint should honor
+     *    <a href="https://tokbox.com/developer/guides/moderation/#force_mute">force mute moderation</a>
+     *    (True) or not (False, the default).</li>
      *
      *    <li><code>'from'</code> (string) &mdash; The number or string that will be sent to
      *    the final SIP number as the caller. It must be a string in the form of
