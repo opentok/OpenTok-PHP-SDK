@@ -609,7 +609,7 @@ class Client
         return $options;
     }
 
-    public function muteStreamInSession(string $sessionId, string $streamId)
+    public function forceMuteStream(string $sessionId, string $streamId)
     {
         $request = new Request(
             'POST',
@@ -628,7 +628,7 @@ class Client
         return $jsonResponse;
     }
 
-    public function muteStreamsInSession(string $sessionId, array $excludedStreamIds)
+    public function forceMuteAll(string $sessionId, array $options)
     {
         $request = new Request(
             'POST',
@@ -638,7 +638,7 @@ class Client
         try {
             $response = $this->client->send($request, [
                 'debug' => $this->isDebug(),
-                'json' => $excludedStreamIds
+                'json' => $options
             ]);
             $jsonResponse = json_decode($response->getBody(), true);
         } catch (\Exception $e) {

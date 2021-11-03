@@ -487,16 +487,13 @@ class OpenTok
      *
      * @return bool
      */
-    public function muteStreamInSession(string $sessionId, string $streamId): bool
+    public function forceMuteStream(string $sessionId, string $streamId): bool
     {
-        // @TODO just one example for the need to refactor: these validation methods
-        // should be deprecated because typehinting is taking care of the validation unless
-        // we make the validators do more work eg. regex
         Validators::validateSessionId($sessionId);
         Validators::validateStreamId($streamId);
 
         try {
-            $this->client->muteStreamInSession($sessionId, $streamId);
+            $this->client->forceMuteStream($sessionId, $streamId);
         } catch (\Exception $e) {
             return false;
         }
@@ -509,20 +506,17 @@ class OpenTok
      *
      * @param string $sessionId The OpenTok session ID that the client is connected to.
      *
-     * @param array<string> $excludeStreams An array of valid OpenTok stream IDs to mute
+     * @param array<string> $options An array of valid openTok Options
      *
      * @return bool
      */
-    public function muteStreamsInSession(string $sessionId, array $excludeStreams): bool
+    public function forceMuteAll(string $sessionId, array $options): bool
     {
         Validators::validateSessionId($sessionId);
-
-        foreach ($excludeStreams as $streamId) {
-            Validators::validateStreamId($streamId);
-        }
+        Validators::validateForceMuteAllOptions($options);
 
         try {
-            $this->client->muteStreamsInSession($sessionId, $excludeStreams);
+            $this->client->forceMuteAll($sessionId, $options);
         } catch (\Exception $e) {
             return false;
         }

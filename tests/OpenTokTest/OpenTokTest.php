@@ -1356,7 +1356,7 @@ class OpenTokTest extends TestCase
         $sessionId = 'SESSIONID';
         $streamId = 'STREAMID';
 
-        $result = $this->opentok->muteStreamInSession($sessionId, $streamId);
+        $result = $this->opentok->forceMuteStream($sessionId, $streamId);
         $this->assertTrue($result);
     }
 
@@ -1373,7 +1373,7 @@ class OpenTokTest extends TestCase
         $streamIds = ['TEST1', 'TEST2'];
         $sessionId = 'SESSIONID';
 
-        $result = $this->opentok->muteStreamsInSession($sessionId, $streamIds);
+        $result = $this->opentok->forceMuteAll($sessionId, $streamIds);
         $this->assertTrue($result);
     }
 
@@ -1390,7 +1390,7 @@ class OpenTokTest extends TestCase
         $streamId = 'TEST1';
         $sessionId = 'SESSIONID';
 
-        $result = $this->opentok->muteStreamInSession($sessionId, $streamId);
+        $result = $this->opentok->forceMuteStream($sessionId, $streamId);
         $this->assertFalse($result);
     }
 
@@ -1407,7 +1407,7 @@ class OpenTokTest extends TestCase
         $streamIds = ['TEST1', 'TEST2'];
         $sessionId = 'SESSIONID';
 
-        $result = $this->opentok->muteStreamsInSession($sessionId, $streamIds);
+        $result = $this->opentok->forceMuteAll($sessionId, $streamIds);
         $this->assertFalse($result);
     }
 
@@ -1426,7 +1426,7 @@ class OpenTokTest extends TestCase
         $streamIdsString = implode(',', ['TEST1', 'TEST2']);
         $sessionId = 'SESSIONID';
 
-        $result = $this->opentok->muteStreamsInSession($sessionId, $streamIdsString);
+        $result = $this->opentok->forceMuteAll($sessionId, $streamIdsString);
         $this->assertFalse($result);
     }
 
@@ -1443,7 +1443,7 @@ class OpenTokTest extends TestCase
         $streamIdsString = implode(',', ['TEST1', 'TEST2']);
         $sessionId = 'SESSIONID';
 
-        $result = $this->opentok->muteStreamInSession($sessionId, $streamIdsString);
+        $result = $this->opentok->forceMuteStream($sessionId, $streamIdsString);
     }
 
     public function testUpdatesBroadcastLayoutWithPredefined()
