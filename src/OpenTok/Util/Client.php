@@ -38,7 +38,7 @@ use OpenTok\Exception\ForceDisconnectUnexpectedValueException;
 
 // TODO: build this dynamically
 /** @internal */
-define('OPENTOK_SDK_VERSION', '4.9.0');
+define('OPENTOK_SDK_VERSION', '4.9.1');
 /** @internal */
 define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
 
@@ -560,10 +560,10 @@ class Client
 
     public function playDTMF(string $sessionId, string $digits, string $connectionId = null): void
     {
-        $route = sprintf('/v2/projects/%s/session/%s/play-dtmf', $this->apiKey, $sessionId);
+        $route = sprintf('/v2/project/%s/session/%s/play-dtmf', $this->apiKey, $sessionId);
         if ($connectionId) {
             $route = sprintf(
-                '/v2/projects/%s/session/%s/connection/%s/play-dtmf',
+                '/v2/project/%s/session/%s/connection/%s/play-dtmf',
                 $this->apiKey,
                 $sessionId,
                 $connectionId
