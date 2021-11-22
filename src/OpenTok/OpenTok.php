@@ -479,13 +479,13 @@ class OpenTok
     }
 
     /**
-     * Mute a stream in an OpenTok session
+     * force a publisher of a specific stream in an OpenTok session to mute its audio.
      *
-     * @param string $sessionId The OpenTok session ID that the client is connected to
+     * @param string $sessionId The OpenTok session ID containing the stream.
      *
-     * @param string $streamId The OpenTok streamId to be muted in the session
+     * @param string $streamId The stream ID.
      *
-     * @return bool
+     * @return bool Whether the call succeeded or failed.
      */
     public function forceMuteStream(string $sessionId, string $streamId): bool
     {
@@ -502,13 +502,23 @@ class OpenTok
     }
 
     /**
-     * Mute multiple streams in an OpenTok session
+     * Force all streams (except for an optional list of streams) in an OpenTok session
+     * to mute published audio.
      *
-     * @param string $sessionId The OpenTok session ID that the client is connected to.
+     * @param string $sessionId The OpenTok session ID.
      *
-     * @param array<string> $options An array of valid openTok Options
+     * @param array<string> $options This array defines options and includes the following keys:
      *
-     * @return bool
+     * <ul>
+     *    <li><code>'excludedStreamIds'</code> (array, optional) &mdash; An array of stram IDs
+     *    corresponding to streams that should not be muted. This is an optional property.
+     *    If you omit this property, all streams in the session will be muted.</li>
+     *
+     *    <li><code>'active'</code> (Boolean, required) &mdash; Whether streams published after this call,
+     *    in addition to the current streams in the session, should be muted (true) or not (false).</li>
+     * </ul>
+     *
+     * @return bool Whether the call succeeded or failed.
      */
     public function forceMuteAll(string $sessionId, array $options): bool
     {
@@ -739,7 +749,7 @@ class OpenTok
      * <p>
      * This is an example of insecure call negotiation: "sip:access@thirparty.com".
      *
-     * @param array $options This array defines options for the token. It includes the
+     * @param array $options This array defines options for the SIP call. It includes the
      * following keys, all of which are optional:
      *
      * <ul>
