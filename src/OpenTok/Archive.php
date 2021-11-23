@@ -14,7 +14,7 @@ use OpenTok\Exception\ArchiveUnexpectedValueException;
 * The time at which the archive was created, in milliseconds since the UNIX epoch.
 *
 * @property string $duration
-* The duration of the archive, in milliseconds.
+* The duration of the archive, in seconds.
 *
 * @property bool $hasVideo
 * Whether the archive has a video track (<code>true</code>) or not (<code>false</code>).
