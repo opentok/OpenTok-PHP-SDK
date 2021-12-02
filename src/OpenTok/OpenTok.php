@@ -453,14 +453,14 @@ class OpenTok
     public function setStreamClassLists($sessionId, $classListArray = array())
     {
         Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
-        
+
         foreach ($classListArray as $item) {
             Validators::validateLayoutClassListItem($item);
         }
-        
+
         $this->client->setStreamClassLists($sessionId, $classListArray);
     }
-    
+
 
     /**
      * Disconnects a specific client from an OpenTok session.
@@ -479,13 +479,13 @@ class OpenTok
     }
 
     /**
-     * Mute a stream in an OpenTok session
+     * force a publisher of a specific stream in an OpenTok session to mute its audio.
      *
-     * @param string $sessionId The OpenTok session ID that the client is connected to
+     * @param string $sessionId The OpenTok session ID containing the stream.
      *
-     * @param string $streamId The OpenTok streamId to be muted in the session
+     * @param string $streamId The stream ID.
      *
-     * @return bool
+     * @return bool Whether the call succeeded or failed.
      */
     public function forceMuteStream(string $sessionId, string $streamId): bool
     {
@@ -502,13 +502,23 @@ class OpenTok
     }
 
     /**
-     * Mute multiple streams in an OpenTok session
+     * Force all streams (except for an optional list of streams) in an OpenTok session
+     * to mute published audio.
      *
-     * @param string $sessionId The OpenTok session ID that the client is connected to.
+     * @param string $sessionId The OpenTok session ID.
      *
-     * @param array<string> $options An array of valid openTok Options
+     * @param array<string> $options This array defines options and includes the following keys:
      *
-     * @return bool
+     * <ul>
+     *    <li><code>'excludedStreamIds'</code> (array, optional) &mdash; An array of stram IDs
+     *    corresponding to streams that should not be muted. This is an optional property.
+     *    If you omit this property, all streams in the session will be muted.</li>
+     *
+     *    <li><code>'active'</code> (Boolean, required) &mdash; Whether streams published after this call,
+     *    in addition to the current streams in the session, should be muted (true) or not (false).</li>
+     * </ul>
+     *
+     * @return bool Whether the call succeeded or failed.
      */
     public function forceMuteAll(string $sessionId, array $options): bool
     {
@@ -686,7 +696,7 @@ class OpenTok
     {
         Validators::validateSessionId($sessionId);
         Validators::validateStreamId($streamId);
-      
+
         // make API call
         $streamData = $this->client->getStream($sessionId, $streamId);
         return new Stream($streamData);
@@ -704,7 +714,7 @@ class OpenTok
     public function listStreams($sessionId)
     {
         Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
-      
+
         // make API call
         $streamListData = $this->client->listStreams($sessionId);
         return new StreamList($streamListData);
@@ -739,15 +749,12 @@ class OpenTok
      * <p>
      * This is an example of insecure call negotiation: "sip:access@thirparty.com".
      *
-     * @param array $options This array defines options for the token. It includes the
+     * @param array $options This array defines options for the SIP call. It includes the
      * following keys, all of which are optional:
      *
      * <ul>
-     *
      *    <li><code>'headers'</code> (array) &mdash; Headers​: Custom Headers to be added to the
-     *    SIP INVITE request initiated from OpenTok to the Third Party SIP Platform. All of this
-     *    custom headers must start with the "X-" prefix, or a Bad Request (400) will be
-     *    thrown.</li>
+     *    SIP INVITE request initiated from OpenTok to the Third Party SIP Platform.</li>
      *
      *    <li><code>'auth'</code> (array) &mdash; Auth​: Username and Password to be used in the SIP
      *    INVITE request for HTTP Digest authentication in case this is required by the Third Party
@@ -766,6 +773,10 @@ class OpenTok
      *
      *    <li><code>'secure'</code> (Boolean) &mdash; Indicates whether the media
      *    must be transmitted encrypted (true, the default) or not (false).</li>
+     *
+     *    <li><code>'observeForceMute'</code> (Boolean) &mdash; Whether the SIP endpoint should honor
+     *    <a href="https://tokbox.com/developer/guides/moderation/#force_mute">force mute moderation</a>
+     *    (True) or not (False, the default).</li>
      *
      *    <li><code>'from'</code> (string) &mdash; The number or string that will be sent to
      *    the final SIP number as the caller. It must be a string in the form of
@@ -790,9 +801,10 @@ class OpenTok
             'secure' => true,
             'from' => null,
             'video' => false,
+            'observeForceMute' => false
         );
+
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($headers, $secure, $from) = array_values($options);
 
         // validate arguments
         Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
@@ -830,7 +842,6 @@ class OpenTok
         Validators::validateDTMFDigits($digits);
 
         $this->client->playDTMF($sessionId, $digits, $connectionId);
-
     }
 
     /**
@@ -860,14 +871,14 @@ class OpenTok
             'type' => '',
             'data' => '',
         );
-        
+
         $payload = array_merge($defaults, array_intersect_key($payload, $defaults));
         list($type, $data) = array_values($payload);
 
         // validate arguments
         Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
         Validators::validateSignalPayload($payload);
-        
+
         if (is_null($connectionId) || empty($connectionId)) {
             // make API call without connectionId
             $this->client->signal($sessionId, $payload);
