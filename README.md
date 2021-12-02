@@ -18,11 +18,11 @@ It also includes methods for working with OpenTok
 
 Composer helps manage dependencies for PHP projects. Find more info here: <http://getcomposer.org>
 
-Add this package (`opentok/opentok`) to your `composer.json` file, or just run the following at the
+Add this package (`opentok/opentok`) to your `composer.json` file, or run the following at the
 command line:
 
-```
-$ ./composer.phar require opentok/opentok ^4.0
+```bash
+$ composer require opentok/opentok ^4.0
 ```
 
 ## Usage
@@ -548,6 +548,34 @@ The API_Config class has been removed. Store your OpenTok API key and API secret
 See the reference documentation
 <http://www.tokbox.com/opentok/libraries/server/php/reference/index.html> and in the
 docs directory of the SDK.
+
+## Running code quality tooling
+
+This library makes use of two code quality tools, plus a full PHPUnit test suite.
+
+* [phpcs](https://github.com/squizlabs/PHP_CodeSniffer)
+
+To run phpcs, enter the following on the command line:
+
+```bash
+ $ composer run phpcs
+ ```
+
+* [phpstan](https://github.com/phpstan/phpstan)
+
+To run phpstan, enter the following on the command line:
+
+```bash
+ $ composer run phpstan
+ ```
+
+* [phpunit](https://phpunit.de/)
+
+To run PhpUnit, enter the following on the command line:
+
+```bash
+ $ composer run test
+ ```
 
 ## Development and Contributing
 
