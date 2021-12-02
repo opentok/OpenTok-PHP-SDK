@@ -1430,8 +1430,9 @@ class OpenTokTest extends TestCase
         $this->assertFalse($result);
     }
 
-    public function testWillThrowClientExceptionWhenMutingInvalidStreamId()
+    public function testWillThrowClientExceptionWhenMutingInvalidStreamId(): void
     {
+        $this->expectException(\TypeError::class);
         $this->setupOTWithMocks([[
             'code' => 200,
             'headers' => [
@@ -1440,7 +1441,7 @@ class OpenTokTest extends TestCase
             'path' => '/v2/project/APIKEY/session/SESSIONID/mute'
         ]]);
 
-        $streamIdsString = implode(',', ['TEST1', 'TEST2']);
+        $streamIdsString = ['test1', 'test2'];
         $sessionId = 'SESSIONID';
 
         $result = $this->opentok->forceMuteStream($sessionId, $streamIdsString);

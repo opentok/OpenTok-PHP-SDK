@@ -13,7 +13,7 @@ class ValidatorsTest extends TestCase
         $this->expectNotToPerformAssertions();
 
         $options = [
-            'excludedStreamIds' => [
+            'excludedStreams' => [
                 'streamId1',
                 'streamId2'
             ],
@@ -28,7 +28,7 @@ class ValidatorsTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
 
         $options = [
-            'excludedStreamIds' => [
+            'excludedStreams' => [
                 3536,
                 'streamId2'
             ],
@@ -43,7 +43,7 @@ class ValidatorsTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
 
         $options = [
-            'excludedStreamIds' => [
+            'excludedStreams' => [
                 'streamId1',
                 'streamId2'
             ],
@@ -58,7 +58,7 @@ class ValidatorsTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
 
         $options = [
-            'excludedStreamIds' => 'streamIdOne',
+            'excludedStreams' => 'streamIdOne',
             'active' => false
         ];
 

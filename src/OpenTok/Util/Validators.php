@@ -34,7 +34,7 @@ class Validators
     public static function validateForceMuteAllOptions(array $options)
     {
         $validOptions = [
-            'excludedStreamIds' => 'array',
+            'excludedStreams' => 'array',
             'active' => 'boolean'
         ];
 
@@ -46,8 +46,8 @@ class Validators
             }
         }
 
-        if (isset($options['excludedStreamIds'])) {
-            foreach ($options['excludedStreamIds'] as $streamId) {
+        if (isset($options['excludedStreams'])) {
+            foreach ($options['excludedStreams'] as $streamId) {
                 self::validateStreamId($streamId);
             }
         }
