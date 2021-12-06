@@ -12,6 +12,7 @@ use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use OpenTok\OutputMode;
 use OpenTok\ArchiveMode;
+use OpenTok\StreamMode;
 use OpenTok\Util\Client;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\HandlerStack;
@@ -540,7 +541,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('auto', $archive->streamMode);
     }
 
-    public function testStartsArchiveInManualMode()
+    public function testStartsArchiveInManualMode(): void
     {
         // Arrange
         $this->setupOTWithMocks([[
@@ -556,7 +557,7 @@ class OpenTokTest extends TestCase
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
         // Act
-        $archive = $this->opentok->startArchive($sessionId, ['streamMode' => 'manual']);
+        $archive = $this->opentok->startArchive($sessionId, ['streamMode' => StreamMode::MANUAL]);
 
         // Assert
         $this->assertCount(1, $this->historyContainer);
@@ -573,11 +574,6 @@ class OpenTokTest extends TestCase
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
-
-        // TODO: test the dynamically built User Agent string
-        $userAgent = $request->getHeaderLine('User-Agent');
-        $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
 
         $this->assertInstanceOf('OpenTok\Archive', $archive);
         $this->assertEquals(0, $archive->duration);
@@ -1320,7 +1316,7 @@ class OpenTokTest extends TestCase
         $sessionId = '2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4';
 
         // Act
-        $broadcast = $this->opentok->startBroadcast($sessionId, ['streamMode' => 'manual']);
+        $broadcast = $this->opentok->startBroadcast($sessionId, ['streamMode' => StreamMode::MANUAL]);
 
         // Assert
         $this->assertCount(1, $this->historyContainer);
@@ -1337,11 +1333,6 @@ class OpenTokTest extends TestCase
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
-
-        // TODO: test the dynamically built User Agent string
-        $userAgent = $request->getHeaderLine('User-Agent');
-        $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.1', $userAgent);
 
         $this->assertInstanceOf('OpenTok\Broadcast', $broadcast);
         $this->assertIsString($broadcast->id);
