@@ -99,14 +99,16 @@ class Archive
             'apiKey' => null,
             'apiSecret' => null,
             'apiUrl' => 'https://api.opentok.com',
-            'client' => null
+            'client' => null,
+            'streamMode' => StreamMode::AUTO
         );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($apiKey, $apiSecret, $apiUrl, $client) = array_values($options);
+        list($apiKey, $apiSecret, $apiUrl, $client, $streamMode) = array_values($options);
 
         // validate params
         Validators::validateArchiveData($archiveData);
         Validators::validateClient($client);
+        Validators::validateHasStreamMode($streamMode);
 
         $this->data = $archiveData;
 

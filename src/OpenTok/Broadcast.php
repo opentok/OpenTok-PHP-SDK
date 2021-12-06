@@ -60,7 +60,7 @@ class Broadcast
             'apiUrl' => 'https://api.opentok.com',
             'client' => null,
             'isStopped' => false,
-            'streamMode' => 'auto'
+            'streamMode' => StreamMode::AUTO
         );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
         list($apiKey, $apiSecret, $apiUrl, $client, $isStopped, $streamMode) = array_values($options);
