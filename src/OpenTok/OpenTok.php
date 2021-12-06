@@ -510,7 +510,7 @@ class OpenTok
      * @param array<string> $options This array defines options and includes the following keys:
      *
      * <ul>
-     *    <li><code>'excludedStreamIds'</code> (array, optional) &mdash; An array of stram IDs
+     *    <li><code>'excludedStreams'</code> (array, optional) &mdash; An array of stream IDs
      *    corresponding to streams that should not be muted. This is an optional property.
      *    If you omit this property, all streams in the session will be muted.</li>
      *
