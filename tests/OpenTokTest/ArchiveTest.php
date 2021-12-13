@@ -1,16 +1,16 @@
 <?php
 
+namespace OpenTokTest;
+
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
-
 use OpenTok\Archive;
-use OpenTok\OpenTokTestCase;
 use OpenTok\Util\Client;
+use PHPUnit\Framework\TestCase;
 
-use OpenTok\TestHelpers;
-
-class ArchiveTest extends PHPUnit_Framework_TestCase {
+class ArchiveTest extends TestCase
+{
 
     // Fixtures
     protected $archiveData;
@@ -22,7 +22,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
 
     protected static $mockBasePath;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         self::$mockBasePath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'mock' . DIRECTORY_SEPARATOR;
     }
@@ -98,7 +98,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         $this->setupArchives();
         // Act
         // Assert
-        $this->assertInstanceOf('OpenTok\Archive', $this->archive);
+        $this->assertInstanceOf(Archive::class, $this->archive);
     }
 
     public function testReadsProperties()
@@ -156,7 +156,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         // TODO: test the properties of the actual archive object
         $this->assertEquals('stopped', $this->archive->status);
@@ -195,7 +195,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         $this->assertTrue($success);
         // TODO: assert that all properties of the archive object were cleared
@@ -230,11 +230,9 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         $this->assertInstanceOf('OpenTok\Archive', $archive);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testRejectsBadArchiveData()
     {
+        $this->expectException('InvalidArgumentException');
         $this->setupOT();
 
         // Set up fixtures
@@ -296,7 +294,7 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         $archiveJson = $this->archive->toJson();
 
         // Assert
-        $this->assertInternalType('string', $archiveJson);
+        $this->assertIsString($archiveJson);
         $this->assertNotNull(json_encode($archiveJson));
     }
 
@@ -310,14 +308,8 @@ class ArchiveTest extends PHPUnit_Framework_TestCase {
         $archiveArray = $this->archive->toArray();
 
         // Assert
-        $this->assertInternalType('array', $archiveArray);
+        $this->assertIsArray($archiveArray);
         $this->assertEquals($this->archiveData, $archiveArray);
     }
-    // TODO: test deleted archive can not be stopped or deleted again
-
-    private function decodeToken($token)
-    {
-
-    }
 }
-/* vim: set ts=4 sw=4 tw=100 sts=4 et :*/
+

@@ -11,7 +11,8 @@ use OpenTok\Util\BasicEnum;
  * See <a href="OpenTok.OpenTok.html#method_startArchive">OpenTok->startArchive()</a>
  * and <a href="OpenTok.Archive.html#property_outputMode">Archive.outputMode</a>.
  */
-abstract class OutputMode extends BasicEnum {
+abstract class OutputMode extends BasicEnum
+{
     /**
      * All streams in the archive are recorded to a single (composed) file.
      */
@@ -21,5 +22,3 @@ abstract class OutputMode extends BasicEnum {
      */
     const INDIVIDUAL = 'individual';
 }
-
-/* vim: set ts=4 sw=4 tw=100 sts=4 et :*/

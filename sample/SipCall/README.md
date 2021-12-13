@@ -4,9 +4,13 @@ This is a simple demo app that shows how you can use the OpenTok-PHP-SDK to join
 
 ## Running the App
 
-First, download the dependencies using [Composer](http://getcomposer.org) in this directory.
+First, download the dependencies using [Composer](http://getcomposer.org) in this directory, as well
+as the root SDK directory
 
 ```
+$ cd ../../
+$ composer.phar install
+$ cd sample/SipCall
 $ ../../composer.phar install
 ```
 

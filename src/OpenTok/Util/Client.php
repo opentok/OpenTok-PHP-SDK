@@ -2,43 +2,43 @@
 
 namespace OpenTok\Util;
 
+use Exception as GlobalException;
+use OpenTok\Layout;
+use Firebase\JWT\JWT;
+use OpenTok\MediaMode;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Psr7\Request;
-use Psr\Http\Message\RequestInterface;
-use Firebase\JWT\JWT;
-
 use OpenTok\Exception\Exception;
 use OpenTok\Exception\DomainException;
-use OpenTok\Exception\UnexpectedValueException;
-use OpenTok\Exception\AuthenticationException;
-
+use Psr\Http\Message\RequestInterface;
 use OpenTok\Exception\ArchiveException;
-use OpenTok\Exception\ArchiveDomainException;
-use OpenTok\Exception\ArchiveUnexpectedValueException;
-use OpenTok\Exception\ArchiveAuthenticationException;
-
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\ServerException;
 use OpenTok\Exception\BroadcastException;
+use GuzzleHttp\Exception\RequestException;
+use function GuzzleHttp\default_user_agent;
+use OpenTok\Exception\ArchiveDomainException;
+use OpenTok\Exception\AuthenticationException;
 use OpenTok\Exception\BroadcastDomainException;
-use OpenTok\Exception\BroadcastUnexpectedValueException;
-use OpenTok\Exception\BroadcastAuthenticationException;
-
-use OpenTok\Exception\SignalException;
+use OpenTok\Exception\UnexpectedValueException;
 use OpenTok\Exception\SignalConnectionException;
-use OpenTok\Exception\SignalUnexpectedValueException;
 use OpenTok\Exception\SignalAuthenticationException;
-
+use OpenTok\Exception\ArchiveAuthenticationException;
+use OpenTok\Exception\SignalUnexpectedValueException;
+use OpenTok\Exception\ArchiveUnexpectedValueException;
+use OpenTok\Exception\BroadcastAuthenticationException;
+use OpenTok\Exception\SignalNetworkConnectionException;
+use OpenTok\Exception\BroadcastUnexpectedValueException;
 use OpenTok\Exception\ForceDisconnectConnectionException;
-use OpenTok\Exception\ForceDisconnectUnexpectedValueException;
-use OpenTok\Exception\ForceDisconnectAuthenticationException;
 
-use OpenTok\MediaMode;
+use OpenTok\Exception\ForceDisconnectAuthenticationException;
+use OpenTok\Exception\ForceDisconnectUnexpectedValueException;
 
 // TODO: build this dynamically
 /** @internal */
-define('OPENTOK_SDK_VERSION', '4.4.1');
+define('OPENTOK_SDK_VERSION', '4.10.0');
 /** @internal */
 define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
 
@@ -50,6 +50,10 @@ class Client
     protected $apiKey;
     protected $apiSecret;
     protected $configured = false;
+
+    /**
+     * @var \GuzzleHttp\Client
+     */
     protected $client;
 
     public function configure($apiKey, $apiSecret, $apiUrl, $options = array())
@@ -57,26 +61,35 @@ class Client
         $this->apiKey = $apiKey;
         $this->apiSecret = $apiSecret;
 
-        if (empty($options['handler'])) {
-            $handlerStack = HandlerStack::create();
+        if (isset($options['client'])) {
+            $this->client = $options['client'];
         } else {
-            $handlerStack = $options['handler'];
+            $clientOptions = [
+                'base_uri' => $apiUrl,
+                'headers' => [
+                    'User-Agent' => OPENTOK_SDK_USER_AGENT . ' ' . default_user_agent(),
+                ],
+            ];
+
+            if (!empty($options['timeout'])) {
+                $clientOptions['timeout'] = $options['timeout'];
+            }
+
+            if (empty($options['handler'])) {
+                $handlerStack = HandlerStack::create();
+            } else {
+                $handlerStack = $options['handler'];
+            }
+            $clientOptions['handler'] = $handlerStack;
+
+            $handler = Middleware::mapRequest(function (RequestInterface $request) {
+                $authHeader = $this->createAuthHeader();
+                return $request->withHeader('X-OPENTOK-AUTH', $authHeader);
+            });
+            $handlerStack->push($handler);
+
+            $this->client = new \GuzzleHttp\Client($clientOptions);
         }
-
-        $handler = Middleware::mapRequest(function (RequestInterface $request) {
-            $authHeader = $this->createAuthHeader();
-            return $request->withHeader('X-OPENTOK-AUTH', $authHeader);
-        });
-        $handlerStack->push($handler);
-
-        $ua = OPENTOK_SDK_USER_AGENT . ' ' . \GuzzleHttp\default_user_agent();
-        $this->client = new \GuzzleHttp\Client([
-            'base_uri' => $apiUrl,
-            'handler' => $handlerStack,
-            'headers' => [
-                'User-Agent' => $ua
-            ]
-        ]);
 
         $this->configured = true;
     }
@@ -92,7 +105,7 @@ class Client
             'ist' => 'project',
             'iss' => $this->apiKey,
             'iat' => time(), // this is in seconds
-            'exp' => time()+(5 * 60),
+            'exp' => time() + (5 * 60),
             'jti' => uniqid(),
         );
         return JWT::encode($token, $this->apiSecret);
@@ -124,7 +137,9 @@ class Client
     {
         $errorMessage = null;
         $internalErrors = libxml_use_internal_errors(true);
-        $disableEntities = libxml_disable_entity_loader(true);
+        if (\PHP_VERSION_ID < 80000) {
+            $disableEntities = libxml_disable_entity_loader(true);
+        }
         libxml_clear_errors();
         try {
             $body = $response->getBody();
@@ -137,25 +152,24 @@ class Client
         }
         libxml_clear_errors();
         libxml_use_internal_errors($internalErrors);
-        libxml_disable_entity_loader($disableEntities);
+        if (\PHP_VERSION_ID < 80000) {
+            libxml_disable_entity_loader($disableEntities);
+        }
         if ($errorMessage) {
             throw new \RuntimeException('Unable to parse response body into XML: ' . $errorMessage);
         }
         return $xml;
     }
 
-    // Archiving API Requests
-
-    public function startArchive($sessionId, $options)
+    public function startArchive(string $sessionId, array $options = []): array
     {
-        // set up the request
-        $request = new Request('POST', '/v2/project/'.$this->apiKey.'/archive');
+        $request = new Request('POST', '/v2/project/' . $this->apiKey . '/archive');
 
         try {
             $response = $this->client->send($request, [
                 'debug' => $this->isDebug(),
                 'json' => array_merge(
-                    array( 'sessionId' => $sessionId ),
+                    ['sessionId' => $sessionId],
                     $options
                 )
             ]);
@@ -171,7 +185,7 @@ class Client
         // set up the request
         $request = new Request(
             'POST',
-            '/v2/project/'.$this->apiKey.'/archive/'.$archiveId.'/stop',
+            '/v2/project/' . $this->apiKey . '/archive/' . $archiveId . '/stop',
             ['Content-Type' => 'application/json']
         );
 
@@ -191,7 +205,7 @@ class Client
     {
         $request = new Request(
             'GET',
-            '/v2/project/'.$this->apiKey.'/archive/'.$archiveId
+            '/v2/project/' . $this->apiKey . '/archive/' . $archiveId
         );
         try {
             $response = $this->client->send($request, [
@@ -209,7 +223,7 @@ class Client
     {
         $request = new Request(
             'DELETE',
-            '/v2/project/'.$this->apiKey.'/archive/'.$archiveId,
+            '/v2/project/' . $this->apiKey . '/archive/' . $archiveId,
             ['Content-Type' => 'application/json']
         );
         try {
@@ -226,11 +240,11 @@ class Client
         return true;
     }
 
-    public function forceDisconnect($sessionId,$connectionId)
+    public function forceDisconnect($sessionId, $connectionId)
     {
         $request = new Request(
             'DELETE',
-            '/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/connection/'.$connectionId,
+            '/v2/project/' . $this->apiKey . '/session/' . $sessionId . '/connection/' . $connectionId,
             ['Content-Type' => 'application/json']
         );
         try {
@@ -249,7 +263,7 @@ class Client
 
     public function listArchives($offset, $count, $sessionId)
     {
-        $request = new Request('GET', '/v2/project/'.$this->apiKey.'/archive');
+        $request = new Request('GET', '/v2/project/' . $this->apiKey . '/archive');
         $queryParams = [];
         if ($offset != 0) {
             $queryParams['offset'] = $offset;
@@ -273,11 +287,11 @@ class Client
         return $archiveListJson;
     }
 
-    public function startBroadcast($sessionId, $options)
+    public function startBroadcast(string $sessionId, array $options): array
     {
         $request = new Request(
             'POST',
-            '/v2/project/'.$this->apiKey.'/broadcast'
+            '/v2/project/' . $this->apiKey . '/broadcast'
         );
 
         $optionsJson = [
@@ -303,7 +317,7 @@ class Client
     {
         $request = new Request(
             'POST',
-            '/v2/project/'.$this->apiKey.'/broadcast/'.$broadcastId.'/stop',
+            '/v2/project/' . $this->apiKey . '/broadcast/' . $broadcastId . '/stop',
             ['Content-Type' => 'application/json']
         );
 
@@ -322,7 +336,7 @@ class Client
     {
         $request = new Request(
             'GET',
-            '/v2/project/'.$this->apiKey.'/broadcast/'.$broadcastId
+            '/v2/project/' . $this->apiKey . '/broadcast/' . $broadcastId
         );
         try {
             $response = $this->client->send($request, [
@@ -339,7 +353,7 @@ class Client
     {
         $request = new Request(
             'GET',
-            '/v2/project/'.$this->apiKey.'/'.$resourceType.'/'.$resourceId.'/layout'
+            '/v2/project/' . $this->apiKey . '/' . $resourceType . '/' . $resourceId . '/layout'
         );
         try {
             $response = $this->client->send($request, [
@@ -352,47 +366,43 @@ class Client
         return $layoutJson;
     }
 
-    public function updateLayout($resourceId, $layout, $resourceType = 'broadcast')
+    public function updateLayout(string $resourceId, Layout $layout, string $resourceType = 'broadcast'): void
     {
         $request = new Request(
             'PUT',
-            '/v2/project/'.$this->apiKey.'/'.$resourceType.'/'.$resourceId.'/layout'
+            '/v2/project/' . $this->apiKey . '/' . $resourceType . '/' . $resourceId . '/layout'
         );
         try {
-            $response = $this->client->send($request, [
+            $this->client->send($request, [
                 'debug' => $this->isDebug(),
-                'json' => $layout->jsonSerialize()
+                'json' => $layout->toArray()
             ]);
-            $layoutJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
             $this->handleException($e);
         }
-        return $layoutJson;
     }
 
-    public function setArchiveLayout($archiveId, $layout)
+    public function setArchiveLayout(string $archiveId, Layout $layout): void
     {
         $request = new Request(
             'PUT',
-            '/v2/project/'.$this->apiKey.'/archive/'.$archiveId.'/layout'
+            '/v2/project/' . $this->apiKey . '/archive/' . $archiveId . '/layout'
         );
         try {
-            $response = $this->client->send($request, [
+            $this->client->send($request, [
                 'debug' => $this->isDebug(),
-                'json' => $layout->jsonSerialize()
+                'json' => $layout->toArray()
             ]);
-            $layoutJson = json_decode($response->getBody(), true);
         } catch (\Exception $e) {
             $this->handleException($e);
         }
-        return $layoutJson;
     }
 
     public function updateStream($sessionId, $streamId, $properties)
     {
         $request = new Request(
             'PUT',
-            '/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/stream/'.$streamId
+            '/v2/project/' . $this->apiKey . '/session/' . $sessionId . '/stream/' . $streamId
         );
         try {
             $response = $this->client->send($request, [
@@ -407,10 +417,11 @@ class Client
         }
     }
 
-    public function getStream($sessionId, $streamId) {
+    public function getStream($sessionId, $streamId)
+    {
         $request = new Request(
             'GET',
-            '/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/stream/'.$streamId
+            '/v2/project/' . $this->apiKey . '/session/' . $sessionId . '/stream/' . $streamId
         );
 
         try {
@@ -429,7 +440,7 @@ class Client
     {
         $request = new Request(
             'GET',
-            '/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/stream/'
+            '/v2/project/' . $this->apiKey . '/session/' . $sessionId . '/stream/'
         );
         try {
             $response = $this->client->send($request, [
@@ -450,7 +461,7 @@ class Client
         );
         $request = new Request(
             'PUT',
-            'v2/project/'.$this->apiKey.'/session/'.$sessionId.'/stream'
+            'v2/project/' . $this->apiKey . '/session/' . $sessionId . '/stream'
         );
 
         try {
@@ -466,7 +477,18 @@ class Client
         }
     }
 
-
+    /**
+     * @param string $sessionId
+     * @param string $token
+     * @param string $sipUri
+     * @param array{secure: bool, headers?: array<string, string>, auth?: array{username: string, password: string}, from?: string, video?: boolean} $options
+     * @return array{id: string, streamId: string, connectId: string}
+     * @throws AuthenticationException
+     * @throws DomainException
+     * @throws UnexpectedValueException
+     * @throws GlobalException
+     * @throws GuzzleException
+     */
     public function dial($sessionId, $token, $sipUri, $options)
     {
         $body = array(
@@ -478,19 +500,24 @@ class Client
             )
         );
 
-        if (isset($options) && array_key_exists('headers', $options) && sizeof($options['headers']) > 0) {
+        if (array_key_exists('headers', $options) && count($options['headers']) > 0) {
             $body['sip']['headers'] = $options['headers'];
         }
 
-        if (isset($options) && array_key_exists('auth', $options)) {
+        if (array_key_exists('auth', $options)) {
             $body['sip']['auth'] = $options['auth'];
         }
-        if (isset($options) && array_key_exists('from', $options)) {
+
+        if (array_key_exists('from', $options)) {
             $body['sip']['from'] = $options['from'];
         }
 
+        if (array_key_exists('video', $options)) {
+            $body['sip']['video'] = (bool) $options['video'];
+        }
+
         // set up the request
-        $request = new Request('POST', '/v2/project/'.$this->apiKey.'/call');
+        $request = new Request('POST', '/v2/project/' . $this->apiKey . '/call');
 
         try {
             $response = $this->client->send($request, [
@@ -501,30 +528,71 @@ class Client
         } catch (\Exception $e) {
             $this->handleException($e);
         }
+
         return $sipJson;
     }
 
-    public function signal($sessionId, $options=array(), $connectionId=null)
+    public function playDTMF(string $sessionId, string $digits, string $connectionId = null): void
+    {
+        $route = sprintf('/v2/project/%s/session/%s/play-dtmf', $this->apiKey, $sessionId);
+        if ($connectionId) {
+            $route = sprintf(
+                '/v2/project/%s/session/%s/connection/%s/play-dtmf',
+                $this->apiKey,
+                $sessionId,
+                $connectionId
+            );
+        }
+
+        $request = new Request('POST', $route);
+        try {
+            $this->client->send($request, [
+                'debug' => $this->isDebug(),
+                'json' => [
+                    'digits' => $digits
+                ]
+            ]);
+        } catch (\Exception $e) {
+            $this->handleException($e);
+        }
+    }
+
+    /**
+     * Signal either an entire session or a specific connection in a session
+     *
+     * @param string $sessionId ID of the session to send the signal to
+     * @param array{type: string, data: mixed} $payload Signal payload to send
+     * @param string $connectionId ID of the connection to send the signal to
+     *
+     * @todo Mark $payload as required, as you cannot send an empty signal request body
+     *
+     * @throws SignalNetworkConnectionException
+     * @throws \Exception
+     */
+    public function signal($sessionId, $payload = [], $connectionId = null)
     {
         // set up the request
-
-        
-        $request = is_null($connectionId) || empty($connectionId) ? 
-                new Request('POST', '/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/signal')
-                : new Request('POST', '/v2/project/'.$this->apiKey.'/session/'.$sessionId.'/connection/'.$connectionId.'/signal');
+        $requestRoot = '/v2/project/' . $this->apiKey . '/session/' . $sessionId;
+        $request = is_null($connectionId) || empty($connectionId) ?
+            new Request('POST', $requestRoot . '/signal')
+            : new Request('POST', $requestRoot . '/connection/' . $connectionId . '/signal');
 
         try {
             $response = $this->client->send($request, [
                 'debug' => $this->isDebug(),
                 'json' => array_merge(
-                    $options
+                    $payload
                 )
             ]);
             if ($response->getStatusCode() != 204) {
                 json_decode($response->getBody(), true);
             }
-        } catch (\Exception $e) {
+        } catch (ClientException $e) {
             $this->handleSignalingException($e);
+        } catch (RequestException $e) {
+            throw new SignalNetworkConnectionException('Unable to communicate with host', -1, $e);
+        } catch (\Exception $e) {
+            throw $e;
         }
     }
 
@@ -561,12 +629,12 @@ class Client
                 );
             } else {
                 throw new DomainException(
-                    'The OpenTok API request failed: '. json_decode($e->getResponse()->getBody(true))->message,
+                    'The OpenTok API request failed: ' . json_decode($e->getResponse()->getBody(true))->message,
                     null,
                     $e
                 );
             }
-        } else if ($e instanceof ServerException) {
+        } elseif ($e instanceof ServerException) {
             // will catch all 5xx errors
             throw new UnexpectedValueException(
                 'The OpenTok API server responded with an error: ' . json_decode($e->getResponse()->getBody(true))->message,
@@ -611,25 +679,22 @@ class Client
         }
     }
 
-    private function handleSignalingException($e)
+    private function handleSignalingException(ClientException $e)
     {
         $responseCode = $e->getResponse()->getStatusCode();
-        switch($responseCode) {
+        switch ($responseCode) {
             case 400:
                 $message = 'One of the signal properties — data, type, sessionId or connectionId — is invalid.';
                 throw new SignalUnexpectedValueException($message, $responseCode);
-                break;
             case 403:
                 throw new SignalAuthenticationException($this->apiKey, $this->apiSecret, null, $e);
-                break;
             case 404:
                 $message = 'The client specified by the connectionId property is not connected to the session.';
                 throw new SignalConnectionException($message, $responseCode);
-                break;
             case 413:
-                $message = 'The type string exceeds the maximum length (128 bytes), or the data string exceeds the maximum size (8 kB).';
+                $message = 'The type string exceeds the maximum length (128 bytes),'
+                    . ' or the data string exceeds the maximum size (8 kB).';
                 throw new SignalUnexpectedValueException($message, $responseCode);
-                break;
             default:
                 break;
         }
@@ -638,18 +703,15 @@ class Client
     private function handleForceDisconnectException($e)
     {
         $responseCode = $e->getResponse()->getStatusCode();
-        switch($responseCode) {
+        switch ($responseCode) {
             case 400:
                 $message = 'One of the arguments — sessionId or connectionId — is invalid.';
                 throw new ForceDisconnectUnexpectedValueException($message, $responseCode);
-                break;
             case 403:
                 throw new ForceDisconnectAuthenticationException($this->apiKey, $this->apiSecret, null, $e);
-                break;
             case 404:
                 $message = 'The client specified by the connectionId property is not connected to the session.';
                 throw new ForceDisconnectConnectionException($message, $responseCode);
-                break;
             default:
                 break;
         }
@@ -657,6 +719,6 @@ class Client
 
     private function isDebug()
     {
-      return defined('OPENTOK_DEBUG');
+        return defined('OPENTOK_DEBUG');
     }
 }

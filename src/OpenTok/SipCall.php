@@ -2,12 +2,6 @@
 
 namespace OpenTok;
 
-use OpenTok\Util\Client;
-use OpenTok\Util\Validators;
-
-use OpenTok\Exception\InvalidArgumentException;
-use OpenTok\Exception\ArchiveUnexpectedValueException;
-
 /**
 * Represents data from a SIP Call
 *
@@ -22,9 +16,13 @@ use OpenTok\Exception\ArchiveUnexpectedValueException;
 * @property string $streamId
 * The ID of the stream connected to the OpenTok session streaming the audio received from
 * the SIP call.
+*
+* @property bool $observeForceMute
+* Whether the SIP call honors
+* <a href="https://tokbox.com/developer/guides/moderation/#force_mute">force mute moderation</a>.
 */
-class SipCall {
-
+class SipCall
+{
     /** @internal */
     private $data;
 
@@ -34,6 +32,7 @@ class SipCall {
         $this->data['id'] = $sipCallData['id'];
         $this->data['connectionId'] = $sipCallData['connectionId'];
         $this->data['streamId'] = $sipCallData['streamId'];
+        $this->data['observeForceMute'] = $sipCallData['observeForceMute'];
     }
 
     /**
@@ -42,12 +41,12 @@ class SipCall {
     /** @internal */
     public function __get($name)
     {
-        switch($name) {
+        switch ($name) {
             case 'id':
             case 'connectionId':
             case 'streamId':
+            case 'observeForceMute':
                 return $this->data[$name];
-                break;
             default:
                 return null;
         }
@@ -62,5 +61,3 @@ class SipCall {
         return json_encode($this->data);
     }
 }
-
-/* vim: set ts=4 sw=4 tw=100 sts=4 et :*/

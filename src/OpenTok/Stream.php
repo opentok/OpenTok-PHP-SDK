@@ -5,8 +5,8 @@ namespace OpenTok;
 /**
 * Represents a stream in an OpenTok session.
 * <p>
-* See <a href="OpenTok.html#method_getStream">OpenTok.getStream()</a> and
-* <a href="OpenTok.html#method_listStreams">OpenTok.listStreams()</a>.
+* See <a href="OpenTok.OpenTok.html#method_getStream">OpenTok.getStream()</a> and
+* <a href="OpenTok.OpenTok.html#method_listStreams">OpenTok.listStreams()</a>.
 *
 * @property String $id
 * The stream ID.
@@ -21,7 +21,8 @@ namespace OpenTok;
 * The type of video in the stream, which is set to either "camera" or "screen".
 */
 
-class Stream {
+class Stream
+{
 
     private $data;
 
@@ -40,7 +41,6 @@ class Stream {
             case 'name':
             case 'layoutClassList':
                 return $this->data[$name];
-                break;
             default:
                 return null;
         }

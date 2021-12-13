@@ -2,21 +2,11 @@
 
 namespace OpenTok;
 
-use OpenTok\Session;
-use OpenTok\Stream;
-use OpenTok\StreamList;
-use OpenTok\Archive;
-use OpenTok\Broadcast;
 use OpenTok\Layout;
-use OpenTok\Role;
-use OpenTok\MediaMode;
-use OpenTok\ArchiveMode;
-use OpenTok\OutputMode;
 use OpenTok\Util\Client;
 use OpenTok\Util\Validators;
-
-use OpenTok\Exception\UnexpectedValueException;
 use OpenTok\Exception\InvalidArgumentException;
+use OpenTok\Exception\UnexpectedValueException;
 
 /**
 * Contains methods for creating OpenTok sessions, generating tokens, and working with archives.
@@ -28,7 +18,8 @@ use OpenTok\Exception\InvalidArgumentException;
 * <p>
 * Be sure to include the entire OpenTok server SDK on your web server.
 */
-class OpenTok {
+class OpenTok
+{
 
     /** @internal */
     private $apiKey;
@@ -41,19 +32,29 @@ class OpenTok {
     public function __construct($apiKey, $apiSecret, $options = array())
     {
         // unpack optional arguments (merging with default values) into named variables
-        $defaults = array('apiUrl' => 'https://api.opentok.com', 'client' => null);
+        $defaults = array(
+            'apiUrl' => 'https://api.opentok.com',
+            'client' => null,
+            'timeout' => null // In the future we should set this to 2
+        );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($apiUrl, $client) = array_values($options);
+        list($apiUrl, $client, $timeout) = array_values($options);
 
         // validate arguments
         Validators::validateApiKey($apiKey);
         Validators::validateApiSecret($apiSecret);
         Validators::validateApiUrl($apiUrl);
         Validators::validateClient($client);
+        Validators::validateDefaultTimeout($timeout);
 
         $this->client = isset($client) ? $client : new Client();
         if (!$this->client->isConfigured()) {
-            $this->client->configure($apiKey, $apiSecret, $apiUrl);
+            $this->client->configure(
+                $apiKey,
+                $apiSecret,
+                $apiUrl,
+                ['timeout' => $timeout]
+            );
         }
         $this->apiKey = $apiKey;
         $this->apiSecret = $apiSecret;
@@ -86,7 +87,7 @@ class OpenTok {
      *    describing the end-user. For example, you can pass the user ID, name, or other data
      *    describing the end-user. The length of the string is limited to 1000 characters.
      *    This data cannot be updated once it is set.</li>
-     *    
+     *
      *    <li><code>initialLayoutClassList</code> (array) &mdash; An array of class names (strings)
      *      to be used as the initial layout classes for streams published by the client. Layout
      *      classes are used in customizing the layout of videos in
@@ -126,8 +127,8 @@ class OpenTok {
         $dataString = "session_id=$sessionId&create_time=$createTime&role=$role&nonce=$nonce" .
             (($expireTime) ? "&expire_time=$expireTime" : '') .
             (($data) ? "&connection_data=" . urlencode($data) : '') .
-            ((!empty($initialLayoutClassList)) ? "&initial_layout_class_list=" . urlencode(join(" ",$initialLayoutClassList)) : '');
-        $sig = $this->_sign_string($dataString, $this->apiSecret);
+            ((!empty($initialLayoutClassList)) ? "&initial_layout_class_list=" . urlencode(join(" ", $initialLayoutClassList)) : '');
+        $sig = $this->signString($dataString, $this->apiSecret);
 
         return "T1==" . base64_encode("partner_id=$this->apiKey&sig=$sig:$dataString");
     }
@@ -205,17 +206,19 @@ class OpenTok {
     * when using the OpenTok.js library, use this session ID when calling the
     * <code>OT.initSession()</code> method.
     */
-    public function createSession($options=array())
+    public function createSession($options = array())
     {
-        if (array_key_exists('archiveMode', $options) &&
-            $options['archiveMode'] != ArchiveMode::MANUAL) {
-
-            if (array_key_exists('mediaMode', $options) &&
-                $options['mediaMode'] != MediaMode::ROUTED) {
-
+        if (
+            array_key_exists('archiveMode', $options) &&
+            $options['archiveMode'] != ArchiveMode::MANUAL
+        ) {
+            if (
+                array_key_exists('mediaMode', $options) &&
+                $options['mediaMode'] != MediaMode::ROUTED
+            ) {
                 throw new InvalidArgumentException('A session must be routed to be archived.');
             } else {
-              $options['mediaMode'] = MediaMode::ROUTED;
+                $options['mediaMode'] = MediaMode::ROUTED;
             }
         }
 
@@ -239,7 +242,7 @@ class OpenTok {
         // check response
         $sessionId = $sessionXml->Session->session_id;
         if (!$sessionId) {
-            $errorMessage = 'Failed to create a session. Server response: '. (string)$sessionXml;
+            $errorMessage = 'Failed to create a session. Server response: ' . $sessionXml;
             throw new UnexpectedValueException($errorMessage);
         }
 
@@ -294,13 +297,17 @@ class OpenTok {
      * @return Archive The Archive object, which includes properties defining the archive, including
      * the archive ID.
      */
-    public function startArchive($sessionId, $options=array())
+    public function startArchive(string $sessionId, $options = []): Archive
     {
         // support for deprecated method signature, remove in v3.0.0 (not before)
         if (!is_array($options)) {
+            trigger_error(
+                'Archive options passed as a string is deprecated, please pass an array with a name key',
+                E_USER_DEPRECATED
+            );
             $options = array('name' => $options);
         }
-        
+
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array(
             'name' => null,
@@ -320,12 +327,12 @@ class OpenTok {
 
         if ((is_null($resolution) || empty($resolution)) && $outputMode === OutputMode::COMPOSED) {
             $options['resolution'] = "640x480";
-        } else if((is_null($resolution) || empty($resolution)) && $outputMode === OutputMode::INDIVIDUAL) {
+        } elseif ((is_null($resolution) || empty($resolution)) && $outputMode === OutputMode::INDIVIDUAL) {
             unset($options['resolution']);
-        } else if(!empty($resolution) && $outputMode === OutputMode::INDIVIDUAL) {
+        } elseif (!empty($resolution) && $outputMode === OutputMode::INDIVIDUAL) {
             $errorMessage = "Resolution can't be specified for Individual Archives";
             throw new UnexpectedValueException($errorMessage);
-        } else if(!empty($resolution) && $outputMode === OutputMode::COMPOSED && !is_string($resolution)) {
+        } elseif (!empty($resolution) && $outputMode === OutputMode::COMPOSED && !is_string($resolution)) {
             $errorMessage = "Resolution must be a valid string";
             throw new UnexpectedValueException($errorMessage);
         }
@@ -404,11 +411,11 @@ class OpenTok {
      * archives returned is 1000.
      * @param string $sessionId Optional. The OpenTok session Id for which you want to retrieve Archives for. If no session Id
      * is specified, the method will return archives from all sessions created with the API key.
-     * 
+     *
      * @return ArchiveList An ArchiveList object. Call the items() method of the ArchiveList object
      * to return an array of Archive objects.
      */
-    public function listArchives($offset=0, $count=null, $sessionId=null)
+    public function listArchives($offset = 0, $count = null, $sessionId = null)
     {
         // validate params
         Validators::validateOffsetAndCount($offset, $count);
@@ -423,17 +430,11 @@ class OpenTok {
 
     /**
      * Updates the stream layout in an OpenTok Archive.
-     *
-     * @param string $archiveId The OpenTok archive ID.
-     *
-     * @param string $layout The connectionId of the connection in a session.
      */
-
-    public function setArchiveLayout($archiveId, $layoutType)
+    public function setArchiveLayout(string $archiveId, Layout $layoutType): void
     {
         Validators::validateArchiveId($archiveId);
-        Validators::validateLayout($layoutType);
-        
+
         $this->client->setArchiveLayout($archiveId, $layoutType);
     }
 
@@ -449,17 +450,17 @@ class OpenTok {
      * @param array $classListArray The connectionId of the connection in a session.
      */
 
-    public function setStreamClassLists($sessionId, $classListArray=array())
+    public function setStreamClassLists($sessionId, $classListArray = array())
     {
         Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
-        
-        foreach ($classListArray as $item ){
-            Validators::validateLayoutClassListItem($item);            
+
+        foreach ($classListArray as $item) {
+            Validators::validateLayoutClassListItem($item);
         }
-        
+
         $this->client->setStreamClassLists($sessionId, $classListArray);
     }
-    
+
 
     /**
      * Disconnects a specific client from an OpenTok session.
@@ -495,7 +496,7 @@ class OpenTok {
      *
      * @return Broadcast An object with properties defining the broadcast.
      */
-    public function startBroadcast($sessionId, $options=array())
+    public function startBroadcast(string $sessionId, array $options = []): Broadcast
     {
         // unpack optional arguments (merging with default values) into named variables
         // NOTE: although the server can be authoritative about the default value of layout, its
@@ -569,14 +570,9 @@ class OpenTok {
      *
      * @param Layout $layout An object defining the layout type for the broadcast.
      */
-    public function updateBroadcastLayout($broadcastId, $layout)
+    public function updateBroadcastLayout(string $broadcastId, Layout $layout): void
     {
         Validators::validateBroadcastId($broadcastId);
-        Validators::validateLayout($layout);
-
-        // TODO: platform implementation does not meet API Review spec
-        // $layoutData = $this->client->updateLayout($broadcastId, $layout, 'broadcast');
-        // return Layout::fromData($layoutData);
 
         $this->client->updateLayout($broadcastId, $layout, 'broadcast');
     }
@@ -632,9 +628,9 @@ class OpenTok {
 
     /**
      * Gets an Stream object, providing information on a given stream.
-     * 
+     *
      * @param String $sessionId The session ID for the OpenTok session containing the stream.
-     * 
+     *
      * @param String $streamId The stream ID.
      *
      * @return Stream The Stream object.
@@ -644,30 +640,28 @@ class OpenTok {
     {
         Validators::validateSessionId($sessionId);
         Validators::validateStreamId($streamId);
-      
+
         // make API call
         $streamData = $this->client->getStream($sessionId, $streamId);
         return new Stream($streamData);
-        
     }
 
     /**
      * Returns a StreamList Object for the given session ID.
-     * 
+     *
      * @param String $sessionId The session ID.
      *
      * @return StreamList A StreamList object. Call the items() method of the StreamList object
-     * to return an array of Stream objects.     
+     * to return an array of Stream objects.
      */
 
     public function listStreams($sessionId)
     {
         Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
-      
+
         // make API call
         $streamListData = $this->client->listStreams($sessionId);
         return new StreamList($streamListData);
-    
     }
 
     /**
@@ -703,11 +697,8 @@ class OpenTok {
      * following keys, all of which are optional:
      *
      * <ul>
-     *
      *    <li><code>'headers'</code> (array) &mdash; Headers​: Custom Headers to be added to the
-     *    SIP INVITE request initiated from OpenTok to the Third Party SIP Platform. All of this
-     *    custom headers must start with the "X-" prefix, or a Bad Request (400) will be
-     *    thrown.</li>
+     *    SIP INVITE request initiated from OpenTok to the Third Party SIP Platform.</li>
      *
      *    <li><code>'auth'</code> (array) &mdash; Auth​: Username and Password to be used in the SIP
      *    INVITE request for HTTP Digest authentication in case this is required by the Third Party
@@ -727,6 +718,10 @@ class OpenTok {
      *    <li><code>'secure'</code> (Boolean) &mdash; Indicates whether the media
      *    must be transmitted encrypted (true, the default) or not (false).</li>
      *
+     *    <li><code>'observeForceMute'</code> (Boolean) &mdash; Whether the SIP endpoint should honor
+     *    <a href="https://tokbox.com/developer/guides/moderation/#force_mute">force mute moderation</a>
+     *    (True) or not (False, the default).</li>
+     *
      *    <li><code>'from'</code> (string) &mdash; The number or string that will be sent to
      *    the final SIP number as the caller. It must be a string in the form of
      *    "from@example.com", where from can be a string or a number. If from is set to a number
@@ -741,17 +736,19 @@ class OpenTok {
      * to terminate the SIP call, using the
      * <a href="#method_forceDisconnect">OpenTok->forceDisconnect()</a> method.
      */
-    public function dial($sessionId, $token, $sipUri, $options=array())
+    public function dial($sessionId, $token, $sipUri, $options = [])
     {
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array(
             'auth' => null,
-            'headers' => null,
+            'headers' => [],
             'secure' => true,
             'from' => null,
+            'video' => false,
+            'observeForceMute' => false
         );
+
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($headers, $secure, $from) = array_values($options);
 
         // validate arguments
         Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
@@ -762,11 +759,33 @@ class OpenTok {
         // check response
         $id = $sipJson['id'];
         if (!$id) {
-            $errorMessage = 'Failed to initiate a SIP call. Server response: '. (string)$sipJson;
+            $errorMessage = 'Failed to initiate a SIP call. Server response: ' . $sipJson;
             throw new UnexpectedValueException($errorMessage);
         }
 
         return new SipCall($sipJson);
+    }
+
+    /**
+     * Plays a DTMF string into a session or to a specific connection
+     *
+     * @param string $sessionId The ID of the OpenTok session that the participant being called
+     * will join.
+     *
+     * @param string $digits DTMF digits to play
+     * Valid DTMF digits are 0-9, p, #, and * digits. 'p' represents a 500ms pause if a delay is
+     * needed during the input process.
+     *
+     * @param string $connectionId An optional parameter used to send the DTMF tones to a specific connection in a session.
+     *
+     * @return void
+     */
+    public function playDTMF(string $sessionId, string $digits, string $connectionId = null): void
+    {
+        Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
+        Validators::validateDTMFDigits($digits);
+
+        $this->client->playDTMF($sessionId, $digits, $connectionId);
     }
 
     /**
@@ -785,10 +804,10 @@ class OpenTok {
      *
      * </ul>
      *
-     * 
+     *
      * @param string $connectionId An optional parameter used to send the signal to a specific connection in a session.
      */
-    public function signal($sessionId, $payload, $connectionId=null)
+    public function signal($sessionId, $payload, $connectionId = null)
     {
 
         // unpack optional arguments (merging with default values) into named variables
@@ -796,30 +815,27 @@ class OpenTok {
             'type' => '',
             'data' => '',
         );
-        
+
         $payload = array_merge($defaults, array_intersect_key($payload, $defaults));
         list($type, $data) = array_values($payload);
 
         // validate arguments
         Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
         Validators::validateSignalPayload($payload);
-        
+
         if (is_null($connectionId) || empty($connectionId)) {
             // make API call without connectionId
             $this->client->signal($sessionId, $payload);
         } else {
-            Validators::validateConnectionId($connectionId); 
+            Validators::validateConnectionId($connectionId);
             // make API call with connectionId
             $this->client->signal($sessionId, $payload, $connectionId);
         }
-
     }
 
     /** @internal */
-    private function _sign_string($string, $secret)
+    private function signString($string, $secret)
     {
         return hash_hmac("sha1", $string, $secret);
     }
 }
-
-/* vim: set ts=4 sw=4 tw=100 sts=4 et :*/

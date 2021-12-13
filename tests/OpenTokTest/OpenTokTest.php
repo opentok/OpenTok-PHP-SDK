@@ -1,36 +1,45 @@
 <?php
 
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Middleware;
+namespace OpenTokTest;
 
-use OpenTok\OpenTok;
-use OpenTok\OpenTokTestCase;
-use OpenTok\Session;
-use OpenTok\Stream;
-use OpenTok\StreamList;
 use OpenTok\Role;
 use OpenTok\Layout;
+use OpenTok\OpenTok;
 use OpenTok\MediaMode;
-use OpenTok\ArchiveMode;
+use ArgumentCountError;
+use DomainException;
+use Exception;
+use GuzzleHttp\Exception\GuzzleException;
 use OpenTok\OutputMode;
+use OpenTok\ArchiveMode;
 use OpenTok\Util\Client;
-
-use OpenTok\TestHelpers;
+use GuzzleHttp\Middleware;
+use GuzzleHttp\HandlerStack;
+use PHPUnit\Framework\TestCase;
+use GuzzleHttp\Handler\MockHandler;
+use InvalidArgumentException as GlobalInvalidArgumentException;
+use OpenTok\Exception\AuthenticationException;
+use OpenTok\Exception\DomainException as ExceptionDomainException;
+use OpenTok\Exception\InvalidArgumentException;
+use RuntimeException;
+use OpenTok\Exception\UnexpectedValueException;
 
 define('OPENTOK_DEBUG', true);
 
-class OpenTokTest extends PHPUnit_Framework_TestCase
+class OpenTokTest extends TestCase
 {
     protected $API_KEY;
     protected $API_SECRET;
 
+    /**
+     * @var OpenTok
+     */
     protected $opentok;
     protected $client;
 
     protected static $mockBasePath;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         self::$mockBasePath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'mock' . DIRECTORY_SEPARATOR;
     }
@@ -126,7 +135,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         $p2p_preference = $this->getPostField($request, 'p2p.preference');
         $this->assertEquals('enabled', $p2p_preference);
@@ -186,7 +195,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         $location = $this->getPostField($request, 'location');
         $this->assertEquals('12.34.56.78', $location);
@@ -234,7 +243,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         $p2p_preference = $this->getPostField($request, 'p2p.preference');
         $this->assertEquals('enabled', $p2p_preference);
@@ -279,7 +288,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         $archiveMode = $this->getPostField($request, 'archiveMode');
         $this->assertEquals('always', $archiveMode);
@@ -296,11 +305,9 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         );
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testFailsWhenCreatingRelayedAutoArchivedSession()
     {
+        $this->expectException('InvalidArgumentException');
         // Arrange
         $this->setupOT();
 
@@ -327,7 +334,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $token = $opentok->generateToken($sessionId);
 
         // Assert
-        $this->assertInternalType('string', $token);
+        $this->assertIsString($token);
 
         $decodedToken = TestHelpers::decodeToken($token);
         $this->assertEquals($sessionId, $decodedToken['session_id']);
@@ -358,7 +365,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $token = $opentok->generateToken($sessionId, array('role' => Role::MODERATOR));
 
         // Assert
-        $this->assertInternalType('string', $token);
+        $this->assertIsString($token);
 
         $decodedToken = TestHelpers::decodeToken($token);
         $this->assertEquals($sessionId, $decodedToken['session_id']);
@@ -390,7 +397,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $token = $opentok->generateToken($sessionId, array('expireTime' => $inOneHour ));
 
         // Assert
-        $this->assertInternalType('string', $token);
+        $this->assertIsString($token);
 
         $decodedToken = TestHelpers::decodeToken($token);
         $this->assertEquals($sessionId, $decodedToken['session_id']);
@@ -420,7 +427,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $token = $opentok->generateToken($sessionId, array('data' => $userStatus ));
 
         // Assert
-        $this->assertInternalType('string', $token);
+        $this->assertIsString($token);
 
         $decodedToken = TestHelpers::decodeToken($token);
         $this->assertEquals($sessionId, $decodedToken['session_id']);
@@ -457,7 +464,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         ));
 
         // Assert
-        $this->assertInternalType('string', $token);
+        $this->assertIsString($token);
 
         $decodedToken = TestHelpers::decodeToken($token);
         $this->assertEquals($sessionId, $decodedToken['session_id']);
@@ -475,11 +482,9 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testFailsWhenGeneratingTokenUsingInvalidRole()
     {
+        $this->expectException('InvalidArgumentException');
         $this->setupOT();
         $token = $this->opentok->generateToken('SESSIONID', array('role' => 'notarole'));
     }
@@ -521,7 +526,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         $this->assertInstanceOf('OpenTok\Archive', $archive);
         $this->assertEquals(0, $archive->duration);
@@ -571,7 +576,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         $body = json_decode($request->getBody());
         $this->assertEquals($sessionId, $body->sessionId);
@@ -581,7 +586,10 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the properties of the actual archive object
     }
 
-    // this is the deprecated method signature, remove in v3.0.0 (and not before)
+    /**
+     * this is the deprecated method signature, remove in v3.0.0 (and not before)
+     * @todo Remove this when `startArchive` removes string support
+     */
     public function testStartsArchiveNamedDeprecated()
     {
         // Arrange
@@ -598,7 +606,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
         // Act
-        $archive = $this->opentok->startArchive($sessionId, 'showtime');
+        @$archive = $this->opentok->startArchive($sessionId, 'showtime');
 
         // Assert
         $this->assertCount(1, $this->historyContainer);
@@ -619,7 +627,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         $body = json_decode($request->getBody());
         $this->assertEquals($sessionId, $body->sessionId);
@@ -666,7 +674,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         $body = json_decode($request->getBody());
         $this->assertEquals($sessionId, $body->sessionId);
@@ -716,7 +724,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         $body = json_decode($request->getBody());
         $this->assertEquals($sessionId, $body->sessionId);
@@ -765,7 +773,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         $body = json_decode($request->getBody());
         $this->assertEquals($sessionId, $body->sessionId);
@@ -813,7 +821,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         $body = json_decode($request->getBody());
         $this->assertEquals($sessionId, $body->sessionId);
@@ -857,7 +865,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         $this->assertInstanceOf('OpenTok\Archive', $archive);
         // TODO: test the properties of the actual archive object
@@ -896,7 +904,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         $this->assertInstanceOf('OpenTok\Archive', $archive);
         // TODO: test the properties of the actual archive object
@@ -933,7 +941,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         $this->assertTrue($success);
         // TODO: test the properties of the actual archive object
@@ -968,7 +976,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         $this->assertInstanceOf('OpenTok\ArchiveList', $archiveList);
         // TODO: test the properties of the actual archiveList object and its contained archive
@@ -1004,7 +1012,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         $this->assertInstanceOf('OpenTok\ArchiveList', $archiveList);
         $this->assertEquals(1, $archiveList->totalCount());
@@ -1045,7 +1053,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         $this->assertInstanceOf('OpenTok\ArchiveList', $archiveList);
         $this->assertEquals(2, $archiveList->totalCount());
@@ -1055,11 +1063,9 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('832641bf-5dbf-41a1-ad94-fea213e59a92', $archiveList->getItems()[1]->id);        
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testFailsWhenListingArchivesWithTooLargeCount()
     {
+        $this->expectException('InvalidArgumentException');
         // Arrange
         $this->setupOTWithMocks([[
             'code' => 200,
@@ -1131,7 +1137,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         $this->assertTrue($success);
     }
@@ -1192,15 +1198,15 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         $this->assertInstanceOf('OpenTok\Broadcast', $broadcast);
-        $this->assertInternalType('string', $broadcast->id);
+        $this->assertIsString($broadcast->id);
         $this->assertEquals($sessionId, $broadcast->sessionId);
-        $this->assertInternalType('array', $broadcast->broadcastUrls);
+        $this->assertIsArray($broadcast->broadcastUrls);
         $this->assertArrayHasKey('hls', $broadcast->broadcastUrls);
-        $this->assertInternalType('string', $broadcast->broadcastUrls['hls']);
-        $this->assertInternalType('string', $broadcast->hlsUrl);
+        $this->assertIsString($broadcast->broadcastUrls['hls']);
+        $this->assertIsString($broadcast->hlsUrl);
         $this->assertFalse($broadcast->isStopped);
     }
 
@@ -1248,17 +1254,17 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         $this->assertInstanceOf('OpenTok\Broadcast', $broadcast);
-        $this->assertInternalType('string', $broadcast->id);
+        $this->assertIsString($broadcast->id);
         $this->assertEquals($sessionId, $broadcast->sessionId);
         $this->assertEquals($maxDuration, $broadcast->maxDuration);
         $this->assertEquals($resolution, $broadcast->resolution);        
-        $this->assertInternalType('array', $broadcast->broadcastUrls);
+        $this->assertIsArray($broadcast->broadcastUrls);
         $this->assertArrayHasKey('hls', $broadcast->broadcastUrls);
-        $this->assertInternalType('string', $broadcast->broadcastUrls['hls']);
-        $this->assertInternalType('string', $broadcast->hlsUrl);
+        $this->assertIsString($broadcast->broadcastUrls['hls']);
+        $this->assertIsString($broadcast->hlsUrl);
         $this->assertFalse($broadcast->isStopped);
     }
 
@@ -1295,7 +1301,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         $this->assertInstanceOf('OpenTok\Broadcast', $broadcast);
         $this->assertTrue($broadcast->isStopped);
@@ -1332,7 +1338,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         $this->assertInstanceOf('OpenTok\Broadcast', $broadcast);
     }
@@ -1376,7 +1382,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
     }
 
     public function testUpdatesBroadcastLayoutWithCustom()
@@ -1422,7 +1428,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
     }
 
     public function testUpdatesStreamLayoutClassList()
@@ -1467,7 +1473,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
     }
 
     public function testGetStream()
@@ -1503,10 +1509,10 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $this->assertNotNull($streamData->name);
         $this->assertNotNull($streamData->videoType);
         $this->assertNotNull($streamData->layoutClassList);
-        
+
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
     }
 
     public function testSipCall()
@@ -1612,18 +1618,15 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         ]]);
 
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
-        $bogusApiKey = '12345678';
-        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
         $bogusToken = 'T1==TEST';
         $bogusSipUri = 'sip:john@doe.com';
-        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
         $from = "+0034123445566@opentok.me";
 
         // Act
-        $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri, array(
+        $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri, [
             'from' => $from
-        ));
+        ]);
 
         // Assert
         $this->assertInstanceOf('OpenTok\SipCall', $sipCall);
@@ -1636,6 +1639,149 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
 
         $body = json_decode($request->getBody());
         $this->assertEquals($from, $body->sip->from);
+    }
+
+    public function testSipCallVideo(): void
+    {
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/dial'
+        ]]);
+
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $bogusToken = 'T1==TEST';
+        $bogusSipUri = 'sip:john@doe.com';
+        $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri, ['video' => true]);
+
+        $this->assertInstanceOf('OpenTok\SipCall', $sipCall);
+        $this->assertNotNull($sipCall->id);
+        $this->assertNotNull($sipCall->connectionId);
+        $this->assertNotNull($sipCall->streamId);
+        $this->assertEquals(false, $sipCall->observeForceMute);
+
+        $this->assertCount(1, $this->historyContainer);
+        $request = $this->historyContainer[0]['request'];
+
+        $body = json_decode($request->getBody());
+        $this->assertEquals(true, $body->sip->video);
+    }
+
+    public function testSipCallVideoWithObserveForceMute(): void
+    {
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/dialForceMute'
+        ]]);
+
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $bogusToken = 'T1==TEST';
+        $bogusSipUri = 'sip:john@doe.com';
+
+        $optionsPayload = [
+            'video' => true,
+            'observeForceMute' => true
+        ];
+
+        $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri, $optionsPayload);
+
+        $this->assertInstanceOf('OpenTok\SipCall', $sipCall);
+        $this->assertNotNull($sipCall->id);
+        $this->assertNotNull($sipCall->connectionId);
+        $this->assertNotNull($sipCall->streamId);
+        $this->assertEquals(true, $sipCall->observeForceMute);
+
+        $this->assertCount(1, $this->historyContainer);
+        $request = $this->historyContainer[0]['request'];
+
+        $body = json_decode($request->getBody());
+        $this->assertEquals(true, $body->sip->video);
+    }
+
+    public function testPlayDTMF()
+    {
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/session/SESSIONID/play-dtmf'
+        ]]);
+
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $digits = '1p713#';
+
+        $this->opentok->playDTMF($sessionId, $digits);
+
+        $this->assertCount(1, $this->historyContainer);
+        $request = $this->historyContainer[0]['request'];
+
+        $body = json_decode($request->getBody());
+        $this->assertEquals($digits, $body->digits);
+    }
+
+    public function testPlayDTMFIntoConnection()
+    {
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/session/SESSIONID/play-dtmf'
+        ]]);
+
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $connectionId = 'da9cb410-e29b-4c2d-ab9e-fe65bf83fcaf';
+        $digits = '1p713#';
+
+        $this->opentok->playDTMF($sessionId, $digits, $connectionId);
+
+        $this->assertCount(1, $this->historyContainer);
+        $request = $this->historyContainer[0]['request'];
+
+        $body = json_decode($request->getBody());
+        $this->assertEquals($digits, $body->digits);
+    }
+
+    public function testDTMFFailsValidation()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('DTMF digits can only support 0-9, p, #, and * characters');
+
+        $this->setupOT();
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $this->opentok->playDTMF($sessionId, 'bob');
+    }
+
+    /**
+     * Tests that we properly handle a 400 error from the API
+     * Ideally with the validator we fail before the API request is even made,
+     * but this will make sure that we still properly handle a 400 error. For
+     * this to work we do send a valid DTMF string however, to satisfy the
+     * validator.
+     */
+    public function testPlayDTMFThrows400(): void
+    {
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('The OpenTok API request failed: Invalid DTMF Digits');
+
+        $this->setupOTWithMocks([[
+            'code' => 400,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/session/SESSIONID/play-dtmf-400'
+        ]]);
+
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $digits = '1p713#';
+
+        $this->opentok->playDTMF($sessionId, $digits);
     }
 
     public function testSignalData()
@@ -1674,7 +1820,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         $body = json_decode($request->getBody());
         $this->assertEquals('apple', $body->data);
@@ -1716,13 +1862,16 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         $body = json_decode($request->getBody());
         $this->assertEquals('random message', $body->data);
         $this->assertEquals('rest', $body->type);        
     }
 
+    /**
+     * @todo Fix this test, not even sure what it's supposed to be doing honestly.
+     */
     public function testSignalWithEmptyPayload()
     {
         // Arrange
@@ -1734,12 +1883,13 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         $bogusApiKey = '12345678';
         $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
         $payload = array();
-        
+
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
-        
+
         // Act
         try {
             $this->opentok->signal($sessionId, $payload);
+            $this->assertTrue(true);
         } catch (\Exception $e) {
         }
     }
@@ -1759,9 +1909,9 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
             'type' => 'rest',
             'data' => 'random message'
         );
-        
+
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
-        
+
         $this->expectException('OpenTok\Exception\SignalConnectionException');
         // Act
         $this->opentok->signal($sessionId, $payload, $connectionId);
@@ -1782,14 +1932,14 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
             'type' => 'rest',
             'data' => 'more than 128 bytes'
         );
-        
+
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
-        
+
         $this->expectException('OpenTok\Exception\SignalUnexpectedValueException');
-        
+
         // Act
         $this->opentok->signal($sessionId, $payload, $connectionId);
-        
+
     }
 
     public function testListStreams()
@@ -1827,7 +1977,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         $this->assertInstanceOf('OpenTok\StreamList', $streamList);
 
@@ -1871,7 +2021,7 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
     }
 
     public function testsSetArchiveLayoutWithCustom()
@@ -1917,8 +2067,70 @@ class OpenTokTest extends PHPUnit_Framework_TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.4.1', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
     }
 
+    /**
+     * Makes sure that Guzzle internally keeps a null/indefinate timeout by default
+     * This makes sure that internal existing behavior has not changed
+     */
+    public function testDefaultTimeoutDefaultsToNull()
+    {
+        $this->setupOT();
+
+        $opentokReflection = new \ReflectionClass($this->opentok);
+        $opentokClient = $opentokReflection->getProperty('client');
+        $opentokClient->setAccessible(true);
+        $opentokClient = $opentokClient->getValue($this->opentok);
+        $opentokClientReflection = new \ReflectionClass($opentokClient);
+
+        /** @var \GuzzleHttp\Client $guzzleClient */
+        $guzzleClient = $opentokClientReflection->getProperty('client');
+        $guzzleClient->setAccessible(true);
+        $guzzleClient = $guzzleClient->getValue($opentokClient);
+
+        $this->assertSame(null, $guzzleClient->getConfig('timeout'));
+    }
+
+    /**
+     * Makes sure that Guzzle gets configured with a user defined timeout
+     */
+    public function testDefaultTimeoutCanBeOverriden()
+    {
+        $opentok = new OpenTok('1234', 'abd', ['timeout' => 400]);
+
+        $opentokReflection = new \ReflectionClass($opentok);
+        $opentokClient = $opentokReflection->getProperty('client');
+        $opentokClient->setAccessible(true);
+        $opentokClient = $opentokClient->getValue($opentok);
+        $opentokClientReflection = new \ReflectionClass($opentokClient);
+
+        /** @var \GuzzleHttp\Client $guzzleClient */
+        $guzzleClient = $opentokClientReflection->getProperty('client');
+        $guzzleClient->setAccessible(true);
+        $guzzleClient = $guzzleClient->getValue($opentokClient);
+
+        $this->assertSame(400, $guzzleClient->getConfig('timeout'));
+    }
+
+    /**
+     * User-provided default timeout must be numeric
+     */
+    public function testDefaultTimeoutErrorsIfNotNumeric()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Default Timeout must be a number greater than zero');
+        new OpenTok('1234', 'abd', ['timeout' => 'bob']);
+    }
+
+    /**
+     * User-provided default timeout must be greater than 0
+     */
+    public function testDefaultTimeoutErrorsIfLessThanZero()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Default Timeout must be a number greater than zero');
+        new OpenTok('1234', 'abd', ['timeout' => -1]);
+    }
 }
-/* vim: set ts=4 sw=4 tw=100 sts=4 et :*/
+

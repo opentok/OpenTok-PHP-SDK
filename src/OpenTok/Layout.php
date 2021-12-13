@@ -6,73 +6,53 @@ use OpenTok\Util\Validators;
 
 /**
  * Defines the object passed in as the $layout parameter of the
- * OpenTok->updateArchiveLayout() and OpenTok->updateArchiveLayout() methods.
+ * OpenTok->setArchiveLayout() and OpenTok->updateBroadcastLayout() methods.
  * <p>
  * To instantiate a Layout object, call one of the static methods of the Layout class:
  * <code>getBestFit()</code>, <code>getPIP()</code>, <code>getVerticalPresentation()</code>,
- * <code>getHorizontalPresentation()</code>,or  <code>createCustom()</code>.
+ * <code>getHorizontalPresentation()</code>, or <code>createCustom()</code>.
  * <p>
- * See <a href="OpenTok.html#method_updateArchiveLayout">OpenTok->updateArchiveLayout()</a>,
- * <a href="OpenTok.html#method_updateBroadcastLayout">OpenTok->updateBroadcastLayout()</a>,
+ * See <a href="OpenTok.OpenTok.html#method_setArchiveLayout">OpenTok->setArchiveLayout()</a>,
+ * <a href="OpenTok.OpenTok.html#method_updateBroadcastLayout">OpenTok->updateBroadcastLayout()</a>,
  * <a href="https://tokbox.com/developer/guides/archiving/layout-control.html">Customizing
  * the video layout for composed archives</a>, and
  * <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/#configuring-video-layout-for-opentok-live-streaming-broadcasts">Configuring
  * video layout for OpenTok live streaming broadcasts</a>.
  */
-class Layout {
-    // NOTE: after PHP 5.3.0 support is dropped, the class can implement JsonSerializable
-
-    /** @ignore */
-    private static $bestFit = null;
-    /** @ignore */
-    private static $pip = null;
-    /** @ignore */
-    private static $verticalPresentation = null;
-    /** @ignore */
-    private static $horizontalPresentation = null;
+class Layout implements \JsonSerializable
+{
+    public const LAYOUT_BESTFIT = 'bestFit';
+    public const LAYOUT_CUSTOM = 'custom';
+    public const LAYOUT_HORIZONTAL = 'horizontalPresentation';
+    public const LAYOUT_PIP = 'pip';
+    public const LAYOUT_VERTICAL = 'verticalPresentation';
 
     /**
-     * Returns a Layout object defining the "best fit" predefined layout type.
-     */
-    public static function getBestFit()
-    {
-        if (is_null(self::$bestFit)) {
-            self::$bestFit = new Layout('bestFit');
-        }
-        return self::$bestFit;
-    }
+     * Type of layout that we are sending
+     * @var string
+     * @ignore
+     * */
+    private $type;
 
     /**
-     * Returns a Layout object defining the "picture-in-picture" predefined layout type.
+     * Type of layout to use for screen sharing
+     * @var string
+     * @ignore
      */
-    public static function getPIP()
-    {
-        if (is_null(self::$pip)) {
-            self::$pip = new Layout('pip');
-        }
-        return self::$pip;
-    }
+    private $screenshareType;
 
     /**
-     * Returns a Layout object defining the "vertical presentation" predefined layout type.
+     * Custom stylesheet if our type is 'custom'
+     * @var string
+     * @ignore
      */
-    public static function getVerticalPresentation()
-    {
-        if (is_null(self::$verticalPresentation)) {
-            self::$verticalPresentation = new Layout('verticalPresentation');
-        }
-        return self::$verticalPresentation;
-    }
+    private $stylesheet;
 
-    /**
-     * Returns a Layout object defining the "horizontal presentation" predefined layout type.
-     */
-    public static function getHorizontalPresentation()
+    /** @ignore */
+    private function __construct(string $type, ?string $stylesheet = null)
     {
-        if (is_null(self::$horizontalPresentation)) {
-            self::$horizontalPresentation = new Layout('horizontalPresentation');
-        }
-        return self::$horizontalPresentation;
+        $this->type = $type;
+        $this->stylesheet = $stylesheet;
     }
 
     /**
@@ -81,45 +61,99 @@ class Layout {
      * @param array $options An array containing one property: <code>$stylesheet<code>,
      * which is a string containing the stylesheet to be used for the layout.
      */
-   public static function createCustom($options)
+    public static function createCustom(array $options): Layout
     {
         // unpack optional arguments (merging with default values) into named variables
         // NOTE: the default value of stylesheet=null will not pass validation, this essentially
         //       means that stylesheet is not optional. its still purposely left as part of the
         //       $options argument so that it can become truly optional in the future.
-        $defaults = array('stylesheet' => null);
+        $defaults = ['stylesheet' => null];
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
         list($stylesheet) = array_values($options);
 
         // validate arguments
         Validators::validateLayoutStylesheet($stylesheet);
 
-        return new Layout('custom', $stylesheet);
+        return new Layout(static::LAYOUT_CUSTOM, $stylesheet);
     }
 
     /** @ignore */
-    public static function fromData($layoutData)
+    public static function fromData(array $layoutData): Layout
     {
         if (array_key_exists('stylesheet', $layoutData)) {
             return new Layout($layoutData['type'], $layoutData['stylesheet']);
-        } else {
-            return new Layout($layoutData['type']);
         }
+
+        return new Layout($layoutData['type']);
     }
 
-    /** @ignore */
-    private $type;
-    /** @ignore */
-    private $stylesheet;
-
-    /** @ignore */
-    private function __construct($type, $stylesheet = null)
+    /**
+     * Returns a Layout object defining the "best fit" predefined layout type.
+     */
+    public static function getBestFit(): Layout
     {
-        $this->type = $type;
-        $this->stylesheet = $stylesheet;
+        return new Layout(static::LAYOUT_BESTFIT);
+    }
+
+    /**
+     * Returns a Layout object defining the "picture-in-picture" predefined layout type.
+     */
+    public static function getPIP(): Layout
+    {
+        return new Layout(static::LAYOUT_PIP);
+    }
+
+    /**
+     * Returns a Layout object defining the "vertical presentation" predefined layout type.
+     */
+    public static function getVerticalPresentation(): Layout
+    {
+        return new Layout(static::LAYOUT_VERTICAL);
+    }
+
+    /**
+     * Returns a Layout object defining the "horizontal presentation" predefined layout type.
+     */
+    public static function getHorizontalPresentation(): Layout
+    {
+        return new Layout(static::LAYOUT_HORIZONTAL);
+    }
+
+    public function setScreenshareType(string $screenshareType): Layout
+    {
+        if ($this->type === Layout::LAYOUT_BESTFIT) {
+            $layouts = [
+                Layout::LAYOUT_BESTFIT,
+                Layout::LAYOUT_HORIZONTAL,
+                Layout::LAYOUT_PIP,
+                Layout::LAYOUT_VERTICAL
+            ];
+
+            if (!in_array($screenshareType, $layouts)) {
+                throw new \RuntimeException('Screenshare type must be of a valid layout type');
+            }
+
+            $this->screenshareType = $screenshareType;
+            return $this;
+        }
+
+        throw new \RuntimeException('Screenshare type cannot be set on a layout type other than bestFit');
     }
 
     public function jsonSerialize()
+    {
+        return $this->toArray();
+    }
+
+    /**
+     * Return a json-encoded string representation of the layout
+     */
+    public function toJson(): string
+    {
+        return json_encode($this->jsonSerialize());
+    }
+
+    public function toArray(): array
     {
         $data = array(
             'type' => $this->type
@@ -129,11 +163,12 @@ class Layout {
         if (isset($this->stylesheet)) {
             $data['stylesheet'] = $this->stylesheet;
         }
-        return $data;
-    }
 
-    public function toJson()
-    {
-        return json_encode($this->jsonSerialize());
+        // omit 'screenshareType' property unless it is explicitly defined
+        if (isset($this->screenshareType)) {
+            $data['screenshareType'] = $this->screenshareType;
+        }
+
+        return $data;
     }
 }
