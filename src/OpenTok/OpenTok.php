@@ -513,15 +513,48 @@ class OpenTok
      *    <li><code>'excludedStreams'</code> (array, optional) &mdash; An array of stream IDs
      *    corresponding to streams that should not be muted. This is an optional property.
      *    If you omit this property, all streams in the session will be muted.</li>
-     *
-     *    <li><code>'active'</code> (Boolean, required) &mdash; Whether streams published after this call,
-     *    in addition to the current streams in the session, should be muted (true) or not (false).</li>
      * </ul>
      *
      * @return bool Whether the call succeeded or failed.
      */
     public function forceMuteAll(string $sessionId, array $options): bool
     {
+        // Active is always true when forcing mute all
+        $options['active'] = true;
+
+        Validators::validateSessionId($sessionId);
+        Validators::validateForceMuteAllOptions($options);
+
+        try {
+            $this->client->forceMuteAll($sessionId, $options);
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Force all streams (except for an optional list of streams) in an OpenTok session
+     * to be muted, with an option to be disabled in the future
+     *
+     * @param string $sessionId The OpenTok session ID.
+     *
+     * @param array<string> $options This array defines options and includes the following keys:
+     *
+     * <ul>
+     *    <li><code>'excludedStreams'</code> (array, optional) &mdash; An array of stream IDs
+     *    corresponding to streams that should not be muted. This is an optional property.
+     *    If you omit this property, all streams in the session will be muted.</li>
+     * </ul>
+     *
+     * @return bool Whether the call succeeded or failed.
+     */
+    public function disableForceMute(string $sessionId, array $options): bool
+    {
+        // Active is always false when disabling force mute
+        $options['active'] = false;
+
         Validators::validateSessionId($sessionId);
         Validators::validateForceMuteAllOptions($options);
 
