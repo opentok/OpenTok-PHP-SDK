@@ -479,7 +479,10 @@ class OpenTok
     }
 
     /**
-     * force a publisher of a specific stream in an OpenTok session to mute its audio.
+     * Force the publisher of a specific stream to mute its published audio.
+     *
+     * <p>
+     * Also see the <a href="#method_forceMuteAll">OpenTok->forceMuteAll()</a> method.
      *
      * @param string $sessionId The OpenTok session ID containing the stream.
      *
@@ -504,6 +507,14 @@ class OpenTok
     /**
      * Force all streams (except for an optional list of streams) in an OpenTok session
      * to mute published audio.
+     *
+     * <p>
+     * In addition to existing streams, any streams that are published after the call to
+     * this method are published with audio muted. You can remove the mute state of a session
+     * by calling the <a href="#method_disableForceMute">OpenTok->disableForceMute()</a> method.
+     *
+     * <p>
+     * Also see the <a href="#method_forceMuteStream">OpenTok->forceMuteStream()</a> method.
      *
      * @param string $sessionId The OpenTok session ID.
      *
@@ -535,8 +546,14 @@ class OpenTok
     }
 
     /**
-     * Force all streams (except for an optional list of streams) in an OpenTok session
-     * to be muted, with an option to be disabled in the future
+     * Disables the active mute state of the session. After you call this method, new streams
+     * published to the session will no longer have audio muted.
+     *
+     * <p>
+     * After you call the <a href="#method_forceMuteAll">OpenTok->forceMuteAll()</a> method,
+     * any streams published after the call are published with audio muted. Call the
+     * <c>disableForceMute()</c> method to remove the mute state of a session, so that
+     * new published streams are not automatically muted.
      *
      * @param string $sessionId The OpenTok session ID.
      *
