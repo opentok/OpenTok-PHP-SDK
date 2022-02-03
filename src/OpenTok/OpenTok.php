@@ -479,6 +479,112 @@ class OpenTok
     }
 
     /**
+     * Force the publisher of a specific stream to mute its published audio.
+     *
+     * <p>
+     * Also see the <a href="#method_forceMuteAll">OpenTok->forceMuteAll()</a> method.
+     *
+     * @param string $sessionId The OpenTok session ID containing the stream.
+     *
+     * @param string $streamId The stream ID.
+     *
+     * @return bool Whether the call succeeded or failed.
+     */
+    public function forceMuteStream(string $sessionId, string $streamId): bool
+    {
+        Validators::validateSessionId($sessionId);
+        Validators::validateStreamId($streamId);
+
+        try {
+            $this->client->forceMuteStream($sessionId, $streamId);
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Force all streams (except for an optional list of streams) in an OpenTok session
+     * to mute published audio.
+     *
+     * <p>
+     * In addition to existing streams, any streams that are published after the call to
+     * this method are published with audio muted. You can remove the mute state of a session
+     * by calling the <a href="#method_disableForceMute">OpenTok->disableForceMute()</a> method.
+     *
+     * <p>
+     * Also see the <a href="#method_forceMuteStream">OpenTok->forceMuteStream()</a> method.
+     *
+     * @param string $sessionId The OpenTok session ID.
+     *
+     * @param array<string> $options This array defines options and includes the following keys:
+     *
+     * <ul>
+     *    <li><code>'excludedStreams'</code> (array, optional) &mdash; An array of stream IDs
+     *    corresponding to streams that should not be muted. This is an optional property.
+     *    If you omit this property, all streams in the session will be muted.</li>
+     * </ul>
+     *
+     * @return bool Whether the call succeeded or failed.
+     */
+    public function forceMuteAll(string $sessionId, array $options): bool
+    {
+        // Active is always true when forcing mute all
+        $options['active'] = true;
+
+        Validators::validateSessionId($sessionId);
+        Validators::validateForceMuteAllOptions($options);
+
+        try {
+            $this->client->forceMuteAll($sessionId, $options);
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Disables the active mute state of the session. After you call this method, new streams
+     * published to the session will no longer have audio muted.
+     *
+     * <p>
+     * After you call the <a href="#method_forceMuteAll">OpenTok->forceMuteAll()</a> method,
+     * any streams published after the call are published with audio muted. Call the
+     * <c>disableForceMute()</c> method to remove the mute state of a session, so that
+     * new published streams are not automatically muted.
+     *
+     * @param string $sessionId The OpenTok session ID.
+     *
+     * @param array<string> $options This array defines options and includes the following keys:
+     *
+     * <ul>
+     *    <li><code>'excludedStreams'</code> (array, optional) &mdash; An array of stream IDs
+     *    corresponding to streams that should not be muted. This is an optional property.
+     *    If you omit this property, all streams in the session will be muted.</li>
+     * </ul>
+     *
+     * @return bool Whether the call succeeded or failed.
+     */
+    public function disableForceMute(string $sessionId, array $options): bool
+    {
+        // Active is always false when disabling force mute
+        $options['active'] = false;
+
+        Validators::validateSessionId($sessionId);
+        Validators::validateForceMuteAllOptions($options);
+
+        try {
+            $this->client->forceMuteAll($sessionId, $options);
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Starts a live streaming broadcast of an OpenTok session.
      *
      * @param String $sessionId The session ID of the session to be broadcast.
@@ -693,7 +799,7 @@ class OpenTok
      * <p>
      * This is an example of insecure call negotiation: "sip:access@thirparty.com".
      *
-     * @param array $options This array defines options for the token. It includes the
+     * @param array $options This array defines options for the SIP call. It includes the
      * following keys, all of which are optional:
      *
      * <ul>

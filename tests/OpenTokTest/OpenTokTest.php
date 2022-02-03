@@ -1343,6 +1343,93 @@ class OpenTokTest extends TestCase
         $this->assertInstanceOf('OpenTok\Broadcast', $broadcast);
     }
 
+    public function testCanMuteStream(): void
+    {
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => '/v2/project/APIKEY/session/SESSIONID/mute'
+        ]]);
+
+        $sessionId = 'SESSIONID';
+        $streamId = 'STREAMID';
+
+        $result = $this->opentok->forceMuteStream($sessionId, $streamId);
+        $this->assertTrue($result);
+    }
+
+    public function testCanMuteStreams(): void
+    {
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => '/v2/project/APIKEY/session/SESSIONID/mute'
+        ]]);
+
+        $streamIds = ['TEST1', 'TEST2'];
+        $sessionId = 'SESSIONID';
+
+        $result = $this->opentok->forceMuteAll($sessionId, $streamIds);
+        $this->assertTrue($result);
+    }
+
+    public function testThrowsExceptionWhenInvalidStreamId(): void
+    {
+        $this->setupOTWithMocks([[
+            'code' => 404,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => '/v2/project/APIKEY/session/SESSIONID/mute'
+        ]]);
+
+        $streamId = 'TEST1';
+        $sessionId = 'SESSIONID';
+
+        $result = $this->opentok->forceMuteStream($sessionId, $streamId);
+        $this->assertFalse($result);
+    }
+
+    public function testThrowsExceptionWhenInvalidStreamIds(): void
+    {
+        $this->setupOTWithMocks([[
+            'code' => 404,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => '/v2/project/APIKEY/session/SESSIONID/mute'
+        ]]);
+
+        $streamIds = ['TEST1', 'TEST2'];
+        $sessionId = 'SESSIONID';
+
+        $result = $this->opentok->forceMuteAll($sessionId, $streamIds);
+        $this->assertFalse($result);
+    }
+
+    public function testCannotMuteStreamsWithWrongTypePayload(): void
+    {
+        $this->expectException(\TypeError::class);
+
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => '/v2/project/APIKEY/session/SESSIONID/mute'
+        ]]);
+
+        $streamIdsString = implode(',', ['TEST1', 'TEST2']);
+        $sessionId = 'SESSIONID';
+
+        $result = $this->opentok->forceMuteAll($sessionId, $streamIdsString);
+        $this->assertFalse($result);
+    }
+
     public function testUpdatesBroadcastLayoutWithPredefined()
     {
         // Arrange
@@ -1980,7 +2067,6 @@ class OpenTokTest extends TestCase
         $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
 
         $this->assertInstanceOf('OpenTok\StreamList', $streamList);
-
     }
 
     public function testsSetArchiveLayoutWithPredefined()
