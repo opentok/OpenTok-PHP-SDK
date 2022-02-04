@@ -32,6 +32,29 @@ class Validators
             );
         }
     }
+
+    public static function validateForceMuteAllOptions(array $options)
+    {
+        $validOptions = [
+            'excludedStreams' => 'array',
+            'active' => 'boolean'
+        ];
+
+        foreach ($validOptions as $optionName => $optionType) {
+            if (isset($options[$optionName])) {
+                if (getType($options[$optionName]) !== $optionType) {
+                    throw new InvalidArgumentException('Invalid type given in options for: ' . $options[$optionName]);
+                }
+            }
+        }
+
+        if (isset($options['excludedStreams'])) {
+            foreach ($options['excludedStreams'] as $streamId) {
+                self::validateStreamId($streamId);
+            }
+        }
+    }
+
     public static function validateApiSecret($apiSecret)
     {
         if (!(is_string($apiSecret))) {

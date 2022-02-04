@@ -609,6 +609,45 @@ class Client
         return $options;
     }
 
+    public function forceMuteStream(string $sessionId, string $streamId)
+    {
+        $request = new Request(
+            'POST',
+            '/v2/project/' . $this->apiKey . '/session/' . $sessionId . '/stream/' . $streamId . '/mute'
+        );
+
+        try {
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug(),
+            ]);
+            $jsonResponse = json_decode($response->getBody(), true);
+        } catch (\Exception $e) {
+            $this->handleException($e);
+            return false;
+        }
+        return $jsonResponse;
+    }
+
+    public function forceMuteAll(string $sessionId, array $options)
+    {
+        $request = new Request(
+            'POST',
+            '/v2/project/' . $this->apiKey . '/session/' . $sessionId . '/mute'
+        );
+
+        try {
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug(),
+                'json' => $options
+            ]);
+            $jsonResponse = json_decode($response->getBody(), true);
+        } catch (\Exception $e) {
+            $this->handleException($e);
+            return false;
+        }
+        return $jsonResponse;
+    }
+
     //echo 'Uh oh! ' . $e->getMessage();
     //echo 'HTTP request URL: ' . $e->getRequest()->getUrl() . "\n";
     //echo 'HTTP request: ' . $e->getRequest() . "\n";
