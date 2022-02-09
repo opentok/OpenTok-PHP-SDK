@@ -181,7 +181,7 @@ class Broadcast
     public function removeStreamFromBroadcast(string $streamId): bool
     {
         if ($this->streamMode === StreamMode::AUTO) {
-            throw new InvalidArgumentException('Cannot remove stream from a Broadcast in auto stream mode')
+            throw new InvalidArgumentException('Cannot remove stream from a Broadcast in auto stream mode');
         }
 
         if ($this->client->removeStreamFromBroadcast(

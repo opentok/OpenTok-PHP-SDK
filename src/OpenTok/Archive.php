@@ -234,7 +234,7 @@ class Archive
     public function removeStreamFromArchive(string $streamId): bool
     {
         if ($this->streamMode === StreamMode::AUTO) {
-            throw new InvalidArgumentException('Cannot remove stream to an Archive in auto stream mode')
+            throw new InvalidArgumentException('Cannot remove stream to an Archive in auto stream mode');
         }
 
         if ($this->client->removeStreamFromArchive(
