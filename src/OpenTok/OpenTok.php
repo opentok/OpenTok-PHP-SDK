@@ -318,7 +318,7 @@ class OpenTok
             'hasAudio' => true,
             'outputMode' => OutputMode::COMPOSED,
             'resolution' => null,
-            'streamMode' => 'auto'
+            'streamMode' => StreamMode::AUTO
         );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
         list($name, $hasVideo, $hasAudio, $outputMode, $resolution, $streamMode) = array_values($options);

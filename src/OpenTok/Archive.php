@@ -209,6 +209,44 @@ class Archive
         return json_encode($this->jsonSerialize());
     }
 
+    public function addStreamToArchive(string $streamId, bool $hasAudio, bool $hasVideo): bool
+    {
+        if ($this->streamMode === StreamMode::AUTO) {
+            throw new InvalidArgumentException('Cannot add stream to an Archive in auto stream mode');
+        }
+
+        if ($hasAudio === false && $hasVideo === false) {
+            throw new InvalidArgumentException('Both hasAudio and hasVideo cannot be false');
+        }
+
+        if ($this->client->addStreamToArchive(
+            $this->data['id'],
+            $streamId,
+            $hasVideo,
+            $hasVideo
+        )) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function removeStreamFromArchive(string $streamId): bool
+    {
+        if ($this->streamMode === StreamMode::AUTO) {
+            throw new InvalidArgumentException('Cannot remove stream to an Archive in auto stream mode')
+        }
+
+        if ($this->client->removeStreamFromArchive(
+            $this->data['id'],
+            $streamId
+        )) {
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * Returns an associative array representation of this Archive object.
      * @deprecated 3.0.0 A more standard name for this method is supplied by JsonSerializable

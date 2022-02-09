@@ -156,6 +156,44 @@ class Broadcast
         $this->client->updateLayout($this->id, $layout, 'broadcast');
     }
 
+    public function addStreamToBroadcast(string $streamId, bool $hasAudio, bool $hasVideo): bool
+    {
+        if ($this->streamMode === StreamMode::AUTO) {
+            throw new InvalidArgumentException('Cannot add stream to a Broadcast in auto stream mode');
+        }
+
+        if ($hasAudio === false && $hasVideo === false) {
+            throw new InvalidArgumentException('Both hasAudio and hasVideo cannot be false');
+        }
+
+        if ($this->client->addStreamToBroadcast(
+            $this->data['id'],
+            $streamId,
+            $hasVideo,
+            $hasVideo
+        )) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function removeStreamFromBroadcast(string $streamId): bool
+    {
+        if ($this->streamMode === StreamMode::AUTO) {
+            throw new InvalidArgumentException('Cannot remove stream from a Broadcast in auto stream mode')
+        }
+
+        if ($this->client->removeStreamFromBroadcast(
+            $this->data['id'],
+            $streamId
+        )) {
+            return true;
+        }
+
+        return false;
+    }
+
     public function jsonSerialize()
     {
         return $this->data;
