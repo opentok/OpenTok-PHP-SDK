@@ -6,6 +6,9 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use OpenTok\Archive;
+use OpenTok\Exception\InvalidArgumentException;
+use OpenTok\Stream;
+use OpenTok\StreamMode;
 use OpenTok\Util\Client;
 use PHPUnit\Framework\TestCase;
 
@@ -27,7 +30,7 @@ class ArchiveTest extends TestCase
         self::$mockBasePath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'mock' . DIRECTORY_SEPARATOR;
     }
 
-    public function setupArchives()
+    public function setupArchives($streamMode)
     {
         // Set up fixtures
         $this->archiveData = array(
@@ -45,7 +48,7 @@ class ArchiveTest extends TestCase
             'hasAudio' => true,
             'outputMode' => 'composed',
             'resolution' => '640x480',
-            'streamMode' => 'auto'
+            'streamMode' => $streamMode
         );
 
         $this->archive = new Archive($this->archiveData, array(
@@ -96,7 +99,7 @@ class ArchiveTest extends TestCase
     {
         // Arrange
         $this->setupOT();
-        $this->setupArchives();
+        $this->setupArchives(StreamMode::AUTO);
         // Act
         // Assert
         $this->assertInstanceOf(Archive::class, $this->archive);
@@ -105,7 +108,7 @@ class ArchiveTest extends TestCase
     public function testReadsProperties()
     {
         $this->setupOT();
-        $this->setupArchives();
+        $this->setupArchives(StreamMode::AUTO);
 
         $this->assertEquals($this->archiveData['createdAt'], $this->archive->createdAt);
         $this->assertEquals($this->archiveData['duration'], $this->archive->duration);
@@ -134,7 +137,7 @@ class ArchiveTest extends TestCase
             ],
             'path' => 'v2/project/APIKEY/archive/ARCHIVEID/stop'
         ]]);
-        $this->setupArchives();
+        $this->setupArchives(StreamMode::AUTO);
 
         // Act
         $this->archive->stop();
@@ -165,13 +168,91 @@ class ArchiveTest extends TestCase
 
     }
 
+    public function testCannotAddStreamToArchiveInAutoMode(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/archive/ARCHIVEID/get'
+        ]]);
+
+        $this->setupArchives(StreamMode::AUTO);
+
+        $this->archive->addStreamToArchive(
+            '5dfds4-asdda4asf4',
+            true,
+            true
+        );
+    }
+
+    public function testCannotAddStreamToArchiveWithNoAudioAndVideoe(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/archive/ARCHIVEID/get'
+        ]]);
+
+        $this->setupArchives(StreamMode::MANUAL);
+
+        $this->archive->addStreamToArchive(
+            '5dfds4-asdda4asf4',
+            false,
+            false
+        );
+    }
+
+    public function testCanAddStreamToArchive(): void
+    {
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/archive/ARCHIVEID/get'
+        ]]);
+
+        $this->setupArchives(StreamMode::MANUAL);
+
+        $return = $this->archive->addStreamToArchive(
+            '5dfds4-asdda4asf4',
+            true,
+            true
+        );
+        $this->assertTrue($return);
+    }
+
+    public function testCanRemoveStreamFromArchive(): void
+    {
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/archive/ARCHIVEID/get'
+        ]]);
+
+        $this->setupArchives(StreamMode::MANUAL);
+
+        $return = $this->archive->removeStreamFromArchive(
+            '5dfds4-asdda4asf4'
+        );
+        $this->assertTrue($return);
+    }
+
     public function testDeletesArchive()
     {
         // Arrange
         $this->setupOTWithMocks([[
             'code' => 204
         ]]);
-        $this->setupArchives();
+        $this->setupArchives(StreamMode::AUTO);
 
         // Act
         // TODO: should this test be run on an archive object whose fixture has status 'available'
@@ -201,7 +282,6 @@ class ArchiveTest extends TestCase
 
         $this->assertTrue($success);
         // TODO: assert that all properties of the archive object were cleared
-
     }
 
     public function testAllowsUnknownProperties()
@@ -290,7 +370,7 @@ class ArchiveTest extends TestCase
     {
         // Arrange
         $this->setupOT();
-        $this->setupArchives();
+        $this->setupArchives(StreamMode::AUTO);
 
         // Act
         $archiveJson = $this->archive->toJson();
@@ -304,7 +384,7 @@ class ArchiveTest extends TestCase
     {
         // Arrange
         $this->setupOT();
-        $this->setupArchives();
+        $this->setupArchives(StreamMode::AUTO);
 
         // Act
         $archiveArray = $this->archive->toArray();

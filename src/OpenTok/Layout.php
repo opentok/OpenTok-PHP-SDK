@@ -140,6 +140,7 @@ class Layout implements \JsonSerializable
         throw new \RuntimeException('Screenshare type cannot be set on a layout type other than bestFit');
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return $this->toArray();

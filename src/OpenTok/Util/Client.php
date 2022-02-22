@@ -234,7 +234,7 @@ class Client
             'PATCH',
             '/v2/project/' . $this->apiKey . '/archive/' . $archiveId . '/streams',
             ['Content-Type' => 'application/json'],
-            $requestBody
+            json_encode($requestBody)
         );
 
         try {
@@ -266,7 +266,7 @@ class Client
             'PATCH',
             '/v2/project/' . $this->apiKey . '/archive/' . $archiveId . '/streams',
             ['Content-Type' => 'application/json'],
-            $requestBody
+            json_encode($requestBody)
         );
 
         try {
@@ -430,7 +430,7 @@ class Client
             'PATCH',
             '/v2/project/' . $this->apiKey . '/broadcast/' . $broadcastId . '/streams',
             ['Content-Type' => 'application/json'],
-            $requestBody
+            json_encode($requestBody)
         );
 
         try {
@@ -462,7 +462,7 @@ class Client
             'PATCH',
             '/v2/project/' . $this->apiKey . '/archive/' . $broadcastId . '/streams',
             ['Content-Type' => 'application/json'],
-            $requestBody
+            json_encode($requestBody)
         );
 
         try {
