@@ -36,8 +36,15 @@ use OpenTok\Util\Validators;
 * Whether the broadcast is stopped (true) or in progress (false).
 *
 * @property string $streamMode
-* Allows for an archive stream to be manually updated to add streams individually.
-* Default is set to <code>auto</code>.
+* Whether streams included in the broadcast are selected automatically (<code>StreamMode.AUTO</code>)
+* or manually (<code>StreamMode.MANUAL</code>). When streams are selected automatically (<code>StreamMode.AUTO</code>),
+* all streams in the session can be included in the broadcast. When streams are selected manually
+* (<code>StreamMode.MANUAL</code>), you specify streams to be included based on calls to the
+* <code>Broadcast.addStreamToBroadcast()</code> and <code>Broadcast.removeStreamFromBroadcast()</code> methods.
+* With manual mode, you can specify whether a stream's audio, video, or both are included in the
+* broadcast. In both automatic and manual modes, the broadcast composer includes streams based on
+* <a href="https://tokbox.com/developer/guides/archive-broadcast-layout/#stream-prioritization-rules">stream
+* prioritization rules</a>.
 */
 class Broadcast
 {
@@ -156,6 +163,19 @@ class Broadcast
         $this->client->updateLayout($this->id, $layout, 'broadcast');
     }
 
+    /**
+     * Adds a stream to a currently running broadcast that was started with the
+     * the <code>streamMode</code> set to <code>StreamMode.Manual</code>. You can call the method
+     * repeatedly with the same stream ID, to toggle the stream's audio or video in the broadcast.
+     * 
+     * @param String $streamId The stream ID.
+     * @param Boolean $hasAudio Whether the broadcast should include the stream's audio (true, the default)
+     * or not (false).
+     * @param Boolean $hasVideo Whether the broadcast should include the stream's video (true, the default)
+     * or not (false).
+     *
+     * @return Boolean Returns true on success.
+     */
     public function addStreamToBroadcast(string $streamId, bool $hasAudio, bool $hasVideo): bool
     {
         if ($this->streamMode === StreamMode::AUTO) {
@@ -178,6 +198,14 @@ class Broadcast
         return false;
     }
 
+    /**
+     * Removes a stream from a currently running broadcast that was started with the
+     * the <code>streamMode</code> set to <code>StreamMode.Manual</code>.
+     * 
+     * @param String $streamId The stream ID.
+     *
+     * @return Boolean Returns true on success.
+     */
     public function removeStreamFromBroadcast(string $streamId): bool
     {
         if ($this->streamMode === StreamMode::AUTO) {
