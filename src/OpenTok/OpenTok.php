@@ -283,6 +283,18 @@ class OpenTok
      *    <code>hasVideo</code> to false, the call to the <code>startArchive()</code> method results
      *    in an error.</li>
      *
+     *    <li><code>'streamMode'</code> (String) &mdash; Whether streams included in the archive are
+     *    selected automatically (<code>StreamMode.AUTO</code>, the default) or manually
+     *    (<code>StreamMode.MANUAL</code>). When streams are selected automatically
+     *    (<code>StreamMode.AUTO</code>), all streams in the session can be included in the archive.
+     *    When streams are selected manually (<code>StreamMode.MANUAL</code>), you specify streams
+     *    to be included based on calls to the <code>Archive.addStreamToArchive()</code> and
+     *    <code>Archive.removeStreamFromArchive()</code>. methods. With manual mode, you can specify
+     *    whether a stream's audio, video, or both are included in the archive. In both automatic and
+     *    manual modes, the archive composer includes streams based on
+     *    <a href="https://tokbox.com/developer/guides/archive-broadcast-layout/#stream-prioritization-rules">stream
+     *    prioritization rules</a>.</li>
+     *
      *    <li><code>'hasAudio'</code> (Boolean) &mdash; Whether the archive will record audio
      *    (true, the default) or not (false). If you set both <code>hasAudio</code> and
      *    <code>hasVideo</code> to false, the call to the <code>startArchive()</code> method results
@@ -315,15 +327,17 @@ class OpenTok
             'hasAudio' => true,
             'outputMode' => OutputMode::COMPOSED,
             'resolution' => null,
+            'streamMode' => StreamMode::AUTO
         );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($name, $hasVideo, $hasAudio, $outputMode, $resolution) = array_values($options);
+        list($name, $hasVideo, $hasAudio, $outputMode, $resolution, $streamMode) = array_values($options);
         // validate arguments
         Validators::validateSessionId($sessionId);
         Validators::validateArchiveName($name);
         Validators::validateArchiveHasVideo($hasVideo);
         Validators::validateArchiveHasAudio($hasAudio);
         Validators::validateArchiveOutputMode($outputMode);
+        Validators::validateHasStreamMode($streamMode);
 
         if ((is_null($resolution) || empty($resolution)) && $outputMode === OutputMode::COMPOSED) {
             $options['resolution'] = "640x480";
@@ -598,6 +612,19 @@ class OpenTok
      *     <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/#configuring-live-streaming-video-layout">Configuring
      *     Video Layout for the OpenTok live streaming feature</a>.
      *   </li>
+     *
+     *    <li><code>'streamMode'</code> (String) &mdash; Whether streams included in the broadcast
+     *    are selected automatically (<code>StreamMode.AUTO</code>, the default) or manually
+     *    (<code>StreamMode.MANUAL</code>). When streams are selected automatically
+     *    (<code>StreamMode.AUTO</code>), all streams in the session can be included in the broadcast.
+     *    When streams are selected manually (<code>StreamMode.MANUAL</code>), you specify streams
+     *    to be included based on calls to the <code>Broadcast.addStreamToBroadcast()</code> and
+     *    <code>Broadcast.removeStreamFromBroadcast()</code> methods. With manual mode, you can specify
+     *    whether a stream's audio, video, or both are included in the broadcast. In both automatic and
+     *    manual modes, the broadcast composer includes streams based on
+     *    <a href="https://tokbox.com/developer/guides/archive-broadcast-layout/#stream-prioritization-rules">stream
+     *    prioritization rules</a>.</li>
+     *
      * </ul>
      *
      * @return Broadcast An object with properties defining the broadcast.
@@ -609,14 +636,16 @@ class OpenTok
         // not preferred to depend on that in the SDK because its then harder to garauntee backwards
         // compatibility
         $defaults = array(
-            'layout' => Layout::getBestFit()
+            'layout' => Layout::getBestFit(),
+            'streamMode' => 'auto'
         );
         $options = array_merge($defaults, $options);
-        list($layout) = array_values($options);
+        list($layout, $streamMode) = array_values($options);
 
         // validate arguments
         Validators::validateSessionId($sessionId);
         Validators::validateLayout($layout);
+        Validators::validateHasStreamMode($streamMode);
 
         // make API call
         $broadcastData = $this->client->startBroadcast($sessionId, $options);

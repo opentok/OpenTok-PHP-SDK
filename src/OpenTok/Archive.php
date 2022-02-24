@@ -49,6 +49,17 @@ use OpenTok\Exception\ArchiveUnexpectedValueException;
 * @property string $size
 * The size of the MP4 file. For archives that have not been generated, this value is set to 0.
 *
+* @property string $streamMode
+* Whether streams included in the archive are selected automatically (<code>StreamMode.AUTO</code>) or
+* manually (<code>StreamMode.MANUAL</code>). When streams are selected automatically (<code>StreamMode.AUTO</code>),
+* all streams in the session can be included in the archive. When streams are selected manually
+* (<code>StreamMode.MANUAL</code>), you specify streams to be included based on calls to the
+* <code>Archive.addStreamToArchive()</code> and <code>Archive.removeStreamFromArchive()</code> methods.
+* With manual mode, you can specify whether a stream's audio, video, or both are included in the
+* archive. In both automatic and manual modes, the archive composer includes streams based on
+* <a href="https://tokbox.com/developer/guides/archive-broadcast-layout/#stream-prioritization-rules">stream
+* prioritization rules</a>.
+*
 * @property string $status
 * The status of the archive, which can be one of the following:
 *
@@ -95,14 +106,16 @@ class Archive
             'apiKey' => null,
             'apiSecret' => null,
             'apiUrl' => 'https://api.opentok.com',
-            'client' => null
+            'client' => null,
+            'streamMode' => StreamMode::AUTO
         );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($apiKey, $apiSecret, $apiUrl, $client) = array_values($options);
+        list($apiKey, $apiSecret, $apiUrl, $client, $streamMode) = array_values($options);
 
         // validate params
         Validators::validateArchiveData($archiveData);
         Validators::validateClient($client);
+        Validators::validateHasStreamMode($streamMode);
 
         $this->data = $archiveData;
 
@@ -137,6 +150,7 @@ class Archive
             case 'hasAudio':
             case 'outputMode':
             case 'resolution':
+            case 'streamMode':
                 return $this->data[$name];
             default:
                 return null;
@@ -200,6 +214,65 @@ class Archive
     public function toJson()
     {
         return json_encode($this->jsonSerialize());
+    }
+
+    /**
+     * Adds a stream to a currently running archive that was started with the
+     * the <code>streamMode</code> set to <code>StreamMode.Manual</code>. You can call the method
+     * repeatedly with the same stream ID, to toggle the stream's audio or video in the archive.
+     * 
+     * @param String $streamId The stream ID.
+     * @param Boolean $hasAudio Whether the archive should include the stream's audio (true, the default)
+     * or not (false).
+     * @param Boolean $hasVideo Whether the archive should include the stream's video (true, the default)
+     * or not (false).
+     *
+     * @return Boolean Returns true on success.
+     */
+    public function addStreamToArchive(string $streamId, bool $hasAudio, bool $hasVideo): bool
+    {
+        if ($this->streamMode === StreamMode::AUTO) {
+            throw new InvalidArgumentException('Cannot add stream to an Archive in auto stream mode');
+        }
+
+        if ($hasAudio === false && $hasVideo === false) {
+            throw new InvalidArgumentException('Both hasAudio and hasVideo cannot be false');
+        }
+
+        if ($this->client->addStreamToArchive(
+            $this->data['id'],
+            $streamId,
+            $hasVideo,
+            $hasVideo
+        )) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Removes a stream from a currently running archive that was started with the
+     * the <code>streamMode</code> set to <code>StreamMode.Manual</code>.
+     * 
+     * @param String $streamId The stream ID.
+     *
+     * @return Boolean Returns true on success.
+     */
+    public function removeStreamFromArchive(string $streamId): bool
+    {
+        if ($this->streamMode === StreamMode::AUTO) {
+            throw new InvalidArgumentException('Cannot remove stream to an Archive in auto stream mode');
+        }
+
+        if ($this->client->removeStreamFromArchive(
+            $this->data['id'],
+            $streamId
+        )) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

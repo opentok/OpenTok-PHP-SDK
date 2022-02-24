@@ -17,10 +17,10 @@ abstract class ArchiveMode extends BasicEnum
      * The session is not archived automatically. To archive the session, you can call the
      * \OpenTok\OpenTok->startArchive() method.
      */
-    const MANUAL = 'manual';
+    public const MANUAL = 'manual';
     /**
      * The session is archived automatically (as soon as there are clients connected
      * to the session).
      */
-    const ALWAYS = 'always';
+    public const ALWAYS = 'always';
 }

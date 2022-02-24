@@ -12,6 +12,7 @@ use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use OpenTok\OutputMode;
 use OpenTok\ArchiveMode;
+use OpenTok\StreamMode;
 use OpenTok\Util\Client;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\HandlerStack;
@@ -537,6 +538,74 @@ class OpenTokTest extends TestCase
         $this->assertNull($archive->url);
         $this->assertTrue($archive->hasVideo);
         $this->assertTrue($archive->hasAudio);
+        $this->assertEquals('auto', $archive->streamMode);
+    }
+
+    public function testStartsArchiveInManualMode(): void
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/archive/manual_mode_session'
+        ]]);
+
+        // This sessionId was generated using a different apiKey, but this method doesn't do any
+        // decoding to check, so it's fine.
+        $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
+
+        // Act
+        $archive = $this->opentok->startArchive($sessionId, ['streamMode' => StreamMode::MANUAL]);
+
+        // Assert
+        $this->assertCount(1, $this->historyContainer);
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive', $request->getUri()->getPath());
+        $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
+        $this->assertEquals('https', $request->getUri()->getScheme());
+
+        $contentType = $request->getHeaderLine('Content-Type');
+        $this->assertNotEmpty($contentType);
+        $this->assertEquals('application/json', $contentType);
+
+        $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        $this->assertInstanceOf('OpenTok\Archive', $archive);
+        $this->assertEquals(0, $archive->duration);
+        $this->assertEquals('', $archive->reason);
+        $this->assertEquals('started', $archive->status);
+        $this->assertEquals(OutputMode::COMPOSED, $archive->outputMode);
+        $this->assertNull($archive->name);
+        $this->assertNull($archive->url);
+        $this->assertTrue($archive->hasVideo);
+        $this->assertTrue($archive->hasAudio);
+        $this->assertEquals('manual', $archive->streamMode);
+    }
+
+    public function testCannotStartArchiveWithInvalidStreamMode()
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/archive/manual_mode_session'
+        ]]);
+
+        // This sessionId was generated using a different apiKey, but this method doesn't do any
+        // decoding to check, so it's fine.
+        $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
+
+        // Act
+        $archive = $this->opentok->startArchive($sessionId, ['streamMode' => 'broadcast']);
     }
 
     public function testStartsArchiveNamed()
@@ -1208,6 +1277,72 @@ class OpenTokTest extends TestCase
         $this->assertIsString($broadcast->broadcastUrls['hls']);
         $this->assertIsString($broadcast->hlsUrl);
         $this->assertFalse($broadcast->isStopped);
+        $this->assertEquals('auto', $broadcast->streamMode);
+    }
+
+    public function testCannotStartBroadcastWithInvalidStreamMode()
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => '/v2/project/APIKEY/broadcast/session_manual_stream'
+        ]]);
+
+        // This sessionId was generated using a different apiKey, but this method doesn't do any
+        // decoding to check, so it's fine.
+        $sessionId = '2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4';
+
+        // Act
+        $broadcast = $this->opentok->startBroadcast($sessionId, ['streamMode' => 'stop']);
+    }
+
+    public function testStartsBroadcastInManualStreamMode()
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => '/v2/project/APIKEY/broadcast/session_manual_stream'
+        ]]);
+
+        // This sessionId was generated using a different apiKey, but this method doesn't do any
+        // decoding to check, so it's fine.
+        $sessionId = '2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4';
+
+        // Act
+        $broadcast = $this->opentok->startBroadcast($sessionId, ['streamMode' => StreamMode::MANUAL]);
+
+        // Assert
+        $this->assertCount(1, $this->historyContainer);
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/broadcast', $request->getUri()->getPath());
+        $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
+        $this->assertEquals('https', $request->getUri()->getScheme());
+
+        $contentType = $request->getHeaderLine('Content-Type');
+        $this->assertNotEmpty($contentType);
+        $this->assertEquals('application/json', $contentType);
+
+        $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        $this->assertInstanceOf('OpenTok\Broadcast', $broadcast);
+        $this->assertIsString($broadcast->id);
+        $this->assertEquals($sessionId, $broadcast->sessionId);
+        $this->assertIsArray($broadcast->broadcastUrls);
+        $this->assertArrayHasKey('hls', $broadcast->broadcastUrls);
+        $this->assertIsString($broadcast->broadcastUrls['hls']);
+        $this->assertIsString($broadcast->hlsUrl);
+        $this->assertFalse($broadcast->isStopped);
+        $this->assertEquals('manual', $broadcast->streamMode);
     }
 
     public function testStartBroadcastWithOptions()
