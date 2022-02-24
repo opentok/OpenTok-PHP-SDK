@@ -4,13 +4,18 @@
 
 <img src="https://assets.tokbox.com/img/vonage/Vonage_VideoAPI_black.svg" height="48px" alt="Tokbox is now known as Vonage" />
 
-The OpenTok PHP SDK lets you generate [sessions](http://tokbox.com/developer/guides/create-session/) and
-[tokens](http://tokbox.com/developer/guides/create-token/) for [OpenTok](http://www.tokbox.com/)
-applications, and [archive](http://tokbox.com/developer/guides/archiving/) sessions.
-It also includes methods for working with OpenTok
-[archives](http://tokbox.com/developer/guides/archiving), working with OpenTok
-[SIP interconnect](http://tokbox.com/developer/guides/sip), and
-[disconnecting clients from sessions](http://tokbox.com/developer/guides/moderation/rest/).
+The OpenTok PHP SDK provides methods for:
+
+* Generating
+[sessions](https://tokbox.com/developer/guides/create-session/) and
+[tokens](https://tokbox.com/developer/guides/create-token/) for
+[OpenTok](https://www.tokbox.com/) applications that run on the .NET platform
+* Working with [OpenTok archives](https://tokbox.com/opentok/tutorials/archiving)
+* Working with [OpenTok live streaming broadcasts](https://tokbox.com/developer/guides/broadcast/live-streaming/)
+* Working with [OpenTok SIP interconnect](https://tokbox.com/developer/guides/sip)
+* [Sending signals to clients connected to a session](https://www.tokbox.com/developer/guides/signaling/)
+* [Disconnecting clients from sessions](https://tokbox.com/developer/guides/moderation/rest/)
+* [Forcing clients in a session to disconnect or mute published audio](https://tokbox.com/developer/guides/moderation/)
 
 ## Installation
 
@@ -369,6 +374,17 @@ use OpenTok\OpenTok;
 // Force disconnect a client connection
 $opentok->forceDisconnect($sessionId, $connectionId);
 ```
+
+### Forcing clients in a session mute published audio
+
+You can force the publisher of a specific stream to stop publishing audio using the 
+`Opentok.forceMuteStream($sessionId, $stream)` method.
+
+You can force the publisher of all streams in a session (except for an optional list of streams)
+to stop publishing audio using the `Opentok.forceMuteAll($sessionId, $excludedStreamIds)` method.
+You can then disable the mute state of the session by calling the
+`Opentok.DisableForceMute(sessionId)` or `Opentok.DisableForceMuteAsync(sessionId)`
+method.
 
 ### Sending Signals
 
