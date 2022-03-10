@@ -168,23 +168,23 @@ class OpenTok
     *    will use to situate the session in its global network. If you do not set a location hint,
     *    the OpenTok servers will be based on the first client connecting to the session.</li>
     *
-    *     <li><code>'mediaMode'</code> (MediaMode) &mdash; Whether the session will transmit
-    *     streams using the OpenTok Media Router (<code>MediaMode.ROUTED</code>) or not
-    *     (<code>MediaMode.RELAYED</code>). By default, the <code>mediaMode</code> property
-    *     is set to <code>MediaMode.RELAYED</code>.
+    *    <li><code>'mediaMode'</code> (MediaMode) &mdash; Whether the session will transmit
+    *    streams using the OpenTok Media Router (<code>MediaMode.ROUTED</code>) or not
+    *    (<code>MediaMode.RELAYED</code>). By default, the <code>mediaMode</code> property
+    *    is set to <code>MediaMode.RELAYED</code>.
     *
-    *     <p>
-    *     With the <code>mediaMode</code> parameter set to <code>MediaMode.RELAYED</code>, the
-    *     session will attempt to transmit streams directly between clients. If clients cannot
-    *     connect due to firewall restrictions, the session uses the OpenTok TURN server to relay
-    *     audio-video streams.
+    *    <p>
+    *    With the <code>mediaMode</code> parameter set to <code>MediaMode.RELAYED</code>, the
+    *    session will attempt to transmit streams directly between clients. If clients cannot
+    *    connect due to firewall restrictions, the session uses the OpenTok TURN server to relay
+    *    audio-video streams.
     *
-    *     <p>
-    *     The
-    *     <a href="https://tokbox.com/opentok/tutorials/create-session/#media-mode" target="_top">
-    *     OpenTok Media Router</a> provides the following benefits:
+    *    <p>
+    *    The
+    *    <a href="https://tokbox.com/opentok/tutorials/create-session/#media-mode" target="_top">
+    *    OpenTok Media Router</a> provides the following benefits:
     *
-    *     <ul>
+    *    <ul>
     *       <li>The OpenTok Media Router can decrease bandwidth usage in multiparty sessions.
     *           (When the <code>mediaMode</code> parameter is set to <code>MediaMode.ROUTED</code>,
     *           each client must send a separate audio-video stream to each client subscribing to
@@ -197,7 +197,7 @@ class OpenTok
     *       <li>The OpenTok Media Router supports the
     *         <a href="https://tokbox.com/opentok/tutorials/archiving" target="_top">archiving</a>
     *         feature, which lets you record, save, and retrieve OpenTok sessions.</li>
-    *     </ul>
+    *    </ul>
     *
     * </ul>
     *
@@ -304,7 +304,7 @@ class OpenTok
      *    archive are recorded to a single file (<code>OutputMode::COMPOSED</code>, the default)
      *    or to individual files (<code>OutputMode::INDIVIDUAL</code>).</li>
      *
-     * <ul>
+     * </ul>
      *
      * @return Archive The Archive object, which includes properties defining the archive, including
      * the archive ID.
@@ -603,8 +603,9 @@ class OpenTok
      *
      * @param String $sessionId The session ID of the session to be broadcast.
      *
-     * @param Array $options (Optional) An array with options for the broadcast. This array has
+     * @param array $options (Optional) An array with options for the broadcast. This array has
      * the following properties:
+     *
      * <ul>
      *   <li><code>layout</code> (Layout) &mdash; (Optional) An object defining the initial
      *     layout type of the broadcast. If you do not specify an initial layout type,
@@ -724,8 +725,14 @@ class OpenTok
     *
     * <p>
     * You can set the initial layout class list for streams published by a client when you generate
-    * the token used by the client to connect to the session. See the
-    * <a href="#method_generateToken">OpenTok->generateToken()</a> method.
+    * the token used by the client to connect to the session. See the OpenTok::generateToken()
+    * {@link https://example.com/my/bar} floor
+    * ({@see OpenTok::generateToken OpenTok->generateToken()}) sdfdf
+    * <a href="classes/OpenTok-OpenTok.html#method_generateToken">OpenTok::generateToken()</a>
+    * method.
+    * <a href="#method_generateToken">OpenTok::generateToken()</a>
+    * method. 
+    * @see OpenTok::generateToken()
     *
     * @param string $sessionId The session ID of the session the stream belongs to.
     *
@@ -839,16 +846,16 @@ class OpenTok
      *    INVITE request for HTTP Digest authentication in case this is required by the Third Party
      *    SIP Platform.
      *
-     *     <ul>
+     *    <ul>
      *
-     *       <li><code>'username'</code> (string) &mdash; The username to be used
-     *       in the the SIP INVITE​ request for HTTP digest authentication (if one
-     *       is required).</li>
+     *    <li><code>'username'</code> (string) &mdash; The username to be used
+     *    in the the SIP INVITE​ request for HTTP digest authentication (if one
+     *    is required).</li>
      *
-     *       <li><code>'password'</code> (string) &mdash; The password to be used
-     *       in the the SIP INVITE​ request for HTTP digest authentication.</li>
+     *    <li><code>'password'</code> (string) &mdash; The password to be used
+     *    in the the SIP INVITE​ request for HTTP digest authentication.</li>
      *
-     *     </ul>
+     *    </ul>
      *
      *    <li><code>'secure'</code> (Boolean) &mdash; Indicates whether the media
      *    must be transmitted encrypted (true, the default) or not (false).</li>
