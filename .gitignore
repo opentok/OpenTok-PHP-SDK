@@ -11,3 +11,4 @@ composer.lock
 docs/
 .phpdoc/
 phpDocumentor*
+.phpunit.result.cache
