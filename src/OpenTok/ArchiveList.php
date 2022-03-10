@@ -67,6 +67,8 @@ class ArchiveList
 
     /**
      * Returns an array of Archive objects.
+     *
+     * @return Archive[]
      */
     public function getItems()
     {

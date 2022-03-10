@@ -61,7 +61,9 @@ class OpenTok
     }
 
     /**
-     * Creates a token for connecting to an OpenTok session. In order to authenticate a user
+     * Creates a token for connecting to an OpenTok session.
+     *
+     * In order to authenticate a user
      * connecting to an OpenTok session, the client passes a token when connecting to the session.
      * <p>
      * For testing, you generate tokens or by logging in to your
@@ -415,7 +417,9 @@ class OpenTok
     }
 
     /**
-     * Returns an ArchiveList. The <code>items()</code> method of this object returns a list of
+     * Returns a list of archives for a session.
+     *
+     * The <code>items()</code> method of this object returns a list of
      * archives that are completed and in-progress, for your API key.
      *
      * @param integer $offset Optional. The index offset of the first archive. 0 is offset of the
@@ -453,7 +457,9 @@ class OpenTok
     }
 
     /**
-     * Sets the layout class list for streams in a session. Layout classes are used in
+     * Sets the layout class list for streams in a session.
+     *
+     * Layout classes are used in
      * the layout for composed archives and live streaming broadcasts. For more information, see
      * <a href="https://tokbox.com/developer/guides/archiving/layout-control.html">Customizing
      * the video layout for composed archives</a> and
@@ -496,7 +502,9 @@ class OpenTok
      * Force the publisher of a specific stream to mute its published audio.
      *
      * <p>
-     * Also see the <a href="#method_forceMuteAll">OpenTok->forceMuteAll()</a> method.
+     * Also see the
+     * <a href="classes/OpenTok-OpenTok.html#method_forceMuteAll">OpenTok->forceMuteAll()</a>
+     * method.
      *
      * @param string $sessionId The OpenTok session ID containing the stream.
      *
@@ -525,10 +533,12 @@ class OpenTok
      * <p>
      * In addition to existing streams, any streams that are published after the call to
      * this method are published with audio muted. You can remove the mute state of a session
-     * by calling the <a href="#method_disableForceMute">OpenTok->disableForceMute()</a> method.
-     *
+     * <a href="classes/OpenTok-OpenTok.html#method_disableForceMute">OpenTok->disableForceMute()</a>
+     * method.
      * <p>
-     * Also see the <a href="#method_forceMuteStream">OpenTok->forceMuteStream()</a> method.
+     * Also see the
+     * <a href="classes/OpenTok-OpenTok.html#method_forceMuteStream">OpenTok->forceMuteStream()</a>
+     * method.
      *
      * @param string $sessionId The OpenTok session ID.
      *
@@ -564,7 +574,8 @@ class OpenTok
      * published to the session will no longer have audio muted.
      *
      * <p>
-     * After you call the <a href="#method_forceMuteAll">OpenTok->forceMuteAll()</a> method,
+     * After you call the
+     * <a href="classes/OpenTok-OpenTok.html#method_forceMuteAll">OpenTok->forceMuteAll()</a> method
      * any streams published after the call are published with audio muted. Call the
      * <c>disableForceMute()</c> method to remove the mute state of a session, so that
      * new published streams are not automatically muted.
@@ -714,7 +725,9 @@ class OpenTok
     }
 
     /**
-    * Sets the layout class list for a stream. Layout classes are used in
+    * Sets the layout class list for a stream.
+    *
+    * Layout classes are used in
     * the layout for composed archives and live streaming broadcasts.
     * <p>
     * For more information, see
@@ -725,14 +738,9 @@ class OpenTok
     *
     * <p>
     * You can set the initial layout class list for streams published by a client when you generate
-    * the token used by the client to connect to the session. See the OpenTok::generateToken()
-    * {@link https://example.com/my/bar} floor
-    * ({@see OpenTok::generateToken OpenTok->generateToken()}) sdfdf
+    * the token used by the client to connect to the session. See the
     * <a href="classes/OpenTok-OpenTok.html#method_generateToken">OpenTok::generateToken()</a>
     * method.
-    * <a href="#method_generateToken">OpenTok::generateToken()</a>
-    * method. 
-    * @see OpenTok::generateToken()
     *
     * @param string $sessionId The session ID of the session the stream belongs to.
     *
@@ -819,8 +827,8 @@ class OpenTok
      * @param string $token The OpenTok token to be used for the participant being called.
      * You can add token data to identify that the participant is on a SIP endpoint or for
      * other identifying data, such as phone numbers. Generate a token using the
-     * <a href="#method_generateToken">OpenTok->generateToken()</a> or
-     * <a href="OpenTok.Session.html#method_generateToken">Session->generateToken()</a>
+     * <a href="classes/OpenTok-OpenTok.html#method_generateToken">OpenTok::generateToken()</a> or
+     * <a href="classes/OpenTok-Session.html#method_generateToken">Session::generateToken()</a>
      * method.
      *
      * @param string $sipUri The SIP URI to be used as destination of the SIP Call initiated from
@@ -876,7 +884,8 @@ class OpenTok
      * @return SipCall An object contains the OpenTok connection ID and stream ID
      * for the SIP call's connection in the OpenTok session. You can use the connection ID
      * to terminate the SIP call, using the
-     * <a href="#method_forceDisconnect">OpenTok->forceDisconnect()</a> method.
+     * <a href="classes/OpenTok-OpenTok.html#method_forceDisconnect">OpenTok::method_forceDisconnect()</a>
+     * method.
      */
     public function dial($sessionId, $token, $sipUri, $options = [])
     {

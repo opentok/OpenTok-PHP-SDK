@@ -165,7 +165,7 @@ class Broadcast
 
     /**
      * Adds a stream to a currently running broadcast that was started with the
-     * the <code>streamMode</code> set to <code>StreamMode.Manual</code>. You can call the method
+     * the streamMode set to StreamMode.Manual. You can call the method
      * repeatedly with the same stream ID, to toggle the stream's audio or video in the broadcast.
      * 
      * @param String $streamId The stream ID.
@@ -200,7 +200,7 @@ class Broadcast
 
     /**
      * Removes a stream from a currently running broadcast that was started with the
-     * the <code>streamMode</code> set to <code>StreamMode.Manual</code>.
+     * the streamMode set to StreamMode.Manual.
      * 
      * @param String $streamId The stream ID.
      *

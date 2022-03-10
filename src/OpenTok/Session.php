@@ -58,6 +58,8 @@ class Session
 
     /**
     * Returns the session ID, which uniquely identifies the session.
+    *
+    * @return string
     */
     public function getSessionId()
     {
@@ -68,6 +70,8 @@ class Session
     * Returns the location hint IP address.
     *
     * See <a href="OpenTok.OpenTok.html#method_createSession">OpenTok->createSession()</a>.
+    *
+    * @return string
     */
     public function getLocation()
     {
@@ -80,7 +84,9 @@ class Session
     * OpenTok Media Router.
     *
     * See <a href="OpenTok.OpenTok.html#method_createSession">OpenTok->createSession()</a>
-    * and <a href="OpenTok.MediaMode.html">ArchiveMode</a>.
+    * and <a href="OpenTok.MediaMode.html">MediaMode</a>.
+    *
+    * @return MediaMode
     */
     public function getMediaMode()
     {
@@ -93,6 +99,8 @@ class Session
     *
     * See <a href="OpenTok.OpenTok.html#method_createSession">OpenTok->createSession()</a>
     * and <a href="OpenTok.ArchiveMode.html">ArchiveMode</a>.
+    *
+    * @return ArchiveMode
     */
     public function getArchiveMode()
     {
