@@ -10,3 +10,4 @@ composer.lock
 
 docs/
 .phpdoc/
+phpDocumentor*
