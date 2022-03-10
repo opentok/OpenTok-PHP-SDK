@@ -7,3 +7,6 @@ phpunit.xml
 sample/*/vendor/
 sample/*/cache/
 composer.lock
+
+docs/
+.phpdoc/
