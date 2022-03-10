@@ -427,7 +427,7 @@ $opentok->signal($sessionId, $signalPayload);
 For more information, see the [OpenTok signaling developer
 guide](https://tokbox.com/developer/guides/signaling/).
 
-## Working with SIP Interconnect
+### Working with SIP Interconnect
 
 You can add an audio-only stream from an external third-party SIP gateway using the SIP
 Interconnect feature. This requires a SIP URI, the session ID you wish to add the audio-only
