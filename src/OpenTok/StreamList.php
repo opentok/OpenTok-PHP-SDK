@@ -33,7 +33,7 @@ class StreamList
     /**
      * Returns an array of Stream objects.
      *
-     * @return array
+     * @return Stream[]
      */
     public function getItems()
     {
