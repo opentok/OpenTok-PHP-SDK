@@ -18,6 +18,7 @@ use GuzzleHttp\HandlerStack;
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Handler\MockHandler;
 use InvalidArgumentException as GlobalInvalidArgumentException;
+use OpenTok\BroadcastList;
 use OpenTok\Exception\AuthenticationException;
 use OpenTok\Exception\DomainException as ExceptionDomainException;
 use OpenTok\Exception\InvalidArgumentException;
@@ -1159,6 +1160,119 @@ class OpenTokTest extends TestCase
         // Act
         $this->opentok->forceDisconnect($sessionId, $connectionId);
 
+    }
+
+    public function testListsBroadcasts()
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/broadcast/index'
+        ]]);
+
+        // Act
+        $broadcastList = $this->opentok->listBroadcasts();
+
+        // Assert
+        $this->assertCount(1, $this->historyContainer);
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertEquals('GET', strtoupper($request->getMethod()));
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/broadcast', $request->getUri()->getPath());
+        $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
+        $this->assertEquals('https', $request->getUri()->getScheme());
+
+        $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        $userAgent = $request->getHeaderLine('User-Agent');
+        $this->assertNotEmpty($userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.0', $userAgent);
+
+        $this->assertInstanceOf(BroadcastList::class, $broadcastList);
+    }
+
+    public function testListsBroadcastsWithOffsetAndCount()
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/broadcast/index-page-2'
+        ]]);
+
+        // Act
+        $broadcastList = $this->opentok->listBroadcasts(1, 1);
+
+        // Assert
+        $this->assertCount(1, $this->historyContainer);
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertEquals('GET', strtoupper($request->getMethod()));
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/broadcast', $request->getUri()->getPath());
+        $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
+        $this->assertEquals('https', $request->getUri()->getScheme());
+
+        $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        // TODO: test the dynamically built User Agent string
+        $userAgent = $request->getHeaderLine('User-Agent');
+        $this->assertNotEmpty($userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.0', $userAgent);
+
+        $this->assertInstanceOf(BroadcastList::class, $broadcastList);
+        $this->assertEquals(1, $broadcastList->totalCount());
+        $this->assertEquals('1c46ad10-0a81-464c-9759-748b707d3734', $broadcastList->getItems()[0]->id);
+    }
+
+    public function testListsBroadcastsWithSessionId()
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/broadcast/index'
+        ]]);
+
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $bogusApiKey = '12345678';
+        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+
+        // Act
+        $broadcastList = $this->opentok->listBroadcasts(0, null, $sessionId);
+
+        // Assert
+        $this->assertCount(1, $this->historyContainer);
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertEquals('GET', strtoupper($request->getMethod()));
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/broadcast', $request->getUri()->getPath());
+        $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
+        $this->assertEquals('https', $request->getUri()->getScheme());
+
+        $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        // TODO: test the dynamically built User Agent string
+        $userAgent = $request->getHeaderLine('User-Agent');
+        $this->assertNotEmpty($userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.9.0', $userAgent);
+
+        $this->assertInstanceOf(BroadcastList::class, $broadcastList);
+        $this->assertEquals(2, $broadcastList->totalCount());
+        $this->assertEquals($sessionId, $broadcastList->getItems()[0]->sessionId);
+        $this->assertEquals($sessionId, $broadcastList->getItems()[1]->sessionId);
+        $this->assertEquals('1748b707-0a81-464c-9759-c46ad10d3734', $broadcastList->getItems()[0]->id);
+        $this->assertEquals('1c46ad10-0a81-464c-9759-748b707d3734', $broadcastList->getItems()[1]->id);
     }
 
     public function testStartsBroadcast()

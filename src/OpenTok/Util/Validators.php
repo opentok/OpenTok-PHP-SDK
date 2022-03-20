@@ -21,6 +21,7 @@ class Validators
     public static $guidRegEx = '/^\[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}\$/';
     public static $archiveSchemaUri;
     public static $broadcastSchemaUri;
+    public static $broadcastListSchemaUri;
 
     public static function validateApiKey($apiKey)
     {
@@ -195,6 +196,24 @@ class Validators
             );
         }
     }
+
+    public static function validateBroadcastListData($broadcastListData)
+    {
+        if (!self::$broadcastListSchemaUri) {
+            self::$broadcastListSchemaUri = __DIR__ . '/broadcast-list-schema.json';
+        }
+        $document = new Document();
+        // have to do a encode+decode so that json objects decoded as arrays from Guzzle
+        // are re-encoded as objects instead
+        $document->loadData(json_decode(json_encode($broadcastListData)));
+        $document->loadSchema(self::$broadcastListSchemaUri);
+        if (!$document->validate()) {
+            throw new InvalidArgumentException(
+                'The broadcast data provided is not valid. Errors:' . $document->lastError . ' broadcastListData:' . print_r($broadcastListData, true)
+            );
+        }
+    }
+
     public static function validateOffsetAndCount($offset, $count)
     {
         if (
