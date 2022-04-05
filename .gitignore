@@ -6,4 +6,8 @@ vendor/
 phpunit.xml
 sample/*/vendor/
 sample/*/cache/
+docs/
+.phpdoc/
+phpDocumentor*
+.phpunit.result.cache
 .idea/*

@@ -61,7 +61,9 @@ class OpenTok
     }
 
     /**
-     * Creates a token for connecting to an OpenTok session. In order to authenticate a user
+     * Creates a token for connecting to an OpenTok session.
+     *
+     * In order to authenticate a user
      * connecting to an OpenTok session, the client passes a token when connecting to the session.
      * <p>
      * For testing, you generate tokens or by logging in to your
@@ -168,23 +170,23 @@ class OpenTok
     *    will use to situate the session in its global network. If you do not set a location hint,
     *    the OpenTok servers will be based on the first client connecting to the session.</li>
     *
-    *     <li><code>'mediaMode'</code> (MediaMode) &mdash; Whether the session will transmit
-    *     streams using the OpenTok Media Router (<code>MediaMode.ROUTED</code>) or not
-    *     (<code>MediaMode.RELAYED</code>). By default, the <code>mediaMode</code> property
-    *     is set to <code>MediaMode.RELAYED</code>.
+    *    <li><code>'mediaMode'</code> (MediaMode) &mdash; Whether the session will transmit
+    *    streams using the OpenTok Media Router (<code>MediaMode.ROUTED</code>) or not
+    *    (<code>MediaMode.RELAYED</code>). By default, the <code>mediaMode</code> property
+    *    is set to <code>MediaMode.RELAYED</code>.
     *
-    *     <p>
-    *     With the <code>mediaMode</code> parameter set to <code>MediaMode.RELAYED</code>, the
-    *     session will attempt to transmit streams directly between clients. If clients cannot
-    *     connect due to firewall restrictions, the session uses the OpenTok TURN server to relay
-    *     audio-video streams.
+    *    <p>
+    *    With the <code>mediaMode</code> parameter set to <code>MediaMode.RELAYED</code>, the
+    *    session will attempt to transmit streams directly between clients. If clients cannot
+    *    connect due to firewall restrictions, the session uses the OpenTok TURN server to relay
+    *    audio-video streams.
     *
-    *     <p>
-    *     The
-    *     <a href="https://tokbox.com/opentok/tutorials/create-session/#media-mode" target="_top">
-    *     OpenTok Media Router</a> provides the following benefits:
+    *    <p>
+    *    The
+    *    <a href="https://tokbox.com/opentok/tutorials/create-session/#media-mode" target="_top">
+    *    OpenTok Media Router</a> provides the following benefits:
     *
-    *     <ul>
+    *    <ul>
     *       <li>The OpenTok Media Router can decrease bandwidth usage in multiparty sessions.
     *           (When the <code>mediaMode</code> parameter is set to <code>MediaMode.ROUTED</code>,
     *           each client must send a separate audio-video stream to each client subscribing to
@@ -197,7 +199,7 @@ class OpenTok
     *       <li>The OpenTok Media Router supports the
     *         <a href="https://tokbox.com/opentok/tutorials/archiving" target="_top">archiving</a>
     *         feature, which lets you record, save, and retrieve OpenTok sessions.</li>
-    *     </ul>
+    *    </ul>
     *
     * </ul>
     *
@@ -283,6 +285,18 @@ class OpenTok
      *    <code>hasVideo</code> to false, the call to the <code>startArchive()</code> method results
      *    in an error.</li>
      *
+     *    <li><code>'streamMode'</code> (String) &mdash; Whether streams included in the archive are
+     *    selected automatically (<code>StreamMode.AUTO</code>, the default) or manually
+     *    (<code>StreamMode.MANUAL</code>). When streams are selected automatically
+     *    (<code>StreamMode.AUTO</code>), all streams in the session can be included in the archive.
+     *    When streams are selected manually (<code>StreamMode.MANUAL</code>), you specify streams
+     *    to be included based on calls to the <code>Archive.addStreamToArchive()</code> and
+     *    <code>Archive.removeStreamFromArchive()</code>. methods. With manual mode, you can specify
+     *    whether a stream's audio, video, or both are included in the archive. In both automatic and
+     *    manual modes, the archive composer includes streams based on
+     *    <a href="https://tokbox.com/developer/guides/archive-broadcast-layout/#stream-prioritization-rules">stream
+     *    prioritization rules</a>.</li>
+     *
      *    <li><code>'hasAudio'</code> (Boolean) &mdash; Whether the archive will record audio
      *    (true, the default) or not (false). If you set both <code>hasAudio</code> and
      *    <code>hasVideo</code> to false, the call to the <code>startArchive()</code> method results
@@ -292,7 +306,7 @@ class OpenTok
      *    archive are recorded to a single file (<code>OutputMode::COMPOSED</code>, the default)
      *    or to individual files (<code>OutputMode::INDIVIDUAL</code>).</li>
      *
-     * <ul>
+     * </ul>
      *
      * @return Archive The Archive object, which includes properties defining the archive, including
      * the archive ID.
@@ -315,15 +329,17 @@ class OpenTok
             'hasAudio' => true,
             'outputMode' => OutputMode::COMPOSED,
             'resolution' => null,
+            'streamMode' => StreamMode::AUTO
         );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($name, $hasVideo, $hasAudio, $outputMode, $resolution) = array_values($options);
+        list($name, $hasVideo, $hasAudio, $outputMode, $resolution, $streamMode) = array_values($options);
         // validate arguments
         Validators::validateSessionId($sessionId);
         Validators::validateArchiveName($name);
         Validators::validateArchiveHasVideo($hasVideo);
         Validators::validateArchiveHasAudio($hasAudio);
         Validators::validateArchiveOutputMode($outputMode);
+        Validators::validateHasStreamMode($streamMode);
 
         if ((is_null($resolution) || empty($resolution)) && $outputMode === OutputMode::COMPOSED) {
             $options['resolution'] = "640x480";
@@ -401,7 +417,9 @@ class OpenTok
     }
 
     /**
-     * Returns an ArchiveList. The <code>items()</code> method of this object returns a list of
+     * Returns a list of archives for a session.
+     *
+     * The <code>items()</code> method of this object returns a list of
      * archives that are completed and in-progress, for your API key.
      *
      * @param integer $offset Optional. The index offset of the first archive. 0 is offset of the
@@ -439,7 +457,9 @@ class OpenTok
     }
 
     /**
-     * Sets the layout class list for streams in a session. Layout classes are used in
+     * Sets the layout class list for streams in a session.
+     *
+     * Layout classes are used in
      * the layout for composed archives and live streaming broadcasts. For more information, see
      * <a href="https://tokbox.com/developer/guides/archiving/layout-control.html">Customizing
      * the video layout for composed archives</a> and
@@ -453,14 +473,14 @@ class OpenTok
     public function setStreamClassLists($sessionId, $classListArray = array())
     {
         Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
-        
+
         foreach ($classListArray as $item) {
             Validators::validateLayoutClassListItem($item);
         }
-        
+
         $this->client->setStreamClassLists($sessionId, $classListArray);
     }
-    
+
 
     /**
      * Disconnects a specific client from an OpenTok session.
@@ -479,12 +499,124 @@ class OpenTok
     }
 
     /**
+     * Force the publisher of a specific stream to mute its published audio.
+     *
+     * <p>
+     * Also see the
+     * <a href="classes/OpenTok-OpenTok.html#method_forceMuteAll">OpenTok->forceMuteAll()</a>
+     * method.
+     *
+     * @param string $sessionId The OpenTok session ID containing the stream.
+     *
+     * @param string $streamId The stream ID.
+     *
+     * @return bool Whether the call succeeded or failed.
+     */
+    public function forceMuteStream(string $sessionId, string $streamId): bool
+    {
+        Validators::validateSessionId($sessionId);
+        Validators::validateStreamId($streamId);
+
+        try {
+            $this->client->forceMuteStream($sessionId, $streamId);
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Force all streams (except for an optional list of streams) in an OpenTok session
+     * to mute published audio.
+     *
+     * <p>
+     * In addition to existing streams, any streams that are published after the call to
+     * this method are published with audio muted. You can remove the mute state of a session
+     * <a href="classes/OpenTok-OpenTok.html#method_disableForceMute">OpenTok->disableForceMute()</a>
+     * method.
+     * <p>
+     * Also see the
+     * <a href="classes/OpenTok-OpenTok.html#method_forceMuteStream">OpenTok->forceMuteStream()</a>
+     * method.
+     *
+     * @param string $sessionId The OpenTok session ID.
+     *
+     * @param array<string> $options This array defines options and includes the following keys:
+     *
+     * <ul>
+     *    <li><code>'excludedStreams'</code> (array, optional) &mdash; An array of stream IDs
+     *    corresponding to streams that should not be muted. This is an optional property.
+     *    If you omit this property, all streams in the session will be muted.</li>
+     * </ul>
+     *
+     * @return bool Whether the call succeeded or failed.
+     */
+    public function forceMuteAll(string $sessionId, array $options): bool
+    {
+        // Active is always true when forcing mute all
+        $options['active'] = true;
+
+        Validators::validateSessionId($sessionId);
+        Validators::validateForceMuteAllOptions($options);
+
+        try {
+            $this->client->forceMuteAll($sessionId, $options);
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Disables the active mute state of the session. After you call this method, new streams
+     * published to the session will no longer have audio muted.
+     *
+     * <p>
+     * After you call the
+     * <a href="classes/OpenTok-OpenTok.html#method_forceMuteAll">OpenTok->forceMuteAll()</a> method
+     * any streams published after the call are published with audio muted. Call the
+     * <c>disableForceMute()</c> method to remove the mute state of a session, so that
+     * new published streams are not automatically muted.
+     *
+     * @param string $sessionId The OpenTok session ID.
+     *
+     * @param array<string> $options This array defines options and includes the following keys:
+     *
+     * <ul>
+     *    <li><code>'excludedStreams'</code> (array, optional) &mdash; An array of stream IDs
+     *    corresponding to streams that should not be muted. This is an optional property.
+     *    If you omit this property, all streams in the session will be muted.</li>
+     * </ul>
+     *
+     * @return bool Whether the call succeeded or failed.
+     */
+    public function disableForceMute(string $sessionId, array $options): bool
+    {
+        // Active is always false when disabling force mute
+        $options['active'] = false;
+
+        Validators::validateSessionId($sessionId);
+        Validators::validateForceMuteAllOptions($options);
+
+        try {
+            $this->client->forceMuteAll($sessionId, $options);
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Starts a live streaming broadcast of an OpenTok session.
      *
      * @param String $sessionId The session ID of the session to be broadcast.
      *
-     * @param Array $options (Optional) An array with options for the broadcast. This array has
+     * @param array $options (Optional) An array with options for the broadcast. This array has
      * the following properties:
+     *
      * <ul>
      *   <li><code>layout</code> (Layout) &mdash; (Optional) An object defining the initial
      *     layout type of the broadcast. If you do not specify an initial layout type,
@@ -492,6 +624,19 @@ class OpenTok
      *     <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/#configuring-live-streaming-video-layout">Configuring
      *     Video Layout for the OpenTok live streaming feature</a>.
      *   </li>
+     *
+     *    <li><code>'streamMode'</code> (String) &mdash; Whether streams included in the broadcast
+     *    are selected automatically (<code>StreamMode.AUTO</code>, the default) or manually
+     *    (<code>StreamMode.MANUAL</code>). When streams are selected automatically
+     *    (<code>StreamMode.AUTO</code>), all streams in the session can be included in the broadcast.
+     *    When streams are selected manually (<code>StreamMode.MANUAL</code>), you specify streams
+     *    to be included based on calls to the <code>Broadcast.addStreamToBroadcast()</code> and
+     *    <code>Broadcast.removeStreamFromBroadcast()</code> methods. With manual mode, you can specify
+     *    whether a stream's audio, video, or both are included in the broadcast. In both automatic and
+     *    manual modes, the broadcast composer includes streams based on
+     *    <a href="https://tokbox.com/developer/guides/archive-broadcast-layout/#stream-prioritization-rules">stream
+     *    prioritization rules</a>.</li>
+     *
      * </ul>
      *
      * @return Broadcast An object with properties defining the broadcast.
@@ -503,14 +648,16 @@ class OpenTok
         // not preferred to depend on that in the SDK because its then harder to garauntee backwards
         // compatibility
         $defaults = array(
-            'layout' => Layout::getBestFit()
+            'layout' => Layout::getBestFit(),
+            'streamMode' => 'auto'
         );
         $options = array_merge($defaults, $options);
-        list($layout) = array_values($options);
+        list($layout, $streamMode) = array_values($options);
 
         // validate arguments
         Validators::validateSessionId($sessionId);
         Validators::validateLayout($layout);
+        Validators::validateHasStreamMode($streamMode);
 
         // make API call
         $broadcastData = $this->client->startBroadcast($sessionId, $options);
@@ -578,7 +725,9 @@ class OpenTok
     }
 
     /**
-    * Sets the layout class list for a stream. Layout classes are used in
+    * Sets the layout class list for a stream.
+    *
+    * Layout classes are used in
     * the layout for composed archives and live streaming broadcasts.
     * <p>
     * For more information, see
@@ -590,7 +739,8 @@ class OpenTok
     * <p>
     * You can set the initial layout class list for streams published by a client when you generate
     * the token used by the client to connect to the session. See the
-    * <a href="#method_generateToken">OpenTok->generateToken()</a> method.
+    * <a href="classes/OpenTok-OpenTok.html#method_generateToken">OpenTok::generateToken()</a>
+    * method.
     *
     * @param string $sessionId The session ID of the session the stream belongs to.
     *
@@ -640,7 +790,7 @@ class OpenTok
     {
         Validators::validateSessionId($sessionId);
         Validators::validateStreamId($streamId);
-      
+
         // make API call
         $streamData = $this->client->getStream($sessionId, $streamId);
         return new Stream($streamData);
@@ -658,7 +808,7 @@ class OpenTok
     public function listStreams($sessionId)
     {
         Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
-      
+
         // make API call
         $streamListData = $this->client->listStreams($sessionId);
         return new StreamList($streamListData);
@@ -677,8 +827,8 @@ class OpenTok
      * @param string $token The OpenTok token to be used for the participant being called.
      * You can add token data to identify that the participant is on a SIP endpoint or for
      * other identifying data, such as phone numbers. Generate a token using the
-     * <a href="#method_generateToken">OpenTok->generateToken()</a> or
-     * <a href="OpenTok.Session.html#method_generateToken">Session->generateToken()</a>
+     * <a href="classes/OpenTok-OpenTok.html#method_generateToken">OpenTok::generateToken()</a> or
+     * <a href="classes/OpenTok-Session.html#method_generateToken">Session::generateToken()</a>
      * method.
      *
      * @param string $sipUri The SIP URI to be used as destination of the SIP Call initiated from
@@ -693,33 +843,34 @@ class OpenTok
      * <p>
      * This is an example of insecure call negotiation: "sip:access@thirparty.com".
      *
-     * @param array $options This array defines options for the token. It includes the
+     * @param array $options This array defines options for the SIP call. It includes the
      * following keys, all of which are optional:
      *
      * <ul>
-     *
      *    <li><code>'headers'</code> (array) &mdash; Headers​: Custom Headers to be added to the
-     *    SIP INVITE request initiated from OpenTok to the Third Party SIP Platform. All of this
-     *    custom headers must start with the "X-" prefix, or a Bad Request (400) will be
-     *    thrown.</li>
+     *    SIP INVITE request initiated from OpenTok to the Third Party SIP Platform.</li>
      *
      *    <li><code>'auth'</code> (array) &mdash; Auth​: Username and Password to be used in the SIP
      *    INVITE request for HTTP Digest authentication in case this is required by the Third Party
      *    SIP Platform.
      *
-     *     <ul>
+     *    <ul>
      *
-     *       <li><code>'username'</code> (string) &mdash; The username to be used
-     *       in the the SIP INVITE​ request for HTTP digest authentication (if one
-     *       is required).</li>
+     *    <li><code>'username'</code> (string) &mdash; The username to be used
+     *    in the the SIP INVITE​ request for HTTP digest authentication (if one
+     *    is required).</li>
      *
-     *       <li><code>'password'</code> (string) &mdash; The password to be used
-     *       in the the SIP INVITE​ request for HTTP digest authentication.</li>
+     *    <li><code>'password'</code> (string) &mdash; The password to be used
+     *    in the the SIP INVITE​ request for HTTP digest authentication.</li>
      *
-     *     </ul>
+     *    </ul>
      *
      *    <li><code>'secure'</code> (Boolean) &mdash; Indicates whether the media
      *    must be transmitted encrypted (true, the default) or not (false).</li>
+     *
+     *    <li><code>'observeForceMute'</code> (Boolean) &mdash; Whether the SIP endpoint should honor
+     *    <a href="https://tokbox.com/developer/guides/moderation/#force_mute">force mute moderation</a>
+     *    (True) or not (False, the default).</li>
      *
      *    <li><code>'from'</code> (string) &mdash; The number or string that will be sent to
      *    the final SIP number as the caller. It must be a string in the form of
@@ -733,7 +884,8 @@ class OpenTok
      * @return SipCall An object contains the OpenTok connection ID and stream ID
      * for the SIP call's connection in the OpenTok session. You can use the connection ID
      * to terminate the SIP call, using the
-     * <a href="#method_forceDisconnect">OpenTok->forceDisconnect()</a> method.
+     * <a href="classes/OpenTok-OpenTok.html#method_forceDisconnect">OpenTok::method_forceDisconnect()</a>
+     * method.
      */
     public function dial($sessionId, $token, $sipUri, $options = [])
     {
@@ -744,9 +896,10 @@ class OpenTok
             'secure' => true,
             'from' => null,
             'video' => false,
+            'observeForceMute' => false
         );
+
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($headers, $secure, $from) = array_values($options);
 
         // validate arguments
         Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
@@ -784,7 +937,6 @@ class OpenTok
         Validators::validateDTMFDigits($digits);
 
         $this->client->playDTMF($sessionId, $digits, $connectionId);
-
     }
 
     /**
@@ -814,14 +966,14 @@ class OpenTok
             'type' => '',
             'data' => '',
         );
-        
+
         $payload = array_merge($defaults, array_intersect_key($payload, $defaults));
         list($type, $data) = array_values($payload);
 
         // validate arguments
         Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
         Validators::validateSignalPayload($payload);
-        
+
         if (is_null($connectionId) || empty($connectionId)) {
             // make API call without connectionId
             $this->client->signal($sessionId, $payload);

@@ -20,6 +20,13 @@ This project's tests are written as PHPUnit test cases. Common tasks:
 
 *  `./vendor/bin/phing test` - run the test suite.
 
+### Building docs
+
+Install [PhpDocumentor](https://docs.phpdoc.org/). Add it to the project root directory.
+Then run `php phpDocumentor.phar --config phpdoc.dist.xml`.
+
+The current reference docs were built with PhpDocumentor 3.3.0.
+
 ### Releasing
 
 In order to create a release, the following should be completed in order.

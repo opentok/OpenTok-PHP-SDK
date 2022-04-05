@@ -34,6 +34,17 @@ use OpenTok\Util\Validators;
 *
 * @property boolean $isStopped
 * Whether the broadcast is stopped (true) or in progress (false).
+*
+* @property string $streamMode
+* Whether streams included in the broadcast are selected automatically (<code>StreamMode.AUTO</code>)
+* or manually (<code>StreamMode.MANUAL</code>). When streams are selected automatically (<code>StreamMode.AUTO</code>),
+* all streams in the session can be included in the broadcast. When streams are selected manually
+* (<code>StreamMode.MANUAL</code>), you specify streams to be included based on calls to the
+* <code>Broadcast.addStreamToBroadcast()</code> and <code>Broadcast.removeStreamFromBroadcast()</code> methods.
+* With manual mode, you can specify whether a stream's audio, video, or both are included in the
+* broadcast. In both automatic and manual modes, the broadcast composer includes streams based on
+* <a href="https://tokbox.com/developer/guides/archive-broadcast-layout/#stream-prioritization-rules">stream
+* prioritization rules</a>.
 */
 class Broadcast
 {
@@ -55,14 +66,16 @@ class Broadcast
             'apiSecret' => null,
             'apiUrl' => 'https://api.opentok.com',
             'client' => null,
-            'isStopped' => false
+            'isStopped' => false,
+            'streamMode' => StreamMode::AUTO
         );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($apiKey, $apiSecret, $apiUrl, $client, $isStopped) = array_values($options);
+        list($apiKey, $apiSecret, $apiUrl, $client, $isStopped, $streamMode) = array_values($options);
 
         // validate params
         Validators::validateBroadcastData($broadcastData);
         Validators::validateClient($client);
+        Validators::validateHasStreamMode($streamMode);
 
         $this->data = $broadcastData;
 
@@ -91,6 +104,7 @@ class Broadcast
             case 'status':
             case 'maxDuration':
             case 'resolution':
+            case 'streamMode':
                 return $this->data[$name];
             case 'hlsUrl':
                 return $this->data['broadcastUrls']['hls'];
@@ -147,6 +161,65 @@ class Broadcast
         // return Layout::fromData($layoutData);
 
         $this->client->updateLayout($this->id, $layout, 'broadcast');
+    }
+
+    /**
+     * Adds a stream to a currently running broadcast that was started with the
+     * the streamMode set to StreamMode.Manual. You can call the method
+     * repeatedly with the same stream ID, to toggle the stream's audio or video in the broadcast.
+     * 
+     * @param String $streamId The stream ID.
+     * @param Boolean $hasAudio Whether the broadcast should include the stream's audio (true, the default)
+     * or not (false).
+     * @param Boolean $hasVideo Whether the broadcast should include the stream's video (true, the default)
+     * or not (false).
+     *
+     * @return Boolean Returns true on success.
+     */
+    public function addStreamToBroadcast(string $streamId, bool $hasAudio, bool $hasVideo): bool
+    {
+        if ($this->streamMode === StreamMode::AUTO) {
+            throw new InvalidArgumentException('Cannot add stream to a Broadcast in auto stream mode');
+        }
+
+        if ($hasAudio === false && $hasVideo === false) {
+            throw new InvalidArgumentException('Both hasAudio and hasVideo cannot be false');
+        }
+
+        if ($this->client->addStreamToBroadcast(
+            $this->data['id'],
+            $streamId,
+            $hasVideo,
+            $hasVideo
+        )) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Removes a stream from a currently running broadcast that was started with the
+     * the streamMode set to StreamMode.Manual.
+     * 
+     * @param String $streamId The stream ID.
+     *
+     * @return Boolean Returns true on success.
+     */
+    public function removeStreamFromBroadcast(string $streamId): bool
+    {
+        if ($this->streamMode === StreamMode::AUTO) {
+            throw new InvalidArgumentException('Cannot remove stream from a Broadcast in auto stream mode');
+        }
+
+        if ($this->client->removeStreamFromBroadcast(
+            $this->data['id'],
+            $streamId
+        )) {
+            return true;
+        }
+
+        return false;
     }
 
     public function jsonSerialize()

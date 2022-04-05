@@ -22,6 +22,8 @@ class Validators
     public static $archiveSchemaUri;
     public static $broadcastSchemaUri;
 
+    public const STREAM_MODES = ['auto', 'manual'];
+
     public static function validateApiKey($apiKey)
     {
         if (!(is_string($apiKey) || is_int($apiKey))) {
@@ -30,6 +32,29 @@ class Validators
             );
         }
     }
+
+    public static function validateForceMuteAllOptions(array $options)
+    {
+        $validOptions = [
+            'excludedStreams' => 'array',
+            'active' => 'boolean'
+        ];
+
+        foreach ($validOptions as $optionName => $optionType) {
+            if (isset($options[$optionName])) {
+                if (getType($options[$optionName]) !== $optionType) {
+                    throw new InvalidArgumentException('Invalid type given in options for: ' . $options[$optionName]);
+                }
+            }
+        }
+
+        if (isset($options['excludedStreams'])) {
+            foreach ($options['excludedStreams'] as $streamId) {
+                self::validateStreamId($streamId);
+            }
+        }
+    }
+
     public static function validateApiSecret($apiSecret)
     {
         if (!(is_string($apiSecret))) {
@@ -65,6 +90,21 @@ class Validators
         if (!is_string($connectionId) || empty($connectionId)) {
             throw new InvalidArgumentException(
                 'Null or empty connection ID is not valid: ' . print_r($connectionId, true)
+            );
+        }
+    }
+
+    public static function validateHasStreamMode($streamMode)
+    {
+        if (!is_string($streamMode)) {
+            throw new InvalidArgumentException(
+                'The streamMode was not a string: ' . print_r($streamMode, true)
+            );
+        }
+
+        if (!in_array($streamMode, self::STREAM_MODES)) {
+            throw new InvalidArgumentException(
+                'The streamMode was not valid: ' . print_r($streamMode, true)
             );
         }
     }

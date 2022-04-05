@@ -38,7 +38,7 @@ use OpenTok\Exception\ForceDisconnectUnexpectedValueException;
 
 // TODO: build this dynamically
 /** @internal */
-define('OPENTOK_SDK_VERSION', '4.9.1');
+define('OPENTOK_SDK_VERSION', '4.10.0');
 /** @internal */
 define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
 
@@ -219,6 +219,72 @@ class Client
         return $archiveJson;
     }
 
+    public function addStreamToArchive(string $archiveId, string $streamId, bool $hasAudio, bool $hasVideo): bool
+    {
+        Validators::validateArchiveId($archiveId);
+        Validators::validateStreamId($streamId);
+
+        $requestBody = [
+            'addStream' => $streamId,
+            'hasAudio' => $hasAudio,
+            'hasVideo' => $hasVideo
+        ];
+
+        $request = new Request(
+            'PATCH',
+            '/v2/project/' . $this->apiKey . '/archive/' . $archiveId . '/streams',
+            ['Content-Type' => 'application/json'],
+            json_encode($requestBody)
+        );
+
+        try {
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug()
+            ]);
+
+            if ($response->getStatusCode() !== 204) {
+                json_decode($response->getBody(), true);
+            }
+        } catch (\Exception $e) {
+            $this->handleException($e);
+            return false;
+        }
+
+        return true;
+    }
+
+    public function removeStreamFromArchive(string $archiveId, string $streamId): bool
+    {
+        Validators::validateArchiveId($archiveId);
+        Validators::validateStreamId($streamId);
+
+        $requestBody = [
+            'removeStream' => $streamId,
+        ];
+
+        $request = new Request(
+            'PATCH',
+            '/v2/project/' . $this->apiKey . '/archive/' . $archiveId . '/streams',
+            ['Content-Type' => 'application/json'],
+            json_encode($requestBody)
+        );
+
+        try {
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug()
+            ]);
+
+            if ($response->getStatusCode() !== 204) {
+                json_decode($response->getBody(), true);
+            }
+        } catch (\Exception $e) {
+            $this->handleException($e);
+            return false;
+        }
+
+        return true;
+    }
+
     public function deleteArchive($archiveId)
     {
         $request = new Request(
@@ -347,6 +413,72 @@ class Client
             $this->handleBroadcastException($e);
         }
         return $broadcastJson;
+    }
+
+    public function addStreamToBroadcast(string $broadcastId, string $streamId, bool $hasAudio, bool $hasVideo): bool
+    {
+        Validators::validateBroadcastId($broadcastId);
+        Validators::validateStreamId($streamId);
+
+        $requestBody = [
+            'addStream' => $streamId,
+            'hasAudio' => $hasAudio,
+            'hasVideo' => $hasVideo
+        ];
+
+        $request = new Request(
+            'PATCH',
+            '/v2/project/' . $this->apiKey . '/broadcast/' . $broadcastId . '/streams',
+            ['Content-Type' => 'application/json'],
+            json_encode($requestBody)
+        );
+
+        try {
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug()
+            ]);
+
+            if ($response->getStatusCode() !== 204) {
+                json_decode($response->getBody(), true);
+            }
+        } catch (\Exception $e) {
+            $this->handleException($e);
+            return false;
+        }
+
+        return true;
+    }
+
+    public function removeStreamFromBroadcast(string $broadcastId, string $streamId): bool
+    {
+        Validators::validateBroadcastId($broadcastId);
+        Validators::validateStreamId($streamId);
+
+        $requestBody = [
+            'removeStream' => $streamId,
+        ];
+
+        $request = new Request(
+            'PATCH',
+            '/v2/project/' . $this->apiKey . '/archive/' . $broadcastId . '/streams',
+            ['Content-Type' => 'application/json'],
+            json_encode($requestBody)
+        );
+
+        try {
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug()
+            ]);
+
+            if ($response->getStatusCode() !== 204) {
+                json_decode($response->getBody(), true);
+            }
+        } catch (\Exception $e) {
+            $this->handleException($e);
+            return false;
+        }
+
+        return true;
     }
 
     public function getLayout($resourceId, $resourceType = 'broadcast')
@@ -607,6 +739,45 @@ class Client
         }
         $options['api_key'] = $this->apiKey;
         return $options;
+    }
+
+    public function forceMuteStream(string $sessionId, string $streamId)
+    {
+        $request = new Request(
+            'POST',
+            '/v2/project/' . $this->apiKey . '/session/' . $sessionId . '/stream/' . $streamId . '/mute'
+        );
+
+        try {
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug(),
+            ]);
+            $jsonResponse = json_decode($response->getBody(), true);
+        } catch (\Exception $e) {
+            $this->handleException($e);
+            return false;
+        }
+        return $jsonResponse;
+    }
+
+    public function forceMuteAll(string $sessionId, array $options)
+    {
+        $request = new Request(
+            'POST',
+            '/v2/project/' . $this->apiKey . '/session/' . $sessionId . '/mute'
+        );
+
+        try {
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug(),
+                'json' => $options
+            ]);
+            $jsonResponse = json_decode($response->getBody(), true);
+        } catch (\Exception $e) {
+            $this->handleException($e);
+            return false;
+        }
+        return $jsonResponse;
     }
 
     //echo 'Uh oh! ' . $e->getMessage();

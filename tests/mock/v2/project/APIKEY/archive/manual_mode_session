@@ -11,6 +11,6 @@
   "url" : null,
   "hasVideo" : true,
   "hasAudio" : true,
-  "outputMode" : "composed",
-  "streamMode" : "auto"
+  "outputMode": "composed",
+  "streamMode": "manual"
 }
