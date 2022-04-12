@@ -3,7 +3,8 @@
 namespace OpenTokTest;
 
 use GuzzleHttp\Psr7\Response;
-use \Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+use Firebase\JWT\JWT;
 
 class TestHelpers
 {
@@ -40,7 +41,7 @@ class TestHelpers
         }
 
         try {
-            $decodedToken = JWT::decode($token, $apiSecret, array('HS256'));
+            $decodedToken = JWT::decode($token, new Key($apiSecret, 'HS256'));
         } catch (\Exception $e) {
             return false;
         }

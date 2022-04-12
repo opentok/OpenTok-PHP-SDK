@@ -108,7 +108,7 @@ class Client
             'exp' => time() + (5 * 60),
             'jti' => uniqid(),
         );
-        return JWT::encode($token, $this->apiSecret);
+        return JWT::encode($token, $this->apiSecret, 'HS256');
     }
 
     // General API Requests
