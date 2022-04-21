@@ -637,6 +637,14 @@ class OpenTok
      *    <a href="https://tokbox.com/developer/guides/archive-broadcast-layout/#stream-prioritization-rules">stream
      *    prioritization rules</a>.</li>
      *
+     *    <li><code>outputs</code> (Array) &mdash;<br>
+     *      Allows for HLS broadcasting by adding in an array with the key <code>hls</code> that contains the
+     *      following two options:
+     *      <li><code>'lowLatency'</code> (Bool) &mdash; Starts the Broadcast in Low Latency mode</li>
+     *      <li><code>'dvr'</code> (Bool) &mdash; Starts the Broadcast in DVR playback mode</li>
+     *      Please note that you CANNOT start a Broadcast with BOTH of these parameters set to true.
+     *    </li>
+     *
      * </ul>
      *
      * @return Broadcast An object with properties defining the broadcast.
