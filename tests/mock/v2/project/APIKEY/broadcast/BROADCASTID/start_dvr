@@ -16,10 +16,11 @@
       }
     }
   },
+  "settings": {"hls": {"lowLatency": false, "dvr": true}},
   "updatedAt":1472435660268,
   "status":"started",
   "partnerId":854511,
   "maxDuration":5400,
   "resolution": "1280x720",
-  "streamMode": "manual"
+  "streamMode": "auto"
 }

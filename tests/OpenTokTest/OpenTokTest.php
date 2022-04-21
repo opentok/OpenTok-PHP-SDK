@@ -1227,8 +1227,105 @@ class OpenTokTest extends TestCase
 
         // Act
         $this->opentok->forceDisconnect($sessionId, $connectionId);
-
     }
+
+	public function testCanStartBroadcastWithDefaultHlsOptions()
+	{
+		$this->setupOTWithMocks([[
+			'code' => 200,
+			'headers' => [
+				'Content-Type' => 'application/json'
+			],
+			'path' => '/v2/project/APIKEY/broadcast/BROADCASTID/start_default'
+		]]);
+
+		$sessionId = '2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4';
+
+		$broadcast = $this->opentok->startBroadcast($sessionId);
+		$this->assertTrue($broadcast->isHls());
+		$this->assertFalse($broadcast->isDvr());
+		$this->assertFalse($broadcast->isLowLatency());
+	}
+
+	public function testCanStartBroadcastWithDvrEnabled()
+	{
+		$this->setupOTWithMocks([[
+			'code' => 200,
+			'headers' => [
+				'Content-Type' => 'application/json'
+			],
+			'path' => '/v2/project/APIKEY/broadcast/BROADCASTID/start_dvr'
+		]]);
+
+		$sessionId = '2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4';
+
+		$options = [
+			'output' => [
+				'hls' => [
+					'dvr' => true,
+					'lowLatency' => false
+				]
+			]
+		];
+
+		$broadcast = $this->opentok->startBroadcast($sessionId, $options);
+		$this->assertTrue($broadcast->isHls());
+		$this->assertTrue($broadcast->isDvr());
+		$this->assertFalse($broadcast->isLowLatency());
+	}
+
+	public function testCanStartBroadcastWithLowLatencyEnabled()
+	{
+		$this->setupOTWithMocks([[
+			'code' => 200,
+			'headers' => [
+				'Content-Type' => 'application/json'
+			],
+			'path' => '/v2/project/APIKEY/broadcast/BROADCASTID/start_ll'
+		]]);
+
+		$sessionId = '2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4';
+
+		$options = [
+			'output' => [
+				'hls' => [
+					'dvr' => true,
+					'lowLatency' => false
+				]
+			]
+		];
+
+		$broadcast = $this->opentok->startBroadcast($sessionId, $options);
+		$this->assertTrue($broadcast->isHls());
+		$this->assertFalse($broadcast->isDvr());
+		$this->assertTrue($broadcast->isLowLatency());
+	}
+
+	public function testCannotStartBroadcastWithBothHlsAndDvrEnabled()
+	{
+		$this->expectException(InvalidArgumentException::class);
+
+		$this->setupOTWithMocks([[
+			'code' => 200,
+			'headers' => [
+				'Content-Type' => 'application/json'
+			],
+			'path' => '/v2/project/APIKEY/broadcast/BROADCASTID/start_ll'
+		]]);
+
+		$sessionId = '2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4';
+
+		$options = [
+			'output' => [
+				'hls' => [
+					'dvr' => true,
+					'lowLatency' => true
+				]
+			]
+		];
+
+		$broadcast = $this->opentok->startBroadcast($sessionId, $options);
+	}
 
     public function testStartsBroadcast()
     {

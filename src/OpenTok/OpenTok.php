@@ -647,11 +647,24 @@ class OpenTok
         // NOTE: although the server can be authoritative about the default value of layout, its
         // not preferred to depend on that in the SDK because its then harder to garauntee backwards
         // compatibility
-        $defaults = array(
+
+	    if (isset($options['output']['hls'])) {
+		    Validators::validateBroadcastOutputOptions($options['output']['hls']);
+	    }
+
+        $defaults = [
             'layout' => Layout::getBestFit(),
-            'streamMode' => 'auto'
-        );
+            'streamMode' => 'auto',
+	        'output' => [
+				'hls' => [
+	                'dvr' => false,
+					'lowLatency' => false
+				]
+            ]
+        ];
+
         $options = array_merge($defaults, $options);
+
         list($layout, $streamMode) = array_values($options);
 
         // validate arguments

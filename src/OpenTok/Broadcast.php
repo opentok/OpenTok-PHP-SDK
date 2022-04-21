@@ -114,6 +114,22 @@ class Broadcast
                 return null;
         }
     }
+
+	public function isHls(): bool
+	{
+		return isset($this->data['settings']['hls']);
+	}
+
+	public function isLowLatency(): bool
+	{
+		return $this->data['settings']['hls']['lowLatency'];
+	}
+
+	public function isDvr(): bool
+	{
+		return $this->data['settings']['hls']['dvr'];
+	}
+
     /**
      * Stops the broadcast.
      */

@@ -312,6 +312,18 @@ class Validators
             );
         }
     }
+
+	public static function validateBroadcastOutputOptions(array $outputOptions)
+	{
+		if (
+			isset($outputOptions['lowLatency'], $outputOptions['dvr'])
+			&& $outputOptions['lowLatency'] === true && $outputOptions['dvr']
+		) {
+			throw new InvalidArgumentException('When starting in HLS mode, DVR AND lowLatency
+			cannot both be true');
+		}
+	}
+
     public static function validateLayout($layout)
     {
         if (!($layout instanceof Layout)) {
