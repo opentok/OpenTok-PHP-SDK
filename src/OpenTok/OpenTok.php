@@ -627,7 +627,7 @@ class OpenTok
      *
      *    <li><code>'streamMode'</code> (String) &mdash; Whether streams included in the broadcast
      *    are selected automatically (<code>StreamMode.AUTO</code>, the default) or manually
-     *    (<code>StreamMode.MANUAL</code>). When streams are selected automatically
+     *    (<code>StreamMode.MANUAL</code>). When stream are selected automatically
      *    (<code>StreamMode.AUTO</code>), all streams in the session can be included in the broadcast.
      *    When streams are selected manually (<code>StreamMode.MANUAL</code>), you specify streams
      *    to be included based on calls to the <code>Broadcast.addStreamToBroadcast()</code> and

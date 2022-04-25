@@ -317,7 +317,7 @@ class Validators
 	{
 		if (
 			isset($outputOptions['lowLatency'], $outputOptions['dvr'])
-			&& $outputOptions['lowLatency'] === true && $outputOptions['dvr']
+			&& $outputOptions['lowLatency'] === true && $outputOptions['dvr'] === true
 		) {
 			throw new InvalidArgumentException('When starting in HLS mode, DVR AND lowLatency
 			cannot both be true');
