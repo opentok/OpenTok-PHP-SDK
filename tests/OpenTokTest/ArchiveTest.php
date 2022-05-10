@@ -161,7 +161,7 @@ class ArchiveTest extends TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.11.0', $userAgent);
 
         // TODO: test the properties of the actual archive object
         $this->assertEquals('stopped', $this->archive->status);
@@ -278,7 +278,7 @@ class ArchiveTest extends TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.10.0', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.11.0', $userAgent);
 
         $this->assertTrue($success);
         // TODO: assert that all properties of the archive object were cleared
