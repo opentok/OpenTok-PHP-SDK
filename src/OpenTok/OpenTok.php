@@ -625,9 +625,9 @@ class OpenTok
      *     Video Layout for the OpenTok live streaming feature</a>.
      *   </li>
      *
-     *    <li><code>'streamMode'</code> (String) &mdash; Whether streams included in the broadcast
+     *    <li><code>streamMode</code> (String) &mdash; Whether streams included in the broadcast
      *    are selected automatically (<code>StreamMode.AUTO</code>, the default) or manually
-     *    (<code>StreamMode.MANUAL</code>). When stream are selected automatically
+     *    (<code>StreamMode.MANUAL</code>). When streams are selected automatically
      *    (<code>StreamMode.AUTO</code>), all streams in the session can be included in the broadcast.
      *    When streams are selected manually (<code>StreamMode.MANUAL</code>), you specify streams
      *    to be included based on calls to the <code>Broadcast.addStreamToBroadcast()</code> and
@@ -637,12 +637,24 @@ class OpenTok
      *    <a href="https://tokbox.com/developer/guides/archive-broadcast-layout/#stream-prioritization-rules">stream
      *    prioritization rules</a>.</li>
      *
-     *    <li><code>outputs</code> (Array) &mdash;<br>
-     *      Allows for HLS broadcasting by adding in an array with the key <code>hls</code> that contains the
-     *      following two options:
-     *      <li><code>'lowLatency'</code> (Bool) &mdash; Starts the Broadcast in Low Latency mode</li>
-     *      <li><code>'dvr'</code> (Bool) &mdash; Starts the Broadcast in DVR playback mode</li>
-     *      Please note that you CANNOT start a Broadcast with BOTH of these parameters set to true.
+     *    <li><code>outputs</code> (Array) &mdash;
+     *    Allows for HLS broadcasting by adding in an array with the key <code>hls</code> that contains the
+     *    following two options:
+     *    <p>
+     *      <ul>
+     *        <li><code>'dvr'</code> (Bool) &mdash; Whether to enable
+     *          <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/#dvr">DVR functionality</a>
+     *          — rewinding, pausing, and resuming — in players that support it (<code>true</code>),
+     *          or not (<code>false</code>, the default). With DVR enabled, the HLS URL will include
+     *          a ?DVR query string appended to the end.
+     *        </li>
+     *        <li><code>'lowLatency'</code> (Bool) &mdash; Whether to enable
+     *          <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/#low-latency">low-latency mode</a>
+     *          for the HLS stream. Some HLS players do not support low-latency mode. This feature
+     *          is incompatible with DVR mode HLS broadcasts.
+     *        </li>
+     *     </ul>
+     *    </p>
      *    </li>
      *
      * </ul>
