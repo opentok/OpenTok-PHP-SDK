@@ -1242,9 +1242,9 @@ class OpenTokTest extends TestCase
 		$sessionId = '2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4';
 
 		$broadcast = $this->opentok->startBroadcast($sessionId);
-		$this->assertTrue($broadcast->isHls());
-		$this->assertFalse($broadcast->isDvr());
-		$this->assertFalse($broadcast->isLowLatency());
+		$this->assertTrue($broadcast->isHls);
+		$this->assertFalse($broadcast->isDvr);
+		$this->assertFalse($broadcast->isLowLatency);
 	}
 
 	public function testCanStartBroadcastWithDvrEnabled()
@@ -1269,9 +1269,9 @@ class OpenTokTest extends TestCase
 		];
 
 		$broadcast = $this->opentok->startBroadcast($sessionId, $options);
-		$this->assertTrue($broadcast->isHls());
-		$this->assertTrue($broadcast->isDvr());
-		$this->assertFalse($broadcast->isLowLatency());
+		$this->assertTrue($broadcast->isHls);
+		$this->assertTrue($broadcast->isDvr);
+		$this->assertFalse($broadcast->isLowLatency);
 	}
 
 	public function testCanStartBroadcastWithLowLatencyEnabled()
@@ -1296,9 +1296,9 @@ class OpenTokTest extends TestCase
 		];
 
 		$broadcast = $this->opentok->startBroadcast($sessionId, $options);
-		$this->assertTrue($broadcast->isHls());
-		$this->assertFalse($broadcast->isDvr());
-		$this->assertTrue($broadcast->isLowLatency());
+		$this->assertTrue($broadcast->isHls);
+		$this->assertFalse($broadcast->isDvr);
+		$this->assertTrue($broadcast->isLowLatency);
 	}
 
 	public function testCannotStartBroadcastWithBothHlsAndDvrEnabled()
