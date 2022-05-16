@@ -36,13 +36,13 @@ use OpenTok\Util\Validators;
 * Whether the broadcast is stopped (true) or in progress (false).
 *
 * @property boolean $isHls
-* Whether the broadcast is HLS
+* Whether the broadcast supports HLS.
 *
 * @property boolean $isDvr
-* Whether the broadcast is DVR
+* Whether the broadcast supports DVR functionality for the HLS stream.
 *
 * @property boolean $isLowLatency
-* Whether the broadcast is in Low Latency mode
+* Whether the broadcast supports low-latency mode for the HLS stream.
 *
 * @property string $streamMode
 * Whether streams included in the broadcast are selected automatically (<code>StreamMode.AUTO</code>)
@@ -63,19 +63,19 @@ class Broadcast
     private $isStopped;
     /** @ignore */
     private $client;
-	/** @ignore */
-	private $isHls;
-	/** @ignore */
-	private $isLowLatency;
-	/** @ignore */
-	private $isDvr;
+    /** @ignore */
+    private $isHls;
+    /** @ignore */
+    private $isLowLatency;
+    /** @ignore */
+    private $isDvr;
 
     /** @ignore */
     public function __construct($broadcastData, $options = array())
     {
         // unpack optional arguments (merging with default values) into named variables
-	    // when adding these properties like this, it's worth noting that the method that
-	    // starts a broadcast ALSO sets a load of defaults
+        // when adding these properties like this, it's worth noting that the method that
+        // starts a broadcast ALSO sets a load of defaults
         $defaults = array(
             'apiKey' => null,
             'apiSecret' => null,
@@ -83,9 +83,9 @@ class Broadcast
             'client' => null,
             'isStopped' => false,
             'streamMode' => StreamMode::AUTO,
-	        'isHls' => true,
-	        'isLowLatency' => false,
-	        'isDvr' => false
+            'isHls' => true,
+            'isLowLatency' => false,
+            'isDvr' => false
         );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
         list($apiKey, $apiSecret, $apiUrl, $client, $isStopped, $streamMode) = array_values($options);
@@ -98,9 +98,9 @@ class Broadcast
         $this->data = $broadcastData;
 
         $this->isStopped = $isStopped;
-		$this->isHls = isset($this->data['settings']['hls']);
-		$this->isLowLatency = $this->data['settings']['hls']['lowLatency'] ?? false;
-		$this->isDvr = $this->data['settings']['hls']['dvr'] ?? false;
+        $this->isHls = isset($this->data['settings']['hls']);
+        $this->isLowLatency = $this->data['settings']['hls']['lowLatency'] ?? false;
+        $this->isDvr = $this->data['settings']['hls']['dvr'] ?? false;
 
         $this->client = isset($client) ? $client : new Client();
         if (!$this->client->isConfigured()) {
@@ -131,12 +131,12 @@ class Broadcast
                 return $this->data['broadcastUrls']['hls'];
             case 'isStopped':
                 return $this->isStopped;
-	        case 'isHls':
-				return $this->isHls;
-	        case 'isLowLatency':
-				return $this->isLowLatency;
-	        case 'isDvr':
-				return $this->isDvr;
+            case 'isHls':
+                return $this->isHls;
+            case 'isLowLatency':
+                return $this->isLowLatency;
+            case 'isDvr':
+                return $this->isDvr;
             default:
                 return null;
         }
