@@ -1229,6 +1229,104 @@ class OpenTokTest extends TestCase
         $this->opentok->forceDisconnect($sessionId, $connectionId);
     }
 
+	public function testCanStartBroadcastWithRmtp()
+	{
+		$this->setupOTWithMocks([[
+			'code' => 200,
+			'headers' => [
+				'Content-Type' => 'application/json'
+			],
+			'path' => '/v2/project/APIKEY/broadcast/BROADCASTID/start_default'
+		]]);
+
+		$sessionId = '2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4';
+
+		$options = [
+			'output' => [
+				'hls' => [
+					'dvr' => true,
+					'lowLatency' => false
+				],
+				'rtmp' => [
+					[
+						'id' => 'foo',
+						'serverUrl' => 'rtmps://myfooserver/myfooapp',
+						'streamName' => 'myfoostream'
+					],
+					[
+						'id' => 'bar',
+						'serverUrl' => 'rtmps://myfooserver/mybarapp',
+						'streamName' => 'mybarstream'
+					],
+				]
+			]
+		];
+
+		$broadcast = $this->opentok->startBroadcast($sessionId, $options);
+		$this->assertTrue($broadcast->isHls);
+		$this->assertFalse($broadcast->isDvr);
+		$this->assertFalse($broadcast->isLowLatency);
+		$this->assertTrue(array_key_exists('rtmp', $broadcast->broadcastUrls));
+	}
+
+	public function testCannotStartBroadcastWithOver5RtmpChannels(): void
+	{
+		$this->expectException(InvalidArgumentException::class);
+
+		$this->setupOTWithMocks([[
+			'code' => 200,
+			'headers' => [
+				'Content-Type' => 'application/json'
+			],
+			'path' => '/v2/project/APIKEY/broadcast/BROADCASTID/start_default'
+		]]);
+
+		$sessionId = '2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4';
+
+		$options = [
+			'output' => [
+				'hls' => [
+					'dvr' => true,
+					'lowLatency' => false
+				],
+				'rtmp' => [
+					[
+						'id' => 'one',
+						'serverUrl' => 'rtmps://myfooserver/one',
+						'streamName' => 'one'
+					],
+					[
+						'id' => 'two',
+						'serverUrl' => 'rtmps://myfooserver/two',
+						'streamName' => 'two'
+					],
+					[
+						'id' => 'three',
+						'serverUrl' => 'rtmps://myfooserver/three',
+						'streamName' => 'three'
+					],
+					[
+						'id' => 'four',
+						'serverUrl' => 'rtmps://myfooserver/four',
+						'streamName' => 'four'
+					],
+					[
+						'id' => 'five',
+						'serverUrl' => 'rtmps://myfooserver/five',
+						'streamName' => 'five'
+					],
+					[
+						'id' => 'six',
+						'serverUrl' => 'rtmps://myfooserver/six',
+						'streamName' => 'six'
+					],
+				]
+			]
+		];
+
+		$broadcast = $this->opentok->startBroadcast($sessionId, $options);
+	}
+
 	public function testCanStartBroadcastWithDefaultHlsOptions()
 	{
 		$this->setupOTWithMocks([[

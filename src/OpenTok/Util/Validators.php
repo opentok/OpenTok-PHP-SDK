@@ -288,6 +288,7 @@ class Validators
             );
         }
     }
+
     public static function validateBroadcastData($broadcastData)
     {
         if (!self::$broadcastSchemaUri) {
@@ -304,6 +305,14 @@ class Validators
             );
         }
     }
+
+    public static function validateRtmpStreams(array $rtmpData)
+    {
+        if (count($rtmpData) > 5) {
+            throw new InvalidArgumentException('The maximum permitted RTMP Streams is set to 5');
+        }
+    }
+
     public static function validateBroadcastId($broadcastId)
     {
         if (!is_string($broadcastId) || preg_match(self::$guidRegEx, $broadcastId)) {

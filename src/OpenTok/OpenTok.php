@@ -672,6 +672,10 @@ class OpenTok
 		    Validators::validateBroadcastOutputOptions($options['output']['hls']);
 	    }
 
+		if (isset($options['output']['rtmp'])) {
+			Validators::validateRtmpStreams($options['output']['rtmp']);
+		}
+
         $defaults = [
             'layout' => Layout::getBestFit(),
             'streamMode' => 'auto',
