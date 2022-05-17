@@ -638,25 +638,29 @@ class OpenTok
      *    prioritization rules</a>.</li>
      *
      *    <li><code>outputs</code> (Array) &mdash;
-     *    Allows for HLS broadcasting by adding in an array with the key <code>hls</code> that contains the
-     *    following two options:
-     *    <p>
-     *      <ul>
-     *        <li><code>'dvr'</code> (Bool) &mdash; Whether to enable
-     *          <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/#dvr">DVR functionality</a>
-     *          — rewinding, pausing, and resuming — in players that support it (<code>true</code>),
-     *          or not (<code>false</code>, the default). With DVR enabled, the HLS URL will include
-     *          a ?DVR query string appended to the end.
+     *      Allows for HLS broadcasting and RTMP Streams. You can give the following keys:
+     *        <li><code>hls</code> (Array) &mdash; available with the following options:
+     *          <p>
+     *            <ul>
+     *              <li><code>'dvr'</code> (Bool) &mdash; Whether to enable
+     *                <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/#dvr">DVR functionality</a>
+     *                — rewinding, pausing, and resuming — in players that support it (<code>true</code>),
+     *                or not (<code>false</code>, the default). With DVR enabled, the HLS URL will include
+     *                a ?DVR query string appended to the end.
+     *              </li>
+     *              <li><code>'lowLatency'</code> (Bool) &mdash; Whether to enable
+     *                <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/#low-latency">low-latency mode</a>
+     *                for the HLS stream. Some HLS players do not support low-latency mode. This feature
+     *                is incompatible with DVR mode HLS broadcasts.
+     *              </li>
+     *            </ul>
+     *           </p>
      *        </li>
-     *        <li><code>'lowLatency'</code> (Bool) &mdash; Whether to enable
-     *          <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/#low-latency">low-latency mode</a>
-     *          for the HLS stream. Some HLS players do not support low-latency mode. This feature
-     *          is incompatible with DVR mode HLS broadcasts.
+     *        <li><code>rtmp</code> (Array) &mdash; An array of RTMP streams to broadcast on, structured as follows:
+     *          <li><code>id</code></code> (String) &mdash; Arbitrary Stream ID</li>
+     *          <li><code>serverUrl</code> (String) &mdash; Server URL</li>
+     *          <li><code>streamName</code> (String) &mdash; Arbitrary Stream Name</li>
      *        </li>
-     *     </ul>
-     *    </p>
-     *    </li>
-     *
      * </ul>
      *
      * @return Broadcast An object with properties defining the broadcast.
