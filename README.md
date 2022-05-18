@@ -278,12 +278,25 @@ You can only start live streaming broadcasts for sessions that use the OpenTok M
 Start the live streaming broadcast of an OpenTok Session using the
 `startBroadcast($sessionId, $options)` method of the `OpenTok\OpenTok` class.
 This will return an `OpenTok\Broadcast` instance. The `$options` parameter is
-an optional array used to assign broadcast options such as layout, maxDuration, resolution, and more.
+an array used to define the broadcast streams, assign broadcast options such as layout,
+maxDuration, resolution, and more.
 
 ```php
-// Start a live streaming broadcast of a session
-$broadcast = $opentok->startBroadcast($sessionId);
-
+// Define options for the broadcast
+$options = [
+  'layout' => Layout::getBestFit(),
+  'maxDuration' => 5400,
+  'resolution' => '1280x720',
+  'output' => [
+    'hls' => [
+      'dvr' => true,
+      'lowLatency' => false
+    ],
+    'rtmp' => [
+      [
+        'id' => 'foo',
+        'serverUrl' => 'rtmps://myfooserver/myfooapp',
+        'streamName' => 'myfoostream'
       ],
       [
         'id' => 'bar',
