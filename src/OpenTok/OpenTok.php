@@ -12,7 +12,7 @@ use OpenTok\Exception\UnexpectedValueException;
 * Contains methods for creating OpenTok sessions, generating tokens, and working with archives.
 * <p>
 * To create a new OpenTok object, call the OpenTok() constructor with your OpenTok API key
-* and the API secret for your <a href="https://tokbox.com/account">TokBox account</a>. Do not
+* and the API secret for your <a href="https://tokbox.com/account">OpenTok Video API account</a>. Do not
 * publicly share your API secret. You will use it with the OpenTok() constructor (only on your web
 * server) to create OpenTok sessions.
 * <p>
@@ -67,7 +67,7 @@ class OpenTok
      * connecting to an OpenTok session, the client passes a token when connecting to the session.
      * <p>
      * For testing, you generate tokens or by logging in to your
-     * <a href="https://tokbox.com/account">TokBox account</a>.
+     * <a href="https://tokbox.com/account">OpenTok Video API account</a>.
      *
      * @param string $sessionId The session ID corresponding to the session to which the user
      * will connect.
@@ -152,7 +152,7 @@ class OpenTok
     * Check the error message for details.
     * <p>
     * You can also create a session by logging in to your
-    * <a href="https://tokbox.com/account">TokBox account</a>.
+    * <a href="https://tokbox.com/account">OpenTok Video API account</a>.
     *
     * @param array $options (Optional) This array defines options for the session. The array includes
     * the following keys (all of which are optional):
