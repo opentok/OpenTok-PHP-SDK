@@ -638,7 +638,8 @@ class OpenTok
      *    prioritization rules</a>.</li>
      *
      *    <li><code>outputs</code> (Array) &mdash;
-     *      Allows for HLS broadcasting and RTMP Streams. You can give the following keys:
+     *      Defines the HLS broadcast and RTMP streams. You can provide the following keys:
+     *      <ul>
      *        <li><code>hls</code> (Array) &mdash; available with the following options:
      *          <p>
      *            <ul>
@@ -656,11 +657,16 @@ class OpenTok
      *            </ul>
      *           </p>
      *        </li>
-     *        <li><code>rtmp</code> (Array) &mdash; An array of RTMP streams to broadcast on, structured as follows:
-     *          <li><code>id</code></code> (String) &mdash; Arbitrary Stream ID</li>
-     *          <li><code>serverUrl</code> (String) &mdash; Server URL</li>
-     *          <li><code>streamName</code> (String) &mdash; Arbitrary Stream Name</li>
+     *        <li><code>rtmp</code> (Array) &mdash; An array of arrays defining RTMP streams to broadcast. You
+     *          can specify up to five target RTMP streams. Each RTMP stream array has the following keys:
+     *          <ul>
+     *            <li><code>id</code></code> (String) &mdash; The stream ID (optional)</li>
+     *            <li><code>serverUrl</code> (String) &mdash; The RTMP server URL</li>
+     *            <li><code>streamName</code> (String) &mdash; The stream name, such as
+     *                the YouTube Live stream name or the Facebook stream key</li>
+     *          </ul>
      *        </li>
+     *      </ul>
      * </ul>
      *
      * @return Broadcast An object with properties defining the broadcast.
