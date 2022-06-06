@@ -12,7 +12,7 @@ use OpenTok\Exception\UnexpectedValueException;
 * Contains methods for creating OpenTok sessions, generating tokens, and working with archives.
 * <p>
 * To create a new OpenTok object, call the OpenTok() constructor with your OpenTok API key
-* and the API secret for your <a href="https://tokbox.com/account">TokBox account</a>. Do not
+* and the API secret for your <a href="https://tokbox.com/account">OpenTok Video API account</a>. Do not
 * publicly share your API secret. You will use it with the OpenTok() constructor (only on your web
 * server) to create OpenTok sessions.
 * <p>
@@ -67,7 +67,7 @@ class OpenTok
      * connecting to an OpenTok session, the client passes a token when connecting to the session.
      * <p>
      * For testing, you generate tokens or by logging in to your
-     * <a href="https://tokbox.com/account">TokBox account</a>.
+     * <a href="https://tokbox.com/account">OpenTok Video API account</a>.
      *
      * @param string $sessionId The session ID corresponding to the session to which the user
      * will connect.
@@ -152,7 +152,7 @@ class OpenTok
     * Check the error message for details.
     * <p>
     * You can also create a session by logging in to your
-    * <a href="https://tokbox.com/account">TokBox account</a>.
+    * <a href="https://tokbox.com/account">OpenTok Video API account</a>.
     *
     * @param array $options (Optional) This array defines options for the session. The array includes
     * the following keys (all of which are optional):
@@ -625,7 +625,7 @@ class OpenTok
      *     Video Layout for the OpenTok live streaming feature</a>.
      *   </li>
      *
-     *    <li><code>'streamMode'</code> (String) &mdash; Whether streams included in the broadcast
+     *    <li><code>streamMode</code> (String) &mdash; Whether streams included in the broadcast
      *    are selected automatically (<code>StreamMode.AUTO</code>, the default) or manually
      *    (<code>StreamMode.MANUAL</code>). When streams are selected automatically
      *    (<code>StreamMode.AUTO</code>), all streams in the session can be included in the broadcast.
@@ -637,6 +637,36 @@ class OpenTok
      *    <a href="https://tokbox.com/developer/guides/archive-broadcast-layout/#stream-prioritization-rules">stream
      *    prioritization rules</a>.</li>
      *
+     *    <li><code>outputs</code> (Array) &mdash;
+     *      Defines the HLS broadcast and RTMP streams. You can provide the following keys:
+     *      <ul>
+     *        <li><code>hls</code> (Array) &mdash; available with the following options:
+     *          <p>
+     *            <ul>
+     *              <li><code>'dvr'</code> (Bool) &mdash; Whether to enable
+     *                <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/#dvr">DVR functionality</a>
+     *                — rewinding, pausing, and resuming — in players that support it (<code>true</code>),
+     *                or not (<code>false</code>, the default). With DVR enabled, the HLS URL will include
+     *                a ?DVR query string appended to the end.
+     *              </li>
+     *              <li><code>'lowLatency'</code> (Bool) &mdash; Whether to enable
+     *                <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/#low-latency">low-latency mode</a>
+     *                for the HLS stream. Some HLS players do not support low-latency mode. This feature
+     *                is incompatible with DVR mode HLS broadcasts.
+     *              </li>
+     *            </ul>
+     *           </p>
+     *        </li>
+     *        <li><code>rtmp</code> (Array) &mdash; An array of arrays defining RTMP streams to broadcast. You
+     *          can specify up to five target RTMP streams. Each RTMP stream array has the following keys:
+     *          <ul>
+     *            <li><code>id</code></code> (String) &mdash; The stream ID (optional)</li>
+     *            <li><code>serverUrl</code> (String) &mdash; The RTMP server URL</li>
+     *            <li><code>streamName</code> (String) &mdash; The stream name, such as
+     *                the YouTube Live stream name or the Facebook stream key</li>
+     *          </ul>
+     *        </li>
+     *      </ul>
      * </ul>
      *
      * @return Broadcast An object with properties defining the broadcast.
@@ -647,11 +677,28 @@ class OpenTok
         // NOTE: although the server can be authoritative about the default value of layout, its
         // not preferred to depend on that in the SDK because its then harder to garauntee backwards
         // compatibility
-        $defaults = array(
+
+	    if (isset($options['output']['hls'])) {
+		    Validators::validateBroadcastOutputOptions($options['output']['hls']);
+	    }
+
+		if (isset($options['output']['rtmp'])) {
+			Validators::validateRtmpStreams($options['output']['rtmp']);
+		}
+
+        $defaults = [
             'layout' => Layout::getBestFit(),
-            'streamMode' => 'auto'
-        );
+            'streamMode' => 'auto',
+	        'output' => [
+				'hls' => [
+	                'dvr' => false,
+					'lowLatency' => false
+				]
+            ]
+        ];
+
         $options = array_merge($defaults, $options);
+
         list($layout, $streamMode) = array_values($options);
 
         // validate arguments

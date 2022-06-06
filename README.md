@@ -13,7 +13,7 @@ The OpenTok PHP SDK provides methods for:
 * Working with [OpenTok archives](https://tokbox.com/opentok/tutorials/archiving)
 * Working with [OpenTok live streaming broadcasts](https://tokbox.com/developer/guides/broadcast/live-streaming/)
 * Working with [OpenTok SIP interconnect](https://tokbox.com/developer/guides/sip)
-* [Sending signals to clients connected to a session](https://www.tokbox.com/developer/guides/signaling/)
+* [Sending signals to clients connected to a session](https://tokbox.com/developer/guides/signaling/)
 * [Disconnecting clients from sessions](https://tokbox.com/developer/guides/moderation/rest/)
 * [Forcing clients in a session to disconnect or mute published audio](https://tokbox.com/developer/guides/moderation/)
 
@@ -278,19 +278,36 @@ You can only start live streaming broadcasts for sessions that use the OpenTok M
 Start the live streaming broadcast of an OpenTok Session using the
 `startBroadcast($sessionId, $options)` method of the `OpenTok\OpenTok` class.
 This will return an `OpenTok\Broadcast` instance. The `$options` parameter is
-an optional array used to assign broadcast options such as layout, maxDuration, resolution, and more.
+an array used to define the broadcast streams, assign broadcast options such as layout,
+maxDuration, resolution, and more.
 
 ```php
+// Define options for the broadcast
+$options = [
+  'layout' => Layout::getBestFit(),
+  'maxDuration' => 5400,
+  'resolution' => '1280x720',
+  'output' => [
+    'hls' => [
+      'dvr' => true,
+      'lowLatency' => false
+    ],
+    'rtmp' => [
+      [
+        'id' => 'foo',
+        'serverUrl' => 'rtmps://myfooserver/myfooapp',
+        'streamName' => 'myfoostream'
+      ],
+      [
+        'id' => 'bar',
+        'serverUrl' => 'rtmps://myfooserver/mybarapp',
+        'streamName' => 'mybarstream'
+      ],
+    ]
+  ]
+];
+
 // Start a live streaming broadcast of a session
-$broadcast = $opentok->startBroadcast($sessionId);
-
-
-// Start a live streaming broadcast of a session, using broadcast options
-$options = array(
-    'layout' => Layout::getBestFit(),
-    'maxDuration' => 5400,
-    'resolution' => '1280x720'
-);
 $broadcast = $opentok->startBroadcast($sessionId, $options);
 
 // Store the broadcast ID in the database for later use
@@ -474,7 +491,7 @@ Reference documentation is available at
 ## Requirements
 
 You need an OpenTok API key and API secret, which you can obtain by logging into your
-[TokBox account](https://tokbox.com/account).
+[Vonage Video API account](https://tokbox.com/account).
 
 The OpenTok PHP SDK requires PHP 7.2 or higher.
 
