@@ -628,7 +628,8 @@ class Client
             'token' => $token,
             'sip' => array(
                 'uri' => $sipUri,
-                'secure' => $options['secure']
+                'secure' => $options['secure'],
+                'observeForceMute' => $options['observeForceMute']
             )
         );
 
