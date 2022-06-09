@@ -120,7 +120,7 @@ class Session
      * the client passes a token when connecting to the session.
      * <p>
      * For testing, you can also generate tokens or by logging in to your
-     * <a href="https://tokbox.com/account">TokBox account</a>.
+     * <a href="https://tokbox.com/account">OpenTok Video API account</a>.
      *
      * @param array $options This array defines options for the token. This array include the
      * following keys, all of which are optional:

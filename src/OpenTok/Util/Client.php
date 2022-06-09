@@ -38,7 +38,7 @@ use OpenTok\Exception\ForceDisconnectUnexpectedValueException;
 
 // TODO: build this dynamically
 /** @internal */
-define('OPENTOK_SDK_VERSION', '4.10.0');
+define('OPENTOK_SDK_VERSION', '4.11.0');
 /** @internal */
 define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
 
@@ -628,7 +628,8 @@ class Client
             'token' => $token,
             'sip' => array(
                 'uri' => $sipUri,
-                'secure' => $options['secure']
+                'secure' => $options['secure'],
+                'observeForceMute' => $options['observeForceMute']
             )
         );
 
