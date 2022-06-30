@@ -32,7 +32,6 @@ class SipCall
         $this->data['id'] = $sipCallData['id'];
         $this->data['connectionId'] = $sipCallData['connectionId'];
         $this->data['streamId'] = $sipCallData['streamId'];
-        $this->data['observeForceMute'] = $sipCallData['observeForceMute'];
     }
 
     /**
@@ -45,7 +44,6 @@ class SipCall
             case 'id':
             case 'connectionId':
             case 'streamId':
-            case 'observeForceMute':
                 return $this->data[$name];
             default:
                 return null;
