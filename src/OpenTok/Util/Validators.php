@@ -362,6 +362,13 @@ class Validators
         }
     }
 
+    public static function validateWebsocketOptions(array $websocketOptions)
+    {
+        if (!array_key_exists('uri', $websocketOptions)) {
+            throw new InvalidArgumentException('Websocket configuration must have a uri');
+        }
+    }
+
     public static function validateLayoutClassListItem($layoutClassList)
     {
         if (!is_string($layoutClassList['id'])) {

@@ -1031,6 +1031,33 @@ class OpenTok
         }
     }
 
+    /**
+     * Send audio from a Vonage Video API session to a WebSocket.
+     *
+     * @param string $sessionId The session ID.
+     *
+     * @param string $token The OpenTok token to be used for the Audio Streamer connection to the
+     * OpenTok session. You can add token data to identify that the connection
+     * is the Audio Streamer endpoint or for other identifying data.
+     *
+     * @param array $websocketOptions Configuration for the Websocket. Contains the following keys:
+     * <ul>
+     *    <li><code>'uri'</code> (string) &mdash; A publically reachable WebSocket URI controlled by the customer for the destination of the connect call. (f.e. wss://service.com/wsendpoint)</li>
+     *    <li><code>'streams'</code> (array) &mdash; (Optional) The stream IDs of the participants' whose audio is going to be connected. If not provided, all streams in session will be selected.</li>
+     *    <li><code>'headers'</code> (array) &mdash; (Optional) An object of key/val pairs with additional properties to send to your Websocket server, with a maximum length of 512 bytes.</li>
+     * </ul>
+     *
+     * @return array $response Response from the API.
+     *
+     */
+    public function connectAudioStream(string $sessionId, string $token, array $websocketOptions)
+    {
+        Validators::validateStreamId($sessionId);
+        Validators::validateWebsocketOptions($websocketOptions);
+
+        return $this->client->connectAudioStream($sessionId, $token, $websocketOptions);
+    }
+
     /** @internal */
     private function signString($string, $secret)
     {
