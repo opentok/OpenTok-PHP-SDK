@@ -349,7 +349,7 @@ class Validators
     }
     public static function validateStreamId($streamId)
     {
-        if (!(is_string($streamId))) {
+        if (!(is_string($streamId)) || empty($streamId)) {
             throw new InvalidArgumentException('The streamId was not a string: ' . print_r($streamId, true));
         }
     }

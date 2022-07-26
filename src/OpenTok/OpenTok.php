@@ -1052,7 +1052,7 @@ class OpenTok
      */
     public function connectAudioStream(string $sessionId, string $token, array $websocketOptions)
     {
-        Validators::validateStreamId($sessionId);
+        Validators::validateSessionId($sessionId);
         Validators::validateWebsocketOptions($websocketOptions);
 
         return $this->client->connectAudioStream($sessionId, $token, $websocketOptions);

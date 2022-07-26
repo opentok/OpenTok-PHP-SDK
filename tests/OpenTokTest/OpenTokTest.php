@@ -1229,6 +1229,61 @@ class OpenTokTest extends TestCase
         $this->opentok->forceDisconnect($sessionId, $connectionId);
     }
 
+    public function testCannotConnectAudioStreamWithInvalidSessionId()
+    {
+        $this->setupOTWithMocks([[
+            'code' => 200
+        ]]);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectErrorMessage('Null or empty session ID is not valid: ');
+        $this->opentok->connectAudioStream('', '2398523', []);
+    }
+
+    public function testCannotConnectAudioStreamWithoutWebsocketUri()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectErrorMessage('Websocket configuration must have a uri');
+        $this->setupOTWithMocks([[
+            'code' => 200
+        ]]);
+
+        $badPayload = [
+            'streams' => ['333425', 'asfasrst'],
+            'headers' => ['key' => 'value']
+        ];
+
+        $this->opentok->connectAudioStream('9999', 'wrwetg', $badPayload);
+    }
+
+    public function testCanConnectAudioStreamWithWebsocket()
+    {
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => '/v2/project/APIKEY/connect'
+        ]]);
+
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $token = '063e72a4-64b4-43c8-9da5-eca071daab89';
+        $websocketConfig = [
+            'uri' => 'ws://service.com/wsendpoint',
+            'streams' => [
+                'we9r885',
+                '9238fujs'
+            ],
+            'headers' => [
+                'key1' => 'value'
+            ]
+        ];
+
+        $response = $this->opentok->connectAudioStream($sessionId, $token, $websocketConfig);
+        $this->assertEquals('063e72a4-64b4-43c8-9da5-eca071daab89', $response['id']);
+        $this->assertEquals('7aebb3a4-3d86-4962-b317-afb73e05439d', $response['connectionId']);
+    }
+
 	public function testCanStartBroadcastWithRmtp()
 	{
 		$this->setupOTWithMocks([[
