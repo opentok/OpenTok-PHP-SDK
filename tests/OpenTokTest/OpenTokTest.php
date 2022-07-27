@@ -2077,7 +2077,6 @@ class OpenTokTest extends TestCase
         $this->assertNotNull($sipCall->id);
         $this->assertNotNull($sipCall->connectionId);
         $this->assertNotNull($sipCall->streamId);
-        $this->assertEquals(false, $sipCall->observeForceMute);
 
         $this->assertCount(1, $this->historyContainer);
         $request = $this->historyContainer[0]['request'];
@@ -2111,7 +2110,6 @@ class OpenTokTest extends TestCase
         $this->assertNotNull($sipCall->id);
         $this->assertNotNull($sipCall->connectionId);
         $this->assertNotNull($sipCall->streamId);
-        $this->assertEquals(true, $sipCall->observeForceMute);
 
         $this->assertCount(1, $this->historyContainer);
         $request = $this->historyContainer[0]['request'];
