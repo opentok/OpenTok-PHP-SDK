@@ -8,7 +8,56 @@ use PHPUnit\Framework\TestCase;
 
 class ValidatorsTest extends TestCase
 {
-    public function testWillPassCorrectPayload(): void
+    public function testWillValidateStringApiKey(): void
+    {
+        $this->expectNotToPerformAssertions();
+        $apiKey = '47347801';
+        Validators::validateApiKey($apiKey);
+    }
+
+    public function testWillValidateIntegerApiKey(): void
+    {
+        $this->expectNotToPerformAssertions();
+        $apiKey = 47347801;
+        Validators::validateApiKey($apiKey);
+    }
+
+    public function testWillInvalidateApiKey(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $apiKey = [47347801];
+        Validators::validateApiKey($apiKey);
+    }
+
+    public function testWillValidateApiSecret(): void
+    {
+        $this->expectNotToPerformAssertions();
+        $secret = 'cdff574f0b071230be098e279d16931116c43fcf';
+        Validators::validateApiSecret($secret);
+    }
+
+    public function testWillInvalidateApiSecret(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $secret = 3252556;
+        Validators::validateApiSecret($secret);
+    }
+
+    public function testWillValidateApiUrl(): void
+    {
+        $this->expectNotToPerformAssertions();
+        $apiUrl = 'https://api.opentok.com';
+        Validators::validateApiUrl($apiUrl);
+    }
+
+    public function testWillInvalidateApiUrl(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $apiUrl = 'dave@opentok.com';
+        Validators::validateApiUrl($apiUrl);
+    }
+
+    public function testWillPassCorrectForceMutePayload(): void
     {
         $this->expectNotToPerformAssertions();
 
@@ -67,6 +116,7 @@ class ValidatorsTest extends TestCase
 
     public function testWillValidateWebsocketConfiguration(): void
     {
+        $this->expectNotToPerformAssertions();
         $websocketConfig = [
             'uri' => 'ws://valid-websocket',
             'streams' => [
@@ -75,8 +125,6 @@ class ValidatorsTest extends TestCase
             ]
         ];
         Validators::validateWebsocketOptions($websocketConfig);
-        // This smells awful but the way validators have been structured mean it's a necessary evil
-        $this->assertTrue(true);
     }
 
     public function testWillThrowExceptionOnInvalidWebsocketConfiguration(): void

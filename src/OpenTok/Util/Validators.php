@@ -61,6 +61,7 @@ class Validators
             throw new InvalidArgumentException('The apiSecret was not a string: ' . print_r($apiSecret, true));
         }
     }
+
     public static function validateApiUrl($apiUrl)
     {
         if (!(is_string($apiUrl) && filter_var($apiUrl, FILTER_VALIDATE_URL))) {
@@ -69,6 +70,7 @@ class Validators
             );
         }
     }
+
     public static function validateClient($client)
     {
         if (isset($client) && !($client instanceof Client)) {
