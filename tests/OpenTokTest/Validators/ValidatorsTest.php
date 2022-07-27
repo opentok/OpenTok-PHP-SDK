@@ -64,4 +64,31 @@ class ValidatorsTest extends TestCase
 
         Validators::validateForceMuteAllOptions($options);
     }
+
+    public function testWillValidateWebsocketConfiguration(): void
+    {
+        $websocketConfig = [
+            'uri' => 'ws://valid-websocket',
+            'streams' => [
+                '525503c7-913e-43a1-84b4-31b2e9fe668b',
+                '14026813-4f50-4a5a-9b72-fea25430916d'
+            ]
+        ];
+        Validators::validateWebsocketOptions($websocketConfig);
+        // This smells awful but the way validators have been structured mean it's a necessary evil
+        $this->assertTrue(true);
+    }
+
+    public function testWillThrowExceptionOnInvalidWebsocketConfiguration(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $websocketConfig = [
+            'streams' => [
+                '525503c7-913e-43a1-84b4-31b2e9fe668b',
+                '14026813-4f50-4a5a-9b72-fea25430916d'
+            ]
+        ];
+        Validators::validateWebsocketOptions($websocketConfig);
+    }
 }
