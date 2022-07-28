@@ -1032,7 +1032,8 @@ class OpenTok
     }
 
     /**
-     * Send audio from a Vonage Video API session to a WebSocket.
+     * Starts an <a href="https://tokbox.com/developer/guides/audio-streamer/">Audio Streamer</a>
+     * WebSocket connection. to send audio from a Vonage Video API session to a WebSocket.
      *
      * @param string $sessionId The session ID.
      *
