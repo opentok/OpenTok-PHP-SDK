@@ -1047,7 +1047,12 @@ class OpenTok
      *    <li><code>'headers'</code> (array) &mdash; (Optional) An object of key/val pairs with additional properties to send to your Websocket server, with a maximum length of 512 bytes.</li>
      * </ul>
      *
-     * @return array $response Response from the API.
+     * @return array $response Response from the API, structured as follows:
+     * <ul>
+     *    <li><code>'id'</code> (string) &mdash; Identifier of the outgoing WebSocket connect call that can be used for debugging purposes</li>
+     *    <li><code>'connectionId'</code> (string) &mdash; Opentok client connectionId that has been created. This connection will subscribe and forward the streams defined in the payload to the WebSocket, as any other participant, will produce a connectionCreated event on the session.</li>
+     * </ul>
+     *
      *
      */
     public function connectAudioStream(string $sessionId, string $token, array $websocketOptions)
