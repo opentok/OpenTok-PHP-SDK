@@ -85,7 +85,7 @@ class Broadcast
             'streamMode' => StreamMode::AUTO,
             'isHls' => true,
             'isLowLatency' => false,
-            'isDvr' => false
+            'isDvr' => false,
         );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
         list($apiKey, $apiSecret, $apiUrl, $client, $isStopped, $streamMode) = array_values($options);
