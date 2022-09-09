@@ -302,6 +302,16 @@ class OpenTok
      *    <code>hasVideo</code> to false, the call to the <code>startArchive()</code> method results
      *    in an error.</li>
      *
+     *    <li><code>'multiArchiveTag'</code> (String) (Optional) &mdash; Set this to support recording multiple archives
+     *    for the same session simultaneously. Set this to a unique string for each simultaneous archive of an ongoing
+     *    session. You must also set this option when manually starting an archive
+     *    that is {https://tokbox.com/developer/guides/archiving/#automatic automatically archived}.
+     *    Note that the `multiArchiveTag` value is not included in the response for the methods to
+     *    {https://tokbox.com/developer/rest/#listing_archives list archives} and
+     *    {https://tokbox.com/developer/rest/#retrieve_archive_info retrieve archive information}.
+     *    If you do not specify a unique `multiArchiveTag`, you can only record one archive at a time for a given session.
+     *    {https://tokbox.com/developer/guides/archiving/#simultaneous-archives See Simultaneous archives}.</li>
+     *
      *    <li><code>'outputMode'</code> (OutputMode) &mdash; Whether all streams in the
      *    archive are recorded to a single file (<code>OutputMode::COMPOSED</code>, the default)
      *    or to individual files (<code>OutputMode::INDIVIDUAL</code>).</li>
@@ -636,6 +646,13 @@ class OpenTok
      *    manual modes, the broadcast composer includes streams based on
      *    <a href="https://tokbox.com/developer/guides/archive-broadcast-layout/#stream-prioritization-rules">stream
      *    prioritization rules</a>.</li>
+     *
+     *    <li><code>multiBroadcastTag</code> (String) (Optional) &mdash; Set this to support multiple broadcasts for
+     *    the same session simultaneously. Set this to a unique string for each simultaneous broadcast of an ongoing session.
+     *    Note that the `multiBroadcastTag` value is *not* included in the response for the methods to
+     *    {https://tokbox.com/developer/rest/#list_broadcasts list live streaming broadcasts} and
+     *    {https://tokbox.com/developer/rest/#get_info_broadcast get information about a live streaming broadcast}.
+     *    {https://tokbox.com/developer/guides/broadcast/live-streaming#simultaneous-broadcasts See Simultaneous broadcasts}.</li>
      *
      *    <li><code>outputs</code> (Array) &mdash;
      *      Defines the HLS broadcast and RTMP streams. You can provide the following keys:
