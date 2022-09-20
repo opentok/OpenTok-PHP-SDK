@@ -256,6 +256,54 @@ class OpenTok
     }
 
     /**
+     * This method starts an Experience Composer Render session.
+     *
+     * @param $sessionId (string) The session ID.
+     * @param $token (string) A valid OpenTok token with a Publisher role and (optionally) connection data to be associated with the output stream.
+     * @param $url (string) A publicly reachable URL controlled by the customer and capable of generating the content to be rendered without user intervention.
+     * @param $maxDuration (int) (optional) The maximum time allowed for the Render, in seconds. After this time, the Render will be stopped automatically, if it is still running.
+     * @param $resolution (string) (optional) Resolution of the display area for the composition.
+     * @param $statusCallbackUrl (string) (optional) URL of the customer service where the callbacks will be received.
+     * @param $properties (array) (optional) Configuration of properties for the composed output stream.
+     * <ul>
+     *   <li><code>name</code> (String) (optional) &mdash; The name of the composed output stream which will be published to the session.</li>
+     * </ul>
+     *
+     * @return OpenTok\Render
+     */
+    public function startRender(
+        $sessionId,
+        $token,
+        $url,
+        $maxDuration,
+        $resolution,
+        $statusCallbackUrl,
+        $properties
+    ): Render {
+        $payload = [
+            'sessionId' => $sessionId,
+            'token' => $token,
+            'url' => $url,
+            'maxDuration' => $maxDuration,
+            'resolution' => $resolution,
+            'statusCallbackUrl' => $statusCallbackUrl,
+            'properties' => $properties
+        ];
+
+        $defaults = [
+            'maxDuration' => 1800,
+            'resolution' => '1280x720',
+        ];
+
+        $payload = array_merge($defaults, array_intersect_key($payload, $defaults));
+        Validators::validateSessionId($payload['sessionId']);
+
+        $render = $this->client->startRender($payload);
+
+        return new Render($render);
+    }
+
+    /**
      * Starts archiving an OpenTok session.
      * <p>
      * Clients must be actively connected to the OpenTok session for you to successfully start
