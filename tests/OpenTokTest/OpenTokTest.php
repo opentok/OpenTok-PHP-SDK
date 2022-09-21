@@ -103,7 +103,7 @@ class OpenTokTest extends TestCase
         $opentok = new OpenTok();
     }
 
-    public function testCanStartRender()
+    public function testCanStartRender(): void
     {
         $this->setupOTWithMocks([[
             'code' => 200,
@@ -129,6 +129,22 @@ class OpenTokTest extends TestCase
         $this->assertEquals('started', $render->status);
     }
 
+    public function testCanGetRender(): void
+    {
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/render/render_get'
+        ]]);
+
+        $render = $this->opentok->getRender('80abaf0d-25a3-4efc-968f-6268d620668d');
+
+        $this->assertInstanceOf(Render::class, $render);
+        $this->assertEquals('1_MX4yNzA4NjYxMn5-MTU0NzA4MDUyMTEzNn5sOXU5ZnlWYXplRnZGblV4RUo3dXJpZk1-fg', $render->sessionId);
+        $this->assertEquals('failed', $render->status);
+    }
 
     public function testCreatesDefaultSession()
     {

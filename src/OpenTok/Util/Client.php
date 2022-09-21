@@ -176,6 +176,20 @@ class Client
         return $renderJson;
     }
 
+    public function getRender($renderId): string
+    {
+        $request = new Request('POST', '/v2/project/' . $this->apiKey . '/render/' . $renderId);
+
+        try {
+            $response = $this->client->send($request);
+            $renderJson = $response->getBody()->getContents();
+        } catch (\Exception $e) {
+            $this->handleRenderException($e);
+        }
+
+        return $renderJson;
+    }
+
     public function startArchive(string $sessionId, array $options = []): array
     {
         $request = new Request('POST', '/v2/project/' . $this->apiKey . '/archive');

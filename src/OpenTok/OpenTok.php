@@ -304,6 +304,26 @@ class OpenTok
     }
 
     /**
+     * Fetch an existing render to view status. Status can be one of:
+     * <ul>
+     *    <li><code>starting</code> &mdash; The Vonage Video API platform is in the process of connecting to the remote application at the URL provided. This is the initial state.</li>
+     *    <li><code>started</code> &mdash; The Vonage Video API platform has succesfully connected to the remote application server, and is republishing that media into the Vonage Video API platform.</li>
+     *    <li><code>stopped</code> &mdash; The Render has stopped.</li>
+     *    <li><code>failed</code> &mdash; An error occurred and the Render could not proceed. It may occur at startup if the opentok server cannot connect to the remote application server or republish the stream. It may also occur at point during the rendering process due to some error in the Vonage Video API platform.</li>
+     * </ul>
+     *
+     * @param $renderId
+     *
+     * @return Render
+     */
+    public function getRender($renderId): Render
+    {
+        $renderPayload = $this->client->getRender($renderId);
+
+        return new Render($renderPayload);
+    }
+
+    /**
      * Starts archiving an OpenTok session.
      * <p>
      * Clients must be actively connected to the OpenTok session for you to successfully start
