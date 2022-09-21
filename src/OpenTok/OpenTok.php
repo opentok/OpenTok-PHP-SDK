@@ -280,7 +280,7 @@ class OpenTok
         $statusCallbackUrl,
         $properties
     ): Render {
-        $payload = [
+        $arguments = [
             'sessionId' => $sessionId,
             'token' => $token,
             'url' => $url,
@@ -295,7 +295,7 @@ class OpenTok
             'resolution' => '1280x720',
         ];
 
-        $payload = array_merge($defaults, array_intersect_key($payload, $defaults));
+        $payload = array_merge($defaults, $arguments);
         Validators::validateSessionId($payload['sessionId']);
 
         $render = $this->client->startRender($payload);

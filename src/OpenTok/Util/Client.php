@@ -168,7 +168,7 @@ class Client
 
         try {
             $response = $this->client->send($request, $payload);
-            $renderJson = json_decode($response->getBody());
+            $renderJson = $response->getBody()->getContents();
         } catch (\Exception $e) {
             $this->handleRenderException($e);
         }

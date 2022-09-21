@@ -2,6 +2,7 @@
 
 namespace OpenTokTest;
 
+use OpenTok\Render;
 use OpenTok\Role;
 use OpenTok\Layout;
 use OpenTok\OpenTok;
@@ -86,10 +87,7 @@ class OpenTokTest extends TestCase
 
     public function testCanBeInitialized()
     {
-        // Arrange
         $this->setupOT();
-        // Act
-        // Assert
         $this->assertInstanceOf('OpenTok\OpenTok', $this->opentok);
     }
 
@@ -103,9 +101,34 @@ class OpenTokTest extends TestCase
             $this->expectException(PHPUnit_Framework_Error_Warning::class);
         }
         $opentok = new OpenTok();
-        // Act
-        // Assert
     }
+
+    public function testCanStartRender()
+    {
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/render/render_start'
+        ]]);
+
+        $render = $this->opentok->startRender(
+            '2_MX4xMDBfjE0Mzc2NzY1NDgwMTJ-TjMzfn4',
+            'e2343f23456g34709d2443a234',
+            'https://webapp.customer.com',
+            2900,
+            '1280x720',
+            'https://sendcallbacks.to.me',
+            [
+                'name' => 'Composed stream for live event'
+            ]
+        );
+        $this->assertInstanceOf(Render::class, $render);
+        $this->assertEquals('2_MX4xMDBfjE0Mzc2NzY1NDgwMTJ-TjMzfn4', $render->sessionId);
+        $this->assertEquals('started', $render->status);
+    }
+
 
     public function testCreatesDefaultSession()
     {
