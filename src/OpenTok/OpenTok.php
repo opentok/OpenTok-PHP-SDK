@@ -303,7 +303,15 @@ class OpenTok
         return new Render($render);
     }
 
-    public function listRenders($offset = 0, $count = 50)
+    /**
+     * Get back a list of Renders
+     *
+     * @param int $offset
+     * @param int $count
+     *
+     * @return mixed
+     */
+    public function listRenders(int $offset = 0, int $count = 50)
     {
         $queryPayload = [
             'offset' => $offset,
