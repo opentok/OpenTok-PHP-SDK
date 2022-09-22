@@ -146,6 +146,51 @@ class OpenTokTest extends TestCase
         $this->assertEquals('failed', $render->status);
     }
 
+    public function testCanStopRender(): void
+    {
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/render/render_get'
+        ]]);
+
+        $response = $this->opentok->stopRender('80abaf0d-25a3-4efc-968f-6268d620668d');
+
+        $this->assertTrue($response);
+    }
+
+    public function testCannotStopUnknownRender(): void
+    {
+        $this->setupOTWithMocks([[
+            'code' => 404,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/render/render_get'
+        ]]);
+
+        $response = $this->opentok->stopRender('80abaf0d-25a3-4efc-968f-6268d620668d');
+
+        $this->assertFalse($response);
+    }
+
+    public function testCanListRenders(): void
+    {
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/render/render_list'
+        ]]);
+
+        $response = $this->opentok->listRenders();
+        $this->assertEquals('2', $response['count']);
+        $this->assertEquals('80abaf0d-25a3-4efc-968f-6268d620668d', $response['items'][0]['id']);
+    }
+
     public function testCreatesDefaultSession()
     {
         // Arrange

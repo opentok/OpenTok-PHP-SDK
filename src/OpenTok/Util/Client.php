@@ -176,6 +176,18 @@ class Client
         return $renderJson;
     }
 
+    public  function stopRender($renderId): bool
+    {
+        $request = new Request('DELETE', '/v2/project/' . $this->apiKey . '/render/' . $renderId);
+
+        try {
+            $response = $this->client->send($request);
+            return $response->getStatusCode() === 200;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
     public function getRender($renderId): string
     {
         $request = new Request('POST', '/v2/project/' . $this->apiKey . '/render/' . $renderId);
@@ -188,6 +200,20 @@ class Client
         }
 
         return $renderJson;
+    }
+
+    public function listRenders($query)
+    {
+        $request = new Request('GET', '/v2/project/' . $this->apiKey . '/render?' . http_build_query($query));
+
+        try {
+            $response = $this->client->send($request);
+            $renderJson = $response->getBody()->getContents();
+        } catch (\Exception $e) {
+            $this->handleRenderException($e);
+        }
+
+        return json_decode($renderJson, true);
     }
 
     public function startArchive(string $sessionId, array $options = []): array

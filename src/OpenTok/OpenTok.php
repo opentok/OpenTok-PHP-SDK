@@ -303,6 +303,27 @@ class OpenTok
         return new Render($render);
     }
 
+    public function listRenders($offset = 0, $count = 50)
+    {
+        $queryPayload = [
+            'offset' => $offset,
+            'count' => $count
+        ];
+        return $this->client->listRenders($queryPayload);
+    }
+
+    /**
+     * Stop an existing render.
+     *
+     * @param $renderId
+     *
+     * @return mixed
+     */
+    public function stopRender($renderId)
+    {
+        return $this->client->stopRender($renderId);
+    }
+
     /**
      * Fetch an existing render to view status. Status can be one of:
      * <ul>
