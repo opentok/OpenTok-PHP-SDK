@@ -46,6 +46,10 @@ use OpenTok\Exception\ArchiveUnexpectedValueException;
 * @property string $sessionId
 * The session ID of the OpenTok session associated with this archive.
 *
+* @property string $multiArchiveTag
+* Whether Multiple Archive is switched on, which will be a unique string for each simultaneous archive of an ongoing session.
+* See https://tokbox.com/developer/guides/archiving/#simultaneous-archives for more information.
+*
 * @property string $size
 * The size of the MP4 file. For archives that have not been generated, this value is set to 0.
 *
@@ -97,6 +101,9 @@ class Archive
     private $isDeleted;
     /** @internal */
     private $client;
+    /** @internal */
+    private $multiArchiveTag;
+
 
     /** @internal */
     public function __construct($archiveData, $options = array())
@@ -118,6 +125,9 @@ class Archive
         Validators::validateHasStreamMode($streamMode);
 
         $this->data = $archiveData;
+        if (isset($this->data['multiArchiveTag'])) {
+            $this->multiArchiveTag = $this->data['multiArchiveTag'];
+        }
 
         $this->client = isset($client) ? $client : new Client();
         if (!$this->client->isConfigured()) {
@@ -152,6 +162,8 @@ class Archive
             case 'resolution':
             case 'streamMode':
                 return $this->data[$name];
+            case 'multiArchiveTag':
+                return $this->multiArchiveTag;
             default:
                 return null;
         }
