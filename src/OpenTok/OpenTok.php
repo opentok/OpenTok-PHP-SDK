@@ -307,7 +307,7 @@ class OpenTok
     }
 
     /**
-     * Get back a list of Renders
+     * Returns a list of Experience Composer renderers for an OpenTok project.
      *
      * @param int $offset
      * @param int $count
