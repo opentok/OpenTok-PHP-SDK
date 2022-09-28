@@ -1050,7 +1050,8 @@ class OpenTok
      *
      * @return array $response Response from the API, structured as follows:
      * <ul>
-     *    <li><code>'id'</code> (string) &mdash; Identifier of the outgoing WebSocket connect call that can be used for debugging purposes</li>
+     *    <li><code>'id'</code> (string) &mdash; A unique ID identifying the Audio Streamer
+     *    WebSocket connection.</li>
      *    <li><code>'connectionId'</code> (string) &mdash; Opentok client connectionId that has been created. This connection will subscribe and forward the streams defined in the payload to the WebSocket, as any other participant, will produce a connectionCreated event on the session.</li>
      * </ul>
      *
