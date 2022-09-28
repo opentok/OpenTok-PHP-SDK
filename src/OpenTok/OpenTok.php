@@ -256,7 +256,10 @@ class OpenTok
     }
 
     /**
-     * This method starts an Experience Composer Render session.
+     * Starts an Experience Composer renderer for an OpenTok session.
+     * For more information, see the
+     * <a href="https://tokbox.com/developer/guides/experience-composer">Experience Composer
+     * developer guide</a>.
      *
      * @param $sessionId (string) The session ID.
      * @param $token (string) A valid OpenTok token with a Publisher role and (optionally) connection data to be associated with the output stream.
