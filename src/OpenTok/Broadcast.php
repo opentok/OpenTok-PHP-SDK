@@ -48,6 +48,11 @@ use OpenTok\Util\Validators;
 * @property boolean $isLowLatency
 * Whether the broadcast supports low-latency mode for the HLS stream.
 *
+* @property string $resolution
+* The resolution of the archive, either "640x480" (SD landscape, the default), "1280x720" (HD landscape),
+* "1920x1080" (FHD landscape), "480x640" (SD portrait), "720x1280" (HD portrait), or "1080x1920" (FHD portrait).
+* You may want to use a portrait aspect ratio for archives that include video streams from mobile devices (which often use the portrait aspect ratio).
+*
 * @property string $streamMode
 * Whether streams included in the broadcast are selected automatically (<code>StreamMode.AUTO</code>)
 * or manually (<code>StreamMode.MANUAL</code>). When streams are selected automatically (<code>StreamMode.AUTO</code>),
@@ -75,8 +80,9 @@ class Broadcast
     private $isDvr;
     /** @ignore */
     private $multiBroadcastTag;
-
     /** @ignore */
+    private $resolution;
+    
     public function __construct($broadcastData, $options = array())
     {
         // unpack optional arguments (merging with default values) into named variables
@@ -91,7 +97,7 @@ class Broadcast
             'streamMode' => StreamMode::AUTO,
             'isHls' => true,
             'isLowLatency' => false,
-            'isDvr' => false
+            'isDvr' => false,
         );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
         list($apiKey, $apiSecret, $apiUrl, $client, $isStopped, $streamMode) = array_values($options);
@@ -108,6 +114,7 @@ class Broadcast
         }
 
         $this->isStopped = $isStopped;
+        $this->resolution = $this->data['resolution'];
         $this->isHls = isset($this->data['settings']['hls']);
         $this->isLowLatency = $this->data['settings']['hls']['lowLatency'] ?? false;
         $this->isDvr = $this->data['settings']['hls']['dvr'] ?? false;
@@ -134,9 +141,10 @@ class Broadcast
             case 'broadcastUrls':
             case 'status':
             case 'maxDuration':
-            case 'resolution':
             case 'streamMode':
                 return $this->data[$name];
+            case 'resolution':
+                return $this->resolution;
             case 'hlsUrl':
                 return $this->data['broadcastUrls']['hls'];
             case 'isStopped':
