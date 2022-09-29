@@ -266,7 +266,6 @@ class OpenTok
      * @param $url (string) A publicly reachable URL controlled by the customer and capable of generating the content to be rendered without user intervention.
      * @param $maxDuration (int) (optional) The maximum time allowed for the Render, in seconds. After this time, the Render will be stopped automatically, if it is still running.
      * @param $resolution (string) (optional) Resolution of the display area for the composition.
-     * @param $statusCallbackUrl (string) (optional) URL of the customer service where the callbacks will be received.
      * @param $properties (array) (optional) Configuration of properties for the composed output stream.
      * <ul>
      *   <li><code>name</code> (String) (optional) &mdash; The name of the composed output stream which will be published to the session.</li>
@@ -280,7 +279,6 @@ class OpenTok
         $url,
         $maxDuration,
         $resolution,
-        $statusCallbackUrl,
         $properties
     ): Render {
         $arguments = [
@@ -289,7 +287,6 @@ class OpenTok
             'url' => $url,
             'maxDuration' => $maxDuration,
             'resolution' => $resolution,
-            'statusCallbackUrl' => $statusCallbackUrl,
             'properties' => $properties
         ];
 
@@ -324,7 +321,7 @@ class OpenTok
     }
 
     /**
-     * Stop an existing render.
+     * Stops an existing render.
      *
      * @param $renderId
      *

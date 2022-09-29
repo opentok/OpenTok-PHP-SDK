@@ -2,6 +2,9 @@
 
 namespace OpenTok;
 
+/**
+ * Represents an  Experience Composer render of an OpenTok session.
+ */
 class Render
 {
     /** @internal */
