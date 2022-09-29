@@ -35,8 +35,8 @@ use OpenTok\Util\Validators;
 * @property boolean $isStopped
 * Whether the broadcast is stopped (true) or in progress (false).
 *
-* @property string $multiArchiveTag
-* Whether Multiple Archive is switched on, which will be a unique string for each simultaneous broadcast of an ongoing session.
+* @property string $multiBroadcastTag
+* Whether Multiple Broadcast is switched on, which will be a unique string for each simultaneous broadcast of an ongoing session.
 * See https://tokbox.com/developer/guides/archiving/#simultaneous-archives for more information.
 *
 * @property boolean $isHls
@@ -74,7 +74,7 @@ class Broadcast
     /** @ignore */
     private $isDvr;
     /** @ignore */
-    private $multiArchiveTag;
+    private $multiBroadcastTag;
 
     /** @ignore */
     public function __construct($broadcastData, $options = array())
@@ -103,8 +103,8 @@ class Broadcast
 
         $this->data = $broadcastData;
 
-        if (isset($this->data['multiArchiveTag'])) {
-            $this->multiArchiveTag = $this->data['multiArchiveTag'];
+        if (isset($this->data['multiBroadcastTag'])) {
+            $this->multiBroadcastTag = $this->data['multiBroadcastTag'];
         }
 
         $this->isStopped = $isStopped;
@@ -147,8 +147,8 @@ class Broadcast
                 return $this->isLowLatency;
             case 'isDvr':
                 return $this->isDvr;
-            case 'multiArchiveTag':
-                return $this->multiArchiveTag;
+            case 'multiBroadcastTag':
+                return $this->multiBroadcastTag;
             default:
                 return null;
         }
