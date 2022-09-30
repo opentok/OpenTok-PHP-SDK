@@ -5,6 +5,7 @@
   "createdAt":1472435660275,
   "broadcastUrls":null,
   "updatedAt":1472435660275,
+  "resolution": "640x480",
   "status":"stopped",
   "partnerId":854511
 }

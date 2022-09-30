@@ -41,7 +41,9 @@ use OpenTok\Exception\ArchiveUnexpectedValueException;
 * the archive stopped (such as "maximum duration exceeded") or failed.
 *
 * @property string $resolution
-* The resolution of the archive.
+* The resolution of the archive, either "640x480" (SD landscape, the default), "1280x720" (HD landscape),
+* "1920x1080" (FHD landscape), "480x640" (SD portrait), "720x1280" (HD portrait), or "1080x1920" (FHD portrait).
+* You may want to use a portrait aspect ratio for archives that include video streams from mobile devices (which often use the portrait aspect ratio).
 *
 * @property string $sessionId
 * The session ID of the OpenTok session associated with this archive.

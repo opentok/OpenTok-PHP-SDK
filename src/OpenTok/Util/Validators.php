@@ -343,18 +343,41 @@ class Validators
             );
         }
     }
+
     public static function validateLayoutStylesheet($stylesheet)
     {
         if (!(is_string($stylesheet))) {
             throw new InvalidArgumentException('The stylesheet was not a string: ' . print_r($stylesheet, true));
         }
     }
+
+    public static function validateResolution($resolution)
+    {
+        if (!(is_string($resolution))) {
+            throw new InvalidArgumentException('The resolution was not a string: ' . print_r($resolution, true));
+        }
+
+        $validResolutions = [
+            '640x480',
+            '1280x720',
+            '1920x1080',
+            '480x640',
+            '720x1280',
+            '1080x1920',
+        ];
+
+        if (!in_array(strtolower($resolution), $validResolutions)) {
+            throw new InvalidArgumentException('The resolution was not a valid resolution: ' . print_r($resolution, true));
+        }
+    }
+
     public static function validateStreamId($streamId)
     {
         if (!(is_string($streamId)) || empty($streamId)) {
             throw new InvalidArgumentException('The streamId was not a string: ' . print_r($streamId, true));
         }
     }
+
     public static function validateLayoutClassList($layoutClassList, $format = 'JSON')
     {
         if ($format === 'JSON') {
