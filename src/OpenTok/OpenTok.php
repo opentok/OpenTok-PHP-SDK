@@ -261,17 +261,28 @@ class OpenTok
      * <a href="https://tokbox.com/developer/guides/experience-composer">Experience Composer
      * developer guide</a>.
      *
-     * @param $sessionId (string) The session ID.
+     * @param $sessionId (string) The session ID of the OpenTok session that will include the Experience Composer stream.
+     *
      * @param $token (string) A valid OpenTok token with a Publisher role and (optionally) connection data to be associated with the output stream.
+     *
      * @param $url (string) A publicly reachable URL controlled by the customer and capable of generating the content to be rendered without user intervention.
-     * @param $maxDuration (int) (optional) The maximum time allowed for the Render, in seconds. After this time, the Render will be stopped automatically, if it is still running.
-     * @param $resolution (string) (optional) Resolution of the display area for the composition.
-     * @param $properties (array) (optional) Configuration of properties for the composed output stream.
+     * The minimum length of the URL is 15 characters and the maximum length is 2048 characters.
+     *
+     * @param $maxDuration (int) (optional) The maximum time allowed for the Experience Composer, in seconds. After this time, it is stopped
+     * automatically, if it is still running. The maximum value is 36000 (10 hours), the minimum value is 60 (1 minute), and the default value is 7200 (2 hours).
+     * When the Experience Composer ends, its stream is unpublished and an event is posted to the callback URL, if configured in the Account Portal.
+     *
+     * @param $resolution (string) (optional) The resolution of the Experience Composer, either "640x480" (SD landscape), "480x640" (SD portrait), "1280x720" (HD landscape),
+     * "720x1280" (HD portrait), "1920x1080" (FHD landscape), or "1080x1920" (FHD portrait). By default, this resolution is "1280x720" (HD landscape, the default).
+     *
+     * @param $properties (array) (optional) The initial configuration of Publisher properties for the composed output stream.
      * <ul>
-     *   <li><code>name</code> (String) (optional) &mdash; The name of the composed output stream which will be published to the session.</li>
+     *   <li><code>name</code> (String) (optional) &mdash; Serves as the name of the composed output stream which is published to the session. The name must have a minimum length of 1 and
+     *     a maximum length of 200.
+     *   </li>
      * </ul>
      *
-     * @return OpenTok\Render
+     * @return \OpenTok\Render The render object, which includes properties defining the render, including the render ID.
      */
     public function startRender(
         $sessionId,
