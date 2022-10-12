@@ -414,6 +414,11 @@ class OpenTok
      *    archive are recorded to a single file (<code>OutputMode::COMPOSED</code>, the default)
      *    or to individual files (<code>OutputMode::INDIVIDUAL</code>).</li>
      *
+     *    <li><code>'resolution'</code> (String) &mdash; The resolution of the archive, either "640x480" (SD landscape,
+     *    the default), "1280x720" (HD landscape), "1920x1080" (FHD landscape), "480x640" (SD portrait), "720x1280"
+     *    (HD portrait), or "1080x1920" (FHD portrait). This property only applies to composed archives. If you set
+     *    this property and set the outputMode property to "individual", a call to the method
+     *    results in an error.</li>
      * </ul>
      *
      * @return Archive The Archive object, which includes properties defining the archive, including
@@ -437,13 +442,18 @@ class OpenTok
             'hasAudio' => true,
             'outputMode' => OutputMode::COMPOSED,
             'resolution' => null,
-            'streamMode' => StreamMode::AUTO
+            'streamMode' => StreamMode::AUTO,
         );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
         list($name, $hasVideo, $hasAudio, $outputMode, $resolution, $streamMode) = array_values($options);
-        // validate arguments
+
         Validators::validateSessionId($sessionId);
         Validators::validateArchiveName($name);
+
+        if ($resolution) {
+            Validators::validateResolution($resolution);
+        }
+
         Validators::validateArchiveHasVideo($hasVideo);
         Validators::validateArchiveHasAudio($hasAudio);
         Validators::validateArchiveOutputMode($outputMode);
@@ -460,8 +470,7 @@ class OpenTok
             $errorMessage = "Resolution must be a valid string";
             throw new UnexpectedValueException($errorMessage);
         }
-        // we don't validate the actual resolution so if we add resolutions, we don't artificially block functionality
-        // make API call
+
         $archiveData = $this->client->startArchive($sessionId, $options);
 
         return new Archive($archiveData, array( 'client' => $this->client ));
@@ -745,6 +754,10 @@ class OpenTok
      *    <a href="https://tokbox.com/developer/guides/archive-broadcast-layout/#stream-prioritization-rules">stream
      *    prioritization rules</a>.</li>
      *
+     *    <li><code>resolution</code> &mdash; The resolution of the broadcast: either "640x480" (SD landscape, the default), "1280x720" (HD landscape),
+     *    "1920x1080" (FHD landscape), "480x640" (SD portrait), "720x1280" (HD portrait), or "1080x1920"
+     *    (FHD portrait).</li>
+     *
      *    <li><code>outputs</code> (Array) &mdash;
      *      Defines the HLS broadcast and RTMP streams. You can provide the following keys:
      *      <ul>
@@ -786,6 +799,10 @@ class OpenTok
         // not preferred to depend on that in the SDK because its then harder to garauntee backwards
         // compatibility
 
+        if (isset($options['resolution'])) {
+            Validators::validateResolution($options['resolution']);
+        }
+
 	    if (isset($options['output']['hls'])) {
 		    Validators::validateBroadcastOutputOptions($options['output']['hls']);
 	    }
@@ -797,6 +814,7 @@ class OpenTok
         $defaults = [
             'layout' => Layout::getBestFit(),
             'streamMode' => 'auto',
+            'resolution' => '640x480',
 	        'output' => [
 				'hls' => [
 	                'dvr' => false,
@@ -817,7 +835,7 @@ class OpenTok
         // make API call
         $broadcastData = $this->client->startBroadcast($sessionId, $options);
 
-        return new Broadcast($broadcastData, array( 'client' => $this->client ));
+        return new Broadcast($broadcastData, array('client' => $this->client));
     }
 
     /**
