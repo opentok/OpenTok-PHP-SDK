@@ -256,6 +256,114 @@ class OpenTok
     }
 
     /**
+     * Starts an Experience Composer renderer for an OpenTok session.
+     * For more information, see the
+     * <a href="https://tokbox.com/developer/guides/experience-composer">Experience Composer
+     * developer guide</a>.
+     *
+     * @param $sessionId (string) The session ID of the OpenTok session that will include the Experience Composer stream.
+     *
+     * @param $token (string) A valid OpenTok token with a Publisher role and (optionally) connection data to be associated with the output stream.
+     *
+     * @param $url (string) A publicly reachable URL controlled by the customer and capable of generating the content to be rendered without user intervention.
+     * The minimum length of the URL is 15 characters and the maximum length is 2048 characters.
+     *
+     * @param $maxDuration (int) (optional) The maximum time allowed for the Experience Composer, in seconds. After this time, it is stopped
+     * automatically, if it is still running. The maximum value is 36000 (10 hours), the minimum value is 60 (1 minute), and the default value is 7200 (2 hours).
+     * When the Experience Composer ends, its stream is unpublished and an event is posted to the callback URL, if configured in the Account Portal.
+     *
+     * @param $resolution (string) (optional) The resolution of the Experience Composer, either "640x480" (SD landscape), "480x640" (SD portrait), "1280x720" (HD landscape),
+     * "720x1280" (HD portrait), "1920x1080" (FHD landscape), or "1080x1920" (FHD portrait). By default, this resolution is "1280x720" (HD landscape, the default).
+     *
+     * @param $properties (array) (optional) The initial configuration of Publisher properties for the composed output stream.
+     * <ul>
+     *   <li><code>name</code> (String) (optional) &mdash; Serves as the name of the composed output stream which is published to the session. The name must have a minimum length of 1 and
+     *     a maximum length of 200.
+     *   </li>
+     * </ul>
+     *
+     * @return \OpenTok\Render The render object, which includes properties defining the render, including the render ID.
+     */
+    public function startRender(
+        $sessionId,
+        $token,
+        $url,
+        $maxDuration,
+        $resolution,
+        $properties
+    ): Render {
+        $arguments = [
+            'sessionId' => $sessionId,
+            'token' => $token,
+            'url' => $url,
+            'maxDuration' => $maxDuration,
+            'resolution' => $resolution,
+            'properties' => $properties
+        ];
+
+        $defaults = [
+            'maxDuration' => 1800,
+            'resolution' => '1280x720',
+        ];
+
+        $payload = array_merge($defaults, $arguments);
+        Validators::validateSessionId($payload['sessionId']);
+
+        $render = $this->client->startRender($payload);
+
+        return new Render($render);
+    }
+
+    /**
+     * Returns a list of Experience Composer renderers for an OpenTok project.
+     *
+     * @param int $offset
+     * @param int $count
+     *
+     * @return mixed
+     */
+    public function listRenders(int $offset = 0, int $count = 50)
+    {
+        $queryPayload = [
+            'offset' => $offset,
+            'count' => $count
+        ];
+        return $this->client->listRenders($queryPayload);
+    }
+
+    /**
+     * Stops an existing render.
+     *
+     * @param $renderId
+     *
+     * @return mixed
+     */
+    public function stopRender($renderId)
+    {
+        return $this->client->stopRender($renderId);
+    }
+
+    /**
+     * Fetch an existing render to view status. Status can be one of:
+     * <ul>
+     *    <li><code>starting</code> &mdash; The Vonage Video API platform is in the process of connecting to the remote application at the URL provided. This is the initial state.</li>
+     *    <li><code>started</code> &mdash; The Vonage Video API platform has succesfully connected to the remote application server, and is republishing that media into the Vonage Video API platform.</li>
+     *    <li><code>stopped</code> &mdash; The Render has stopped.</li>
+     *    <li><code>failed</code> &mdash; An error occurred and the Render could not proceed. It may occur at startup if the opentok server cannot connect to the remote application server or republish the stream. It may also occur at point during the rendering process due to some error in the Vonage Video API platform.</li>
+     * </ul>
+     *
+     * @param $renderId
+     *
+     * @return Render
+     */
+    public function getRender($renderId): Render
+    {
+        $renderPayload = $this->client->getRender($renderId);
+
+        return new Render($renderPayload);
+    }
+
+    /**
      * Starts archiving an OpenTok session.
      * <p>
      * Clients must be actively connected to the OpenTok session for you to successfully start

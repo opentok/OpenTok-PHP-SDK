@@ -3,6 +3,7 @@
 namespace OpenTok\Util;
 
 use Exception as GlobalException;
+use http\Exception\InvalidArgumentException;
 use OpenTok\Layout;
 use Firebase\JWT\JWT;
 use OpenTok\MediaMode;
@@ -38,7 +39,7 @@ use OpenTok\Exception\ForceDisconnectUnexpectedValueException;
 
 // TODO: build this dynamically
 /** @internal */
-define('OPENTOK_SDK_VERSION', '4.11.0');
+define('OPENTOK_SDK_VERSION', '4.12.0');
 /** @internal */
 define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
 
@@ -159,6 +160,60 @@ class Client
             throw new \RuntimeException('Unable to parse response body into XML: ' . $errorMessage);
         }
         return $xml;
+    }
+
+    public function startRender($payload)
+    {
+        $request = new Request('POST', '/v2/project/' . $this->apiKey . '/render');
+
+        try {
+            $response = $this->client->send($request, $payload);
+            $renderJson = $response->getBody()->getContents();
+        } catch (\Exception $e) {
+            $this->handleRenderException($e);
+        }
+
+        return $renderJson;
+    }
+
+    public  function stopRender($renderId): bool
+    {
+        $request = new Request('DELETE', '/v2/project/' . $this->apiKey . '/render/' . $renderId);
+
+        try {
+            $response = $this->client->send($request);
+            return $response->getStatusCode() === 200;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    public function getRender($renderId): string
+    {
+        $request = new Request('POST', '/v2/project/' . $this->apiKey . '/render/' . $renderId);
+
+        try {
+            $response = $this->client->send($request);
+            $renderJson = $response->getBody()->getContents();
+        } catch (\Exception $e) {
+            $this->handleRenderException($e);
+        }
+
+        return $renderJson;
+    }
+
+    public function listRenders($query)
+    {
+        $request = new Request('GET', '/v2/project/' . $this->apiKey . '/render?' . http_build_query($query));
+
+        try {
+            $response = $this->client->send($request);
+            $renderJson = $response->getBody()->getContents();
+        } catch (\Exception $e) {
+            $this->handleRenderException($e);
+        }
+
+        return json_decode($renderJson, true);
     }
 
     public function startArchive(string $sessionId, array $options = []): array
@@ -872,7 +927,7 @@ class Client
         }
     }
 
-    private function handleForceDisconnectException($e)
+    private function handleForceDisconnectException($e): void
     {
         $responseCode = $e->getResponse()->getStatusCode();
         switch ($responseCode) {
@@ -884,6 +939,21 @@ class Client
             case 404:
                 $message = 'The client specified by the connectionId property is not connected to the session.';
                 throw new ForceDisconnectConnectionException($message, $responseCode);
+            default:
+                break;
+        }
+    }
+
+    private function handleRenderException($e): void
+    {
+        $responseCode = $e->getResponse()->getStatusCode();
+        switch ($responseCode) {
+            case 400:
+                throw new InvalidArgumentException('There was an error with the parameters supplied.');
+            case 403:
+                throw new AuthenticationException($this->apiKey, $this->apiSecret, null, $e);
+            case 500:
+                throw new \Exception('There is an error with the Video Platform');
             default:
                 break;
         }
