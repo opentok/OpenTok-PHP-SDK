@@ -188,7 +188,7 @@ class ArchiveTest extends TestCase
         );
     }
 
-    public function testCannotAddStreamToArchiveWithNoAudioAndVideoe(): void
+    public function testCannotAddStreamToArchiveWithNoAudioAndVideo(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->setupOTWithMocks([[
