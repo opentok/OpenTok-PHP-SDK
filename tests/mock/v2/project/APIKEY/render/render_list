@@ -1,0 +1,28 @@
+{
+  "count":2,
+  "items":[
+    {
+      "id":"80abaf0d-25a3-4efc-968f-6268d620668d",
+      "sessionId":"1_MX4yNzA4NjYxMn5-MTU0NzA4MDUyMTEzNn5sOXU5ZnlWYXplRnZGblV4RUo3dXJpZk1-fg",
+      "projectId":"27086612",
+      "createdAt":1547080532099,
+      "updatedAt":1547080532099,
+      "url": "https://webapp.customer.com",
+      "resolution": "1280x720",
+      "status": "started",
+      "streamId": "d2334b35690a92f78945"
+    },
+    {
+      "id":"d95f6496-df6e-4f49-86d6-832e00303602",
+      "sessionId":"2_MX4yNzA4NjYxMn5-MTU0NzA4MDUwMDc2MH5STWRiSE1jZjVoV3lBQU9nN2JuNElUV3V-fg",
+      "projectId":"27086612",
+      "createdAt":1547080511760,
+      "updatedAt":1547080518965,
+      "url": "https://webapp2.customer.com",
+      "resolution": "1280x720",
+      "status":"stopped",
+      "streamId": "d2334b35690a92f78945",
+      "reason":"Maximum duration exceeded"
+    }
+  ]
+}

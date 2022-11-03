@@ -41,10 +41,16 @@ use OpenTok\Exception\ArchiveUnexpectedValueException;
 * the archive stopped (such as "maximum duration exceeded") or failed.
 *
 * @property string $resolution
-* The resolution of the archive.
+* The resolution of the archive, either "640x480" (SD landscape, the default), "1280x720" (HD landscape),
+* "1920x1080" (FHD landscape), "480x640" (SD portrait), "720x1280" (HD portrait), or "1080x1920" (FHD portrait).
+* You may want to use a portrait aspect ratio for archives that include video streams from mobile devices (which often use the portrait aspect ratio).
 *
 * @property string $sessionId
 * The session ID of the OpenTok session associated with this archive.
+*
+* @property string $multiArchiveTag
+* Whether Multiple Archive is switched on, which will be a unique string for each simultaneous archive of an ongoing session.
+* See https://tokbox.com/developer/guides/archiving/#simultaneous-archives for more information.
 *
 * @property string $size
 * The size of the MP4 file. For archives that have not been generated, this value is set to 0.
@@ -97,6 +103,9 @@ class Archive
     private $isDeleted;
     /** @internal */
     private $client;
+    /** @internal */
+    private $multiArchiveTag;
+
 
     /** @internal */
     public function __construct($archiveData, $options = array())
@@ -118,6 +127,9 @@ class Archive
         Validators::validateHasStreamMode($streamMode);
 
         $this->data = $archiveData;
+        if (isset($this->data['multiArchiveTag'])) {
+            $this->multiArchiveTag = $this->data['multiArchiveTag'];
+        }
 
         $this->client = isset($client) ? $client : new Client();
         if (!$this->client->isConfigured()) {
@@ -152,6 +164,8 @@ class Archive
             case 'resolution':
             case 'streamMode':
                 return $this->data[$name];
+            case 'multiArchiveTag':
+                return $this->multiArchiveTag;
             default:
                 return null;
         }
