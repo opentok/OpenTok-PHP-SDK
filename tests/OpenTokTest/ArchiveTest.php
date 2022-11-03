@@ -48,7 +48,8 @@ class ArchiveTest extends TestCase
             'hasAudio' => true,
             'outputMode' => 'composed',
             'resolution' => '640x480',
-            'streamMode' => $streamMode
+            'streamMode' => $streamMode,
+            'multiArchiveTag' => true
         );
 
         $this->archive = new Archive($this->archiveData, array(
@@ -125,6 +126,7 @@ class ArchiveTest extends TestCase
         $this->assertEquals($this->archiveData['outputMode'], $this->archive->outputMode);
         $this->assertEquals($this->archiveData['resolution'], $this->archive->resolution);
         $this->assertEquals($this->archiveData['streamMode'], $this->archive->streamMode);
+        $this->assertEquals($this->archiveData['multiArchiveTag'], $this->archive->multiArchiveTag);
     }
 
     public function testStopsArchive()
