@@ -256,6 +256,114 @@ class OpenTok
     }
 
     /**
+     * Starts an Experience Composer renderer for an OpenTok session.
+     * For more information, see the
+     * <a href="https://tokbox.com/developer/guides/experience-composer">Experience Composer
+     * developer guide</a>.
+     *
+     * @param $sessionId (string) The session ID of the OpenTok session that will include the Experience Composer stream.
+     *
+     * @param $token (string) A valid OpenTok token with a Publisher role and (optionally) connection data to be associated with the output stream.
+     *
+     * @param $url (string) A publicly reachable URL controlled by the customer and capable of generating the content to be rendered without user intervention.
+     * The minimum length of the URL is 15 characters and the maximum length is 2048 characters.
+     *
+     * @param $maxDuration (int) (optional) The maximum time allowed for the Experience Composer, in seconds. After this time, it is stopped
+     * automatically, if it is still running. The maximum value is 36000 (10 hours), the minimum value is 60 (1 minute), and the default value is 7200 (2 hours).
+     * When the Experience Composer ends, its stream is unpublished and an event is posted to the callback URL, if configured in the Account Portal.
+     *
+     * @param $resolution (string) (optional) The resolution of the Experience Composer, either "640x480" (SD landscape), "480x640" (SD portrait), "1280x720" (HD landscape),
+     * "720x1280" (HD portrait), "1920x1080" (FHD landscape), or "1080x1920" (FHD portrait). By default, this resolution is "1280x720" (HD landscape, the default).
+     *
+     * @param $properties (array) (optional) The initial configuration of Publisher properties for the composed output stream.
+     * <ul>
+     *   <li><code>name</code> (String) (optional) &mdash; Serves as the name of the composed output stream which is published to the session. The name must have a minimum length of 1 and
+     *     a maximum length of 200.
+     *   </li>
+     * </ul>
+     *
+     * @return \OpenTok\Render The render object, which includes properties defining the render, including the render ID.
+     */
+    public function startRender(
+        $sessionId,
+        $token,
+        $url,
+        $maxDuration,
+        $resolution,
+        $properties
+    ): Render {
+        $arguments = [
+            'sessionId' => $sessionId,
+            'token' => $token,
+            'url' => $url,
+            'maxDuration' => $maxDuration,
+            'resolution' => $resolution,
+            'properties' => $properties
+        ];
+
+        $defaults = [
+            'maxDuration' => 1800,
+            'resolution' => '1280x720',
+        ];
+
+        $payload = array_merge($defaults, $arguments);
+        Validators::validateSessionId($payload['sessionId']);
+
+        $render = $this->client->startRender($payload);
+
+        return new Render($render);
+    }
+
+    /**
+     * Returns a list of Experience Composer renderers for an OpenTok project.
+     *
+     * @param int $offset
+     * @param int $count
+     *
+     * @return mixed
+     */
+    public function listRenders(int $offset = 0, int $count = 50)
+    {
+        $queryPayload = [
+            'offset' => $offset,
+            'count' => $count
+        ];
+        return $this->client->listRenders($queryPayload);
+    }
+
+    /**
+     * Stops an existing render.
+     *
+     * @param $renderId
+     *
+     * @return mixed
+     */
+    public function stopRender($renderId)
+    {
+        return $this->client->stopRender($renderId);
+    }
+
+    /**
+     * Fetch an existing render to view status. Status can be one of:
+     * <ul>
+     *    <li><code>starting</code> &mdash; The Vonage Video API platform is in the process of connecting to the remote application at the URL provided. This is the initial state.</li>
+     *    <li><code>started</code> &mdash; The Vonage Video API platform has succesfully connected to the remote application server, and is republishing that media into the Vonage Video API platform.</li>
+     *    <li><code>stopped</code> &mdash; The Render has stopped.</li>
+     *    <li><code>failed</code> &mdash; An error occurred and the Render could not proceed. It may occur at startup if the opentok server cannot connect to the remote application server or republish the stream. It may also occur at point during the rendering process due to some error in the Vonage Video API platform.</li>
+     * </ul>
+     *
+     * @param $renderId
+     *
+     * @return Render
+     */
+    public function getRender($renderId): Render
+    {
+        $renderPayload = $this->client->getRender($renderId);
+
+        return new Render($renderPayload);
+    }
+
+    /**
      * Starts archiving an OpenTok session.
      * <p>
      * Clients must be actively connected to the OpenTok session for you to successfully start
@@ -302,10 +410,25 @@ class OpenTok
      *    <code>hasVideo</code> to false, the call to the <code>startArchive()</code> method results
      *    in an error.</li>
      *
+     *    <li><code>'multiArchiveTag'</code> (String) (Optional) &mdash; Set this to support recording multiple archives
+     *    for the same session simultaneously. Set this to a unique string for each simultaneous archive of an ongoing
+     *    session. You must also set this option when manually starting an archive
+     *    that is {https://tokbox.com/developer/guides/archiving/#automatic automatically archived}.
+     *    Note that the `multiArchiveTag` value is not included in the response for the methods to
+     *    {https://tokbox.com/developer/rest/#listing_archives list archives} and
+     *    {https://tokbox.com/developer/rest/#retrieve_archive_info retrieve archive information}.
+     *    If you do not specify a unique `multiArchiveTag`, you can only record one archive at a time for a given session.
+     *    {https://tokbox.com/developer/guides/archiving/#simultaneous-archives See Simultaneous archives}.</li>
+     *
      *    <li><code>'outputMode'</code> (OutputMode) &mdash; Whether all streams in the
      *    archive are recorded to a single file (<code>OutputMode::COMPOSED</code>, the default)
      *    or to individual files (<code>OutputMode::INDIVIDUAL</code>).</li>
      *
+     *    <li><code>'resolution'</code> (String) &mdash; The resolution of the archive, either "640x480" (SD landscape,
+     *    the default), "1280x720" (HD landscape), "1920x1080" (FHD landscape), "480x640" (SD portrait), "720x1280"
+     *    (HD portrait), or "1080x1920" (FHD portrait). This property only applies to composed archives. If you set
+     *    this property and set the outputMode property to "individual", a call to the method
+     *    results in an error.</li>
      * </ul>
      *
      * @return Archive The Archive object, which includes properties defining the archive, including
@@ -329,13 +452,18 @@ class OpenTok
             'hasAudio' => true,
             'outputMode' => OutputMode::COMPOSED,
             'resolution' => null,
-            'streamMode' => StreamMode::AUTO
+            'streamMode' => StreamMode::AUTO,
         );
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
         list($name, $hasVideo, $hasAudio, $outputMode, $resolution, $streamMode) = array_values($options);
-        // validate arguments
+
         Validators::validateSessionId($sessionId);
         Validators::validateArchiveName($name);
+
+        if ($resolution) {
+            Validators::validateResolution($resolution);
+        }
+
         Validators::validateArchiveHasVideo($hasVideo);
         Validators::validateArchiveHasAudio($hasAudio);
         Validators::validateArchiveOutputMode($outputMode);
@@ -352,8 +480,7 @@ class OpenTok
             $errorMessage = "Resolution must be a valid string";
             throw new UnexpectedValueException($errorMessage);
         }
-        // we don't validate the actual resolution so if we add resolutions, we don't artificially block functionality
-        // make API call
+
         $archiveData = $this->client->startArchive($sessionId, $options);
 
         return new Archive($archiveData, array( 'client' => $this->client ));
@@ -637,6 +764,17 @@ class OpenTok
      *    <a href="https://tokbox.com/developer/guides/archive-broadcast-layout/#stream-prioritization-rules">stream
      *    prioritization rules</a>.</li>
      *
+     *    <li><code>multiBroadcastTag</code> (String) (Optional) &mdash; Set this to support multiple broadcasts for
+     *    the same session simultaneously. Set this to a unique string for each simultaneous broadcast of an ongoing session.
+     *    Note that the `multiBroadcastTag` value is *not* included in the response for the methods to
+     *    {https://tokbox.com/developer/rest/#list_broadcasts list live streaming broadcasts} and
+     *    {https://tokbox.com/developer/rest/#get_info_broadcast get information about a live streaming broadcast}.
+     *    {https://tokbox.com/developer/guides/broadcast/live-streaming#simultaneous-broadcasts See Simultaneous broadcasts}.</li>
+     *
+     *    <li><code>resolution</code> &mdash; The resolution of the broadcast: either "640x480" (SD landscape, the default), "1280x720" (HD landscape),
+     *    "1920x1080" (FHD landscape), "480x640" (SD portrait), "720x1280" (HD portrait), or "1080x1920"
+     *    (FHD portrait).</li>
+     *
      *    <li><code>outputs</code> (Array) &mdash;
      *      Defines the HLS broadcast and RTMP streams. You can provide the following keys:
      *      <ul>
@@ -678,6 +816,10 @@ class OpenTok
         // not preferred to depend on that in the SDK because its then harder to garauntee backwards
         // compatibility
 
+        if (isset($options['resolution'])) {
+            Validators::validateResolution($options['resolution']);
+        }
+
 	    if (isset($options['output']['hls'])) {
 		    Validators::validateBroadcastOutputOptions($options['output']['hls']);
 	    }
@@ -689,6 +831,7 @@ class OpenTok
         $defaults = [
             'layout' => Layout::getBestFit(),
             'streamMode' => 'auto',
+            'resolution' => '640x480',
 	        'output' => [
 				'hls' => [
 	                'dvr' => false,
@@ -709,7 +852,7 @@ class OpenTok
         // make API call
         $broadcastData = $this->client->startBroadcast($sessionId, $options);
 
-        return new Broadcast($broadcastData, array( 'client' => $this->client ));
+        return new Broadcast($broadcastData, array('client' => $this->client));
     }
 
     /**
