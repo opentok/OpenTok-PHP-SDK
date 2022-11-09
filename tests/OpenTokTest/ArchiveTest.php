@@ -48,7 +48,8 @@ class ArchiveTest extends TestCase
             'hasAudio' => true,
             'outputMode' => 'composed',
             'resolution' => '640x480',
-            'streamMode' => $streamMode
+            'streamMode' => $streamMode,
+            'multiArchiveTag' => true
         );
 
         $this->archive = new Archive($this->archiveData, array(
@@ -125,6 +126,7 @@ class ArchiveTest extends TestCase
         $this->assertEquals($this->archiveData['outputMode'], $this->archive->outputMode);
         $this->assertEquals($this->archiveData['resolution'], $this->archive->resolution);
         $this->assertEquals($this->archiveData['streamMode'], $this->archive->streamMode);
+        $this->assertEquals($this->archiveData['multiArchiveTag'], $this->archive->multiArchiveTag);
     }
 
     public function testStopsArchive()
@@ -161,7 +163,7 @@ class ArchiveTest extends TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.11.0', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.12.0', $userAgent);
 
         // TODO: test the properties of the actual archive object
         $this->assertEquals('stopped', $this->archive->status);
@@ -188,7 +190,7 @@ class ArchiveTest extends TestCase
         );
     }
 
-    public function testCannotAddStreamToArchiveWithNoAudioAndVideoe(): void
+    public function testCannotAddStreamToArchiveWithNoAudioAndVideo(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->setupOTWithMocks([[
@@ -278,7 +280,7 @@ class ArchiveTest extends TestCase
         // TODO: test the dynamically built User Agent string
         $userAgent = $request->getHeaderLine('User-Agent');
         $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.11.0', $userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.12.0', $userAgent);
 
         $this->assertTrue($success);
         // TODO: assert that all properties of the archive object were cleared
