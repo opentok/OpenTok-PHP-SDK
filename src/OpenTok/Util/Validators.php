@@ -423,8 +423,12 @@ class Validators
     // Helpers
 
     // credit: http://stackoverflow.com/a/173479
-    protected static function isAssoc($arr)
+    public static function isAssoc($arr): bool
     {
+        if (array() === $arr) {
+            return false;
+        }
+
         return array_keys($arr) !== range(0, count($arr) - 1);
     }
 
