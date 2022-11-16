@@ -17,9 +17,6 @@ namespace OpenTok;
 * The ID of the stream connected to the OpenTok session streaming the audio received from
 * the SIP call.
 *
-* @property bool $observeForceMute
-* Whether the SIP call honors
-* <a href="https://tokbox.com/developer/guides/moderation/#force_mute">force mute moderation</a>.
 */
 class SipCall
 {

@@ -17,5 +17,8 @@ class SipCallTest extends TestCase
         $sipCall = new SipCall($sipCallData);
 
         $this->assertEquals('1_MX4xMjM0NTY3OH4', $sipCall->id);
+        $this->assertEquals('VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI', $sipCall->connectionId);
+        $this->assertEquals('0123456789abcdef0123456789abcdef0123456789', $sipCall->streamId);
+        $this->assertNull($sipCall->observeForceMute);
     }
 }
