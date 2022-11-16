@@ -17,9 +17,6 @@ namespace OpenTok;
 * The ID of the stream connected to the OpenTok session streaming the audio received from
 * the SIP call.
 *
-* @property bool $observeForceMute
-* Whether the SIP call honors
-* <a href="https://tokbox.com/developer/guides/moderation/#force_mute">force mute moderation</a>.
 */
 class SipCall
 {
@@ -32,7 +29,6 @@ class SipCall
         $this->data['id'] = $sipCallData['id'];
         $this->data['connectionId'] = $sipCallData['connectionId'];
         $this->data['streamId'] = $sipCallData['streamId'];
-        $this->data['observeForceMute'] = $sipCallData['observeForceMute'];
     }
 
     /**
@@ -45,7 +41,6 @@ class SipCall
             case 'id':
             case 'connectionId':
             case 'streamId':
-            case 'observeForceMute':
                 return $this->data[$name];
             default:
                 return null;
