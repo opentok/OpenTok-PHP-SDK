@@ -8,8 +8,6 @@ use OpenTok\OpenTok;
 use OpenTok\MediaMode;
 use ArgumentCountError;
 use DomainException;
-use Exception;
-use GuzzleHttp\Exception\GuzzleException;
 use OpenTok\OutputMode;
 use OpenTok\ArchiveMode;
 use OpenTok\StreamMode;
@@ -18,12 +16,7 @@ use GuzzleHttp\Middleware;
 use GuzzleHttp\HandlerStack;
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Handler\MockHandler;
-use InvalidArgumentException as GlobalInvalidArgumentException;
-use OpenTok\Exception\AuthenticationException;
-use OpenTok\Exception\DomainException as ExceptionDomainException;
 use OpenTok\Exception\InvalidArgumentException;
-use RuntimeException;
-use OpenTok\Exception\UnexpectedValueException;
 
 define('OPENTOK_DEBUG', true);
 
