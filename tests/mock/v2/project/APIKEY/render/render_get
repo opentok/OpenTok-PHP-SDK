@@ -1,0 +1,11 @@
+{
+  "id":"80abaf0d-25a3-4efc-968f-6268d620668d",
+  "sessionId":"1_MX4yNzA4NjYxMn5-MTU0NzA4MDUyMTEzNn5sOXU5ZnlWYXplRnZGblV4RUo3dXJpZk1-fg",
+  "projectId":"27086612",
+  "createdAt":1547080532099,
+  "updatedAt":1547080532199,
+  "url": "https://webapp.customer.com",
+  "resolution": "480x640",
+  "status":"failed",
+  "reason":"Could not load URL"
+}
