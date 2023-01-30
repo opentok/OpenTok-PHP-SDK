@@ -201,6 +201,22 @@ class Validators
             );
         }
     }
+    public static function validateArchiveMultiArchiveTag($multiArchiveTag)
+    {
+        if ($multiArchiveTag != null && !is_string($multiArchiveTag) /* TODO: length? */) {
+            throw new InvalidArgumentException(
+                'The multiArchiveTag was not a string: ' . print_r($multiArchiveTag, true)
+            );
+        }
+    }
+    public static function validateArchiveLayout($layout)
+    {
+        if ($layout != null && !is_array($layout)) {
+            throw new InvalidArgumentException(
+                'The layout was not an array: ' . print_r($layout, true)
+            );
+        }
+    }
     public static function validateArchiveData($archiveData)
     {
         if (!self::$archiveSchemaUri) {
