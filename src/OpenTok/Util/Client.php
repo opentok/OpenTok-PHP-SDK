@@ -3,7 +3,6 @@
 namespace OpenTok\Util;
 
 use Exception as GlobalException;
-use http\Exception\InvalidArgumentException;
 use OpenTok\Layout;
 use Firebase\JWT\JWT;
 use OpenTok\MediaMode;
