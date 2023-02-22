@@ -106,7 +106,7 @@ class Client
             'iss' => $this->apiKey,
             'iat' => time(), // this is in seconds
             'exp' => time() + (5 * 60),
-            'jti' => uniqid(),
+            'jti' => uniqid('', true),
         );
         return JWT::encode($token, $this->apiSecret);
     }
@@ -781,7 +781,7 @@ class Client
         return $jsonResponse;
     }
 
-    public function connectAudioStream(string $sessionId, string $token, array $websocketOptions)
+    public function connectAudio(string $sessionId, string $token, array $websocketOptions)
     {
         $request = new Request(
             'POST',

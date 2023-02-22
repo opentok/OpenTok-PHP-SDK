@@ -29,7 +29,7 @@ class ClientTest extends TestCase
             'uri' => 'ws://test'
         ];
 
-        $response = $client->connectAudioStream('ddd', 'sarar55r', $websocketDummy);
+        $response = $client->connectAudio('ddd', 'sarar55r', $websocketDummy);
         $this->assertEquals('063e72a4-64b4-43c8-9da5-eca071daab89', $response['id']);
         $this->assertEquals('7aebb3a4-3d86-4962-b317-afb73e05439d', $response['connectionId']);
     }

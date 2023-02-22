@@ -1237,7 +1237,7 @@ class OpenTokTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectErrorMessage('Null or empty session ID is not valid: ');
-        $this->opentok->connectAudioStream('', '2398523', []);
+        $this->opentok->connectAudio('', '2398523', []);
     }
 
     public function testCannotConnectAudioStreamWithoutWebsocketUri()
@@ -1253,7 +1253,7 @@ class OpenTokTest extends TestCase
             'headers' => ['key' => 'value']
         ];
 
-        $this->opentok->connectAudioStream('9999', 'wrwetg', $badPayload);
+        $this->opentok->connectAudio('9999', 'wrwetg', $badPayload);
     }
 
     public function testCanConnectAudioStreamWithWebsocket()
@@ -1279,7 +1279,7 @@ class OpenTokTest extends TestCase
             ]
         ];
 
-        $response = $this->opentok->connectAudioStream($sessionId, $token, $websocketConfig);
+        $response = $this->opentok->connectAudio($sessionId, $token, $websocketConfig);
         $this->assertEquals('063e72a4-64b4-43c8-9da5-eca071daab89', $response['id']);
         $this->assertEquals('7aebb3a4-3d86-4962-b317-afb73e05439d', $response['connectionId']);
     }
