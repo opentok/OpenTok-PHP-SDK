@@ -72,6 +72,30 @@ class ValidatorsTest extends TestCase
         Validators::validateForceMuteAllOptions($options);
     }
 
+    public function testIsAssocWithValidArray(): void
+    {
+        $haystack = [
+            'one' => '1',
+            'two' => '2',
+            'three' => '3',
+            'four' => '4'
+        ];
+
+        $this->assertTrue(Validators::isAssoc($haystack));
+    }
+
+    public function testIsAssocWithInvalidArray(): void
+    {
+        $haystack = [
+            'one',
+            'two',
+            'three',
+            'four'
+        ];
+
+        $this->assertFalse(Validators::isAssoc($haystack));
+    }
+
     public function testWillFailWhenStreamIdsAreNotCorrect(): void
     {
         $this->expectException(InvalidArgumentException::class);

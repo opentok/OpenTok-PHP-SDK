@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Muli:300,300italic" type='text/css'>
     <link rel='stylesheet' href='/stylesheets/style.css' />
     <link rel='stylesheet' href='/stylesheets/pattern.css' />
-    <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
     <script src="https://static.opentok.com/v2/js/opentok.min.js"></script>
     <script>
       var sessionId = "<?php echo $sessionId ?>";
