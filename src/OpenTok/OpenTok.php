@@ -227,6 +227,15 @@ class OpenTok
         }
 
         if (array_key_exists('e2ee', $options) && $options['e2ee']) {
+
+            if (array_key_exists('mediaMode', $options) && $options['mediaMode'] !== MediaMode::ROUTED) {
+                throw new InvalidArgumentException('MediaMode must be routed in order to enable E2EE');
+            }
+
+            if (array_key_exists('archiveMode', $options) && $options['archiveMode'] === ArchiveMode::ALWAYS) {
+                throw new InvalidArgumentException('ArchiveMode cannot be set to always when using E2EE');
+            }
+
             $options['e2ee'] = 'true';
         }
 

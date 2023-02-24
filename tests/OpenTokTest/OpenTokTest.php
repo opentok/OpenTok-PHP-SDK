@@ -272,6 +272,48 @@ class OpenTokTest extends TestCase
         );
     }
 
+    public function testCannotStartE2EESessionWithWrongMediaMode(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectErrorMessage('MediaMode must be routed in order to enable E2EE');
+
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'text/xml'
+            ],
+            'path' => 'session/create/relayed'
+        ]]);
+
+        $session = $this->opentok->createSession(
+            [
+                'mediaMode' => MediaMode::RELAYED,
+                'e2ee' => true
+            ]
+        );
+    }
+
+    public function testCannotStartE2EESessionWithWrongArchiveMode(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectErrorMessage('ArchiveMode cannot be set to always when using E2EE');
+
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'text/xml'
+            ],
+            'path' => 'session/create/relayed'
+        ]]);
+
+        $session = $this->opentok->createSession(
+            [
+                'archiveMode' => ArchiveMode::ALWAYS,
+                'e2ee' => true
+            ]
+        );
+    }
+
     private function getPostField($request, $targetKey)
     {
         $params = array_map(function ($item) {
