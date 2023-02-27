@@ -160,10 +160,10 @@ class Session
     }
 
     /**
-     * @return mixed
+     * @return bool
      */
     public function getE2EE(): bool
     {
-        return $this->e2ee;
+        return (bool)$this->e2ee;
     }
 }
