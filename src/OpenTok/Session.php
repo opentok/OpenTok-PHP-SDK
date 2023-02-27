@@ -160,6 +160,9 @@ class Session
     }
 
     /**
+     * Whether <a href="https://tokbox.com/developer/guides/end-to-end-encryption">end-to-end encryption</a>
+     * is set for the session.
+     *
      * @return bool
      */
     public function getE2EE(): bool
