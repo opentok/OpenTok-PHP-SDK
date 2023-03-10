@@ -16,6 +16,7 @@ The OpenTok PHP SDK provides methods for:
 * [Sending signals to clients connected to a session](https://tokbox.com/developer/guides/signaling/)
 * [Disconnecting clients from sessions](https://tokbox.com/developer/guides/moderation/rest/)
 * [Forcing clients in a session to disconnect or mute published audio](https://tokbox.com/developer/guides/moderation/)
+* Working with OpenTok [Audio Connector](https://tokbox.com/developer/guides/audio-connector)
 
 ## Installation
 
@@ -473,6 +474,12 @@ $opentok->dial($sessionId, $token, $sipUri, $options);
 
 For more information, see the [OpenTok SIP Interconnect developer
 guide](https://tokbox.com/developer/guides/sip/).
+
+### Working with Audio Connector
+
+You can start an [Audio Connector](https://tokbox.com/developer/guides/audio-connector) WebSocket
+by calling the `connectAudio()` method of the
+`OpenTok\OpenTok` class.
 
 ## Samples
 
