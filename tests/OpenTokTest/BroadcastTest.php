@@ -5,7 +5,6 @@ namespace OpenTokTest;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
-use OpenTok\Archive;
 use OpenTok\Broadcast;
 use OpenTok\Exception\InvalidArgumentException;
 use OpenTok\StreamMode;
@@ -15,7 +14,6 @@ use PHPUnit\Framework\TestCase;
 class BroadcastTest extends TestCase
 {
 
-    // Fixtures
     protected $broadcastData;
     protected $API_KEY;
     protected $API_SECRET;
@@ -46,7 +44,9 @@ class BroadcastTest extends TestCase
             ],
             'maxDuration' => 5400,
             'resolution' => '640x480',
-            'streamMode' => $streamMode
+            'streamMode' => $streamMode,
+            'isAudio' => true,
+            'isVideo' => true
         );
 
         $this->broadcast = new Broadcast($this->broadcastData, array(
@@ -98,8 +98,6 @@ class BroadcastTest extends TestCase
         // Arrange
         $this->setupOT();
         $this->setupBroadcasts(StreamMode::AUTO);
-        // Act
-        // Assert
         $this->assertInstanceOf(Broadcast::class, $this->broadcast);
     }
 
@@ -179,6 +177,25 @@ class BroadcastTest extends TestCase
             '5dfds4-asdda4asf4'
         );
         $this->assertTrue($return);
+    }
+
+    public function testCannotRemoveStreamFromBroadcastOnAuto(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/broadcast/BROADCASTID/get'
+        ]]);
+
+        $this->setupBroadcasts(StreamMode::AUTO);
+
+        $return = $this->broadcast->removeStreamFromBroadcast(
+            '5dfds4-asdda4asf4'
+        );
     }
 }
 

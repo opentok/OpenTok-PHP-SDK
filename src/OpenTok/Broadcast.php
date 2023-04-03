@@ -282,9 +282,4 @@ class Broadcast
 
         return false;
     }
-
-    public function jsonSerialize()
-    {
-        return $this->data;
-    }
 }
