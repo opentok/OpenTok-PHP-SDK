@@ -13,25 +13,22 @@ use PHPUnit\Framework\TestCase;
 
 class BroadcastTest extends TestCase
 {
-
-    protected $broadcastData;
     protected $API_KEY;
     protected $API_SECRET;
 
     protected $broadcast;
+    protected $broadcastData;
     protected $client;
 
     protected static $mockBasePath;
+    /**
+     * @var array
+     */
+    private $historyContainer;
 
-    public static function setUpBeforeClass(): void
+    public function setUp(): void
     {
-        self::$mockBasePath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'mock' . DIRECTORY_SEPARATOR;
-    }
-
-    public function setupBroadcasts($streamMode)
-    {
-        // Set up fixtures
-        $this->broadcastData = array(
+        $this->broadcastData = [
             'id' => '063e72a4-64b4-43c8-9da5-eca071daab89',
             'createdAt' => 1394394801000,
             'updatedAt' => 1394394801000,
@@ -40,16 +37,27 @@ class BroadcastTest extends TestCase
             'layout' => [
                 'type' => 'custom',
                 'stylesheet' => 'a layout stylesheet',
-                'streenshareType' => 'some options'
+                'screenshareType' => 'some options'
             ],
             'maxDuration' => 5400,
             'resolution' => '640x480',
-            'streamMode' => $streamMode,
+            'streamMode' => StreamMode::AUTO,
             'isAudio' => true,
             'isVideo' => true
-        );
+        ];
+    }
 
-        $this->broadcast = new Broadcast($this->broadcastData, array(
+    public static function setUpBeforeClass(): void
+    {
+        self::$mockBasePath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'mock' . DIRECTORY_SEPARATOR;
+    }
+
+    public function setupBroadcasts($streamMode)
+    {
+        $data = $this->broadcastData;
+        $data['streamMode'] = $streamMode;
+
+        $this->broadcast = new Broadcast($data, array(
             'apiKey' => $this->API_KEY,
             'apiSecret' => $this->API_SECRET,
             'client' => $this->client
@@ -86,6 +94,39 @@ class BroadcastTest extends TestCase
         $this->historyContainer = [];
         $history = Middleware::history($this->historyContainer);
         $handlerStack->push($history);
+    }
+
+    public function testCannotCreateBroadcastWithAddInvalidApiKey(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The apiKey was not a string nor an integer: ');
+
+        $broadcastObject = new Broadcast($this->broadcastData, [
+            'apiKey' => new Client()
+        ]);
+    }
+
+    public function testCannotCreateBroadcastWithInvalidApiSecret(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The apiSecret was not a string: OpenTok\Util\Client Object');
+
+        $broadcastObject = new Broadcast($this->broadcastData, [
+            'apiKey' => 'test',
+            'apiSecret' => new Client()
+        ]);
+    }
+
+    public function testCannotCreateBroadcastWithInvalidApiUrl(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The optional apiUrl was not a string: ');
+
+        $broadcastObject = new Broadcast($this->broadcastData, [
+            'apiKey' => 'validKey',
+            'apiSecret' => 'validSecret',
+            'apiUrl' => 'test'
+        ]);
     }
 
     private function setupOT()

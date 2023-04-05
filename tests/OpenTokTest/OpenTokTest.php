@@ -33,6 +33,10 @@ class OpenTokTest extends TestCase
     protected $client;
 
     protected static $mockBasePath;
+    /**
+     * @var array
+     */
+    private $historyContainer;
 
     public static function setUpBeforeClass(): void
     {
