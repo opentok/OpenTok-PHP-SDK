@@ -18,6 +18,7 @@ use GuzzleHttp\HandlerStack;
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Handler\MockHandler;
 use OpenTok\Exception\InvalidArgumentException;
+use OpenTok\Session;
 
 define('OPENTOK_DEBUG', true);
 
@@ -218,12 +219,98 @@ class OpenTokTest extends TestCase
         $p2p_preference = $this->getPostField($request, 'p2p.preference');
         $this->assertEquals('enabled', $p2p_preference);
 
+        $e2ee = $this->getPostField($request, 'e2ee');
+        $this->assertEquals('false', $e2ee);
+
         $this->assertInstanceOf('OpenTok\Session', $session);
         // NOTE: this is an actual sessionId from the recorded response, this doesn't correspond to
         // the API Key and API Secret used to create the session.
         $this->assertEquals(
             '2_MX4xNzAxMjYzMX4xMjcuMC4wLjF-V2VkIEZlYiAyNiAxODo1NzoyNCBQU1QgMjAxNH4wLjU0MDU4ODc0fg',
             $session->getSessionId()
+        );
+    }
+
+    public function testCreatesE2EESession(): void
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'text/xml'
+            ],
+            'path' => 'session/create/relayed'
+        ]]);
+
+        $session = $this->opentok->createSession(['e2ee' => true]);
+
+        $this->assertCount(1, $this->historyContainer);
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('/session/create', $request->getUri()->getPath());
+        $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
+        $this->assertEquals('https', $request->getUri()->getScheme());
+
+        $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        $userAgent = $request->getHeaderLine('User-Agent');
+        $this->assertNotEmpty($userAgent);
+        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.12.0', $userAgent);
+
+        $p2p_preference = $this->getPostField($request, 'p2p.preference');
+        $this->assertEquals('enabled', $p2p_preference);
+
+        $e2ee = $this->getPostField($request, 'e2ee');
+        $this->assertEquals('true', $e2ee);
+
+        $this->assertInstanceOf(Session::class, $session);
+        $this->assertEquals(
+            '2_MX4xNzAxMjYzMX4xMjcuMC4wLjF-V2VkIEZlYiAyNiAxODo1NzoyNCBQU1QgMjAxNH4wLjU0MDU4ODc0fg',
+            $session->getSessionId()
+        );
+    }
+
+    public function testCannotStartE2EESessionWithWrongMediaMode(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectErrorMessage('MediaMode must be routed in order to enable E2EE');
+
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'text/xml'
+            ],
+            'path' => 'session/create/relayed'
+        ]]);
+
+        $session = $this->opentok->createSession(
+            [
+                'mediaMode' => MediaMode::RELAYED,
+                'e2ee' => true
+            ]
+        );
+    }
+
+    public function testCannotStartE2EESessionWithWrongArchiveMode(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectErrorMessage('ArchiveMode cannot be set to always when using E2EE');
+
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'text/xml'
+            ],
+            'path' => 'session/create/relayed'
+        ]]);
+
+        $session = $this->opentok->createSession(
+            [
+                'archiveMode' => ArchiveMode::ALWAYS,
+                'e2ee' => true
+            ]
         );
     }
 
