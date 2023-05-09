@@ -167,7 +167,7 @@ class OpenTok
     *
     *    <li><code>'e2ee'</code> (Boolean) &mdash; Whether to enable
     *    <a href="https://tokbox.com/developer/guides/end-to-end-encryption">end-to-end encryption</a>
-    *    for the OpenTok session.</li>
+    *    for a routed session.</li>
     *
     *    <li><code>'location'</code> (String) &mdash; An IP address that the OpenTok servers
     *    will use to situate the session in its global network. If you do not set a location hint,
