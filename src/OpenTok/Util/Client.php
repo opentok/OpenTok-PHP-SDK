@@ -858,11 +858,31 @@ class Client
         return $jsonResponse;
     }
 
-    //echo 'Uh oh! ' . $e->getMessage();
-    //echo 'HTTP request URL: ' . $e->getRequest()->getUrl() . "\n";
-    //echo 'HTTP request: ' . $e->getRequest() . "\n";
-    //echo 'HTTP response status: ' . $e->getResponse()->getStatusCode() . "\n";
-    //echo 'HTTP response: ' . $e->getResponse() . "\n";
+    public function connectAudio(string $sessionId, string $token, array $websocketOptions)
+    {
+        $request = new Request(
+            'POST',
+            '/v2/project/' . $this->apiKey . '/connect'
+        );
+
+        $body = [
+            'sessionId' => $sessionId,
+            'token' => $token,
+            'websocket' => $websocketOptions
+        ];
+
+        try {
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug(),
+                'json' => $body
+            ]);
+            $jsonResponse = json_decode($response->getBody(), true);
+        } catch (\Exception $e) {
+            $this->handleException($e);
+            return false;
+        }
+        return $jsonResponse;
+    }
 
     private function handleException($e)
     {

@@ -3,36 +3,35 @@
 namespace OpenTokTest\Util;
 
 use GuzzleHttp\Client as GuzzleHttpClient;
-use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use OpenTok\Exception\SignalAuthenticationException;
 use OpenTok\Exception\SignalConnectionException;
-use OpenTok\Exception\SignalNetworkConnectionException;
 use OpenTok\Exception\SignalUnexpectedValueException;
 use OpenTok\Util\Client;
 use PHPUnit\Framework\TestCase;
-use Prophecy\Argument;
-use Psr\Http\Message\RequestInterface;
 
 class ClientTest extends TestCase
 {
-    public function testHandlesSignalErrorHandlesNoResponse()
+    public function testCanAddAudioStreamToWebsocket()
     {
-        $this->expectException(SignalNetworkConnectionException::class);
-        $this->expectExceptionMessage('Unable to communicate with host');
-
         $mock = new MockHandler([
-            new RequestException('Unable to communicate with host', new Request('GET', 'signals')),
+            $this->getResponse('connect')
         ]);
         $handlerStack = HandlerStack::create($mock);
         $guzzle = new GuzzleHttpClient(['handler' => $handlerStack]);
 
         $client = new Client();
         $client->configure('asdf', 'asdf', 'http://localhost/', ['client' => $guzzle]);
-        $client->signal('sessionabcd', ['type' => 'foo', 'data' => 'bar'], 'connection1234');
+
+        $websocketDummy = [
+            'uri' => 'ws://test'
+        ];
+
+        $response = $client->connectAudio('ddd', 'sarar55r', $websocketDummy);
+        $this->assertEquals('063e72a4-64b4-43c8-9da5-eca071daab89', $response['id']);
+        $this->assertEquals('7aebb3a4-3d86-4962-b317-afb73e05439d', $response['connectionId']);
     }
 
     public function testHandlesSignalErrorHandles400Response()

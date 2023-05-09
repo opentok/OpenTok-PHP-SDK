@@ -61,6 +61,7 @@ class Validators
             throw new InvalidArgumentException('The apiSecret was not a string: ' . print_r($apiSecret, true));
         }
     }
+
     public static function validateApiUrl($apiUrl)
     {
         if (!(is_string($apiUrl) && filter_var($apiUrl, FILTER_VALIDATE_URL))) {
@@ -69,6 +70,7 @@ class Validators
             );
         }
     }
+
     public static function validateClient($client)
     {
         if (isset($client) && !($client instanceof Client)) {
@@ -371,7 +373,7 @@ class Validators
 
     public static function validateStreamId($streamId)
     {
-        if (!(is_string($streamId))) {
+        if (!(is_string($streamId)) || empty($streamId)) {
             throw new InvalidArgumentException('The streamId was not a string: ' . print_r($streamId, true));
         }
     }
@@ -382,6 +384,13 @@ class Validators
             if (!is_array($layoutClassList) || self::isAssoc($layoutClassList)) {
                 throw new InvalidArgumentException('The layoutClassList was not a valid JSON array: ' . print_r($layoutClassList, true));
             }
+        }
+    }
+
+    public static function validateWebsocketOptions(array $websocketOptions)
+    {
+        if (!array_key_exists('uri', $websocketOptions)) {
+            throw new InvalidArgumentException('Websocket configuration must have a uri');
         }
     }
 
