@@ -1193,6 +1193,40 @@ class OpenTok
         }
     }
 
+    /**
+     * Starts an <a href="https://tokbox.com/developer/guides/audio-connector/">Audio Connector</a>
+     * WebSocket connection. to send audio from a Vonage Video API session to a WebSocket.
+     *
+     * @param string $sessionId The session ID.
+     *
+     * @param string $token The OpenTok token to be used for the Audio Connector to the
+     * OpenTok session. You can add token data to identify that the connection
+     * is the Audio Connector endpoint or for other identifying data.
+     *
+     * @param array $websocketOptions Configuration for the Websocket. Contains the following keys:
+     * <ul>
+     *    <li><code>'uri'</code> (string) &mdash; A publically reachable WebSocket URI controlled by the customer for the destination of the connect call. (f.e. wss://service.com/wsendpoint)</li>
+     *    <li><code>'streams'</code> (array) &mdash; (Optional) The stream IDs of the participants' whose audio is going to be connected. If not provided, all streams in session will be selected.</li>
+     *    <li><code>'headers'</code> (array) &mdash; (Optional) An object of key/val pairs with additional properties to send to your Websocket server, with a maximum length of 512 bytes.</li>
+     * </ul>
+     *
+     * @return array $response Response from the API, structured as follows:
+     * <ul>
+     *    <li><code>'id'</code> (string) &mdash; A unique ID identifying the Audio Connector
+     *    WebSocket.</li>
+     *    <li><code>'connectionId'</code> (string) &mdash; Opentok client connectionId that has been created. This connection will subscribe and forward the streams defined in the payload to the WebSocket, as any other participant, will produce a connectionCreated event on the session.</li>
+     * </ul>
+     *
+     *
+     */
+    public function connectAudio(string $sessionId, string $token, array $websocketOptions)
+    {
+        Validators::validateSessionId($sessionId);
+        Validators::validateWebsocketOptions($websocketOptions);
+
+        return $this->client->connectAudio($sessionId, $token, $websocketOptions);
+    }
+
     /** @internal */
     private function signString($string, $secret)
     {
