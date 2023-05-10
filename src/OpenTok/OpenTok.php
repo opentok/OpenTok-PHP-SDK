@@ -26,6 +26,8 @@ class OpenTok
     private $apiSecret;
     /** @internal */
     private $client;
+    /** @internal */
+    public $options;
 
     /** @internal */
     public function __construct($apiKey, $apiSecret, $options = array())
@@ -36,8 +38,10 @@ class OpenTok
             'client' => null,
             'timeout' => null // In the future we should set this to 2
         );
-        $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($apiUrl, $client, $timeout) = array_values($options);
+
+        $this->options = array_merge($defaults, array_intersect_key($options, $defaults));
+
+        list($apiUrl, $client, $timeout) = array_values($this->options);
 
         // validate arguments
         Validators::validateApiKey($apiKey);
@@ -52,7 +56,7 @@ class OpenTok
                 $apiKey,
                 $apiSecret,
                 $apiUrl,
-                ['timeout' => $timeout]
+                array_merge(['timeout' => $timeout], $this->options)
             );
         }
         $this->apiKey = $apiKey;

@@ -2,7 +2,9 @@
 
 namespace OpenTok\Util;
 
+use Composer\InstalledVersions;
 use Exception as GlobalException;
+use GuzzleHttp\Utils;
 use OpenTok\Layout;
 use Firebase\JWT\JWT;
 use OpenTok\MediaMode;
@@ -18,7 +20,6 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\ServerException;
 use OpenTok\Exception\BroadcastException;
 use GuzzleHttp\Exception\RequestException;
-use function GuzzleHttp\default_user_agent;
 use OpenTok\Exception\ArchiveDomainException;
 use OpenTok\Exception\AuthenticationException;
 use OpenTok\Exception\BroadcastDomainException;
@@ -36,17 +37,13 @@ use OpenTok\Exception\ForceDisconnectConnectionException;
 use OpenTok\Exception\ForceDisconnectAuthenticationException;
 use OpenTok\Exception\ForceDisconnectUnexpectedValueException;
 
-// TODO: build this dynamically
-/** @internal */
-define('OPENTOK_SDK_VERSION', '4.12.0');
-/** @internal */
-define('OPENTOK_SDK_USER_AGENT', 'OpenTok-PHP-SDK/' . OPENTOK_SDK_VERSION);
-
 /**
-* @internal
-*/
+ * @internal
+ */
 class Client
 {
+    public const OPENTOK_SDK_USER_AGENT_IDENTIFIER = 'OpenTok-PHP-SDK/';
+
     protected $apiKey;
     protected $apiSecret;
     protected $configured = false;
@@ -56,18 +53,24 @@ class Client
      */
     protected $client;
 
+    /**
+     * @var array|mixed
+     */
+    public $options;
+
     public function configure($apiKey, $apiSecret, $apiUrl, $options = array())
     {
+        $this->options = $options;
         $this->apiKey = $apiKey;
         $this->apiSecret = $apiSecret;
 
-        if (isset($options['client'])) {
+        if (isset($this->options['client'])) {
             $this->client = $options['client'];
         } else {
             $clientOptions = [
                 'base_uri' => $apiUrl,
                 'headers' => [
-                    'User-Agent' => OPENTOK_SDK_USER_AGENT . ' ' . default_user_agent(),
+                    'User-Agent' => $this->buildUserAgentString()
                 ],
             ];
 
@@ -92,6 +95,26 @@ class Client
         }
 
         $this->configured = true;
+    }
+
+    private function buildUserAgentString(): string
+    {
+        $userAgent = [];
+
+        $userAgent[] = self::OPENTOK_SDK_USER_AGENT_IDENTIFIER
+                       . InstalledVersions::getVersion('opentok/opentok');
+
+        $userAgent[] = 'php/' . PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
+
+        if (isset($this->options['app'])) {
+            $app = $this->options['app'];
+            if (isset($app['name'], $app['version'])) {
+                // You must use both of these for custom agent strings
+                $userAgent[] = $app['name'] . '/' . $app['version'];
+            }
+        }
+
+        return implode(' ', $userAgent);
     }
 
     public function isConfigured()
@@ -939,7 +962,7 @@ class Client
                 throw new SignalConnectionException($message, $responseCode);
             case 413:
                 $message = 'The type string exceeds the maximum length (128 bytes),'
-                    . ' or the data string exceeds the maximum size (8 kB).';
+                           . ' or the data string exceeds the maximum size (8 kB).';
                 throw new SignalUnexpectedValueException($message, $responseCode);
             default:
                 break;
