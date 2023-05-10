@@ -2,14 +2,10 @@
 
 namespace OpenTokTest;
 
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Middleware;
 use OpenTok\OpenTok;
 use OpenTok\Session;
 use OpenTok\MediaMode;
 use OpenTok\ArchiveMode;
-use OpenTok\Util\Client;
 use PHPUnit\Framework\TestCase;
 
 class SessionTest extends TestCase
@@ -120,6 +116,20 @@ class SessionTest extends TestCase
             array('SESSIONID', array( 'location' => '127.0.0.1', 'mediaMode' => 'NOTAMODE' ) ),
             array('SESSIONID', array( 'location' => 'NOTALOCATION', 'mediaMode' => MediaMode::RELAYED ) )
         );
+    }
+
+    public function testInitialzationWithoutE2ee()
+    {
+        $sessionId = 'SESSIONID';
+        $session = new Session($this->opentok, $sessionId);
+        $this->assertEquals(false, $session->getE2EE());
+    }
+
+    public function testInitialzationWithE2ee()
+    {
+        $sessionId = 'SESSIONID';
+        $session = new Session($this->opentok, $sessionId, ['e2ee' => true]);
+        $this->assertEquals(true, $session->getE2EE());
     }
 
     public function testInitializationWithExtraneousParams()
