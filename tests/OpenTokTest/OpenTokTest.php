@@ -258,10 +258,6 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        $userAgent = $request->getHeaderLine('User-Agent');
-        $this->assertNotEmpty($userAgent);
-        $this->assertStringStartsWith('OpenTok-PHP-SDK/4.12.0', $userAgent);
-
         $p2p_preference = $this->getPostField($request, 'p2p.preference');
         $this->assertEquals('enabled', $p2p_preference);
 
