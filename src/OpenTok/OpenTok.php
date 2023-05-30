@@ -173,6 +173,11 @@ class OpenTok
     *    <a href="https://tokbox.com/developer/guides/end-to-end-encryption">end-to-end encryption</a>
     *    for a routed session.</li>
     *
+    *    <li><code>archiveName</code> (String) &mdash; Name of the archives in auto archived sessions</li>
+     *
+     *   <li><code>archiveResolution</code> (Enum) &mdash; Resolution of the archives in
+     *   auto archived sessions. Can be one of "480x640", "640x480", "720x1280", "1280x720", "1080x1920", "1920x1080"</li>
+    *
     *    <li><code>'location'</code> (String) &mdash; An IP address that the OpenTok servers
     *    will use to situate the session in its global network. If you do not set a location hint,
     *    the OpenTok servers will be based on the first client connecting to the session.</li>
@@ -250,14 +255,34 @@ class OpenTok
             'archiveMode' => ArchiveMode::MANUAL,
             'location' => null,
             'e2ee' => 'false',
+            'archiveName' => null,
+            'archiveResolution' => null
         );
 
+        // Have to hack this because the default system in these classes needs total refactor
+        $resolvedArchiveMode = array_merge($defaults, array_intersect_key($options, $defaults));
+
+        if ($resolvedArchiveMode['archiveMode'] === ArchiveMode::ALWAYS) {
+            $defaults['archiveResolution'] = '640x480';
+        }
+
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
+
+        // Have to hack this because the default system in these classes needs total refactor
+        if ($options['archiveName'] === null) {
+            unset($options['archiveName']);
+        }
+
+        if ($options['archiveResolution'] === null) {
+            unset($options['archiveResolution']);
+        }
+
         list($mediaMode, $archiveMode, $location, $e2ee) = array_values($options);
 
         // validate arguments
         Validators::validateMediaMode($mediaMode);
         Validators::validateArchiveMode($archiveMode);
+        Validators::validateAutoArchiveMode($archiveMode, $options);
         Validators::validateLocation($location);
 
         // make API call
@@ -1010,7 +1035,7 @@ class OpenTok
     }
 
     /**
-     * Returns a StreamList Object for the given session ID.
+     *  Returns a StreamList Object for the given session ID.
      *
      * @param String $sessionId The session ID.
      *
