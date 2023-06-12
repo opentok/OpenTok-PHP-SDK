@@ -2,7 +2,6 @@
 
 namespace OpenTok;
 
-use OpenTok\Layout;
 use OpenTok\Util\Client;
 use OpenTok\Util\Validators;
 use OpenTok\Exception\InvalidArgumentException;
@@ -27,6 +26,8 @@ class OpenTok
     private $apiSecret;
     /** @internal */
     private $client;
+    /** @internal */
+    public $options;
 
     /** @internal */
     public function __construct($apiKey, $apiSecret, $options = array())
@@ -37,8 +38,10 @@ class OpenTok
             'client' => null,
             'timeout' => null // In the future we should set this to 2
         );
-        $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($apiUrl, $client, $timeout) = array_values($options);
+
+        $this->options = array_merge($defaults, array_intersect_key($options, $defaults));
+
+        list($apiUrl, $client, $timeout) = array_values($this->options);
 
         // validate arguments
         Validators::validateApiKey($apiKey);
@@ -53,7 +56,7 @@ class OpenTok
                 $apiKey,
                 $apiSecret,
                 $apiUrl,
-                ['timeout' => $timeout]
+                array_merge(['timeout' => $timeout], $this->options)
             );
         }
         $this->apiKey = $apiKey;
@@ -166,6 +169,10 @@ class OpenTok
     *    (either automatically or not), you must set the <code>mediaMode</code> key to
     *    <code>MediaMode::ROUTED</code>.</li>
     *
+    *    <li><code>'e2ee'</code> (Boolean) &mdash; Whether to enable
+    *    <a href="https://tokbox.com/developer/guides/end-to-end-encryption">end-to-end encryption</a>
+    *    for a routed session.</li>
+    *
     *    <li><code>'location'</code> (String) &mdash; An IP address that the OpenTok servers
     *    will use to situate the session in its global network. If you do not set a location hint,
     *    the OpenTok servers will be based on the first client connecting to the session.</li>
@@ -212,11 +219,11 @@ class OpenTok
     {
         if (
             array_key_exists('archiveMode', $options) &&
-            $options['archiveMode'] != ArchiveMode::MANUAL
+            $options['archiveMode'] !== ArchiveMode::MANUAL
         ) {
             if (
                 array_key_exists('mediaMode', $options) &&
-                $options['mediaMode'] != MediaMode::ROUTED
+                $options['mediaMode'] !== MediaMode::ROUTED
             ) {
                 throw new InvalidArgumentException('A session must be routed to be archived.');
             } else {
@@ -224,14 +231,29 @@ class OpenTok
             }
         }
 
+        if (array_key_exists('e2ee', $options) && $options['e2ee']) {
+
+            if (array_key_exists('mediaMode', $options) && $options['mediaMode'] !== MediaMode::ROUTED) {
+                throw new InvalidArgumentException('MediaMode must be routed in order to enable E2EE');
+            }
+
+            if (array_key_exists('archiveMode', $options) && $options['archiveMode'] === ArchiveMode::ALWAYS) {
+                throw new InvalidArgumentException('ArchiveMode cannot be set to always when using E2EE');
+            }
+
+            $options['e2ee'] = 'true';
+        }
+
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array(
             'mediaMode' => MediaMode::RELAYED,
             'archiveMode' => ArchiveMode::MANUAL,
-            'location' => null
+            'location' => null,
+            'e2ee' => 'false',
         );
+
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($mediaMode, $archiveMode, $location) = array_values($options);
+        list($mediaMode, $archiveMode, $location, $e2ee) = array_values($options);
 
         // validate arguments
         Validators::validateMediaMode($mediaMode);
@@ -251,7 +273,8 @@ class OpenTok
         return new Session($this, (string)$sessionId, array(
             'location' => $location,
             'mediaMode' => $mediaMode,
-            'archiveMode' => $archiveMode
+            'archiveMode' => $archiveMode,
+            'e2ee' => $e2ee
         ));
     }
 
