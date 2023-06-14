@@ -83,9 +83,9 @@ class Broadcast
     /** @ignore */
     private $resolution;
     /** @ignore */
-    private $isAudio;
+    private $hasAudio;
     /** @ignore */
-    private $isVideo;
+    private $hasVideo;
 
     public function __construct($broadcastData, $options = array())
     {
@@ -102,12 +102,12 @@ class Broadcast
             'isHls' => true,
             'isLowLatency' => false,
             'isDvr' => false,
-            'isAudio' => true,
-            'isVideo' => true
+            'hasAudio' => true,
+            'hasVideo' => true
         );
 
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($apiKey, $apiSecret, $apiUrl, $client, $isStopped, $streamMode, $isAudio, $isVideo) = array_values($options);
+        list($apiKey, $apiSecret, $apiUrl, $client, $isStopped, $streamMode, $hasAudio, $hasVideo) = array_values($options);
 
         // validate params
         Validators::validateBroadcastData($broadcastData);
@@ -125,8 +125,8 @@ class Broadcast
         $this->isHls = isset($this->data['settings']['hls']);
         $this->isLowLatency = $this->data['settings']['hls']['lowLatency'] ?? false;
         $this->isDvr = $this->data['settings']['hls']['dvr'] ?? false;
-        $this->isAudio = $isAudio;
-        $this->isVideo = $isVideo;
+        $this->hasAudio = $hasAudio;
+        $this->hasVideo = $hasVideo;
 
         $this->client = isset($client) ? $client : new Client();
         if (!$this->client->isConfigured()) {
@@ -166,10 +166,10 @@ class Broadcast
                 return $this->isDvr;
             case 'multiBroadcastTag':
                 return $this->multiBroadcastTag;
-            case 'isAudio':
-                return $this->isAudio;
-            case 'isVideo':
-                return $this->isVideo;
+            case 'hasAudio':
+                return $this->hasAudio;
+            case 'hasVideo':
+                return $this->hasVideo;
             default:
                 return null;
         }
