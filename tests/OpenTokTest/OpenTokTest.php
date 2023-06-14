@@ -232,6 +232,110 @@ class OpenTokTest extends TestCase
         );
     }
 
+    public function testCanStartAutoSessionWithArchiveNameAndResolution(): void
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'text/xml'
+            ],
+            'path' => 'session/create/alwaysarchived'
+        ]]);
+
+        $options = [
+            'archiveMode' => ArchiveMode::ALWAYS,
+            'archiveName' => 'testAutoArchives',
+            'archiveResolution' => '640x480'
+        ];
+
+        // Act
+        $session = $this->opentok->createSession($options);
+
+        // Assert
+        $this->assertCount(1, $this->historyContainer);
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('/session/create', $request->getUri()->getPath());
+        $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
+        $this->assertEquals('https', $request->getUri()->getScheme());
+
+        $e2ee = $this->getPostField($request, 'e2ee');
+        $this->assertEquals('false', $e2ee);
+
+        $this->assertEquals('always', $this->getPostField($request, 'archiveMode'));
+        $this->assertEquals('testAutoArchives', $this->getPostField($request, 'archiveName'));
+        $this->assertEquals('640x480', $this->getPostField($request, 'archiveResolution'));
+
+
+        $this->assertInstanceOf('OpenTok\Session', $session);
+    }
+
+    public function testCannotStartSessionWithArchiveNameInManualMode(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'text/xml'
+            ],
+            'path' => 'session/create/relayed'
+        ]]);
+
+        $options = [
+            'archiveName' => 'testAutoArchives',
+        ];
+
+        // Act
+        $session = $this->opentok->createSession($options);
+    }
+
+    public function testCannotStartSessionWithArchiveResolutionInManualMode(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'text/xml'
+            ],
+            'path' => 'session/create/relayed'
+        ]]);
+
+        $options = [
+            'archiveResolution' => '640x480'
+        ];
+
+        // Act
+        $session = $this->opentok->createSession($options);
+    }
+
+    public function testCannotStartSessionWithInvalidResolutionInAutoArchive(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'text/xml'
+            ],
+            'path' => 'session/create/relayed'
+        ]]);
+
+        $options = [
+            'archiveMode' => ArchiveMode::ALWAYS,
+            'archiveResolution' => '680x440',
+        ];
+
+        // Act
+        $session = $this->opentok->createSession($options);
+    }
+
     public function testCreatesE2EESession(): void
     {
         // Arrange

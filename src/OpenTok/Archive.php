@@ -105,7 +105,17 @@ class Archive
     private $client;
     /** @internal */
     private $multiArchiveTag;
-
+    /**
+     * @var mixed|null
+     */
+    private const PERMITTED_AUTO_RESOLUTIONS = [
+        '480x640',
+        "640x480",
+        "720x1280",
+        "1280x720",
+        "1080x1920",
+        "1920x1080"
+    ];
 
     /** @internal */
     public function __construct($archiveData, $options = array())
@@ -139,6 +149,11 @@ class Archive
 
             $this->client->configure($apiKey, $apiSecret, $apiUrl);
         }
+    }
+
+    public static function getPermittedResolutions()
+    {
+        return self::PERMITTED_AUTO_RESOLUTIONS;
     }
 
     /** @internal */

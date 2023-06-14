@@ -2,6 +2,7 @@
 
 namespace OpenTok\Util;
 
+use OpenTok\Archive;
 use OpenTok\Util\Client;
 use OpenTok\Layout;
 use OpenTok\Role;
@@ -266,6 +267,7 @@ class Validators
             );
         }
     }
+
     public static function validateArchiveMode($archiveMode)
     {
         if (!ArchiveMode::isValidValue($archiveMode)) {
@@ -274,6 +276,22 @@ class Validators
             );
         }
     }
+
+    public static function validateAutoArchiveMode($archiveMode, $options)
+    {
+        if ($archiveMode === ArchiveMode::MANUAL) {
+            foreach (['archiveName', 'archiveResolution'] as $key) {
+                if (array_key_exists($key, $options)) {
+                    throw new InvalidArgumentException('Cannot set ' . $key . ' when Archive mode is Manual');
+                }
+            }
+        }
+
+        if (array_key_exists('archiveResolution', $options)) {
+            self::validateAutoArchiveResolution($options['archiveResolution']);
+        }
+    }
+
     public static function validateLocation($location)
     {
         if ($location != null && !filter_var($location, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
@@ -391,6 +409,13 @@ class Validators
     {
         if (!array_key_exists('uri', $websocketOptions)) {
             throw new InvalidArgumentException('Websocket configuration must have a uri');
+        }
+    }
+
+    public static function validateAutoArchiveResolution($archiveResolution)
+    {
+        if (! in_array($archiveResolution, Archive::getPermittedResolutions(), true)) {
+            throw new InvalidArgumentException($archiveResolution . ' is not a valid resolution');
         }
     }
 
