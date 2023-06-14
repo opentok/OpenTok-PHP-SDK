@@ -34,9 +34,7 @@ class OpenTokTest extends TestCase
     protected $client;
 
     protected static $mockBasePath;
-    /**
-     * @var array
-     */
+
     public $historyContainer;
 
     public static function setUpBeforeClass(): void
@@ -1541,7 +1539,7 @@ class OpenTokTest extends TestCase
 		$sessionId = '2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4';
 
 		$options = [
-			'output' => [
+			'outputs' => [
 				'hls' => [
 					'dvr' => true,
 					'lowLatency' => false
@@ -1583,7 +1581,7 @@ class OpenTokTest extends TestCase
 		$sessionId = '2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4';
 
 		$options = [
-			'output' => [
+			'outputs' => [
 				'hls' => [
 					'dvr' => true,
 					'lowLatency' => false
@@ -1657,7 +1655,7 @@ class OpenTokTest extends TestCase
 		$sessionId = '2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4';
 
 		$options = [
-			'output' => [
+			'outputs' => [
 				'hls' => [
 					'dvr' => true,
 					'lowLatency' => false
@@ -1684,7 +1682,7 @@ class OpenTokTest extends TestCase
 		$sessionId = '2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4';
 
 		$options = [
-			'output' => [
+			'outputs' => [
 				'hls' => [
 					'dvr' => true,
 					'lowLatency' => false
@@ -1713,7 +1711,7 @@ class OpenTokTest extends TestCase
 		$sessionId = '2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4';
 
 		$options = [
-			'output' => [
+			'outputs' => [
 				'hls' => [
 					'dvr' => true,
 					'lowLatency' => true

@@ -868,19 +868,21 @@ class OpenTok
             Validators::validateResolution($options['resolution']);
         }
 
-	    if (isset($options['output']['hls'])) {
-		    Validators::validateBroadcastOutputOptions($options['output']['hls']);
+	    if (isset($options['outputs']['hls'])) {
+		    Validators::validateBroadcastOutputOptions($options['outputs']['hls']);
 	    }
 
-		if (isset($options['output']['rtmp'])) {
-			Validators::validateRtmpStreams($options['output']['rtmp']);
+		if (isset($options['outputs']['rtmp'])) {
+			Validators::validateRtmpStreams($options['outputs']['rtmp']);
 		}
 
         $defaults = [
             'layout' => Layout::getBestFit(),
+            'hasAudio' => true,
+            'hasVideo' => true,
             'streamMode' => 'auto',
             'resolution' => '640x480',
-	        'output' => [
+	        'outputs' => [
 				'hls' => [
 	                'dvr' => false,
 					'lowLatency' => false
@@ -890,7 +892,7 @@ class OpenTok
 
         $options = array_merge($defaults, $options);
 
-        list($layout, $streamMode) = array_values($options);
+        list($layout, $hasAudio, $hasVideo, $streamMode) = array_values($options);
 
         // validate arguments
         Validators::validateSessionId($sessionId);
