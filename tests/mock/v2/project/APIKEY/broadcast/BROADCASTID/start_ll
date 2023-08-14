@@ -22,5 +22,7 @@
   "partnerId":854511,
   "maxDuration":5400,
   "resolution": "1280x720",
-  "streamMode": "auto"
+  "streamMode": "auto",
+  "hasAudio": true,
+  "hasVideo": true
 }
