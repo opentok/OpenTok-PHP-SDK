@@ -67,7 +67,7 @@ class ValidatorsTest extends TestCase
                 'streamId1',
                 'streamId2'
             ],
-            'active' => true
+            'active'          => true
         ];
 
         Validators::validateForceMuteAllOptions($options);
@@ -106,7 +106,7 @@ class ValidatorsTest extends TestCase
                 3536,
                 'streamId2'
             ],
-            'active' => true
+            'active'          => true
         ];
 
         Validators::validateForceMuteAllOptions($options);
@@ -121,7 +121,7 @@ class ValidatorsTest extends TestCase
                 'streamId1',
                 'streamId2'
             ],
-            'active' => 'true'
+            'active'          => 'true'
         ];
 
         Validators::validateForceMuteAllOptions($options);
@@ -133,7 +133,7 @@ class ValidatorsTest extends TestCase
 
         $options = [
             'excludedStreams' => 'streamIdOne',
-            'active' => false
+            'active'          => false
         ];
 
         Validators::validateForceMuteAllOptions($options);
@@ -143,7 +143,7 @@ class ValidatorsTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
         $websocketConfig = [
-            'uri' => 'ws://valid-websocket',
+            'uri'     => 'ws://valid-websocket',
             'streams' => [
                 '525503c7-913e-43a1-84b4-31b2e9fe668b',
                 '14026813-4f50-4a5a-9b72-fea25430916d'
@@ -163,20 +163,27 @@ class ValidatorsTest extends TestCase
             ]
         ];
         Validators::validateWebsocketOptions($websocketConfig);
-     }
+    }
 
     /**
      * @dataProvider resolutionProvider
      */
     public function testValidResolutions($resolution, $isValid): void
     {
-        if (!$isValid) {
+        if ( ! $isValid) {
             $this->expectException(InvalidArgumentException::class);
         } else {
             $this->expectNotToPerformAssertions();
         }
 
         Validators::validateResolution($resolution);
+    }
+
+    public function testValidLayoutClassListItemErrorOnString(): void
+    {
+        $input = 'example_id';
+        $this->expectException(\InvalidArgumentException::class);
+        Validators::validateLayoutClassListItem($input);
     }
 
     public function testValidLayoutClassListItem(): void

@@ -421,12 +421,12 @@ class Validators
 
     public static function validateLayoutClassListItem($layoutClassList)
     {
-        if (!is_string($layoutClassList['id'])) {
-            throw new InvalidArgumentException('Each element in the streamClassArray must have an id string.');
-        }
-
         if (!is_array($layoutClassList)) {
             throw new InvalidArgumentException('Each element in the streamClassArray must have a layoutClassList array.');
+        }
+
+        if (!is_string($layoutClassList['id'])) {
+            throw new InvalidArgumentException('Each element in the streamClassArray must have an id string.');
         }
 
         if (!isset($layoutClassList['layoutClassList'])) {
