@@ -432,13 +432,16 @@ class Validators
     public static function isAssoc($arr): bool
     {
         if (!function_exists('array_is_list')) {
-            if ($arr === []) {
-                return true;
+            function array_is_list(array $arr): bool
+            {
+                if ($arr === []) {
+                    return true;
+                }
+                return array_keys($arr) === range(0, count($arr) - 1);
             }
-            return array_keys($arr) === range(0, count($arr) - 1);
         }
 
-        return array_is_list($arr);
+        return !array_is_list($arr);
     }
 
     protected static function decodeSessionId($sessionId)
