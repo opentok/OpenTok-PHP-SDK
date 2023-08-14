@@ -72,28 +72,28 @@ class ValidatorsTest extends TestCase
         Validators::validateForceMuteAllOptions($options);
     }
 
-    public function testIsAssocWithValidArray(): void
+    public function testIsAssocWithIndexedArray(): void
     {
-        $haystack = [
-            'one' => '1',
-            'two' => '2',
-            'three' => '3',
-            'four' => '4'
-        ];
-
-        $this->assertTrue(Validators::isAssoc($haystack));
+        $array = [1, 2, 3, 4];
+        $this->assertFalse(Validators::isAssoc($array));
     }
 
-    public function testIsAssocWithInvalidArray(): void
+    public function testIsAssocWithAssociativeArray(): void
     {
-        $haystack = [
-            'one',
-            'two',
-            'three',
-            'four'
-        ];
+        $array = ['a' => 1, 'b' => 2, 'c' => 3];
+        $this->assertTrue(Validators::isAssoc($array));
+    }
 
-        $this->assertFalse(Validators::isAssoc($haystack));
+    public function testIsAssocWithMixedKeysArray(): void
+    {
+        $array = [1, 'a' => 2, 3];
+        $this->assertTrue(Validators::isAssoc($array));
+    }
+
+    public function testIsAssocWithEmptyArray(): void
+    {
+        $array = [];
+        $this->assertFalse(Validators::isAssoc($array));
     }
 
     public function testWillFailWhenStreamIdsAreNotCorrect(): void
@@ -176,6 +176,48 @@ class ValidatorsTest extends TestCase
         }
 
         Validators::validateResolution($resolution);
+    }
+
+    public function testValidLayoutClassListItem(): void
+    {
+        $layoutClassList = [
+            'id' => 'example_id',
+            'layoutClassList' => ['class1', 'class2']
+        ];
+
+        $this->assertNull(Validators::validateLayoutClassListItem($layoutClassList));
+    }
+
+    public function testInvalidIdType(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $layoutClassList = [
+            'id' => 123,
+            'layoutClassList' => ['class1', 'class2']
+        ];
+
+        Validators::validateLayoutClassListItem($layoutClassList);
+    }
+
+    public function testMissingLayoutClassList(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $layoutClassList = [
+            'id' => 'example_id'
+        ];
+
+        Validators::validateLayoutClassListItem($layoutClassList);
+    }
+
+    public function testInvalidLayoutClassListType(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $layoutClassList = [
+            'id' => 'example_id',
+            'layoutClassList' => 'invalid_class'
+        ];
+
+        Validators::validateLayoutClassListItem($layoutClassList);
     }
 
     public function resolutionProvider(): array

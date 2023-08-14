@@ -428,6 +428,11 @@ class Validators
         if (!is_array($layoutClassList)) {
             throw new InvalidArgumentException('Each element in the streamClassArray must have a layoutClassList array.');
         }
+
+        if (!isset($layoutClassList['layoutClassList'])) {
+            throw new InvalidArgumentException('layoutClassList not set in array');
+        }
+
         if (!is_array($layoutClassList['layoutClassList'])) {
             throw new InvalidArgumentException('Each element in the layoutClassList array must be a string (defining class names).');
         }

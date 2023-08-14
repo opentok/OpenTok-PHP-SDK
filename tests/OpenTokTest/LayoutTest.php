@@ -3,6 +3,7 @@
 namespace OpenTokTest;
 
 use OpenTok\Layout;
+use OpenTok\Util\Validators;
 use PHPStan\Testing\TestCase;
 
 class LayoutTest extends TestCase
@@ -19,6 +20,14 @@ class LayoutTest extends TestCase
         foreach ($layouts as $type => $object) {
             $this->assertSame(['type' => $type], $object->toArray());
         }
+    }
+
+    public function testWillValidateLayout(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $object = ['bestFit' => true];
+
+        Validators::validateLayout($object);
     }
 
     public function testStylesheetIsInSerializedArrayIfCustom()
