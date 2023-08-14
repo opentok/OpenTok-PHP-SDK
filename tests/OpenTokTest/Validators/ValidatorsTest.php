@@ -3,6 +3,7 @@
 namespace OpenTokTest\Validators;
 
 use OpenTok\Exception\InvalidArgumentException;
+use OpenTok\Util\Client;
 use OpenTok\Util\Validators;
 use PHPUnit\Framework\TestCase;
 
@@ -218,6 +219,72 @@ class ValidatorsTest extends TestCase
         ];
 
         Validators::validateLayoutClassListItem($layoutClassList);
+    }
+    public function testValidateClient(): void
+    {
+        $client = new Client();
+        Validators::validateClient($client);
+
+        // No exception, which was the test so fake a pass
+        $this->assertTrue(true);
+    }
+
+    public function testExceptionOnInvalidClient(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $client = new \stdClass();
+        Validators::validateClient($client);
+    }
+
+    public function testThrowsErrorOnInvalidStreamMode(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $streamMode = ['auto'];
+        Validators::validateHasStreamMode($streamMode);
+    }
+
+    public function testValidateSignalPayload(): void
+    {
+        $validPayload = ['type' => 'signal_type', 'data' => 'signal_data'];
+        $this->assertNull(Validators::validateSignalPayload($validPayload));
+
+        $invalidDataPayload = ['type' => 'signal_type', 'data' => 123];
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("Signal Payload cannot be null:");
+        Validators::validateSignalPayload($invalidDataPayload);
+
+        $invalidTypePayload = ['type' => null, 'data' => 'signal_data'];
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("Signal Payload cannot be null:");
+        Validators::validateSignalPayload($invalidTypePayload);
+
+        // Invalid payload: both type and data are null
+        $invalidBothPayload = ['type' => null, 'data' => null];
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("Signal Payload cannot be null:");
+        Validators::validateSignalPayload($invalidBothPayload);
+    }
+
+    /**
+     * @dataProvider connectionIdProvider
+     */
+    public function testConnectionId($input, $expectException): void
+    {
+        if ($expectException) {
+            $this->expectException(\InvalidArgumentException::class);
+        }
+
+        Validators::validateConnectionId($input);
+        $this->assertTrue(true);
+    }
+
+    public function connectionIdProvider(): array
+    {
+        return [
+            [['this' => 'is not a string'], true],
+            ['', true],
+            ['valid_connection_string', false]
+        ];
     }
 
     public function resolutionProvider(): array
