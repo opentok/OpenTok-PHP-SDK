@@ -429,16 +429,16 @@ class Validators
         throw new InvalidArgumentException('DTMF digits can only support 0-9, p, #, and * characters');
     }
 
-    // Helpers
-
-    // credit: http://stackoverflow.com/a/173479
     public static function isAssoc($arr): bool
     {
-        if (array() === $arr) {
-            return false;
+        if (!function_exists('array_is_list')) {
+            if ($arr === []) {
+                return true;
+            }
+            return array_keys($arr) === range(0, count($arr) - 1);
         }
 
-        return array_keys($arr) !== range(0, count($arr) - 1);
+        return array_is_list($arr);
     }
 
     protected static function decodeSessionId($sessionId)
