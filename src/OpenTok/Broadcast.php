@@ -44,6 +44,9 @@ use OpenTok\Util\Validators;
 *
 * @property boolean $isDvr
 * Whether the broadcast supports DVR functionality for the HLS stream.
+
+* @property string $status
+* Broadcast state. Either `started` or `stopped`
 *
 * @property boolean $isLowLatency
 * Whether the broadcast supports low-latency mode for the HLS stream.
@@ -86,6 +89,8 @@ class Broadcast
     private $hasAudio;
     /** @ignore */
     private $hasVideo;
+    /** @ignore */
+    private $status;
 
     public function __construct($broadcastData, $options = array())
     {
@@ -120,6 +125,10 @@ class Broadcast
             $this->multiBroadcastTag = $this->data['multiBroadcastTag'];
         }
 
+        if (isset($this->data['status'])) {
+            $this->status = $this->data['status'];
+        }
+
         $this->isStopped = $isStopped;
         $this->resolution = $this->data['resolution'];
         $this->isHls = isset($this->data['settings']['hls']);
@@ -148,7 +157,6 @@ class Broadcast
             case 'partnerId':
             case 'sessionId':
             case 'broadcastUrls':
-            case 'status':
             case 'maxDuration':
             case 'streamMode':
                 return $this->data[$name];
@@ -170,6 +178,8 @@ class Broadcast
                 return $this->hasAudio;
             case 'hasVideo':
                 return $this->hasVideo;
+            case 'status':
+                return $this->status;
             default:
                 return null;
         }
