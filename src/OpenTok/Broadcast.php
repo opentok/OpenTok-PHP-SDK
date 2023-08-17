@@ -91,6 +91,8 @@ class Broadcast
     private $hasVideo;
     /** @ignore */
     private $status;
+    /** @ignore */
+    private $maxBitRate;
 
     public function __construct($broadcastData, $options = array())
     {
@@ -121,6 +123,10 @@ class Broadcast
 
         if (isset($this->data['multiBroadcastTag'])) {
             $this->multiBroadcastTag = $this->data['multiBroadcastTag'];
+        }
+
+        if (isset($this->data['maxBitRate'])) {
+            $this->maxBitRate = $this->data['maxBitRate'];
         }
 
         if (isset($this->data['status'])) {
@@ -179,6 +185,8 @@ class Broadcast
                 return $this->hasVideo;
             case 'status':
                 return $this->status;
+            case 'maxBitRate':
+                return $this->maxBitRate;
             default:
                 return null;
         }

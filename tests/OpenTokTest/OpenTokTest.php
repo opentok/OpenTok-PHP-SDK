@@ -1725,7 +1725,6 @@ class OpenTokTest extends TestCase
 
     public function testStartsBroadcast(): void
     {
-        // Arrange
         $this->setupOTWithMocks([[
             'code' => 200,
             'headers' => [
@@ -1734,14 +1733,10 @@ class OpenTokTest extends TestCase
             'path' => '/v2/project/APIKEY/broadcast/session_layout-bestfit'
         ]]);
 
-        // This sessionId was generated using a different apiKey, but this method doesn't do any
-        // decoding to check, so it's fine.
         $sessionId = '2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4';
 
-        // Act
         $broadcast = $this->opentok->startBroadcast($sessionId);
 
-        // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
@@ -1767,9 +1762,34 @@ class OpenTokTest extends TestCase
         $this->assertEquals('auto', $broadcast->streamMode);
     }
 
+    public function testStartsBroadcastWithMaxBitrate(): void
+    {
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => '/v2/project/APIKEY/broadcast/session_layout-bestfit'
+        ]]);
+
+        $sessionId = '2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4';
+
+        $broadcast = $this->opentok->startBroadcast($sessionId, [
+            'maxBitRate' => 2000000
+        ]);
+
+        $this->assertIsString($broadcast->id);
+        $this->assertEquals($sessionId, $broadcast->sessionId);
+        $this->assertIsArray($broadcast->broadcastUrls);
+        $this->assertArrayHasKey('hls', $broadcast->broadcastUrls);
+        $this->assertIsString($broadcast->broadcastUrls['hls']);
+        $this->assertIsString($broadcast->hlsUrl);
+        $this->assertFalse($broadcast->isStopped);
+        $this->assertEquals(2000000, $broadcast->maxBitRate);
+    }
+
     public function testStartsBroadcastWithMultiBroadcastTag(): void
     {
-        // Arrange
         $this->setupOTWithMocks([[
             'code' => 200,
             'headers' => [

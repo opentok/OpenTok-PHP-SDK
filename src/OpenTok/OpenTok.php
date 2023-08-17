@@ -864,6 +864,10 @@ class OpenTok
         // not preferred to depend on that in the SDK because its then harder to garauntee backwards
         // compatibility
 
+        if (isset($options['maxBitRate'])) {
+            Validators::validateBroadcastBitrate($options['maxBitRate']);
+        }
+
         if (isset($options['resolution'])) {
             Validators::validateResolution($options['resolution']);
         }
@@ -882,6 +886,7 @@ class OpenTok
             'hasVideo' => true,
             'streamMode' => 'auto',
             'resolution' => '640x480',
+            'maxBitRate' => 2000000,
 	        'outputs' => [
 				'hls' => [
 	                'dvr' => false,
@@ -892,17 +897,13 @@ class OpenTok
 
         $options = array_merge($defaults, $options);
 
-        list($layout, $hasAudio, $hasVideo, $streamMode) = array_values($options);
-
-        // validate arguments
         Validators::validateSessionId($sessionId);
-        Validators::validateLayout($layout);
-        Validators::validateHasStreamMode($streamMode);
+        Validators::validateLayout($options['layout']);
+        Validators::validateHasStreamMode($options['streamMode']);
 
-        // make API call
         $broadcastData = $this->client->startBroadcast($sessionId, $options);
 
-        return new Broadcast($broadcastData, array('client' => $this->client));
+        return new Broadcast($broadcastData, ['client' => $this->client]);
     }
 
     /**
@@ -910,7 +911,7 @@ class OpenTok
      *
      * @param String $broadcastId The ID of the broadcast.
      */
-    public function stopBroadcast($broadcastId)
+    public function stopBroadcast($broadcastId): Broadcast
     {
         // validate arguments
         Validators::validateBroadcastId($broadcastId);
@@ -930,7 +931,7 @@ class OpenTok
      *
      * @return Broadcast An object with properties defining the broadcast.
      */
-    public function getBroadcast($broadcastId)
+    public function getBroadcast($broadcastId): Broadcast
     {
         Validators::validateBroadcastId($broadcastId);
 
