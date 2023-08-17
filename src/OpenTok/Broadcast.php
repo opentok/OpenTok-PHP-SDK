@@ -48,6 +48,9 @@ use OpenTok\Util\Validators;
 * @property string $status
 * Broadcast state. Either `started` or `stopped`
 *
+* @property string $maxBitRate
+* Max Bitrate allowed for the broadcast composing. Must be between 400000 and 2000000
+*
 * @property boolean $isLowLatency
 * Whether the broadcast supports low-latency mode for the HLS stream.
 *

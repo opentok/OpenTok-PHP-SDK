@@ -823,6 +823,9 @@ class OpenTok
      *    "1920x1080" (FHD landscape), "480x640" (SD portrait), "720x1280" (HD portrait), or "1080x1920"
      *    (FHD portrait).</li>
      *
+     *    <li><code>maxBitRate</code> &mdash; Max Bitrate allowed for the broadcast composing. Must be between
+     *    400000 and 2000000.</li>
+     *
      *    <li><code>outputs</code> (Array) &mdash;
      *      Defines the HLS broadcast and RTMP streams. You can provide the following keys:
      *      <ul>
