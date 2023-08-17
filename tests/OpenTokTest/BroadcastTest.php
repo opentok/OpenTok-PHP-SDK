@@ -34,6 +34,7 @@ class BroadcastTest extends TestCase
             'updatedAt' => 1394394801000,
             'partnerId' => 685,
             'sessionId' => '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-',
+            'multiBroadcastTag' => 'broadcast-1234b',
             'layout' => [
                 'type' => 'custom',
                 'stylesheet' => 'a layout stylesheet',
@@ -42,8 +43,9 @@ class BroadcastTest extends TestCase
             'maxDuration' => 5400,
             'resolution' => '640x480',
             'streamMode' => StreamMode::AUTO,
-            'isAudio' => true,
-            'isVideo' => true
+            'status' => 'started',
+            'hasAudio' => true,
+            'hasVideo' => true
         ];
     }
 
@@ -134,12 +136,12 @@ class BroadcastTest extends TestCase
         return $this->setupOTWithMocks([]);
     }
 
-    public function testInitializes()
+    public function testInitializes(): void
     {
-        // Arrange
         $this->setupOT();
         $this->setupBroadcasts(StreamMode::AUTO);
         $this->assertInstanceOf(Broadcast::class, $this->broadcast);
+
     }
 
     public function testCannotAddStreamToBroadcastInAutoMode(): void
@@ -237,6 +239,21 @@ class BroadcastTest extends TestCase
         $return = $this->broadcast->removeStreamFromBroadcast(
             '5dfds4-asdda4asf4'
         );
+    }
+
+    public function testGetters(): void
+    {
+        $broadcastObject = new Broadcast($this->broadcastData, [
+            'apiKey' => 'abc',
+            'apiSecret' => 'efg',
+            'client' => $this->client
+        ]);
+
+        $this->assertTrue($broadcastObject->hasAudio);
+        $this->assertTrue($broadcastObject->hasVideo);
+        $this->assertEquals('broadcast-1234b', $broadcastObject->multiBroadcastTag);
+        $this->assertEquals('started', $broadcastObject->status);
+        $this->assertNull($broadcastObject->wrongKey);
     }
 }
 

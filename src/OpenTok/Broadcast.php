@@ -112,12 +112,10 @@ class Broadcast
         );
 
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($apiKey, $apiSecret, $apiUrl, $client, $isStopped, $streamMode, $hasAudio, $hasVideo) = array_values($options);
 
-        // validate params
         Validators::validateBroadcastData($broadcastData);
-        Validators::validateClient($client);
-        Validators::validateHasStreamMode($streamMode);
+        Validators::validateClient($options['client']);
+        Validators::validateHasStreamMode($options['streamMode']);
 
         $this->data = $broadcastData;
 
@@ -129,21 +127,22 @@ class Broadcast
             $this->status = $this->data['status'];
         }
 
-        $this->isStopped = $isStopped;
+        $this->isStopped = $options['isStopped'];
         $this->resolution = $this->data['resolution'];
         $this->isHls = isset($this->data['settings']['hls']);
         $this->isLowLatency = $this->data['settings']['hls']['lowLatency'] ?? false;
         $this->isDvr = $this->data['settings']['hls']['dvr'] ?? false;
-        $this->hasAudio = $hasAudio;
-        $this->hasVideo = $hasVideo;
+        $this->hasAudio = $options['hasAudio'];
+        $this->hasVideo = $options['hasVideo'];
 
-        $this->client = isset($client) ? $client : new Client();
+        $this->client = $options['client'] ?? new Client();
+
         if (!$this->client->isConfigured()) {
-            Validators::validateApiKey($apiKey);
-            Validators::validateApiSecret($apiSecret);
-            Validators::validateApiUrl($apiUrl);
+            Validators::validateApiKey($options['apiKey']);
+            Validators::validateApiSecret($options['apiSecret']);
+            Validators::validateApiUrl($options['apiUrl']);
 
-            $this->client->configure($apiKey, $apiSecret, $apiUrl);
+            $this->client->configure($options['apiKey'], $options['apiSecret'], $options['apiUrl']);
         }
     }
 
