@@ -44,6 +44,9 @@ use OpenTok\Util\Validators;
 *
 * @property boolean $isDvr
 * Whether the broadcast supports DVR functionality for the HLS stream.
+
+* @property string $status
+* Broadcast state. Either `started` or `stopped`
 *
 * @property boolean $isLowLatency
 * Whether the broadcast supports low-latency mode for the HLS stream.
@@ -86,6 +89,8 @@ class Broadcast
     private $hasAudio;
     /** @ignore */
     private $hasVideo;
+    /** @ignore */
+    private $status;
 
     public function __construct($broadcastData, $options = array())
     {
@@ -107,12 +112,10 @@ class Broadcast
         );
 
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($apiKey, $apiSecret, $apiUrl, $client, $isStopped, $streamMode, $hasAudio, $hasVideo) = array_values($options);
 
-        // validate params
         Validators::validateBroadcastData($broadcastData);
-        Validators::validateClient($client);
-        Validators::validateHasStreamMode($streamMode);
+        Validators::validateClient($options['client']);
+        Validators::validateHasStreamMode($options['streamMode']);
 
         $this->data = $broadcastData;
 
@@ -120,21 +123,26 @@ class Broadcast
             $this->multiBroadcastTag = $this->data['multiBroadcastTag'];
         }
 
-        $this->isStopped = $isStopped;
+        if (isset($this->data['status'])) {
+            $this->status = $this->data['status'];
+        }
+
+        $this->isStopped = $options['isStopped'];
         $this->resolution = $this->data['resolution'];
         $this->isHls = isset($this->data['settings']['hls']);
         $this->isLowLatency = $this->data['settings']['hls']['lowLatency'] ?? false;
         $this->isDvr = $this->data['settings']['hls']['dvr'] ?? false;
-        $this->hasAudio = $hasAudio;
-        $this->hasVideo = $hasVideo;
+        $this->hasAudio = $options['hasAudio'];
+        $this->hasVideo = $options['hasVideo'];
 
-        $this->client = isset($client) ? $client : new Client();
+        $this->client = $options['client'] ?? new Client();
+
         if (!$this->client->isConfigured()) {
-            Validators::validateApiKey($apiKey);
-            Validators::validateApiSecret($apiSecret);
-            Validators::validateApiUrl($apiUrl);
+            Validators::validateApiKey($options['apiKey']);
+            Validators::validateApiSecret($options['apiSecret']);
+            Validators::validateApiUrl($options['apiUrl']);
 
-            $this->client->configure($apiKey, $apiSecret, $apiUrl);
+            $this->client->configure($options['apiKey'], $options['apiSecret'], $options['apiUrl']);
         }
     }
 
@@ -148,7 +156,6 @@ class Broadcast
             case 'partnerId':
             case 'sessionId':
             case 'broadcastUrls':
-            case 'status':
             case 'maxDuration':
             case 'streamMode':
                 return $this->data[$name];
@@ -170,6 +177,8 @@ class Broadcast
                 return $this->hasAudio;
             case 'hasVideo':
                 return $this->hasVideo;
+            case 'status':
+                return $this->status;
             default:
                 return null;
         }

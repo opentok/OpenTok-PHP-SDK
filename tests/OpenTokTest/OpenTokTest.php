@@ -1640,6 +1640,7 @@ class OpenTokTest extends TestCase
 		$this->assertTrue($broadcast->isHls);
 		$this->assertFalse($broadcast->isDvr);
 		$this->assertFalse($broadcast->isLowLatency);
+        $this->assertEquals('live', $broadcast->broadcastUrls['rtmp']['foo']['status']);
 	}
 
 	public function testCanStartBroadcastWithDvrEnabled(): void
