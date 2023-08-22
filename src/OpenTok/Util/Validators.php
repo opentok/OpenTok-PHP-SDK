@@ -486,4 +486,15 @@ class Validators
         }
         return $data;
     }
+
+    public static function validateBroadcastBitrate($maxBitRate): void
+    {
+        if (!is_int($maxBitRate)) {
+            throw new \InvalidArgumentException('Max Bitrate must be a number');
+        }
+
+        if ($maxBitRate < 400000 && $maxBitRate > 2000000) {
+            throw new \OutOfBoundsException('Max Bitrate must be between 400000 and 2000000');
+        }
+    }
 }

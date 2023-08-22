@@ -48,6 +48,9 @@ use OpenTok\Util\Validators;
 * @property string $status
 * Broadcast state. Either `started` or `stopped`
 *
+* @property string $maxBitRate
+* Max Bitrate allowed for the broadcast composing. Must be between 400000 and 2000000
+*
 * @property boolean $isLowLatency
 * Whether the broadcast supports low-latency mode for the HLS stream.
 *
@@ -91,6 +94,8 @@ class Broadcast
     private $hasVideo;
     /** @ignore */
     private $status;
+    /** @ignore */
+    private $maxBitRate;
 
     public function __construct($broadcastData, $options = array())
     {
@@ -121,6 +126,10 @@ class Broadcast
 
         if (isset($this->data['multiBroadcastTag'])) {
             $this->multiBroadcastTag = $this->data['multiBroadcastTag'];
+        }
+
+        if (isset($this->data['maxBitRate'])) {
+            $this->maxBitRate = $this->data['maxBitRate'];
         }
 
         if (isset($this->data['status'])) {
@@ -179,6 +188,8 @@ class Broadcast
                 return $this->hasVideo;
             case 'status':
                 return $this->status;
+            case 'maxBitRate':
+                return $this->maxBitRate;
             default:
                 return null;
         }

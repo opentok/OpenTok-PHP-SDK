@@ -823,6 +823,9 @@ class OpenTok
      *    "1920x1080" (FHD landscape), "480x640" (SD portrait), "720x1280" (HD portrait), or "1080x1920"
      *    (FHD portrait).</li>
      *
+     *    <li><code>maxBitRate</code> &mdash; Max Bitrate allowed for the broadcast composing. Must be between
+     *    400000 and 2000000.</li>
+     *
      *    <li><code>outputs</code> (Array) &mdash;
      *      Defines the HLS broadcast and RTMP streams. You can provide the following keys:
      *      <ul>
@@ -864,6 +867,10 @@ class OpenTok
         // not preferred to depend on that in the SDK because its then harder to garauntee backwards
         // compatibility
 
+        if (isset($options['maxBitRate'])) {
+            Validators::validateBroadcastBitrate($options['maxBitRate']);
+        }
+
         if (isset($options['resolution'])) {
             Validators::validateResolution($options['resolution']);
         }
@@ -882,6 +889,7 @@ class OpenTok
             'hasVideo' => true,
             'streamMode' => 'auto',
             'resolution' => '640x480',
+            'maxBitRate' => 2000000,
 	        'outputs' => [
 				'hls' => [
 	                'dvr' => false,
@@ -892,17 +900,13 @@ class OpenTok
 
         $options = array_merge($defaults, $options);
 
-        list($layout, $hasAudio, $hasVideo, $streamMode) = array_values($options);
-
-        // validate arguments
         Validators::validateSessionId($sessionId);
-        Validators::validateLayout($layout);
-        Validators::validateHasStreamMode($streamMode);
+        Validators::validateLayout($options['layout']);
+        Validators::validateHasStreamMode($options['streamMode']);
 
-        // make API call
         $broadcastData = $this->client->startBroadcast($sessionId, $options);
 
-        return new Broadcast($broadcastData, array('client' => $this->client));
+        return new Broadcast($broadcastData, ['client' => $this->client]);
     }
 
     /**
@@ -910,7 +914,7 @@ class OpenTok
      *
      * @param String $broadcastId The ID of the broadcast.
      */
-    public function stopBroadcast($broadcastId)
+    public function stopBroadcast($broadcastId): Broadcast
     {
         // validate arguments
         Validators::validateBroadcastId($broadcastId);
@@ -930,7 +934,7 @@ class OpenTok
      *
      * @return Broadcast An object with properties defining the broadcast.
      */
-    public function getBroadcast($broadcastId)
+    public function getBroadcast($broadcastId): Broadcast
     {
         Validators::validateBroadcastId($broadcastId);
 
