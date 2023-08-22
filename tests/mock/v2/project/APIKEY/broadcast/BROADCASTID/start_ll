@@ -5,14 +5,17 @@
   "createdAt":1472435659497,
   "broadcastUrls":{
     "hls":"https://cdn-broadcast001-dub.tokbox.com/29908/29908_6706b658-2eba-42cc-b4d2-7d01a104d182.smil/playlist.m3u8",
+    "hlsStatus": "ready",
     "rtmp": {
       "foo": {
         "serverUrl": "rtmp://myfooserver/myfooapp",
-        "streamName": "myfoostreamname"
+        "streamName": "myfoostreamname",
+        "status": "live"
       },
       "bar": {
         "serverUrl": "rtmp://mybarserver/mybarapp",
-        "streamName": "mybarstreamname"
+        "streamName": "mybarstreamname",
+        "status": "offline"
       }
     }
   },
@@ -21,6 +24,7 @@
   "status":"started",
   "partnerId":854511,
   "maxDuration":5400,
+  "maxBitRate": 2000000,
   "resolution": "1280x720",
   "streamMode": "auto",
   "hasAudio": true,
