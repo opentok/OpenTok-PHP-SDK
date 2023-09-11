@@ -1262,6 +1262,30 @@ class OpenTok
         return $this->client->connectAudio($sessionId, $token, $websocketOptions);
     }
 
+    public function startCaptions(
+        string $sessionId,
+        string $token,
+        ?string $languageCode = null,
+        ?int $maxDuration = null,
+        ?bool $partialCaptions = null,
+        ?string $statusCallbackUrl = null
+    ): array
+    {
+        return $this->client->startCaptions(
+            $sessionId,
+            $token,
+            $languageCode,
+            $maxDuration,
+            $partialCaptions,
+            $statusCallbackUrl
+        );
+    }
+
+    public function stopCaptions(string $captionsId)
+    {
+        return $this->client->stopCaptions($captionsId);
+    }
+
     /** @internal */
     private function signString($string, $secret)
     {
