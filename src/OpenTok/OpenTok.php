@@ -1262,6 +1262,39 @@ class OpenTok
         return $this->client->connectAudio($sessionId, $token, $websocketOptions);
     }
 
+    /**
+     *
+     * Use this method to start real-time Live Captions for an OpenTok Session.
+     *
+     * The maximum allowed duration is 4 hours, after which the audio captioning will stop without any effect on the
+     * ongoing OpenTok Session. An event will be posted to your callback URL if provided when starting the captions.
+     *
+     * Each OpenTok Session supports only one audio captioning session.
+     *
+     * For more information about the Live Captions feature, see the Live Captions developer guide.
+     *
+     * @param string $sessionId The session ID of the OpenTok session. The audio from Publishers publishing into
+     * this session will be used to generate the captions.
+     *
+     * @param string $token A valid OpenTok token with role set to Moderator.
+     *
+     * @param string $languageCode (Optional) The BCP-47 code for a spoken language used on this call. The default
+     * value is "en-US". The following language codes are supported: "en-AU" (English, Australia), "en-GB"
+     * (English, UK), "es-US" (English, US), "zh-CN” (Chinese, Simplified), "fr-FR" (French), "fr-CA" (French, Canadian),
+     * "de-DE" (German), "hi-IN" (Hindi, Indian), "it-IT" (Italian), "ja-JP" (Japanese), "ko-KR" (Korean),
+     * "pt-BR" (Portuguese, Brazilian), "th-TH" (Thai).
+     *
+     * @param int $maxDuration (Optional) The maximum duration for the audio captioning, in seconds. The default value
+     * is 14,400 seconds (4 hours), the maximum duration allowed.
+     *
+     * @param bool $partialCaptions (Optional) Whether to enable this to faster captioning at the cost of some
+     * degree of inaccuracies. The default value is true.
+     *
+     * @param string $statusCallbackUrl (Optional) A publicly reachable URL controlled by the customer and capable
+     * of generating the content to be rendered without user intervention. The minimum length of the URL
+     * is 15 characters and the maximum length is 2048 characters. For more information,
+     * see <a href="https://tokbox.com/developer/guides/live-captions/#live-caption-status-updates">Live Caption status updates.</a>
+     */
     public function startCaptions(
         string $sessionId,
         string $token,
@@ -1281,6 +1314,9 @@ class OpenTok
         );
     }
 
+    /**
+     * Use this method to stop live captions for a session.
+     */
     public function stopCaptions(string $captionsId)
     {
         return $this->client->stopCaptions($captionsId);
