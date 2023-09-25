@@ -2836,5 +2836,33 @@ class OpenTokTest extends TestCase
         $this->expectExceptionMessage('Default Timeout must be a number greater than zero');
         new OpenTok('1234', 'abd', ['timeout' => -1]);
     }
+
+    public function testCanStartCaptions(): void
+    {
+        $this->setupOTWithMocks([[
+            'code' => 202,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => '/v2/project/APIKEY/session/SESSIONID/caption-start'
+        ]]);
+
+        $result = $this->opentok->startCaptions('SESSION_ID', 'abc');
+        $this->assertEquals('7c0680fc-6274-4de5-a66f-d0648e8d3ac2', $result['captionsId']);
+    }
+
+    public function testCanStopCaptions(): void
+    {
+        $this->setupOTWithMocks([[
+            'code' => 202,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => '/v2/project/APIKEY/session/SESSIONID/caption-stop'
+        ]]);
+
+        $result = $this->opentok->stopCaptions('7c0680fc-6274-4de5-a66f-d0648e8d3ac2');
+        $this->assertTrue($result);
+    }
 }
 
