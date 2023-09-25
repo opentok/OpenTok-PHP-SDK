@@ -881,7 +881,73 @@ class Client
             $this->handleException($e);
             return false;
         }
+
         return $jsonResponse;
+    }
+
+    public function startCaptions(
+        string $sessionId,
+        string $token,
+        ?string $languageCode,
+        ?int $maxDuration,
+        ?bool $partialCaptions,
+        ?string $statusCallbackUrl
+    )
+    {
+        $request = new Request(
+            'POST',
+            '/v2/project/' . $this->apiKey . '/captions'
+        );
+
+        $body = [
+            'sessionId' => $sessionId,
+            'token' => $token,
+        ];
+
+        if ($languageCode !== null) {
+            $body['languageCode'] = $languageCode;
+        }
+
+        if ($maxDuration !== null) {
+            $body['maxDuration'] = $maxDuration;
+        }
+
+        if ($partialCaptions !== null) {
+            $body['partialCaptions'] = $partialCaptions;
+        }
+
+        if ($statusCallbackUrl !== null) {
+            $body['statusCallbackUrl'] = $statusCallbackUrl;
+        }
+
+        try {
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug(),
+                'json' => $body
+            ]);
+            $jsonResponse = json_decode($response->getBody(), true);
+        } catch (\Exception $e) {
+            $this->handleException($e);
+        }
+
+        return $jsonResponse;
+    }
+
+    public function stopCaptions(string $captionsId)
+    {
+        $request = new Request(
+            'POST',
+            '/v2/project/' . $this->apiKey . '/captions/' . $captionsId . '/stop'
+        );
+
+        try {
+            $this->client->send($request, [
+                'debug' => $this->isDebug(),
+            ]);
+            return true;
+        } catch (\Exception $e) {
+            $this->handleException($e);
+        }
     }
 
     private function handleException($e)
