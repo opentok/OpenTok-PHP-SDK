@@ -690,7 +690,7 @@ class Client
      * @param string $sessionId
      * @param string $token
      * @param string $sipUri
-     * @param array{secure: bool, headers?: array<string, string>, auth?: array{username: string, password: string}, from?: string, video?: boolean} $options
+     * @param array{secure: bool, headers?: array<string, string>, auth?: array{username: string, password: string}, from?: string, video?: boolean, streams?: array} $options
      * @return array{id: string, streamId: string, connectId: string}
      * @throws AuthenticationException
      * @throws DomainException
@@ -724,6 +724,10 @@ class Client
 
         if (array_key_exists('video', $options)) {
             $body['sip']['video'] = (bool) $options['video'];
+        }
+
+        if (array_key_exists('streams', $options)) {
+            $body['sip']['streams'] = $options['streams'];
         }
 
         // set up the request

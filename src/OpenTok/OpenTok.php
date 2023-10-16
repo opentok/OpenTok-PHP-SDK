@@ -1140,7 +1140,8 @@ class OpenTok
             'secure' => true,
             'from' => null,
             'video' => false,
-            'observeForceMute' => false
+            'observeForceMute' => false,
+            'streams' => null
         );
 
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
