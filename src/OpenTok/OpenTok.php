@@ -1123,6 +1123,9 @@ class OpenTok
      *    on PSTN phones. If from is undefined or set to a string (for example, "joe@example.com"),
      *    +00000000 will show up as the incoming number on PSTN phones.</li>
      *
+     *    <li><code>'streams'</code> (array) &mdash; The Stream IDs of the participants which will included in the SIP
+     *    call. If not provided, all streams in session will be selected.</li>
+     *
      * </ul>
      *
      * @return SipCall An object contains the OpenTok connection ID and stream ID
