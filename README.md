@@ -1,5 +1,16 @@
 # OpenTok PHP SDK
 
+>## Notice
+>
+> This library is designed to work with the Tokbox/OpenTok platform, part of the Vonage Video API. If you are looking to use the Vonage Video API and using the Vonage Customer Dashboard, you will want to install the
+> [Vonage Server SDK for PHP]((https://github.com/Vonage/vonage-php-sdk-video)), which includes support for the Vonage Video API.
+>
+> Not sure which exact platform you are using? Take a look at [this guide](https://api.support.vonage.com/hc/en-us/articles/10817774782492).
+>
+> If you are using the Tokbox platform, do not worry! The Tokbox platform is not going away, and this library will continue to be updated. While we encourage customers to check out the new Unified platform, there is no rush to  > switch. Both platforms run the exact same infrastructure and capabilities, with the main difference is a unified billing interface and easier access to [Vonage’s other CPaaS APIs](https://www.vonage.com/communications-apis/).
+>
+> If you are new to the Vonage Video API, head on over to the [Vonage Customer Dashboard](https://dashboard.vonage.com) to sign up for a developer account and check out the [Vonage Server SDK for <language>](link to core SDK). 
+
 [![Build Status](https://travis-ci.org/opentok/OpenTok-PHP-SDK.svg)](https://travis-ci.org/opentok/OpenTok-PHP-SDK) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)
 
 <img src="https://assets.tokbox.com/img/vonage/Vonage_VideoAPI_black.svg" height="48px" alt="Tokbox is now known as Vonage" />
