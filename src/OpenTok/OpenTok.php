@@ -2,7 +2,6 @@
 
 namespace OpenTok;
 
-use OpenTok\Layout;
 use OpenTok\Util\Client;
 use OpenTok\Util\Validators;
 use OpenTok\Exception\InvalidArgumentException;
@@ -27,6 +26,8 @@ class OpenTok
     private $apiSecret;
     /** @internal */
     private $client;
+    /** @internal */
+    public $options;
 
     /** @internal */
     public function __construct($apiKey, $apiSecret, $options = array())
@@ -37,8 +38,10 @@ class OpenTok
             'client' => null,
             'timeout' => null // In the future we should set this to 2
         );
-        $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($apiUrl, $client, $timeout) = array_values($options);
+
+        $this->options = array_merge($defaults, array_intersect_key($options, $defaults));
+
+        list($apiUrl, $client, $timeout) = array_values($this->options);
 
         // validate arguments
         Validators::validateApiKey($apiKey);
@@ -53,7 +56,7 @@ class OpenTok
                 $apiKey,
                 $apiSecret,
                 $apiUrl,
-                ['timeout' => $timeout]
+                array_merge(['timeout' => $timeout], $this->options)
             );
         }
         $this->apiKey = $apiKey;
@@ -166,6 +169,15 @@ class OpenTok
     *    (either automatically or not), you must set the <code>mediaMode</code> key to
     *    <code>MediaMode::ROUTED</code>.</li>
     *
+    *    <li><code>'e2ee'</code> (Boolean) &mdash; Whether to enable
+    *    <a href="https://tokbox.com/developer/guides/end-to-end-encryption">end-to-end encryption</a>
+    *    for a routed session.</li>
+    *
+    *    <li><code>archiveName</code> (String) &mdash; Name of the archives in auto archived sessions</li>
+     *
+     *   <li><code>archiveResolution</code> (Enum) &mdash; Resolution of the archives in
+     *   auto archived sessions. Can be one of "480x640", "640x480", "720x1280", "1280x720", "1080x1920", "1920x1080"</li>
+    *
     *    <li><code>'location'</code> (String) &mdash; An IP address that the OpenTok servers
     *    will use to situate the session in its global network. If you do not set a location hint,
     *    the OpenTok servers will be based on the first client connecting to the session.</li>
@@ -212,11 +224,11 @@ class OpenTok
     {
         if (
             array_key_exists('archiveMode', $options) &&
-            $options['archiveMode'] != ArchiveMode::MANUAL
+            $options['archiveMode'] !== ArchiveMode::MANUAL
         ) {
             if (
                 array_key_exists('mediaMode', $options) &&
-                $options['mediaMode'] != MediaMode::ROUTED
+                $options['mediaMode'] !== MediaMode::ROUTED
             ) {
                 throw new InvalidArgumentException('A session must be routed to be archived.');
             } else {
@@ -224,18 +236,53 @@ class OpenTok
             }
         }
 
+        if (array_key_exists('e2ee', $options) && $options['e2ee']) {
+
+            if (array_key_exists('mediaMode', $options) && $options['mediaMode'] !== MediaMode::ROUTED) {
+                throw new InvalidArgumentException('MediaMode must be routed in order to enable E2EE');
+            }
+
+            if (array_key_exists('archiveMode', $options) && $options['archiveMode'] === ArchiveMode::ALWAYS) {
+                throw new InvalidArgumentException('ArchiveMode cannot be set to always when using E2EE');
+            }
+
+            $options['e2ee'] = 'true';
+        }
+
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array(
             'mediaMode' => MediaMode::RELAYED,
             'archiveMode' => ArchiveMode::MANUAL,
-            'location' => null
+            'location' => null,
+            'e2ee' => 'false',
+            'archiveName' => null,
+            'archiveResolution' => null
         );
+
+        // Have to hack this because the default system in these classes needs total refactor
+        $resolvedArchiveMode = array_merge($defaults, array_intersect_key($options, $defaults));
+
+        if ($resolvedArchiveMode['archiveMode'] === ArchiveMode::ALWAYS) {
+            $defaults['archiveResolution'] = '640x480';
+        }
+
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($mediaMode, $archiveMode, $location) = array_values($options);
+
+        // Have to hack this because the default system in these classes needs total refactor
+        if ($options['archiveName'] === null) {
+            unset($options['archiveName']);
+        }
+
+        if ($options['archiveResolution'] === null) {
+            unset($options['archiveResolution']);
+        }
+
+        list($mediaMode, $archiveMode, $location, $e2ee) = array_values($options);
 
         // validate arguments
         Validators::validateMediaMode($mediaMode);
         Validators::validateArchiveMode($archiveMode);
+        Validators::validateAutoArchiveMode($archiveMode, $options);
         Validators::validateLocation($location);
 
         // make API call
@@ -251,7 +298,8 @@ class OpenTok
         return new Session($this, (string)$sessionId, array(
             'location' => $location,
             'mediaMode' => $mediaMode,
-            'archiveMode' => $archiveMode
+            'archiveMode' => $archiveMode,
+            'e2ee' => $e2ee
         ));
     }
 
@@ -783,6 +831,9 @@ class OpenTok
      *    "1920x1080" (FHD landscape), "480x640" (SD portrait), "720x1280" (HD portrait), or "1080x1920"
      *    (FHD portrait).</li>
      *
+     *    <li><code>maxBitRate</code> &mdash; Max Bitrate allowed for the broadcast composing. Must be between
+     *    400000 and 2000000.</li>
+     *
      *    <li><code>outputs</code> (Array) &mdash;
      *      Defines the HLS broadcast and RTMP streams. You can provide the following keys:
      *      <ul>
@@ -824,23 +875,30 @@ class OpenTok
         // not preferred to depend on that in the SDK because its then harder to garauntee backwards
         // compatibility
 
+        if (isset($options['maxBitRate'])) {
+            Validators::validateBroadcastBitrate($options['maxBitRate']);
+        }
+
         if (isset($options['resolution'])) {
             Validators::validateResolution($options['resolution']);
         }
 
-	    if (isset($options['output']['hls'])) {
-		    Validators::validateBroadcastOutputOptions($options['output']['hls']);
+	    if (isset($options['outputs']['hls'])) {
+		    Validators::validateBroadcastOutputOptions($options['outputs']['hls']);
 	    }
 
-		if (isset($options['output']['rtmp'])) {
-			Validators::validateRtmpStreams($options['output']['rtmp']);
+		if (isset($options['outputs']['rtmp'])) {
+			Validators::validateRtmpStreams($options['outputs']['rtmp']);
 		}
 
         $defaults = [
             'layout' => Layout::getBestFit(),
+            'hasAudio' => true,
+            'hasVideo' => true,
             'streamMode' => 'auto',
             'resolution' => '640x480',
-	        'output' => [
+            'maxBitRate' => 2000000,
+	        'outputs' => [
 				'hls' => [
 	                'dvr' => false,
 					'lowLatency' => false
@@ -850,17 +908,13 @@ class OpenTok
 
         $options = array_merge($defaults, $options);
 
-        list($layout, $streamMode) = array_values($options);
-
-        // validate arguments
         Validators::validateSessionId($sessionId);
-        Validators::validateLayout($layout);
-        Validators::validateHasStreamMode($streamMode);
+        Validators::validateLayout($options['layout']);
+        Validators::validateHasStreamMode($options['streamMode']);
 
-        // make API call
         $broadcastData = $this->client->startBroadcast($sessionId, $options);
 
-        return new Broadcast($broadcastData, array('client' => $this->client));
+        return new Broadcast($broadcastData, ['client' => $this->client]);
     }
 
     /**
@@ -868,7 +922,7 @@ class OpenTok
      *
      * @param String $broadcastId The ID of the broadcast.
      */
-    public function stopBroadcast($broadcastId)
+    public function stopBroadcast($broadcastId): Broadcast
     {
         // validate arguments
         Validators::validateBroadcastId($broadcastId);
@@ -888,7 +942,7 @@ class OpenTok
      *
      * @return Broadcast An object with properties defining the broadcast.
      */
-    public function getBroadcast($broadcastId)
+    public function getBroadcast($broadcastId): Broadcast
     {
         Validators::validateBroadcastId($broadcastId);
 
@@ -995,7 +1049,7 @@ class OpenTok
     }
 
     /**
-     * Returns a StreamList Object for the given session ID.
+     *  Returns a StreamList Object for the given session ID.
      *
      * @param String $sessionId The session ID.
      *
@@ -1077,6 +1131,9 @@ class OpenTok
      *    on PSTN phones. If from is undefined or set to a string (for example, "joe@example.com"),
      *    +00000000 will show up as the incoming number on PSTN phones.</li>
      *
+     *    <li><code>'streams'</code> (array) &mdash; The Stream IDs of the participants which will included in the SIP
+     *    call. If not provided, all streams in session will be selected.</li>
+     *
      * </ul>
      *
      * @return SipCall An object contains the OpenTok connection ID and stream ID
@@ -1094,7 +1151,8 @@ class OpenTok
             'secure' => true,
             'from' => null,
             'video' => false,
-            'observeForceMute' => false
+            'observeForceMute' => false,
+            'streams' => null
         );
 
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
@@ -1180,6 +1238,100 @@ class OpenTok
             // make API call with connectionId
             $this->client->signal($sessionId, $payload, $connectionId);
         }
+    }
+
+    /**
+     * Starts an <a href="https://tokbox.com/developer/guides/audio-connector/">Audio Connector</a>
+     * WebSocket connection. to send audio from a Vonage Video API session to a WebSocket.
+     *
+     * @param string $sessionId The session ID.
+     *
+     * @param string $token The OpenTok token to be used for the Audio Connector to the
+     * OpenTok session. You can add token data to identify that the connection
+     * is the Audio Connector endpoint or for other identifying data.
+     *
+     * @param array $websocketOptions Configuration for the Websocket. Contains the following keys:
+     * <ul>
+     *    <li><code>'uri'</code> (string) &mdash; A publically reachable WebSocket URI controlled by the customer for the destination of the connect call. (f.e. wss://service.com/wsendpoint)</li>
+     *    <li><code>'streams'</code> (array) &mdash; (Optional) The stream IDs of the participants' whose audio is going to be connected. If not provided, all streams in session will be selected.</li>
+     *    <li><code>'headers'</code> (array) &mdash; (Optional) An object of key/val pairs with additional properties to send to your Websocket server, with a maximum length of 512 bytes.</li>
+     * </ul>
+     *
+     * @return array $response Response from the API, structured as follows:
+     * <ul>
+     *    <li><code>'id'</code> (string) &mdash; A unique ID identifying the Audio Connector
+     *    WebSocket.</li>
+     *    <li><code>'connectionId'</code> (string) &mdash; Opentok client connectionId that has been created. This connection will subscribe and forward the streams defined in the payload to the WebSocket, as any other participant, will produce a connectionCreated event on the session.</li>
+     * </ul>
+     *
+     *
+     */
+    public function connectAudio(string $sessionId, string $token, array $websocketOptions)
+    {
+        Validators::validateSessionId($sessionId);
+        Validators::validateWebsocketOptions($websocketOptions);
+
+        return $this->client->connectAudio($sessionId, $token, $websocketOptions);
+    }
+
+    /**
+     *
+     * Use this method to start real-time Live Captions for an OpenTok Session.
+     *
+     * The maximum allowed duration is 4 hours, after which the audio captioning will stop without any effect on the
+     * ongoing OpenTok Session. An event will be posted to your callback URL if provided when starting the captions.
+     *
+     * Each OpenTok Session supports only one audio captioning session.
+     *
+     * For more information about the Live Captions feature, see the Live Captions developer guide.
+     *
+     * @param string $sessionId The session ID of the OpenTok session. The audio from Publishers publishing into
+     * this session will be used to generate the captions.
+     *
+     * @param string $token A valid OpenTok token with role set to Moderator.
+     *
+     * @param string $languageCode (Optional) The BCP-47 code for a spoken language used on this call. The default
+     * value is "en-US". The following language codes are supported: "en-AU" (English, Australia), "en-GB"
+     * (English, UK), "es-US" (English, US), "zh-CN” (Chinese, Simplified), "fr-FR" (French), "fr-CA" (French, Canadian),
+     * "de-DE" (German), "hi-IN" (Hindi, Indian), "it-IT" (Italian), "ja-JP" (Japanese), "ko-KR" (Korean),
+     * "pt-BR" (Portuguese, Brazilian), "th-TH" (Thai).
+     *
+     * @param int $maxDuration (Optional) The maximum duration for the audio captioning, in seconds. The default value
+     * is 14,400 seconds (4 hours), the maximum duration allowed.
+     *
+     * @param bool $partialCaptions (Optional) Whether to enable this to faster captioning at the cost of some
+     * degree of inaccuracies. The default value is true.
+     *
+     * @param string $statusCallbackUrl (Optional) A publicly reachable URL controlled by the customer and capable
+     * of generating the content to be rendered without user intervention. The minimum length of the URL
+     * is 15 characters and the maximum length is 2048 characters. For more information,
+     * see <a href="https://tokbox.com/developer/guides/live-captions/#live-caption-status-updates">Live Caption status updates.</a>
+     */
+    public function startCaptions(
+        string $sessionId,
+        string $token,
+        ?string $languageCode = null,
+        ?int $maxDuration = null,
+        ?bool $partialCaptions = null,
+        ?string $statusCallbackUrl = null
+    ): array
+    {
+        return $this->client->startCaptions(
+            $sessionId,
+            $token,
+            $languageCode,
+            $maxDuration,
+            $partialCaptions,
+            $statusCallbackUrl
+        );
+    }
+
+    /**
+     * Use this method to stop live captions for a session.
+     */
+    public function stopCaptions(string $captionsId)
+    {
+        return $this->client->stopCaptions($captionsId);
     }
 
     /** @internal */

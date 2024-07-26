@@ -28,4 +28,9 @@ abstract class Role extends BasicEnum
     * <a href="https://tokbox.com/developer/guides/moderation/">Moderation developer guide</a>.
     */
     const MODERATOR = 'moderator';
+
+    /**
+     * @var string
+     */
+    const PUBLISHER_ONLY = 'publisheronly';
 }

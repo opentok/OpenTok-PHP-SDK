@@ -32,16 +32,25 @@ class Session
      * @internal
      */
     protected $opentok;
+    /**
+     * @internal
+     */
+    protected $e2ee;
 
     /**
      * @internal
      */
     public function __construct($opentok, $sessionId, $properties = array())
     {
-        // unpack arguments
-        $defaults = array('mediaMode' => MediaMode::ROUTED, 'archiveMode' => ArchiveMode::MANUAL, 'location' => null);
+        $defaults = [
+            'mediaMode' => MediaMode::ROUTED,
+            'archiveMode' => ArchiveMode::MANUAL,
+            'location' => null,
+            'e2ee' => false
+        ];
+
         $properties = array_merge($defaults, array_intersect_key($properties, $defaults));
-        list($mediaMode, $archiveMode, $location) = array_values($properties);
+        list($mediaMode, $archiveMode, $location, $e2ee) = array_values($properties);
 
         Validators::validateOpenTok($opentok);
         Validators::validateSessionId($sessionId);
@@ -54,6 +63,7 @@ class Session
         $this->location = $location;
         $this->mediaMode = $mediaMode;
         $this->archiveMode = $archiveMode;
+        $this->e2ee = $e2ee;
     }
 
     /**
@@ -147,5 +157,16 @@ class Session
     public function generateToken($options = array())
     {
         return $this->opentok->generateToken($this->sessionId, $options);
+    }
+
+    /**
+     * Whether <a href="https://tokbox.com/developer/guides/end-to-end-encryption">end-to-end encryption</a>
+     * is set for the session.
+     *
+     * @return bool
+     */
+    public function getE2EE(): bool
+    {
+        return (bool)$this->e2ee;
     }
 }

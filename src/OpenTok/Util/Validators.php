@@ -2,6 +2,7 @@
 
 namespace OpenTok\Util;
 
+use OpenTok\Archive;
 use OpenTok\Util\Client;
 use OpenTok\Layout;
 use OpenTok\Role;
@@ -61,6 +62,7 @@ class Validators
             throw new InvalidArgumentException('The apiSecret was not a string: ' . print_r($apiSecret, true));
         }
     }
+
     public static function validateApiUrl($apiUrl)
     {
         if (!(is_string($apiUrl) && filter_var($apiUrl, FILTER_VALIDATE_URL))) {
@@ -69,6 +71,7 @@ class Validators
             );
         }
     }
+
     public static function validateClient($client)
     {
         if (isset($client) && !($client instanceof Client)) {
@@ -280,6 +283,7 @@ class Validators
             );
         }
     }
+
     public static function validateArchiveMode($archiveMode)
     {
         if (!ArchiveMode::isValidValue($archiveMode)) {
@@ -288,6 +292,22 @@ class Validators
             );
         }
     }
+
+    public static function validateAutoArchiveMode($archiveMode, $options)
+    {
+        if ($archiveMode === ArchiveMode::MANUAL) {
+            foreach (['archiveName', 'archiveResolution'] as $key) {
+                if (array_key_exists($key, $options)) {
+                    throw new InvalidArgumentException('Cannot set ' . $key . ' when Archive mode is Manual');
+                }
+            }
+        }
+
+        if (array_key_exists('archiveResolution', $options)) {
+            self::validateAutoArchiveResolution($options['archiveResolution']);
+        }
+    }
+
     public static function validateLocation($location)
     {
         if ($location != null && !filter_var($location, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
@@ -387,7 +407,7 @@ class Validators
 
     public static function validateStreamId($streamId)
     {
-        if (!(is_string($streamId))) {
+        if (!(is_string($streamId)) || empty($streamId)) {
             throw new InvalidArgumentException('The streamId was not a string: ' . print_r($streamId, true));
         }
     }
@@ -401,15 +421,34 @@ class Validators
         }
     }
 
+    public static function validateWebsocketOptions(array $websocketOptions)
+    {
+        if (!array_key_exists('uri', $websocketOptions)) {
+            throw new InvalidArgumentException('Websocket configuration must have a uri');
+        }
+    }
+
+    public static function validateAutoArchiveResolution($archiveResolution)
+    {
+        if (! in_array($archiveResolution, Archive::getPermittedResolutions(), true)) {
+            throw new InvalidArgumentException($archiveResolution . ' is not a valid resolution');
+        }
+    }
+
     public static function validateLayoutClassListItem($layoutClassList)
     {
+        if (!is_array($layoutClassList)) {
+            throw new InvalidArgumentException('Each element in the streamClassArray must have a layoutClassList array.');
+        }
+
         if (!is_string($layoutClassList['id'])) {
             throw new InvalidArgumentException('Each element in the streamClassArray must have an id string.');
         }
 
-        if (!is_array($layoutClassList)) {
-            throw new InvalidArgumentException('Each element in the streamClassArray must have a layoutClassList array.');
+        if (!isset($layoutClassList['layoutClassList'])) {
+            throw new InvalidArgumentException('layoutClassList not set in array');
         }
+
         if (!is_array($layoutClassList['layoutClassList'])) {
             throw new InvalidArgumentException('Each element in the layoutClassList array must be a string (defining class names).');
         }
@@ -436,16 +475,19 @@ class Validators
         throw new InvalidArgumentException('DTMF digits can only support 0-9, p, #, and * characters');
     }
 
-    // Helpers
-
-    // credit: http://stackoverflow.com/a/173479
     public static function isAssoc($arr): bool
     {
-        if (array() === $arr) {
-            return false;
+        if (!function_exists('array_is_list')) {
+            function array_is_list(array $arr): bool
+            {
+                if ($arr === []) {
+                    return true;
+                }
+                return array_keys($arr) === range(0, count($arr) - 1);
+            }
         }
 
-        return array_keys($arr) !== range(0, count($arr) - 1);
+        return !array_is_list($arr);
     }
 
     protected static function decodeSessionId($sessionId)
@@ -459,5 +501,16 @@ class Validators
             $data = array_merge($data, $dataItems);
         }
         return $data;
+    }
+
+    public static function validateBroadcastBitrate($maxBitRate): void
+    {
+        if (!is_int($maxBitRate)) {
+            throw new \InvalidArgumentException('Max Bitrate must be a number');
+        }
+
+        if ($maxBitRate < 400000 && $maxBitRate > 2000000) {
+            throw new \OutOfBoundsException('Max Bitrate must be between 400000 and 2000000');
+        }
     }
 }

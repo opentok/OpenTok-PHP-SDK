@@ -44,6 +44,12 @@ use OpenTok\Util\Validators;
 *
 * @property boolean $isDvr
 * Whether the broadcast supports DVR functionality for the HLS stream.
+
+* @property string $status
+* Broadcast state. Either `started` or `stopped`
+*
+* @property string $maxBitRate
+* Max Bitrate allowed for the broadcast composing. Must be between 400000 and 2000000
 *
 * @property boolean $isLowLatency
 * Whether the broadcast supports low-latency mode for the HLS stream.
@@ -82,7 +88,15 @@ class Broadcast
     private $multiBroadcastTag;
     /** @ignore */
     private $resolution;
-    
+    /** @ignore */
+    private $hasAudio;
+    /** @ignore */
+    private $hasVideo;
+    /** @ignore */
+    private $status;
+    /** @ignore */
+    private $maxBitRate;
+
     public function __construct($broadcastData, $options = array())
     {
         // unpack optional arguments (merging with default values) into named variables
@@ -98,14 +112,15 @@ class Broadcast
             'isHls' => true,
             'isLowLatency' => false,
             'isDvr' => false,
+            'hasAudio' => true,
+            'hasVideo' => true
         );
-        $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($apiKey, $apiSecret, $apiUrl, $client, $isStopped, $streamMode) = array_values($options);
 
-        // validate params
+        $options = array_merge($defaults, array_intersect_key($options, $defaults));
+
         Validators::validateBroadcastData($broadcastData);
-        Validators::validateClient($client);
-        Validators::validateHasStreamMode($streamMode);
+        Validators::validateClient($options['client']);
+        Validators::validateHasStreamMode($options['streamMode']);
 
         $this->data = $broadcastData;
 
@@ -113,19 +128,30 @@ class Broadcast
             $this->multiBroadcastTag = $this->data['multiBroadcastTag'];
         }
 
-        $this->isStopped = $isStopped;
+        if (isset($this->data['maxBitRate'])) {
+            $this->maxBitRate = $this->data['maxBitRate'];
+        }
+
+        if (isset($this->data['status'])) {
+            $this->status = $this->data['status'];
+        }
+
+        $this->isStopped = $options['isStopped'];
         $this->resolution = $this->data['resolution'];
         $this->isHls = isset($this->data['settings']['hls']);
         $this->isLowLatency = $this->data['settings']['hls']['lowLatency'] ?? false;
         $this->isDvr = $this->data['settings']['hls']['dvr'] ?? false;
+        $this->hasAudio = $options['hasAudio'];
+        $this->hasVideo = $options['hasVideo'];
 
-        $this->client = isset($client) ? $client : new Client();
+        $this->client = $options['client'] ?? new Client();
+
         if (!$this->client->isConfigured()) {
-            Validators::validateApiKey($apiKey);
-            Validators::validateApiSecret($apiSecret);
-            Validators::validateApiUrl($apiUrl);
+            Validators::validateApiKey($options['apiKey']);
+            Validators::validateApiSecret($options['apiSecret']);
+            Validators::validateApiUrl($options['apiUrl']);
 
-            $this->client->configure($apiKey, $apiSecret, $apiUrl);
+            $this->client->configure($options['apiKey'], $options['apiSecret'], $options['apiUrl']);
         }
     }
 
@@ -139,7 +165,6 @@ class Broadcast
             case 'partnerId':
             case 'sessionId':
             case 'broadcastUrls':
-            case 'status':
             case 'maxDuration':
             case 'streamMode':
                 return $this->data[$name];
@@ -157,6 +182,14 @@ class Broadcast
                 return $this->isDvr;
             case 'multiBroadcastTag':
                 return $this->multiBroadcastTag;
+            case 'hasAudio':
+                return $this->hasAudio;
+            case 'hasVideo':
+                return $this->hasVideo;
+            case 'status':
+                return $this->status;
+            case 'maxBitRate':
+                return $this->maxBitRate;
             default:
                 return null;
         }

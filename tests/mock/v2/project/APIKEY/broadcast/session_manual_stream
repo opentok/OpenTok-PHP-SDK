@@ -20,6 +20,7 @@
   "status":"started",
   "partnerId":854511,
   "maxDuration":5400,
+  "maxBitRate": 2000000,
   "resolution": "1280x720",
   "streamMode": "manual"
 }
