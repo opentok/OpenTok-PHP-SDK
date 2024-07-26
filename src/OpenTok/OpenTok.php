@@ -502,6 +502,14 @@ class OpenTok
             'resolution' => null,
             'streamMode' => StreamMode::AUTO,
         );
+        if (isset($options['multiArchiveTag'])) {
+            $defaults['multiArchiveTag'] = $options['multiArchiveTag'];
+            Validators::validateArchiveMultiArchiveTag($defaults['multiArchiveTag']);
+        }
+        if (isset($options['layout'])) {
+            $defaults['layout'] = $options['layout'];
+            Validators::validateArchiveLayout($defaults['layout']);
+        }
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
         list($name, $hasVideo, $hasAudio, $outputMode, $resolution, $streamMode) = array_values($options);
 
