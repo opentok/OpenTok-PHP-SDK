@@ -6,6 +6,7 @@ use OpenTok\Util\Client;
 use OpenTok\Util\Validators;
 use OpenTok\Exception\InvalidArgumentException;
 use OpenTok\Exception\UnexpectedValueException;
+use Vonage\JWT\TokenGenerator;
 
 /**
 * Contains methods for creating OpenTok sessions, generating tokens, and working with archives.
@@ -19,7 +20,6 @@ use OpenTok\Exception\UnexpectedValueException;
 */
 class OpenTok
 {
-
     /** @internal */
     private $apiKey;
     /** @internal */
@@ -104,11 +104,37 @@ class OpenTok
      *
      * </ul>
      *
+     * @param bool $legacy By default, OpenTok uses SHA256 JWTs for authentication. Switching
+     * legacy to true will create a deprecated T1 token for backwards compatibility.
+     *
      * @return string The token string.
      */
-    public function generateToken($sessionId, $options = array())
+    public function generateToken($sessionId, $options = array(), $legacy = false)
     {
-        // unpack optional arguments (merging with default values) into named variables
+        if ($legacy) {
+            return $this->returnLegacyToken($sessionId, $options);
+        }
+
+        $defaults = [
+            'sessionId' => $sessionId,
+            'role' => Role::PUBLISHER,
+            'exp' => null,
+            'data' => null,
+            'initialLayoutClassList' => [''],
+        ];
+
+        $options = array_merge($defaults, array_intersect_key($options, $defaults));
+
+        $generator = new TokenGenerator($this->apiKey, $this->apiSecret);
+        foreach ($options as $key => $value) {
+            $generator->addClaim($key, $value);
+        }
+
+        return $generator->generate();
+    }
+
+    private function returnLegacyToken(string $sessionId, array $options = []): string
+    {
         $defaults = array(
             'role' => Role::PUBLISHER,
             'expireTime' => null,
@@ -237,7 +263,6 @@ class OpenTok
         }
 
         if (array_key_exists('e2ee', $options) && $options['e2ee']) {
-
             if (array_key_exists('mediaMode', $options) && $options['mediaMode'] !== MediaMode::ROUTED) {
                 throw new InvalidArgumentException('MediaMode must be routed in order to enable E2EE');
             }
@@ -875,13 +900,13 @@ class OpenTok
             Validators::validateResolution($options['resolution']);
         }
 
-	    if (isset($options['outputs']['hls'])) {
-		    Validators::validateBroadcastOutputOptions($options['outputs']['hls']);
-	    }
+        if (isset($options['outputs']['hls'])) {
+            Validators::validateBroadcastOutputOptions($options['outputs']['hls']);
+        }
 
-		if (isset($options['outputs']['rtmp'])) {
-			Validators::validateRtmpStreams($options['outputs']['rtmp']);
-		}
+        if (isset($options['outputs']['rtmp'])) {
+            Validators::validateRtmpStreams($options['outputs']['rtmp']);
+        }
 
         $defaults = [
             'layout' => Layout::getBestFit(),
@@ -890,11 +915,11 @@ class OpenTok
             'streamMode' => 'auto',
             'resolution' => '640x480',
             'maxBitRate' => 2000000,
-	        'outputs' => [
-				'hls' => [
-	                'dvr' => false,
-					'lowLatency' => false
-				]
+            'outputs' => [
+                'hls' => [
+                    'dvr' => false,
+                    'lowLatency' => false
+                ]
             ]
         ];
 
@@ -1306,8 +1331,7 @@ class OpenTok
         ?int $maxDuration = null,
         ?bool $partialCaptions = null,
         ?string $statusCallbackUrl = null
-    ): array
-    {
+    ): array {
         return $this->client->startCaptions(
             $sessionId,
             $token,

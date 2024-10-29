@@ -154,9 +154,9 @@ class Session
      *
      * @return string The token string.
      */
-    public function generateToken($options = array())
+    public function generateToken($options = array(), bool $legacy = false)
     {
-        return $this->opentok->generateToken($this->sessionId, $options);
+        return $this->opentok->generateToken($this->sessionId, $options, $legacy);
     }
 
     /**

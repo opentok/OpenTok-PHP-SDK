@@ -156,7 +156,7 @@ class SessionTest extends TestCase
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
         $session = new Session($opentok, $sessionId);
 
-        $token = $session->generateToken();
+        $token = $session->generateToken([], true);
 
         $this->assertIsString($token);
         $decodedToken = TestHelpers::decodeToken($token);

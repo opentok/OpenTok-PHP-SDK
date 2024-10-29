@@ -582,7 +582,7 @@ class OpenTokTest extends TestCase
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
         // Act
-        $token = $opentok->generateToken($sessionId);
+        $token = $opentok->generateToken($sessionId, [], true);
 
         // Assert
         $this->assertIsString($token);
@@ -613,7 +613,7 @@ class OpenTokTest extends TestCase
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
         // Act
-        $token = $opentok->generateToken($sessionId, array('role' => Role::MODERATOR));
+        $token = $opentok->generateToken($sessionId, array('role' => Role::MODERATOR), true);
 
         // Assert
         $this->assertIsString($token);
@@ -645,7 +645,7 @@ class OpenTokTest extends TestCase
         // Act
         // expires in one hour (60 seconds * 60 minutes)
         $inOneHour = time() + (60 * 60);
-        $token = $opentok->generateToken($sessionId, array('expireTime' => $inOneHour ));
+        $token = $opentok->generateToken($sessionId, array('expireTime' => $inOneHour ), true);
 
         // Assert
         $this->assertIsString($token);
@@ -675,7 +675,7 @@ class OpenTokTest extends TestCase
 
         // Act
         $userStatus = '{nick:"johnny",status:"hey there fellas!"}';
-        $token = $opentok->generateToken($sessionId, array('data' => $userStatus ));
+        $token = $opentok->generateToken($sessionId, array('data' => $userStatus), true);
 
         // Assert
         $this->assertIsString($token);
@@ -712,7 +712,7 @@ class OpenTokTest extends TestCase
         // Act
         $token = $opentok->generateToken($sessionId, array(
             'initialLayoutClassList' => $initialLayouClassList
-        ));
+        ), true);
 
         // Assert
         $this->assertIsString($token);
@@ -737,7 +737,7 @@ class OpenTokTest extends TestCase
     {
         $this->expectException('InvalidArgumentException');
         $this->setupOT();
-        $token = $this->opentok->generateToken('SESSIONID', array('role' => 'notarole'));
+        $token = $this->opentok->generateToken('SESSIONID', array('role' => 'notarole'), true);
     }
 
     public function testStartsArchive(): void
