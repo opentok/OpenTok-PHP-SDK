@@ -2,10 +2,19 @@
 
 namespace OpenTok;
 
+use DateTimeImmutable;
+use Firebase\JWT\Key;
+use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Encoding\ChainedFormatter;
+use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Signer\Key\InMemory;
+use Lcobucci\JWT\Signer\Rsa\Sha256;
+use Lcobucci\JWT\Token\Builder;
 use OpenTok\Util\Client;
 use OpenTok\Util\Validators;
 use OpenTok\Exception\InvalidArgumentException;
 use OpenTok\Exception\UnexpectedValueException;
+use Ramsey\Uuid\Uuid;
 use Vonage\JWT\TokenGenerator;
 
 /**
@@ -109,28 +118,47 @@ class OpenTok
      *
      * @return string The token string.
      */
-    public function generateToken($sessionId, $options = array(), $legacy = false)
+    public function generateToken(string $sessionId, array $options = array(), bool $legacy = false): string
     {
         if ($legacy) {
             return $this->returnLegacyToken($sessionId, $options);
         }
 
+        $issuedAt = new \DateTimeImmutable('@' . time());
+
         $defaults = [
-            'sessionId' => $sessionId,
+            'session_id' => $sessionId,
             'role' => Role::PUBLISHER,
-            'exp' => null,
-            'data' => null,
-            'initialLayoutClassList' => [''],
+            'expireTime' => null,
+            'initial_layout_list' => [''],
+            'ist' => 'project',
+            'nonce' => mt_rand(),
+            'scope' => 'session.connect'
         ];
 
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
 
-        $generator = new TokenGenerator($this->apiKey, $this->apiSecret);
-        foreach ($options as $key => $value) {
-            $generator->addClaim($key, $value);
+        $builder = new Builder(new JoseEncoder(), ChainedFormatter::default());
+        $builder = $builder->issuedBy($this->apiKey);
+
+        if ($options['expireTime']) {
+            $expiry = new \DateTimeImmutable('@' . $options['expireTime']);
+            $builder = $builder->expiresAt($expiry);
         }
 
-        return $generator->generate();
+        unset($options['expireTime']);
+
+        $builder = $builder->issuedAt($issuedAt);
+        $builder = $builder->canOnlyBeUsedAfter($issuedAt);
+        $builder = $builder->identifiedBy(bin2hex(random_bytes(16)));
+
+        foreach ($options as $key => $value) {
+            $builder = $builder->withClaim($key, $value);
+        }
+
+        $token = $builder->getToken(new \Lcobucci\JWT\Signer\Hmac\Sha256(), InMemory::plainText($this->apiSecret));
+
+        return $token->toString();
     }
 
     private function returnLegacyToken(string $sessionId, array $options = []): string
