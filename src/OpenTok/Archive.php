@@ -137,6 +137,7 @@ class Archive
         Validators::validateHasStreamMode($streamMode);
 
         $this->data = $archiveData;
+
         if (isset($this->data['multiArchiveTag'])) {
             $this->multiArchiveTag = $this->data['multiArchiveTag'];
         }
@@ -162,6 +163,7 @@ class Archive
         if ($this->isDeleted) {
             // TODO: throw an logic error about not being able to stop an archive thats deleted
         }
+
         switch ($name) {
             case 'createdAt':
             case 'duration':
@@ -178,6 +180,7 @@ class Archive
             case 'outputMode':
             case 'resolution':
             case 'streamMode':
+            case 'maxBitrate':
                 return $this->data[$name];
             case 'multiArchiveTag':
                 return $this->multiArchiveTag;

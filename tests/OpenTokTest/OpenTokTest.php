@@ -756,7 +756,7 @@ class OpenTokTest extends TestCase
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
         // Act
-        $archive = $this->opentok->startArchive($sessionId);
+        $archive = $this->opentok->startArchive($sessionId, ['maxBitrate' => 2000000]);
 
         // Assert
         $this->assertCount(1, $this->historyContainer);
@@ -779,6 +779,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('', $archive->reason);
         $this->assertEquals('started', $archive->status);
         $this->assertEquals(OutputMode::COMPOSED, $archive->outputMode);
+        $this->assertEquals(2000000, $archive->maxBitrate);
         $this->assertNull($archive->name);
         $this->assertNull($archive->url);
         $this->assertTrue($archive->hasVideo);
@@ -1246,7 +1247,38 @@ class OpenTokTest extends TestCase
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
         $this->assertInstanceOf('OpenTok\Archive', $archive);
-        // TODO: test the properties of the actual archive object
+    }
+
+    public function testGetsArchiveWithMaxBitrate(): void
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/archive/ARCHIVEID/get'
+        ]]);
+
+        $archiveId = '063e72a4-64b4-43c8-9da5-eca071daab89';
+
+        // Act
+        $archive = $this->opentok->getArchive($archiveId);
+
+        // Assert
+        $this->assertCount(1, $this->historyContainer);
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertEquals('GET', strtoupper($request->getMethod()));
+        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive/'.$archiveId, $request->getUri()->getPath());
+        $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
+        $this->assertEquals('https', $request->getUri()->getScheme());
+
+        $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        $this->assertInstanceOf('OpenTok\Archive', $archive);
+        $this->assertEquals(2000000, $archive->maxBitrate);
     }
 
     public function testDeletesArchive(): void
