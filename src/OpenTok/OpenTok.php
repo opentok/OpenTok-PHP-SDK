@@ -555,8 +555,18 @@ class OpenTok
             'resolution' => null,
             'streamMode' => StreamMode::AUTO,
         );
+
+        // Horrible hack to workaround the defaults behaviour
+        if (isset($options['maxBitrate'])) {
+            $maxBitrate = $options['maxBitrate'];
+        }
+
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
         list($name, $hasVideo, $hasAudio, $outputMode, $resolution, $streamMode) = array_values($options);
+
+        if (isset($maxBitrate)) {
+            $options['maxBitrate'] = $maxBitrate;
+        }
 
         Validators::validateSessionId($sessionId);
         Validators::validateArchiveName($name);

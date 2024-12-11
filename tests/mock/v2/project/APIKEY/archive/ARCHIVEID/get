@@ -3,6 +3,7 @@
   "duration" : 199,
   "id" : "063e72a4-64b4-43c8-9da5-eca071daab89",
   "name" : "showtime",
+  "maxBitrate": 2000000,
   "partnerId" : 854511,
   "reason" : "",
   "sessionId" : "2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-",
