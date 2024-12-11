@@ -56,7 +56,7 @@ $app->get('/host', function () use ($app, $sessionId) {
 
     $token = $app->opentok->generateToken($sessionId, array(
         'role' => Role::MODERATOR
-    ));
+    ), true);
 
     $app->render('host.html', array(
         'apiKey' => $app->apiKey,
