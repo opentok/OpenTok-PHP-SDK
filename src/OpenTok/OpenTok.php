@@ -120,45 +120,46 @@ class OpenTok
      */
     public function generateToken(string $sessionId, array $options = array(), bool $legacy = false): string
     {
-        if ($legacy) {
-            return $this->returnLegacyToken($sessionId, $options);
-        }
+        // Note, JWT generation disabled due to a backend bug regarding `exp` claims being mandatory - CRT
+        // if ($legacy) {
+        return $this->returnLegacyToken($sessionId, $options);
+        // }
 
-        $issuedAt = new \DateTimeImmutable('@' . time());
+        // $issuedAt = new \DateTimeImmutable('@' . time());
 
-        $defaults = [
-            'session_id' => $sessionId,
-            'role' => Role::PUBLISHER,
-            'expireTime' => null,
-            'initial_layout_list' => [''],
-            'ist' => 'project',
-            'nonce' => mt_rand(),
-            'scope' => 'session.connect'
-        ];
+        // $defaults = [
+        //     'session_id' => $sessionId,
+        //     'role' => Role::PUBLISHER,
+        //     'expireTime' => null,
+        //     'initial_layout_list' => [''],
+        //     'ist' => 'project',
+        //     'nonce' => mt_rand(),
+        //     'scope' => 'session.connect'
+        // ];
 
-        $options = array_merge($defaults, array_intersect_key($options, $defaults));
+        // $options = array_merge($defaults, array_intersect_key($options, $defaults));
 
-        $builder = new Builder(new JoseEncoder(), ChainedFormatter::default());
-        $builder = $builder->issuedBy($this->apiKey);
+        // $builder = new Builder(new JoseEncoder(), ChainedFormatter::default());
+        // $builder = $builder->issuedBy($this->apiKey);
 
-        if ($options['expireTime']) {
-            $expiry = new \DateTimeImmutable('@' . $options['expireTime']);
-            $builder = $builder->expiresAt($expiry);
-        }
+        // if ($options['expireTime']) {
+        //     $expiry = new \DateTimeImmutable('@' . $options['expireTime']);
+        //     $builder = $builder->expiresAt($expiry);
+        // }
 
-        unset($options['expireTime']);
+        // unset($options['expireTime']);
 
-        $builder = $builder->issuedAt($issuedAt);
-        $builder = $builder->canOnlyBeUsedAfter($issuedAt);
-        $builder = $builder->identifiedBy(bin2hex(random_bytes(16)));
+        // $builder = $builder->issuedAt($issuedAt);
+        // $builder = $builder->canOnlyBeUsedAfter($issuedAt);
+        // $builder = $builder->identifiedBy(bin2hex(random_bytes(16)));
 
-        foreach ($options as $key => $value) {
-            $builder = $builder->withClaim($key, $value);
-        }
+        // foreach ($options as $key => $value) {
+        //     $builder = $builder->withClaim($key, $value);
+        // }
 
-        $token = $builder->getToken(new \Lcobucci\JWT\Signer\Hmac\Sha256(), InMemory::plainText($this->apiSecret));
+        // $token = $builder->getToken(new \Lcobucci\JWT\Signer\Hmac\Sha256(), InMemory::plainText($this->apiSecret));
 
-        return $token->toString();
+        // return $token->toString();
     }
 
     private function returnLegacyToken(string $sessionId, array $options = []): string
