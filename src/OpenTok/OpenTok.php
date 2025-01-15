@@ -35,17 +35,35 @@ class OpenTok
     private $apiSecret;
     /** @internal */
     private $client;
-    /** @internal */
+
+    /**
+     * @var array
+     * @internal
+     * Options that can override the defaults. Additionally, you can set the keys
+     * application_id & private_key_path to strings that will then override the default
+     * OpenTok Client behaviour when making requests to the Vonage Video API.
+     */
     public $options;
 
     /** @internal */
     public function __construct($apiKey, $apiSecret, $options = array())
     {
+        $validateKeys = true;
+        Validators::validateVonageJwtArguments($options);
+        $apiUrl = 'https://api.opentok.com';
+
+        if (array_key_exists('application_id', $options) && array_key_exists('private_key_path', $options)) {
+            $validateKeys = false;
+            $apiUrl = 'https://video.api.vonage.com';
+        }
+
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array(
-            'apiUrl' => 'https://api.opentok.com',
+            'apiUrl' => $apiUrl,
             'client' => null,
-            'timeout' => null // In the future we should set this to 2
+            'timeout' => null, // In the future we should set this to 2
+            'application_id' => null,
+            'private_key_path' => null,
         );
 
         $this->options = array_merge($defaults, array_intersect_key($options, $defaults));
@@ -53,8 +71,11 @@ class OpenTok
         list($apiUrl, $client, $timeout) = array_values($this->options);
 
         // validate arguments
-        Validators::validateApiKey($apiKey);
-        Validators::validateApiSecret($apiSecret);
+        if ($validateKeys) {
+            Validators::validateApiKey($apiKey);
+            Validators::validateApiSecret($apiSecret);
+        }
+
         Validators::validateApiUrl($apiUrl);
         Validators::validateClient($client);
         Validators::validateDefaultTimeout($timeout);
@@ -116,9 +137,16 @@ class OpenTok
      * @param bool $legacy By default, OpenTok uses SHA256 JWTs for authentication. Switching
      * legacy to true will create a deprecated T1 token for backwards compatibility.
      *
+     * Optionally, you can set $vonage to true and it will generate a Vonage Video token if you are using
+     * the shim behaviour.
+     *
      * @return string The token string.
      */
-    public function generateToken(string $sessionId, array $options = array(), bool $legacy = false): string
+    public function generateToken(
+        string $sessionId,
+        array $options = array(),
+        bool $legacy = false
+    ): string
     {
         // Note, JWT generation disabled due to a backend bug regarding `exp` claims being mandatory - CRT
         // if ($legacy) {
