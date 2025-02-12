@@ -3,6 +3,7 @@
 namespace OpenTok;
 
 use DateTimeImmutable;
+use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Encoding\ChainedFormatter;
@@ -84,7 +85,7 @@ class OpenTok
      * @param string $sessionId The session ID corresponding to the session to which the user
      * will connect.
      *
-     * @param array $options This array defines options for the token. This array includes the
+     * @param array $payload This array defines options for the token. This array includes the
      * following keys, all of which are optional:
      *
      * <ul>
@@ -114,51 +115,31 @@ class OpenTok
      * </ul>
      *
      * @param bool $legacy By default, OpenTok uses SHA256 JWTs for authentication. Switching
-     * legacy to true will create a deprecated T1 token for backwards compatibility.
+     * legacy to true will create a T1 token for backwards compatibility.
      *
      * @return string The token string.
      */
-    public function generateToken(string $sessionId, array $options = array(), bool $legacy = false): string
+    public function generateToken(string $sessionId, array $payload = array(), bool $legacy = false): string
     {
         if ($legacy) {
-            return $this->returnLegacyToken($sessionId, $options);
+            return $this->returnLegacyToken($sessionId, $payload);
         }
 
         $issuedAt = new \DateTimeImmutable('@' . time());
 
         $defaults = [
+            'iss' => $this->apiKey,
+            'iat' => $issuedAt->getTimestamp(),
             'session_id' => $sessionId,
             'role' => Role::PUBLISHER,
-            'expireTime' => null,
-            'initial_layout_list' => [''],
             'ist' => 'project',
             'nonce' => mt_rand(),
             'scope' => 'session.connect'
         ];
 
-        $options = array_merge($defaults, array_intersect_key($options, $defaults));
+        $payload = array_merge($defaults, array_intersect_key($payload, $defaults));
 
-        $builder = new Builder(new JoseEncoder(), ChainedFormatter::default());
-        $builder = $builder->issuedBy($this->apiKey);
-
-        if ($options['expireTime']) {
-            $expiry = new \DateTimeImmutable('@' . $options['expireTime']);
-            $builder = $builder->expiresAt($expiry);
-        }
-
-        unset($options['expireTime']);
-
-        $builder = $builder->issuedAt($issuedAt);
-        $builder = $builder->canOnlyBeUsedAfter($issuedAt);
-        $builder = $builder->identifiedBy(bin2hex(random_bytes(16)));
-
-        foreach ($options as $key => $value) {
-            $builder = $builder->withClaim($key, $value);
-        }
-
-        $token = $builder->getToken(new \Lcobucci\JWT\Signer\Hmac\Sha256(), InMemory::plainText($this->apiSecret));
-
-        return $token->toString();
+        return JWT::encode($payload, $this->apiSecret, 'HS256');
     }
 
     private function returnLegacyToken(string $sessionId, array $options = []): string
