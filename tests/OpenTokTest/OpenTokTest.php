@@ -2,6 +2,8 @@
 
 namespace OpenTokTest;
 
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Token\Plain;
 use OpenTok\Render;
@@ -753,41 +755,28 @@ class OpenTokTest extends TestCase
     public function testWillCreateLegacyT1DirectlyToBypassExpBug(): void
     {
         $openTok = new OpenTok('12345678', '0123456789abcdef0123456789abcdef0123456789');
-        $token = $openTok->generateToken('1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI', []);
+        $token = $openTok->generateToken('1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI', [], true);
 
         $this->assertEquals('T1', substr($token, 0, 2));
     }
 
-    /**
-     * Makes sure that a JWT is generated for the client-side token
-     * 
-     * Currently disabled due to the backend requiring an `exp` claim, which was
-     * not required on T1s. Uncomment when the backend is fixed. - CRT
-     */
-    // public function testWillCreateJwt(): void
-    // {
-    //     $openTok = new OpenTok('my-api-key', 'my-super-long-and-cool-api-secret');
-    //     $token = $openTok->generateToken('some-token-value');
+    public function testWillGenerateSha256Token(): void
+    {
+        $openTok = new OpenTok('12345678', '0123456789abcdef0123456789abcdef0123456789');
+        $token = $openTok->generateToken('1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI');
 
-    //     $config = Configuration::forSymmetricSigner(
-    //         new \Lcobucci\JWT\Signer\Hmac\Sha256(),
-    //         \Lcobucci\JWT\Signer\Key\InMemory::plainText('my-super-long-and-cool-api-secret')
-    //     );
+        $this->assertNotEquals('T1', substr($token, 0, 2));
 
-    //     $token = $config->parser()->parse($token);
-    //     $this->assertInstanceOf(Plain::class, $token);
+        $decoded = JWT::decode($token, new Key('0123456789abcdef0123456789abcdef0123456789', 'HS256'));
+        $decodedArray = (array) $decoded;
 
-    //     $this->assertTrue($config->validator()->validate($token, new \Lcobucci\JWT\Validation\Constraint\SignedWith(
-    //         $config->signer(),
-    //         $config->signingKey()
-    //     )));
+        $this->assertEquals('12345678', $decodedArray['iss']);
+        $this->assertEquals('1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI', $decodedArray['session_id']);
+        $this->assertEquals('project', $decodedArray['ist']);
+        $this->assertEquals('session.connect', $decodedArray['scope']);
+        $this->assertEquals('publisher', $decodedArray['role']);
 
-    //     $this->assertEquals('my-api-key', $token->claims()->get('iss'));
-    //     $this->assertEquals('some-token-value', $token->claims()->get('session_id'));
-    //     $this->assertEquals('publisher', $token->claims()->get('role'));
-    //     $this->assertEquals('project', $token->claims()->get('ist'));
-    //     $this->assertEquals('session.connect', $token->claims()->get('scope'));
-    // }
+    }
 
     public function testStartsArchive(): void
     {
