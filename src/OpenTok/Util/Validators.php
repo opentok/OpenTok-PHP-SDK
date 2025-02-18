@@ -34,6 +34,24 @@ class Validators
         }
     }
 
+    public static function validateVonageJwtArguments(array $options)
+    {
+        if (!isset($data['application_id']) && !isset($data['private_key_path'])) {
+            return;
+        }
+
+        if (isset($data['application_id']) && isset($data['private_key_path'])) {
+            if (is_string($data['application_id']) && is_string($data['private_key_path'])) {
+                return;
+            };
+        }
+
+        // If one key is present but not the other, validation fails
+        throw new InvalidArgumentException(
+            'You are attempting to use the Vonage Video API. Both application_id and private key paths must be in options and both strings.'
+        );
+    }
+
     public static function validateForceMuteAllOptions(array $options)
     {
         $validOptions = [

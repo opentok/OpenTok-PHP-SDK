@@ -36,6 +36,7 @@ use OpenTok\Exception\ForceDisconnectConnectionException;
 
 use OpenTok\Exception\ForceDisconnectAuthenticationException;
 use OpenTok\Exception\ForceDisconnectUnexpectedValueException;
+use Vonage\JWT\TokenGenerator;
 
 /**
  * @internal
@@ -46,6 +47,8 @@ class Client
 
     protected $apiKey;
     protected $apiSecret;
+    protected $applicationId = null;
+    protected $privateKeyPath = null;
     protected $configured = false;
 
     /**
@@ -63,6 +66,14 @@ class Client
         $this->options = $options;
         $this->apiKey = $apiKey;
         $this->apiSecret = $apiSecret;
+
+        if (array_key_exists('application_id', $options) || array_key_exists('private_key_path', $options)) {
+            if (!is_null($options['application_id']) && !is_null($options['private_key_path'])) {
+                $this->applicationId = $options['application_id'];
+                $this->privateKeyPath = $options['private_key_path'];
+                $apiUrl = 'https://video.api.vonage.com';
+            }
+        }
 
         if (isset($this->options['client'])) {
             $this->client = $options['client'];
@@ -124,6 +135,14 @@ class Client
 
     private function createAuthHeader()
     {
+        if (!is_null($this->applicationId) && !is_null($this->privateKeyPath)) {
+            $projectRoot = dirname(__DIR__, 3); // Adjust the number of dirname() calls if necessary to match your
+            // project structure.
+            $privateKeyFullPath = $projectRoot . DIRECTORY_SEPARATOR . $this->privateKeyPath;
+            $tokenGenerator = new TokenGenerator($this->applicationId, file_get_contents($privateKeyFullPath));
+            return $tokenGenerator->generate();
+        }
+
         $token = array(
             'ist' => 'project',
             'iss' => $this->apiKey,
@@ -131,6 +150,7 @@ class Client
             'exp' => time() + (5 * 60),
             'jti' => uniqid('', true),
         );
+
         return JWT::encode($token, $this->apiSecret, 'HS256');
     }
 

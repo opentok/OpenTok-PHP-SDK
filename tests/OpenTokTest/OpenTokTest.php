@@ -760,6 +760,44 @@ class OpenTokTest extends TestCase
         $this->assertEquals('T1', substr($token, 0, 2));
     }
 
+    public function testWillHitVonageVideoWithVonageJwt(): void
+    {
+        // All of this manual DRY exists because the hardcoded setup helper methods
+        // were not written to handle this sort of behaviour overriding.
+        $mocks = [
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/archive/session'
+        ];
+
+        $customAgent = [
+            'application_id' => 'abc123',
+            'private_key_path' => './tests/OpenTokTest/test.key',
+        ];
+
+        $this->setupOTWithMocks([$mocks], $customAgent);
+
+        $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
+        $archive = $this->opentok->startArchive($sessionId, ['maxBitrate' => 2000000]);
+
+        $this->assertCount(1, $this->historyContainer);
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertEquals('POST', strtoupper($request->getMethod()));
+    }
+
+    /**
+     * Makes sure that a JWT is generated for the client-side token
+     *
+     * Currently disabled due to the backend requiring an `exp` claim, which was
+     * not required on T1s. Uncomment when the backend is fixed. - CRT
+     */
+    // public function testWillCreateJwt(): void
+    // {
+    //     $openTok = new OpenTok('my-api-key', 'my-super-long-and-cool-api-secret');
+    //     $token = $openTok->generateToken('some-token-value');
     public function testWillGenerateSha256Token(): void
     {
         $openTok = new OpenTok('12345678', '0123456789abcdef0123456789abcdef0123456789');
@@ -1308,7 +1346,7 @@ class OpenTokTest extends TestCase
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('GET', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive/'.$archiveId, $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive/' . $archiveId, $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
