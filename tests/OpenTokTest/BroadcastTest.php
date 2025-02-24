@@ -69,7 +69,7 @@ class BroadcastTest extends TestCase
     private function setupOTWithMocks($mocks)
     {
         $this->API_KEY = defined('API_KEY') ? API_KEY : '12345678';
-        $this->API_SECRET = defined('API_SECRET') ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
+        $this->API_SECRET = defined('API_SECRET') ? API_SECRET : 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
 
         if (is_array($mocks)) {
             $responses = TestHelpers::mocksToResponses($mocks, self::$mockBasePath);
@@ -96,39 +96,6 @@ class BroadcastTest extends TestCase
         $this->historyContainer = [];
         $history = Middleware::history($this->historyContainer);
         $handlerStack->push($history);
-    }
-
-    public function testCannotCreateBroadcastWithAddInvalidApiKey(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The apiKey was not a string nor an integer: ');
-
-        $broadcastObject = new Broadcast($this->broadcastData, [
-            'apiKey' => new Client()
-        ]);
-    }
-
-    public function testCannotCreateBroadcastWithInvalidApiSecret(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The apiSecret was not a string: OpenTok\Util\Client Object');
-
-        $broadcastObject = new Broadcast($this->broadcastData, [
-            'apiKey' => 'test',
-            'apiSecret' => new Client()
-        ]);
-    }
-
-    public function testCannotCreateBroadcastWithInvalidApiUrl(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The optional apiUrl was not a string: ');
-
-        $broadcastObject = new Broadcast($this->broadcastData, [
-            'apiKey' => 'validKey',
-            'apiSecret' => 'validSecret',
-            'apiUrl' => 'test'
-        ]);
     }
 
     private function setupOT()

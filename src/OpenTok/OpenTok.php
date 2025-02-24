@@ -25,6 +25,9 @@ use Vonage\JWT\TokenGenerator;
 * and the API secret for your <a href="https://tokbox.com/account">OpenTok Video API account</a>. Do not
 * publicly share your API secret. You will use it with the OpenTok() constructor (only on your web
 * server) to create OpenTok sessions.
+*
+* If you set api_key to a VONAGE_APPLICATION_ID and api_secret to a VONAGE_PRIVATE_KEY_PATH, the SDK
+* will hit Vonage Video with Vonage Auth instead.
 * <p>
 * Be sure to include the entire OpenTok server SDK on your web server.
 */
@@ -38,23 +41,24 @@ class OpenTok
     private $client;
 
     /**
+     * @var bool
+     * Override to determine whether to hit Vonage servers with Vonage Auth in requests
+     */
+    private $vonage = false;
+
+    /**
      * @var array
      * @internal
-     * Options that can override the defaults. Additionally, you can set the keys
-     * application_id & private_key_path to strings that will then override the default
-     * OpenTok Client behaviour when making requests to the Vonage Video API.
      */
     public $options;
 
     /** @internal */
     public function __construct($apiKey, $apiSecret, $options = array())
     {
-        $validateKeys = true;
-        Validators::validateVonageJwtArguments($options);
         $apiUrl = 'https://api.opentok.com';
 
-        if (array_key_exists('application_id', $options) && array_key_exists('private_key_path', $options)) {
-            $validateKeys = false;
+        if (Validators::isVonageKeypair($apiKey, $apiSecret)) {
+            $this->vonage = true;
             $apiUrl = 'https://video.api.vonage.com';
         }
 
@@ -63,19 +67,11 @@ class OpenTok
             'apiUrl' => $apiUrl,
             'client' => null,
             'timeout' => null, // In the future we should set this to 2
-            'application_id' => null,
-            'private_key_path' => null,
         );
 
         $this->options = array_merge($defaults, array_intersect_key($options, $defaults));
 
         list($apiUrl, $client, $timeout) = array_values($this->options);
-
-        // validate arguments
-        if ($validateKeys) {
-            Validators::validateApiKey($apiKey);
-            Validators::validateApiSecret($apiSecret);
-        }
 
         Validators::validateApiUrl($apiUrl);
         Validators::validateClient($client);
@@ -137,9 +133,6 @@ class OpenTok
      *
      * @param bool $legacy By default, OpenTok uses SHA256 JWTs for authentication. Switching
      * legacy to true will create a T1 token for backwards compatibility.
-     *
-     * Optionally, you can set $vonage to true and it will generate a Vonage Video token if you are using
-     * the shim behaviour.
      *
      * @return string The token string.
      */

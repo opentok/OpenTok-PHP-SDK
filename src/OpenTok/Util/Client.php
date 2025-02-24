@@ -47,8 +47,6 @@ class Client
 
     protected $apiKey;
     protected $apiSecret;
-    protected $applicationId = null;
-    protected $privateKeyPath = null;
     protected $configured = false;
 
     /**
@@ -66,14 +64,6 @@ class Client
         $this->options = $options;
         $this->apiKey = $apiKey;
         $this->apiSecret = $apiSecret;
-
-        if (array_key_exists('application_id', $options) || array_key_exists('private_key_path', $options)) {
-            if (!is_null($options['application_id']) && !is_null($options['private_key_path'])) {
-                $this->applicationId = $options['application_id'];
-                $this->privateKeyPath = $options['private_key_path'];
-                $apiUrl = 'https://video.api.vonage.com';
-            }
-        }
 
         if (isset($this->options['client'])) {
             $this->client = $options['client'];
@@ -135,11 +125,8 @@ class Client
 
     private function createAuthHeader()
     {
-        if (!is_null($this->applicationId) && !is_null($this->privateKeyPath)) {
-            $projectRoot = dirname(__DIR__, 3); // Adjust the number of dirname() calls if necessary to match your
-            // project structure.
-            $privateKeyFullPath = $projectRoot . DIRECTORY_SEPARATOR . $this->privateKeyPath;
-            $tokenGenerator = new TokenGenerator($this->applicationId, file_get_contents($privateKeyFullPath));
+        if (Validators::isVonageKeypair($this->apiKey, $this->apiSecret)) {
+            $tokenGenerator = new TokenGenerator($this->apiKey, file_get_contents($this->apiSecret));
             return $tokenGenerator->generate();
         }
 

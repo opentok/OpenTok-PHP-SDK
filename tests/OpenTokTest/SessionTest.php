@@ -24,7 +24,7 @@ class SessionTest extends TestCase
     public function setUp(): void
     {
         $this->API_KEY = defined('API_KEY') ? API_KEY : '12345678';
-        $this->API_SECRET = defined('API_SECRET') ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
+        $this->API_SECRET = defined('API_SECRET') ? API_SECRET : 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
         $this->opentok = new OpenTok($this->API_KEY, $this->API_SECRET);
     }
 
@@ -152,7 +152,7 @@ class SessionTest extends TestCase
     {
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $bogusApiKey = '12345678';
-        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $bogusApiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
         $session = new Session($opentok, $sessionId);
 
@@ -173,6 +173,4 @@ class SessionTest extends TestCase
         $this->assertNotEmpty($decodedToken['sig']);
         $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
     }
-
 }
-

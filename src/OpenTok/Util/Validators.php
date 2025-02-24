@@ -13,6 +13,7 @@ use OpenTok\OpenTok;
 use OpenTok\Exception\InvalidArgumentException;
 use JohnStevenson\JsonWorks\Document;
 use JohnStevenson\JsonWorks\Utils as JsonUtils;
+use RuntimeException;
 
 /**
 * @internal
@@ -25,31 +26,44 @@ class Validators
 
     public const STREAM_MODES = ['auto', 'manual'];
 
-    public static function validateApiKey($apiKey)
+    public static function isVonageKeypair($apiKey, $apiSecret): bool
     {
-        if (!(is_string($apiKey) || is_int($apiKey))) {
-            throw new InvalidArgumentException(
-                'The apiKey was not a string nor an integer: ' . print_r($apiKey, true)
-            );
+        if (!is_string($apiKey) || !is_string($apiSecret)) {
+            throw new InvalidArgumentException("API Key and API Secret must be strings.");
         }
+
+        $isOpenTokKey = preg_match('/^\d+$/', $apiKey);
+        $isOpenTokSecret = preg_match('/^[a-f0-9]{40}$/i', $apiSecret);
+
+        if ($isOpenTokKey && $isOpenTokSecret) {
+            return false;
+        }
+
+        $isVonageApplicationId = preg_match('/^[a-f0-9\-]{36}$/i', $apiKey);
+        $isVonagePrivateKey = self::isValidPrivateKey($apiSecret);
+
+        if ($isVonageApplicationId && $isVonagePrivateKey) {
+            return true;
+        }
+
+        // Mixed formats or invalid formats - throw an exception
+        throw new InvalidArgumentException("Invalid Vonage Keypair credentials provided.");
     }
 
-    public static function validateVonageJwtArguments(array $options)
+    private static function isValidPrivateKey(string $filePath): bool
     {
-        if (!isset($data['application_id']) && !isset($data['private_key_path'])) {
-            return;
+        if (!file_exists($filePath) || !is_readable($filePath)) {
+            throw new InvalidArgumentException("Private key file does not exist or is not readable.");
         }
 
-        if (isset($data['application_id']) && isset($data['private_key_path'])) {
-            if (is_string($data['application_id']) && is_string($data['private_key_path'])) {
-                return;
-            };
+        $keyContents = file_get_contents($filePath);
+
+        if ($keyContents === false) {
+            throw new RuntimeException("Failed to read private key file.");
         }
 
-        // If one key is present but not the other, validation fails
-        throw new InvalidArgumentException(
-            'You are attempting to use the Vonage Video API. Both application_id and private key paths must be in options and both strings.'
-        );
+        // Check if it contains a valid private RSA key header
+        return (bool) preg_match('/^-----BEGIN PRIVATE KEY-----[\s\S]+-----END PRIVATE KEY-----$/m', trim($keyContents));
     }
 
     public static function validateForceMuteAllOptions(array $options)
@@ -71,13 +85,6 @@ class Validators
             foreach ($options['excludedStreams'] as $streamId) {
                 self::validateStreamId($streamId);
             }
-        }
-    }
-
-    public static function validateApiSecret($apiSecret)
-    {
-        if (!(is_string($apiSecret))) {
-            throw new InvalidArgumentException('The apiSecret was not a string: ' . print_r($apiSecret, true));
         }
     }
 

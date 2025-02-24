@@ -147,8 +147,6 @@ class Broadcast
         $this->client = $options['client'] ?? new Client();
 
         if (!$this->client->isConfigured()) {
-            Validators::validateApiKey($options['apiKey']);
-            Validators::validateApiSecret($options['apiSecret']);
             Validators::validateApiUrl($options['apiUrl']);
 
             $this->client->configure($options['apiKey'], $options['apiSecret'], $options['apiUrl']);

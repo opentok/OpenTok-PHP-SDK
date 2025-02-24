@@ -144,8 +144,6 @@ class Archive
 
         $this->client = isset($client) ? $client : new Client();
         if (!$this->client->isConfigured()) {
-            Validators::validateApiKey($apiKey);
-            Validators::validateApiSecret($apiSecret);
             Validators::validateApiUrl($apiUrl);
 
             $this->client->configure($apiKey, $apiSecret, $apiUrl);
