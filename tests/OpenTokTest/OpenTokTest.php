@@ -8,7 +8,6 @@ use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Token;
-use Lcobucci\JWT\Token\Plain;
 use OpenTok\Render;
 use OpenTok\Role;
 use OpenTok\Layout;
@@ -184,6 +183,7 @@ class OpenTokTest extends TestCase
 
         $token = $config->parser()->parse($authString);
         $this->assertInstanceOf(Token::class, $token);
+        $this->assertEquals($this->API_KEY, $token->claims()->get('application_id'));
     }
 
     public function testCanGetRender(): void
