@@ -36,6 +36,7 @@ use OpenTok\Exception\ForceDisconnectConnectionException;
 
 use OpenTok\Exception\ForceDisconnectAuthenticationException;
 use OpenTok\Exception\ForceDisconnectUnexpectedValueException;
+use Vonage\JWT\TokenGenerator;
 
 /**
  * @internal
@@ -124,6 +125,11 @@ class Client
 
     private function createAuthHeader()
     {
+        if (Validators::isVonageKeypair($this->apiKey, $this->apiSecret)) {
+            $tokenGenerator = new TokenGenerator($this->apiKey, file_get_contents($this->apiSecret));
+            return $tokenGenerator->generate();
+        }
+
         $token = array(
             'ist' => 'project',
             'iss' => $this->apiKey,
@@ -131,6 +137,7 @@ class Client
             'exp' => time() + (5 * 60),
             'jti' => uniqid('', true),
         );
+
         return JWT::encode($token, $this->apiSecret, 'HS256');
     }
 

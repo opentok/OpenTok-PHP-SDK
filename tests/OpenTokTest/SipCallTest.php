@@ -11,14 +11,14 @@ class SipCallTest extends TestCase
         $sipCallData = [
             'id' => '1_MX4xMjM0NTY3OH4',
             'connectionId' => 'VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI',
-            'streamId' => '0123456789abcdef0123456789abcdef0123456789'
+            'streamId' => 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f'
         ];
 
         $sipCall = new SipCall($sipCallData);
 
         $this->assertEquals('1_MX4xMjM0NTY3OH4', $sipCall->id);
         $this->assertEquals('VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI', $sipCall->connectionId);
-        $this->assertEquals('0123456789abcdef0123456789abcdef0123456789', $sipCall->streamId);
+        $this->assertEquals('b60d0b2568f3ea9731bd9d3f71be263ce19f802f', $sipCall->streamId);
         $this->assertNull($sipCall->observeForceMute);
     }
 }

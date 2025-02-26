@@ -5,7 +5,9 @@ namespace OpenTokTest;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Lcobucci\JWT\Configuration;
-use Lcobucci\JWT\Token\Plain;
+use Lcobucci\JWT\Signer\Hmac\Sha256;
+use Lcobucci\JWT\Signer\Key\InMemory;
+use Lcobucci\JWT\Token;
 use OpenTok\Render;
 use OpenTok\Role;
 use OpenTok\Layout;
@@ -19,6 +21,7 @@ use OpenTok\StreamMode;
 use OpenTok\Util\Client;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\HandlerStack;
+use OpenTok\Util\Validators;
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Handler\MockHandler;
 use OpenTok\Exception\InvalidArgumentException;
@@ -46,10 +49,10 @@ class OpenTokTest extends TestCase
         self::$mockBasePath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'mock' . DIRECTORY_SEPARATOR;
     }
 
-    private function setupOTWithMocks($mocks, $customAgent = false): void
+    private function setupOTWithMocks($mocks, $customAgent = false, $vonageVideo = false): void
     {
         $this->API_KEY = defined('API_KEY') ? API_KEY : '12345678';
-        $this->API_SECRET = defined('API_SECRET') ? API_SECRET : '0123456789abcdef0123456789abcdef0123456789';
+        $this->API_SECRET = defined('API_SECRET') ? API_SECRET : 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
 
         if (is_array($mocks)) {
             $responses = TestHelpers::mocksToResponses($mocks, self::$mockBasePath);
@@ -67,11 +70,19 @@ class OpenTokTest extends TestCase
             $clientOptions = array_merge($clientOptions, $customAgent);
         }
 
+        $apiUrl = 'https://api.opentok.com';
+
+        if ($vonageVideo === true) {
+            $apiUrl = 'https://video.vonage.com';
+            $this->API_KEY = '1ab38a10-ed9d-4e2b-8b14-95e52d76a13c';
+            $this->API_SECRET = __DIR__ . '/test.key';
+        }
+
         $this->client = new Client();
         $this->client->configure(
             $this->API_KEY,
             $this->API_SECRET,
-            'https://api.opentok.com',
+            $apiUrl,
             $clientOptions
         );
 
@@ -131,6 +142,48 @@ class OpenTokTest extends TestCase
         $this->assertInstanceOf(Render::class, $render);
         $this->assertEquals('2_MX4xMDBfjE0Mzc2NzY1NDgwMTJ-TjMzfn4', $render->sessionId);
         $this->assertEquals('started', $render->status);
+    }
+
+    public function testCanUseVonageAuth(): void
+    {
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/render/render_start'
+        ]], null, true);
+
+        $render = $this->opentok->startRender(
+            '2_MX4xMDBfjE0Mzc2NzY1NDgwMTJ-TjMzfn4',
+            'e2343f23456g34709d2443a234',
+            'https://webapp.customer.com',
+            2900,
+            '1280x720',
+            'https://sendcallbacks.to.me',
+            [
+                'name' => 'Composed stream for live event'
+            ]
+        );
+
+        $this->assertInstanceOf(Render::class, $render);
+        $this->assertEquals('2_MX4xMDBfjE0Mzc2NzY1NDgwMTJ-TjMzfn4', $render->sessionId);
+        $this->assertEquals('started', $render->status);
+
+        $request = $this->historyContainer[0]['request'];
+        $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
+
+        $privateKey = file_get_contents($this->API_SECRET);
+
+        $config = Configuration::forAsymmetricSigner(
+            new Sha256(),
+            InMemory::plainText($privateKey), // Use private key for decoding
+            InMemory::plainText($privateKey)  // Use private key for verification
+        );
+
+        $token = $config->parser()->parse($authString);
+        $this->assertInstanceOf(Token::class, $token);
+        $this->assertEquals($this->API_KEY, $token->claims()->get('application_id'));
     }
 
     public function testCanGetRender(): void
@@ -582,7 +635,7 @@ class OpenTokTest extends TestCase
         // This sessionId is a fixture designed by using a known but bogus apiKey and apiSecret
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $bogusApiKey = '12345678';
-        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $bogusApiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
         // Act
@@ -613,7 +666,7 @@ class OpenTokTest extends TestCase
         // This sessionId is a fixture designed by using a known but bogus apiKey and apiSecret
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $bogusApiKey = '12345678';
-        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $bogusApiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
         // Act
@@ -643,7 +696,7 @@ class OpenTokTest extends TestCase
         // This sessionId is a fixture designed by using a known but bogus apiKey and apiSecret
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $bogusApiKey = '12345678';
-        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $bogusApiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
         // Act
@@ -674,7 +727,7 @@ class OpenTokTest extends TestCase
         // This sessionId is a fixture designed by using a known but bogus apiKey and apiSecret
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $bogusApiKey = '12345678';
-        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $bogusApiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
         // Act
@@ -708,7 +761,7 @@ class OpenTokTest extends TestCase
         // This sessionId is a fixture designed by using a known but bogus apiKey and apiSecret
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $bogusApiKey = '12345678';
-        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $bogusApiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
         $initialLayouClassList = array('focus', 'main');
@@ -746,7 +799,7 @@ class OpenTokTest extends TestCase
 
     public function testWillCreateLegacyT1WhenRequested(): void
     {
-        $openTok = new OpenTok('12345678', '0123456789abcdef0123456789abcdef0123456789');
+        $openTok = new OpenTok('12345678', 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f');
         $token = $openTok->generateToken('1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI', [], true);
 
         $this->assertEquals('T1', substr($token, 0, 2));
@@ -754,7 +807,7 @@ class OpenTokTest extends TestCase
 
     public function testWillCreateLegacyT1DirectlyToBypassExpBug(): void
     {
-        $openTok = new OpenTok('12345678', '0123456789abcdef0123456789abcdef0123456789');
+        $openTok = new OpenTok('12345678', 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f');
         $token = $openTok->generateToken('1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI', [], true);
 
         $this->assertEquals('T1', substr($token, 0, 2));
@@ -762,12 +815,12 @@ class OpenTokTest extends TestCase
 
     public function testWillGenerateSha256Token(): void
     {
-        $openTok = new OpenTok('12345678', '0123456789abcdef0123456789abcdef0123456789');
+        $openTok = new OpenTok('12345678', 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f');
         $token = $openTok->generateToken('1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI');
 
         $this->assertNotEquals('T1', substr($token, 0, 2));
 
-        $decoded = JWT::decode($token, new Key('0123456789abcdef0123456789abcdef0123456789', 'HS256'));
+        $decoded = JWT::decode($token, new Key('b60d0b2568f3ea9731bd9d3f71be263ce19f802f', 'HS256'));
         $decodedArray = (array) $decoded;
 
         $this->assertEquals('12345678', $decodedArray['iss']);
@@ -1308,7 +1361,7 @@ class OpenTokTest extends TestCase
 
         $request = $this->historyContainer[0]['request'];
         $this->assertEquals('GET', strtoupper($request->getMethod()));
-        $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive/'.$archiveId, $request->getUri()->getPath());
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive/' . $archiveId, $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
@@ -1425,7 +1478,7 @@ class OpenTokTest extends TestCase
 
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $bogusApiKey = '12345678';
-        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $bogusApiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
         // Act
@@ -2332,7 +2385,7 @@ class OpenTokTest extends TestCase
 
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $bogusApiKey = '12345678';
-        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $bogusApiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
         $bogusToken = 'T1==TEST';
         $bogusSipUri = 'sip:john@doe.com';
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
@@ -2357,7 +2410,7 @@ class OpenTokTest extends TestCase
 
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $bogusApiKey = '12345678';
-        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $bogusApiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
         $bogusToken = 'T1==TEST';
         $bogusSipUri = 'sip:john@doe.com';
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
@@ -2395,7 +2448,7 @@ class OpenTokTest extends TestCase
 
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $bogusApiKey = '12345678';
-        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $bogusApiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
         $bogusToken = 'T1==TEST';
         $bogusSipUri = 'sip:john@doe.com';
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
@@ -2629,7 +2682,7 @@ class OpenTokTest extends TestCase
 
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $bogusApiKey = '12345678';
-        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $bogusApiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
 
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
@@ -2666,7 +2719,7 @@ class OpenTokTest extends TestCase
 
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $bogusApiKey = '12345678';
-        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $bogusApiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
         $connectionId = 'da9cb410-e29b-4c2d-ab9e-fe65bf83fcaf';
         $payload = array(
             'type' => 'rest',
@@ -2705,7 +2758,7 @@ class OpenTokTest extends TestCase
 
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $bogusApiKey = '12345678';
-        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $bogusApiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
         $payload = array();
 
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
@@ -2727,7 +2780,7 @@ class OpenTokTest extends TestCase
 
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $bogusApiKey = '12345678';
-        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $bogusApiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
         $connectionId = 'da9cb410-e29b-4c2d-ab9e-fe65bf83fcaf';
         $payload = array(
             'type' => 'rest',
@@ -2750,7 +2803,7 @@ class OpenTokTest extends TestCase
 
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $bogusApiKey = '12345678';
-        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $bogusApiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
         $connectionId = 'da9cb410-e29b-4c2d-ab9e-fe65bf83fcaf';
         $payload = array(
             'type' => 'rest',
@@ -2778,7 +2831,7 @@ class OpenTokTest extends TestCase
 
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $bogusApiKey = '12345678';
-        $bogusApiSecret = '0123456789abcdef0123456789abcdef0123456789';
+        $bogusApiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
 
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
@@ -2904,7 +2957,7 @@ class OpenTokTest extends TestCase
      */
     public function testDefaultTimeoutCanBeOverriden(): void
     {
-        $opentok = new OpenTok('1234', 'abd', ['timeout' => 400]);
+        $opentok = new OpenTok('4349501', 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f', ['timeout' => 400]);
 
         $opentokReflection = new \ReflectionClass($opentok);
         $opentokClient = $opentokReflection->getProperty('client');
@@ -2927,7 +2980,7 @@ class OpenTokTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Default Timeout must be a number greater than zero');
-        new OpenTok('1234', 'abd', ['timeout' => 'bob']);
+        new OpenTok('4349501', 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f', ['timeout' => 'bob']);
     }
 
     /**
@@ -2937,7 +2990,7 @@ class OpenTokTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Default Timeout must be a number greater than zero');
-        new OpenTok('1234', 'abd', ['timeout' => -1]);
+        new OpenTok('4349501', 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f', ['timeout' => -1]);
     }
 
     public function testCanStartCaptions(): void

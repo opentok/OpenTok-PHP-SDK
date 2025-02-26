@@ -19,7 +19,7 @@ Next, input your own API Key and API Secret into the `run-demo` script file:
 
 ```
   export API_KEY=0000000
-  export API_SECRET=abcdef1234567890abcdef01234567890abcdef
+  export API_SECRET=b60d0b2568f3ea9731bd9d3f71be263ce19f802f
 ```
 
 Finally, start the PHP CLI development server (requires PHP >= 5.4) using the `run-demo` script

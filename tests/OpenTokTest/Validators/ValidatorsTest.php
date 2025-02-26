@@ -9,39 +9,34 @@ use PHPUnit\Framework\TestCase;
 
 class ValidatorsTest extends TestCase
 {
-    public function testWillValidateStringApiKey(): void
+    public function testIsVonageKeypair(): void
     {
-        $this->expectNotToPerformAssertions();
-        $apiKey = '47347801';
-        Validators::validateApiKey($apiKey);
+        $apiKey = '1ab38a10-ed9d-4e2b-8b14-95e52d76a13c';
+        $apiSecret = __DIR__ . '/../test.key';
+        $this->assertTrue(Validators::isVonageKeypair($apiKey, $apiSecret));
     }
 
-    public function testWillValidateIntegerApiKey(): void
+    public function testIsNotVonageKeypair(): void
     {
-        $this->expectNotToPerformAssertions();
-        $apiKey = 47347801;
-        Validators::validateApiKey($apiKey);
+        $apiKey = '4349501';
+        $apiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
+        $this->assertFalse(Validators::isVonageKeypair($apiKey, $apiSecret));
     }
 
-    public function testWillInvalidateApiKey(): void
+    public function testVonageKeypairFailsWithOnlyAppId(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $apiKey = [47347801];
-        Validators::validateApiKey($apiKey);
+        $apiKey = '1ab38a10-ed9d-4e2b-8b14-95e52d76a13c';
+        $apiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
+        Validators::isVonageKeypair($apiKey, $apiSecret);
     }
 
-    public function testWillValidateApiSecret(): void
-    {
-        $this->expectNotToPerformAssertions();
-        $secret = 'cdff574f0b071230be098e279d16931116c43fcf';
-        Validators::validateApiSecret($secret);
-    }
-
-    public function testWillInvalidateApiSecret(): void
+    public function testVonageKeypairFailsWithOnlyPrivateKey(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $secret = 3252556;
-        Validators::validateApiSecret($secret);
+        $apiKey = '1ab38a10-ed9d-4e2b-8b14-95e52d76a13c';
+        $apiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
+        Validators::isVonageKeypair($apiKey, $apiSecret);
     }
 
     public function testWillValidateApiUrl(): void

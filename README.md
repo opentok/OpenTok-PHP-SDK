@@ -85,6 +85,28 @@ $options = [
 ]
 $opentok = new OpenTok($apiKey, $apiSecret, $options);
 ```
+#### Migrating to Vonage Video API
+
+There is some useful behaviour on initialization in this SDK that will help as a stopgap before switching out from the
+legacy TokBok API to the new, Vonage Video API. To do this, you can pass in an Application ID for the API Key, and the path to
+a Vonage private key as the API Secret.
+
+```php
+use OpenTok\OpenTok;
+use MyCompany\CustomOpenTokClient;
+
+$applicationID = '61bb2dae-9b69-400c-9abb-642d082af5fc';
+$privateKey = './private.key';
+
+$opentok = new OpenTok($applicationID, $privateKey);
+```
+
+The SDK will notice that the authentiction has changed, and will automatically start to forward requests to the Vonage API Routes
+instead of the OpenTok API Routes. All requests and responses in your code should be exactly the same as they are on the
+OpenTok API.
+
+**NOTE:** The SDK will read the private key path from the root directory of your project (generally one level above the docroot
+of your application), so you will need to make sure that the path provided is either absolute, or relative to your project root.
 
 ### Creating Sessions
 

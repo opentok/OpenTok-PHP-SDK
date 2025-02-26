@@ -25,6 +25,9 @@ use Vonage\JWT\TokenGenerator;
 * and the API secret for your <a href="https://tokbox.com/account">OpenTok Video API account</a>. Do not
 * publicly share your API secret. You will use it with the OpenTok() constructor (only on your web
 * server) to create OpenTok sessions.
+*
+* If you set api_key to a VONAGE_APPLICATION_ID and api_secret to a VONAGE_PRIVATE_KEY_PATH, the SDK
+* will hit Vonage Video with Vonage Auth instead.
 * <p>
 * Be sure to include the entire OpenTok server SDK on your web server.
 */
@@ -36,26 +39,40 @@ class OpenTok
     private $apiSecret;
     /** @internal */
     private $client;
-    /** @internal */
+
+    /**
+     * @var bool
+     * Override to determine whether to hit Vonage servers with Vonage Auth in requests
+     */
+    private $vonage = false;
+
+    /**
+     * @var array
+     * @internal
+     */
     public $options;
 
     /** @internal */
     public function __construct($apiKey, $apiSecret, $options = array())
     {
+        $apiUrl = 'https://api.opentok.com';
+
+        if (Validators::isVonageKeypair($apiKey, $apiSecret)) {
+            $this->vonage = true;
+            $apiUrl = 'https://video.api.vonage.com';
+        }
+
         // unpack optional arguments (merging with default values) into named variables
         $defaults = array(
-            'apiUrl' => 'https://api.opentok.com',
+            'apiUrl' => $apiUrl,
             'client' => null,
-            'timeout' => null // In the future we should set this to 2
+            'timeout' => null, // In the future we should set this to 2
         );
 
         $this->options = array_merge($defaults, array_intersect_key($options, $defaults));
 
         list($apiUrl, $client, $timeout) = array_values($this->options);
 
-        // validate arguments
-        Validators::validateApiKey($apiKey);
-        Validators::validateApiSecret($apiSecret);
         Validators::validateApiUrl($apiUrl);
         Validators::validateClient($client);
         Validators::validateDefaultTimeout($timeout);
