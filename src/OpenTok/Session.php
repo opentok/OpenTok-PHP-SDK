@@ -152,6 +152,9 @@ class Session
      *
      * </ul>
      *
+     * @param bool $legacy Connection tokens are now SHA-256 signed JWTs.
+     * Set this to <code>true</code> to create a token using the legacy T1 format.
+     *
      * @return string The token string.
      */
     public function generateToken($options = array(), bool $legacy = false)
