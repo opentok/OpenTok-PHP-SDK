@@ -131,8 +131,8 @@ class OpenTok
      *
      * </ul>
      *
-     * @param bool $legacy By default, OpenTok uses SHA256 JWTs for authentication. Switching
-     * legacy to true will create a T1 token for backwards compatibility.
+     * @param bool $legacy Connection tokens are now SHA-256 signed JWTs.
+     * Set this to <code>true</code> to create a token using the legacy T1 format.
      *
      * @return string The token string.
      */
