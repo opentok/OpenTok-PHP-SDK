@@ -136,6 +136,10 @@ class Archive
         Validators::validateClient($client);
         Validators::validateHasStreamMode($streamMode);
 
+        if (isset($archiveData['maxBitrate']) && isset($archiveData['quantizationParameter'])) {
+            throw new \DomainException('Max Bitrate cannot be set with QuantizationParameter ');
+        }
+
         $this->data = $archiveData;
 
         if (isset($this->data['multiArchiveTag'])) {
@@ -179,6 +183,7 @@ class Archive
             case 'resolution':
             case 'streamMode':
             case 'maxBitrate':
+            case 'quantizationParameter':
                 return $this->data[$name];
             case 'multiArchiveTag':
                 return $this->multiArchiveTag;

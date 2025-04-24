@@ -30,7 +30,7 @@ class ArchiveTest extends TestCase
         self::$mockBasePath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'mock' . DIRECTORY_SEPARATOR;
     }
 
-    public function setupArchives($streamMode)
+    public function setupArchives($streamMode, $quantization = false)
     {
         // Set up fixtures
         $this->archiveData = array(
@@ -49,8 +49,14 @@ class ArchiveTest extends TestCase
             'outputMode' => 'composed',
             'resolution' => '640x480',
             'streamMode' => $streamMode,
-            'multiArchiveTag' => true
+            'multiArchiveTag' => true,
+            'maxBitrate' => 400000,
         );
+
+        if ($quantization) {
+            unset($this->archiveData['maxBitrate']);
+            $this->archiveData['quantizationParameter'] = 40;
+        }
 
         $this->archive = new Archive($this->archiveData, array(
             'apiKey' => $this->API_KEY,
@@ -127,6 +133,10 @@ class ArchiveTest extends TestCase
         $this->assertEquals($this->archiveData['resolution'], $this->archive->resolution);
         $this->assertEquals($this->archiveData['streamMode'], $this->archive->streamMode);
         $this->assertEquals($this->archiveData['multiArchiveTag'], $this->archive->multiArchiveTag);
+        $this->assertEquals($this->archiveData['maxBitrate'], $this->archive->maxBitrate);
+
+       $this->setupArchives(StreamMode::AUTO, true);
+       $this->assertEquals($this->archiveData['quantizationParameter'], $this->archive->quantizationParameter);
     }
 
     public function testStopsArchive()

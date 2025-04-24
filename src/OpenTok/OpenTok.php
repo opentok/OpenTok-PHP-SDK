@@ -887,6 +887,9 @@ class OpenTok
      *    <li><code>maxBitRate</code> &mdash; Max Bitrate allowed for the broadcast composing. Must be between
      *    400000 and 2000000.</li>
      *
+     *    <li><code>quantizationParameter</code> &mdash; quantization parameter (QP) is an optional video encoding
+     *    value allowed for composed archiving, smaller values generate higher quality and larger archives</li>
+     *
      *    <li><code>outputs</code> (Array) &mdash;
      *      Defines the HLS broadcast and RTMP streams. You can provide the following keys:
      *      <ul>
