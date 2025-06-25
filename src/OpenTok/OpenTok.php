@@ -151,10 +151,22 @@ class OpenTok
             'role' => Role::PUBLISHER,
             'ist' => 'project',
             'nonce' => mt_rand(),
-            'scope' => 'session.connect'
+            'scope' => 'session.connect',
+            'data' => null,
+            'initialLayoutClassList' => [],
         ];
 
         $payload = array_merge($defaults, array_intersect_key($payload, $defaults));
+
+        if (isset($payload['data'])) {
+            $payload['connection_data'] = $payload['data'];
+            unset($payload['data']);
+        }
+
+        if (isset($payload['initialLayoutClassList'])) {
+            $payload['initial_layout_class_list'] = urlencode(join(' ', $payload['initialLayoutClassList']));
+            unset($payload['initialLayoutClassList']);
+        }
 
         return JWT::encode($payload, $this->apiSecret, 'HS256');
     }

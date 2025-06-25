@@ -828,7 +828,56 @@ class OpenTokTest extends TestCase
         $this->assertEquals('project', $decodedArray['ist']);
         $this->assertEquals('session.connect', $decodedArray['scope']);
         $this->assertEquals('publisher', $decodedArray['role']);
+    }
 
+    /**
+     * Tests that the JWT Token can be generated with connection data
+     * @see https://github.com/opentok/OpenTok-PHP-SDK/issues/357
+     */
+    public function testWillGenerateJWTWithConnectionData(): void
+    {
+        $openTok = new OpenTok('12345678', 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f');
+        $token = $openTok->generateToken(
+            '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI',
+            ['data' => 'username=bob']
+        );
+
+        $this->assertNotEquals('T1', substr($token, 0, 2));
+
+        $decoded = JWT::decode($token, new Key('b60d0b2568f3ea9731bd9d3f71be263ce19f802f', 'HS256'));
+        $decodedArray = (array) $decoded;
+
+        $this->assertEquals('12345678', $decodedArray['iss']);
+        $this->assertEquals('1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI', $decodedArray['session_id']);
+        $this->assertEquals('project', $decodedArray['ist']);
+        $this->assertEquals('session.connect', $decodedArray['scope']);
+        $this->assertEquals('publisher', $decodedArray['role']);
+        $this->assertEquals('username=bob', $decodedArray['connection_data']);
+    }
+
+    /**
+     * Tests that the JWT Token can be generated with the class layout data
+     * @see https://github.com/opentok/OpenTok-PHP-SDK/issues/357
+     */
+    public function testWillGenerateJWTWithClassLayout(): void
+    {
+        $openTok = new OpenTok('12345678', 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f');
+        $token = $openTok->generateToken(
+            '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI',
+            ['initialLayoutClassList' => ['focus', 'main']]
+        );
+
+        $this->assertNotEquals('T1', substr($token, 0, 2));
+
+        $decoded = JWT::decode($token, new Key('b60d0b2568f3ea9731bd9d3f71be263ce19f802f', 'HS256'));
+        $decodedArray = (array) $decoded;
+
+        $this->assertEquals('12345678', $decodedArray['iss']);
+        $this->assertEquals('1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI', $decodedArray['session_id']);
+        $this->assertEquals('project', $decodedArray['ist']);
+        $this->assertEquals('session.connect', $decodedArray['scope']);
+        $this->assertEquals('publisher', $decodedArray['role']);
+        $this->assertEquals('focus+main', $decodedArray['initial_layout_class_list']);
     }
 
     public function testStartsArchive(): void
