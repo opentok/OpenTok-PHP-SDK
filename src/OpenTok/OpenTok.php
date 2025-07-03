@@ -153,6 +153,7 @@ class OpenTok
             'nonce' => mt_rand(),
             'scope' => 'session.connect',
             'data' => null,
+            'expireTime' => null,
             'initialLayoutClassList' => [],
         ];
 
@@ -166,6 +167,11 @@ class OpenTok
         if (isset($payload['initialLayoutClassList'])) {
             $payload['initial_layout_class_list'] = urlencode(join(' ', $payload['initialLayoutClassList']));
             unset($payload['initialLayoutClassList']);
+        }
+
+        if (isset($payload['expireTime'])) {
+            $payload['exp'] = $payload['expireTime'];
+            unset($payload['expireTime']);
         }
 
         return JWT::encode($payload, $this->apiSecret, 'HS256');

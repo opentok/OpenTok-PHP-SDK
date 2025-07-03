@@ -21,7 +21,6 @@ use OpenTok\StreamMode;
 use OpenTok\Util\Client;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\HandlerStack;
-use OpenTok\Util\Validators;
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Handler\MockHandler;
 use OpenTok\Exception\InvalidArgumentException;
@@ -878,6 +877,31 @@ class OpenTokTest extends TestCase
         $this->assertEquals('session.connect', $decodedArray['scope']);
         $this->assertEquals('publisher', $decodedArray['role']);
         $this->assertEquals('focus+main', $decodedArray['initial_layout_class_list']);
+    }
+
+    /**
+     * Tests that the JWT Token can be generated with the correct expiration time
+     */
+    public function testWillGenerateJWTWithCorrectExpirationTime(): void
+    {
+        $openTok = new OpenTok('12345678', 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f');
+        $expireTime = time() + 3600; // expires in one hour
+        $token = $openTok->generateToken(
+            '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI',
+            ['expireTime' => $expireTime] // expires in one hour
+        );
+
+        $this->assertNotEquals('T1', substr($token, 0, 2));
+
+        $decoded = JWT::decode($token, new Key('b60d0b2568f3ea9731bd9d3f71be263ce19f802f', 'HS256'));
+        $decodedArray = (array) $decoded;
+
+        $this->assertEquals('12345678', $decodedArray['iss']);
+        $this->assertEquals('1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI', $decodedArray['session_id']);
+        $this->assertEquals('project', $decodedArray['ist']);
+        $this->assertEquals('session.connect', $decodedArray['scope']);
+        $this->assertEquals('publisher', $decodedArray['role']);
+        $this->assertEquals($expireTime, $decodedArray['exp']);
     }
 
     public function testStartsArchive(): void
