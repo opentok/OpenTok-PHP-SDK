@@ -1329,6 +1329,7 @@ class OpenTok
      *    <li><code>'uri'</code> (string) &mdash; A publically reachable WebSocket URI controlled by the customer for the destination of the connect call. (f.e. wss://service.com/wsendpoint)</li>
      *    <li><code>'streams'</code> (array) &mdash; (Optional) The stream IDs of the participants' whose audio is going to be connected. If not provided, all streams in session will be selected.</li>
      *    <li><code>'headers'</code> (array) &mdash; (Optional) An object of key/val pairs with additional properties to send to your Websocket server, with a maximum length of 512 bytes.</li>
+     *    <li><code>'bidirectional'</code> (boolean) &mdash; (Optional) Whether the WebSocket connection should be bidirectional. Default is false if not provided.</li>
      * </ul>
      *
      * @return array $response Response from the API, structured as follows:

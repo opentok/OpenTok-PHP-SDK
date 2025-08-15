@@ -3093,4 +3093,78 @@ class OpenTokTest extends TestCase
         $result = $this->opentok->stopCaptions('7c0680fc-6274-4de5-a66f-d0648e8d3ac2');
         $this->assertTrue($result);
     }
+
+    public function testCanConnectAudioStreamWithBidirectionalWebsocketTrue()
+    {
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => '/v2/project/APIKEY/connect'
+        ]]);
+
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $token = '063e72a4-64b4-43c8-9da5-eca071daab89';
+        $websocketConfig = [
+            'uri' => 'ws://service.com/wsendpoint',
+            'streams' => [
+                'we9r885',
+                '9238fujs'
+            ],
+            'headers' => [
+                'key1' => 'value'
+            ],
+            'bidirectional' => true
+        ];
+
+        $response = $this->opentok->connectAudio($sessionId, $token, $websocketConfig);
+        $this->assertEquals('063e72a4-64b4-43c8-9da5-eca071daab89', $response['id']);
+        $this->assertEquals('7aebb3a4-3d86-4962-b317-afb73e05439d', $response['connectionId']);
+    }
+
+    public function testCanConnectAudioStreamWithBidirectionalWebsocketFalse()
+    {
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => '/v2/project/APIKEY/connect'
+        ]]);
+
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+        $token = '063e72a4-64b4-43c8-9da5-eca071daab89';
+        $websocketConfig = [
+            'uri' => 'ws://service.com/wsendpoint',
+            'streams' => [
+                'we9r885',
+                '9238fujs'
+            ],
+            'headers' => [
+                'key1' => 'value'
+            ],
+            'bidirectional' => false
+        ];
+
+        $response = $this->opentok->connectAudio($sessionId, $token, $websocketConfig);
+        $this->assertEquals('063e72a4-64b4-43c8-9da5-eca071daab89', $response['id']);
+        $this->assertEquals('7aebb3a4-3d86-4962-b317-afb73e05439d', $response['connectionId']);
+    }
+
+    public function testConnectAudioStreamWithInvalidBidirectionalThrows()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectErrorMessage('Websocket configuration bidirectional option must be a boolean');
+        $this->setupOTWithMocks([[
+            'code' => 200
+        ]]);
+
+        $badPayload = [
+            'uri' => 'ws://service.com/wsendpoint',
+            'bidirectional' => 'notaboolean'
+        ];
+
+        $this->opentok->connectAudio('9999', 'wrwetg', $badPayload);
+    }
 }

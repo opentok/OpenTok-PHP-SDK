@@ -435,6 +435,9 @@ class Validators
         if (!array_key_exists('uri', $websocketOptions)) {
             throw new InvalidArgumentException('Websocket configuration must have a uri');
         }
+        if (array_key_exists('bidirectional', $websocketOptions) && !is_bool($websocketOptions['bidirectional'])) {
+            throw new InvalidArgumentException('Websocket configuration bidirectional option must be a boolean');
+        }
     }
 
     public static function validateAutoArchiveResolution($archiveResolution)
