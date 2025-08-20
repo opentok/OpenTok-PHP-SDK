@@ -1261,7 +1261,7 @@ class OpenTok
      *
      * @return void
      */
-    public function playDTMF(string $sessionId, string $digits, string $connectionId = null): void
+    public function playDTMF(string $sessionId, string $digits, ?string $connectionId = null): void
     {
         Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
         Validators::validateDTMFDigits($digits);
