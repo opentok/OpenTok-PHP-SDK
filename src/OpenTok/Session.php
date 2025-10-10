@@ -2,6 +2,7 @@
 
 namespace OpenTok;
 
+use Stringable;
 use OpenTok\Util\Validators;
 
 /**
@@ -10,7 +11,7 @@ use OpenTok\Util\Validators;
 * Use the \OpenTok\OpenTok->createSession() method to create an OpenTok session. Use the
 * getSessionId() method of the Session object to get the session ID.
 */
-class Session
+class Session implements Stringable
 {
     /**
      * @internal
@@ -40,7 +41,7 @@ class Session
     /**
      * @internal
      */
-    public function __construct($opentok, $sessionId, $properties = array())
+    public function __construct($opentok, $sessionId, $properties = [])
     {
         $defaults = [
             'mediaMode' => MediaMode::ROUTED,
@@ -50,7 +51,7 @@ class Session
         ];
 
         $properties = array_merge($defaults, array_intersect_key($properties, $defaults));
-        list($mediaMode, $archiveMode, $location, $e2ee) = array_values($properties);
+        [$mediaMode, $archiveMode, $location, $e2ee] = array_values($properties);
 
         Validators::validateOpenTok($opentok);
         Validators::validateSessionId($sessionId);
@@ -120,9 +121,9 @@ class Session
     /**
      * @internal
      */
-    public function __toString()
+    public function __toString(): string
     {
-        return $this->sessionId;
+        return (string) $this->sessionId;
     }
 
     /**
@@ -157,7 +158,7 @@ class Session
      *
      * @return string The token string.
      */
-    public function generateToken($options = array(), bool $legacy = false)
+    public function generateToken($options = [], bool $legacy = false)
     {
         return $this->opentok->generateToken($this->sessionId, $options, $legacy);
     }
@@ -165,8 +166,6 @@ class Session
     /**
      * Whether <a href="https://tokbox.com/developer/guides/end-to-end-encryption">end-to-end encryption</a>
      * is set for the session.
-     *
-     * @return bool
      */
     public function getE2EE(): bool
     {

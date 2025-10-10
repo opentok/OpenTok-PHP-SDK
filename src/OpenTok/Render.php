@@ -47,25 +47,15 @@ class Render
     /** @internal */
     public function __construct($data)
     {
-        $this->data = json_decode($data, true);
+        $this->data = json_decode((string) $data, true);
     }
 
     /** @internal */
     public function __get($name)
     {
-        switch ($name) {
-            case 'id':
-            case 'sessionId':
-            case 'projectId':
-            case 'createdAt':
-            case 'updatedAt':
-            case 'url':
-            case 'resolution':
-            case 'status':
-            case 'streamId':
-                return $this->data[$name];
-            default:
-                return null;
-        }
+        return match ($name) {
+            'id', 'sessionId', 'projectId', 'createdAt', 'updatedAt', 'url', 'resolution', 'status', 'streamId' => $this->data[$name],
+            default => null,
+        };
     }
 }

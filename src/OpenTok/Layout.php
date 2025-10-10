@@ -2,6 +2,9 @@
 
 namespace OpenTok;
 
+use JsonSerializable;
+use RuntimeException;
+use ReturnTypeWillChange;
 use OpenTok\Util\Validators;
 
 /**
@@ -19,7 +22,7 @@ use OpenTok\Util\Validators;
  * <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/#configuring-video-layout-for-opentok-live-streaming-broadcasts">Configuring
  * video layout for OpenTok live streaming broadcasts</a>.
  */
-class Layout implements \JsonSerializable
+class Layout implements JsonSerializable
 {
     public const LAYOUT_BESTFIT = 'bestFit';
     public const LAYOUT_CUSTOM = 'custom';
@@ -28,31 +31,25 @@ class Layout implements \JsonSerializable
     public const LAYOUT_VERTICAL = 'verticalPresentation';
 
     /**
-     * Type of layout that we are sending
-     * @var string
-     * @ignore
-     * */
-    private $type;
-
-    /**
      * Type of layout to use for screen sharing
-     * @var string
      * @ignore
      */
-    private $screenshareType;
-
-    /**
-     * Custom stylesheet if our type is 'custom'
-     * @var string
-     * @ignore
-     */
-    private $stylesheet;
+    private ?string $screenshareType = null;
 
     /** @ignore */
-    private function __construct(string $type, ?string $stylesheet = null)
-    {
-        $this->type = $type;
-        $this->stylesheet = $stylesheet;
+    private function __construct(
+        /**
+         * Type of layout that we are sending
+         * @ignore
+         * */
+        private readonly string $type,
+        /**
+         * Custom stylesheet if our type is 'custom'
+         * @var string
+         * @ignore
+         */
+        private readonly ?string $stylesheet = null
+    ) {
     }
 
     /**
@@ -69,7 +66,7 @@ class Layout implements \JsonSerializable
         //       $options argument so that it can become truly optional in the future.
         $defaults = ['stylesheet' => null];
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($stylesheet) = array_values($options);
+        [$stylesheet] = array_values($options);
 
         // validate arguments
         Validators::validateLayoutStylesheet($stylesheet);
@@ -130,17 +127,17 @@ class Layout implements \JsonSerializable
             ];
 
             if (!in_array($screenshareType, $layouts)) {
-                throw new \RuntimeException('Screenshare type must be of a valid layout type');
+                throw new RuntimeException('Screenshare type must be of a valid layout type');
             }
 
             $this->screenshareType = $screenshareType;
             return $this;
         }
 
-        throw new \RuntimeException('Screenshare type cannot be set on a layout type other than bestFit');
+        throw new RuntimeException('Screenshare type cannot be set on a layout type other than bestFit');
     }
 
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return $this->toArray();
@@ -156,17 +153,15 @@ class Layout implements \JsonSerializable
 
     public function toArray(): array
     {
-        $data = array(
-            'type' => $this->type
-        );
+        $data = ['type' => $this->type];
 
         // omit 'stylesheet' property unless it is explicitly defined
-        if (isset($this->stylesheet)) {
+        if ($this->stylesheet !== null) {
             $data['stylesheet'] = $this->stylesheet;
         }
 
         // omit 'screenshareType' property unless it is explicitly defined
-        if (isset($this->screenshareType)) {
+        if ($this->screenshareType !== null) {
             $data['screenshareType'] = $this->screenshareType;
         }
 

@@ -19,26 +19,17 @@ namespace OpenTok;
 
 class Connection
 {
-
-    private $data;
-
-    public function __construct($connectionData)
+    public function __construct(private $data)
     {
-
-        $this->data = $connectionData;
     }
 
     /** @ignore */
     public function __get($name)
     {
-        switch ($name) {
-            case 'connectionId':
-            case 'connectionState':
-            case 'createdAt':
-                return $this->data[$name];
-            default:
-                return null;
-        }
+        return match ($name) {
+            'connectionId', 'connectionState', 'createdAt' => $this->data[$name],
+            default => null,
+        };
     }
 
     public function jsonSerialize()

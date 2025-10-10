@@ -1,5 +1,7 @@
 <?php
 
+use Slim\Views\Twig;
+
 $autoloader = __DIR__ . '/../vendor/autoload.php';
 $sdkAutoloader = __DIR__ . '/../../../vendor/autoload.php';
 
@@ -23,7 +25,7 @@ use OpenTok\MediaMode;
 use OpenTok\OutputMode;
 
 // PHP CLI webserver compatibility, serving static files
-$filename = __DIR__ . preg_replace('#(\?.*)$#', '', $_SERVER['REQUEST_URI']);
+$filename = __DIR__ . preg_replace('#(\?.*)$#', '', (string) $_SERVER['REQUEST_URI']);
 if (php_sapi_name() === 'cli-server' && is_file($filename)) {
     return false;
 }
@@ -34,66 +36,45 @@ if (!(getenv('API_KEY') && getenv('API_SECRET'))) {
 }
 
 // Initialize Slim application
-$app = new Slim(array(
-    'templates.path' => __DIR__ . '/../templates',
-    'view' => new \Slim\Views\Twig(),
-));
+$app = new Slim(['templates.path' => __DIR__ . '/../templates', 'view' => new Twig()]);
 
 // Intialize a cache, store it in the app container
-$app->container->singleton('cache', function () {
-    return new Cache();
-});
+$app->container->singleton('cache', fn(): Cache => new Cache());
 
 // Initialize OpenTok instance, store it in the app contianer
-$app->container->singleton('opentok', function () {
-    return new OpenTok(getenv('API_KEY'), getenv('API_SECRET'));
-});
+$app->container->singleton('opentok', fn(): OpenTok => new OpenTok(getenv('API_KEY'), getenv('API_SECRET')));
 // Store the API Key in the app container
 $app->apiKey = getenv('API_KEY');
 
 // If a sessionId has already been created, retrieve it from the cache
-$sessionId = $app->cache->getOrCreate('sessionId', array(), function () use ($app) {
+$sessionId = $app->cache->getOrCreate('sessionId', [], function () use ($app) {
     // If the sessionId hasn't been created, create it now and store it
-    $session = $app->opentok->createSession(array(
-      'mediaMode' => MediaMode::ROUTED
-    ));
+    $session = $app->opentok->createSession(['mediaMode' => MediaMode::ROUTED]);
     return $session->getSessionId();
 });
 
 // Configure routes
-$app->get('/', function () use ($app) {
+$app->get('/', function () use ($app): void {
     $app->render('index.html');
 });
 
-$app->get('/host', function () use ($app, $sessionId) {
+$app->get('/host', function () use ($app, $sessionId): void {
 
-    $token = $app->opentok->generateToken($sessionId, array(
-        'role' => Role::MODERATOR
-    ));
+    $token = $app->opentok->generateToken($sessionId, ['role' => Role::MODERATOR]);
 
-    $app->render('host.html', array(
-        'apiKey' => $app->apiKey,
-        'sessionId' => $sessionId,
-        'token' => $token
-    ));
+    $app->render('host.html', ['apiKey' => $app->apiKey, 'sessionId' => $sessionId, 'token' => $token]);
 });
 
-$app->get('/participant', function () use ($app, $sessionId) {
+$app->get('/participant', function () use ($app, $sessionId): void {
 
-    $token = $app->opentok->generateToken($sessionId, array(
-        'role' => Role::MODERATOR
-    ));
+    $token = $app->opentok->generateToken($sessionId, ['role' => Role::MODERATOR]);
 
-    $app->render('participant.html', array(
-        'apiKey' => $app->apiKey,
-        'sessionId' => $sessionId,
-        'token' => $token
-    ));
+    $app->render('participant.html', ['apiKey' => $app->apiKey, 'sessionId' => $sessionId, 'token' => $token]);
 });
 
-$app->get('/history', function () use ($app) {
+$app->get('/history', function () use ($app): void {
     $page = intval($app->request->get('page'));
-    if (empty($page)) {
+    if ($page === 0) {
         $page = 1;
     }
 
@@ -101,42 +82,31 @@ $app->get('/history', function () use ($app) {
 
     $archives = $app->opentok->listArchives($offset, 5);
 
-    $toArray = function ($archive) {
-        return $archive->toArray();
-    };
+    $toArray = fn($archive) => $archive->toArray();
 
-    $app->render('history.html', array(
-        'archives' => array_map($toArray, $archives->getItems()),
-        'showPrevious' => $page > 1 ? '/history?page=' . ($page - 1) : null,
-        'showNext' => $archives->totalCount() > $offset + 5 ? '/history?page=' . ($page + 1) : null
-    ));
+    $app->render('history.html', ['archives' => array_map($toArray, $archives->getItems()), 'showPrevious' => $page > 1 ? '/history?page=' . ($page - 1) : null, 'showNext' => $archives->totalCount() > $offset + 5 ? '/history?page=' . ($page + 1) : null]);
 });
 
-$app->get('/download/:archiveId', function ($archiveId) use ($app) {
+$app->get('/download/:archiveId', function ($archiveId) use ($app): void {
     $archive = $app->opentok->getArchive($archiveId);
     $app->redirect($archive->url);
 });
 
-$app->post('/start', function () use ($app, $sessionId) {
+$app->post('/start', function () use ($app, $sessionId): void {
 
-    $archive = $app->opentok->startArchive($sessionId, array(
-      'name' => "PHP Archiving Sample App",
-      'hasAudio' => ($app->request->post('hasAudio') == 'on'),
-      'hasVideo' => ($app->request->post('hasVideo') == 'on'),
-      'outputMode' => ($app->request->post('outputMode') == 'composed' ? OutputMode::COMPOSED : OutputMode::INDIVIDUAL)
-    ));
+    $archive = $app->opentok->startArchive($sessionId, ['name' => "PHP Archiving Sample App", 'hasAudio' => ($app->request->post('hasAudio') == 'on'), 'hasVideo' => ($app->request->post('hasVideo') == 'on'), 'outputMode' => ($app->request->post('outputMode') == 'composed' ? OutputMode::COMPOSED : OutputMode::INDIVIDUAL)]);
 
     $app->response->headers->set('Content-Type', 'application/json');
     echo $archive->toJson();
 });
 
-$app->get('/stop/:archiveId', function ($archiveId) use ($app) {
+$app->get('/stop/:archiveId', function ($archiveId) use ($app): void {
     $archive = $app->opentok->stopArchive($archiveId);
     $app->response->headers->set('Content-Type', 'application/json');
     echo $archive->toJson();
 });
 
-$app->get('/delete/:archiveId', function ($archiveId) use ($app) {
+$app->get('/delete/:archiveId', function ($archiveId) use ($app): void {
     $app->opentok->deleteArchive($archiveId);
     $app->redirect('/history');
 });

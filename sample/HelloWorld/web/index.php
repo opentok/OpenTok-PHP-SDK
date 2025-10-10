@@ -20,7 +20,7 @@ use Gregwar\Cache\Cache;
 use OpenTok\OpenTok;
 
 // PHP CLI webserver compatibility, serving static files
-$filename = __DIR__ . preg_replace('#(\?.*)$#', '', $_SERVER['REQUEST_URI']);
+$filename = __DIR__ . preg_replace('#(\?.*)$#', '', (string) $_SERVER['REQUEST_URI']);
 if (php_sapi_name() === 'cli-server' && is_file($filename)) {
     return false;
 }
@@ -31,27 +31,21 @@ if (!(getenv('API_KEY') && getenv('API_SECRET'))) {
 }
 
 // Initialize Slim application
-$app = new Slim(array(
-    'templates.path' => __DIR__ . '/../templates'
-));
+$app = new Slim(['templates.path' => __DIR__ . '/../templates']);
 
 // Intialize a cache, store it in the app container
-$app->container->singleton('cache', function () {
-    return new Cache();
-});
+$app->container->singleton('cache', fn(): Cache => new Cache());
 
 // Initialize OpenTok instance, store it in the app contianer
-$app->container->singleton('opentok', function () {
-    return new OpenTok(getenv('API_KEY'), getenv('API_SECRET'));
-});
+$app->container->singleton('opentok', fn(): OpenTok => new OpenTok(getenv('API_KEY'), getenv('API_SECRET')));
 // Store the API Key in the app container
 $app->apiKey = getenv('API_KEY');
 
 // Configure routes
-$app->get('/', function () use ($app) {
+$app->get('/', function () use ($app): void {
 
     // If a sessionId has already been created, retrieve it from the cache
-    $sessionId = $app->cache->getOrCreate('sessionId', array(), function () use ($app) {
+    $sessionId = $app->cache->getOrCreate('sessionId', [], function () use ($app) {
         // If the sessionId hasn't been created, create it now and store it
         $session = $app->opentok->createSession();
         return $session->getSessionId();
@@ -60,11 +54,7 @@ $app->get('/', function () use ($app) {
     // Generate a fresh token for this client
     $token = $app->opentok->generateToken($sessionId);
 
-    $app->render('helloworld.php', array(
-        'apiKey' => $app->apiKey,
-        'sessionId' => $sessionId,
-        'token' => $token
-    ));
+    $app->render('helloworld.php', ['apiKey' => $app->apiKey, 'sessionId' => $sessionId, 'token' => $token]);
 });
 
 $app->run();

@@ -12,7 +12,6 @@ use OpenTok\Util\Validators;
 */
 class ArchiveList
 {
-
     /**
     * @internal
     */
@@ -24,22 +23,17 @@ class ArchiveList
     /**
     * @internal
     */
-    private $items;
+    private ?array $items = null;
 
     /**
     * @internal
     */
-    public function __construct($archiveListData, $options = array())
+    public function __construct($archiveListData, $options = [])
     {
         // unpack optional arguments (merging with default values) into named variables
-        $defaults = array(
-            'apiKey' => null,
-            'apiSecret' => null,
-            'apiUrl' => 'https://api.opentok.com',
-            'client' => null
-        );
+        $defaults = ['apiKey' => null, 'apiSecret' => null, 'apiUrl' => 'https://api.opentok.com', 'client' => null];
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($apiKey, $apiSecret, $apiUrl, $client) = array_values($options);
+        [$apiKey, $apiSecret, $apiUrl, $client] = array_values($options);
 
         // validate params
         Validators::validateArchiveListData($archiveListData);
@@ -47,7 +41,7 @@ class ArchiveList
 
         $this->data = $archiveListData;
 
-        $this->client = isset($client) ? $client : new Client();
+        $this->client = $client ?? new Client();
         if (!$this->client->isConfigured()) {
             Validators::validateApiUrl($apiUrl);
 
@@ -71,9 +65,9 @@ class ArchiveList
     public function getItems()
     {
         if (!$this->items) {
-            $items = array();
+            $items = [];
             foreach ($this->data['items'] as $archiveData) {
-                $items[] = new Archive($archiveData, array( 'client' => $this->client ));
+                $items[] = new Archive($archiveData, ['client' => $this->client]);
             }
             $this->items = $items;
         }

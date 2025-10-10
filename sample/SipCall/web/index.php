@@ -21,7 +21,7 @@ use OpenTok\OpenTok;
 use OpenTok\MediaMode;
 
 // PHP CLI webserver compatibility, serving static files
-$filename = __DIR__ . preg_replace('#(\?.*)$#', '', $_SERVER['REQUEST_URI']);
+$filename = __DIR__ . preg_replace('#(\?.*)$#', '', (string) $_SERVER['REQUEST_URI']);
 if (php_sapi_name() === 'cli-server' && is_file($filename)) {
     return false;
 }
@@ -32,62 +32,43 @@ if (!(getenv('API_KEY') && getenv('API_SECRET') && getenv('SIP_URI') && getenv('
 }
 
 // Initialize Slim application
-$app = new Slim(array(
-    'templates.path' => __DIR__ . '/../templates'
-));
+$app = new Slim(['templates.path' => __DIR__ . '/../templates']);
 
 // Intialize a cache, store it in the app container
-$app->container->singleton('cache', function () {
-    return new Cache();
-});
+$app->container->singleton('cache', fn(): Cache => new Cache());
 
 // Initialize OpenTok instance, store it in the app contianer
-$app->container->singleton('opentok', function () {
-    return new OpenTok(getenv('API_KEY'), getenv('API_SECRET'));
-});
+$app->container->singleton('opentok', fn(): OpenTok => new OpenTok(getenv('API_KEY'), getenv('API_SECRET')));
 // Store the API Key in the app container
 $app->apiKey = getenv('API_KEY');
 
-$app->sip = array(
-  'uri' => getenv('SIP_URI'),
-  'username' => getenv('SIP_USERNAME'),
-  'password' => getenv('SIP_PASSWORD'),
-  'secure' => (getenv('SIP_SECURE') === 'true'),
-  'from' => getenv('SIP_FROM'),
-);
+$app->sip = ['uri' => getenv('SIP_URI'), 'username' => getenv('SIP_USERNAME'), 'password' => getenv('SIP_PASSWORD'), 'secure' => (getenv('SIP_SECURE') === 'true'), 'from' => getenv('SIP_FROM')];
 
 // Configure routes
-$app->get('/', function () use ($app) {
+$app->get('/', function () use ($app): void {
     // If a sessionId has already been created, retrieve it from the cache
-    $sessionId = $app->cache->getOrCreate('sessionId', array(), function () use ($app) {
+    $sessionId = $app->cache->getOrCreate('sessionId', [], function () use ($app) {
         // If the sessionId hasn't been created, create it now and store it
-        $session = $app->opentok->createSession(array('mediaMode' => MediaMode::ROUTED));
+        $session = $app->opentok->createSession(['mediaMode' => MediaMode::ROUTED]);
         return $session->getSessionId();
     });
 
     // Generate a fresh token for this client
-    $token = $app->opentok->generateToken($sessionId, array('role' => 'moderator'));
+    $token = $app->opentok->generateToken($sessionId, ['role' => 'moderator']);
 
-    $app->render('index.php', array(
-        'apiKey' => $app->apiKey,
-        'sessionId' => $sessionId,
-        'token' => $token
-    ));
+    $app->render('index.php', ['apiKey' => $app->apiKey, 'sessionId' => $sessionId, 'token' => $token]);
 });
 
-$app->post('/sip/start', function () use ($app) {
+$app->post('/sip/start', function () use ($app): void {
     $sessionId = $app->request->post('sessionId');
 
     // generate a token
-    $token = $app->opentok->generateToken($sessionId, array('data' => 'sip=true'));
+    $token = $app->opentok->generateToken($sessionId, ['data' => 'sip=true']);
 
     // create the options parameter
-    $options = array(
-      'secure' => $app->sip['secure'],
-      'from' => $app->sip['from'],
-    );
+    $options = ['secure' => $app->sip['secure'], 'from' => $app->sip['from']];
     if ($app->sip['username'] !== false) {
-        $options['auth'] = array('username' => $app->sip['username'], 'password' => $app->sip['password']);
+        $options['auth'] = ['username' => $app->sip['username'], 'password' => $app->sip['password']];
     }
 
     // make the sip call
