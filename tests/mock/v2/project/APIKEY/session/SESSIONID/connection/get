@@ -1,0 +1,22 @@
+{
+  "count": 3,
+  "projectId": "e9f8c166-6c67-440d-994a-04fb6dfed007",
+  "sessionId": "b40ef09b-3811-4726-b508-e41a0f96c68f",
+  "items": [
+    {
+      "connectionId": "8b732909-0a06-46a2-8ea8-074e64d43422",
+      "connectionState": "Connected",
+      "createdAt": "1384221730000"
+    },
+    {
+      "connectionId": "ab732909-0a06-46a2-8ea8-074e64d43412",
+      "connectionState": "Connecting",
+      "createdAt": "1384221735000"
+    },
+    {
+      "connectionId": "cd732909-0a06-46a2-8ea8-074e64d43433",
+      "connectionState": "Connected",
+      "createdAt": "1384221740000"
+    }
+  ]
+}

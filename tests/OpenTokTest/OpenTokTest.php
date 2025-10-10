@@ -2926,6 +2926,98 @@ class OpenTokTest extends TestCase
         $this->assertInstanceOf('OpenTok\StreamList', $streamList);
     }
 
+    public function testListConnections(): void
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => '/v2/project/APIKEY/session/SESSIONID/connection/get'
+        ]]);
+
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+
+        // Act
+        $connectionList = $this->opentok->listConnections($sessionId);
+
+        // Assert
+        $this->assertCount(1, $this->historyContainer);
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertEquals('GET', strtoupper($request->getMethod()));
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/session/' . $sessionId . '/connection/', $request->getUri()->getPath());
+        $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
+        $this->assertEquals('https', $request->getUri()->getScheme());
+
+        $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        $this->assertInstanceOf('OpenTok\ConnectionList', $connectionList);
+        $this->assertEquals(3, $connectionList->totalCount());
+        $this->assertEquals('e9f8c166-6c67-440d-994a-04fb6dfed007', $connectionList->getProjectId());
+        $this->assertEquals('b40ef09b-3811-4726-b508-e41a0f96c68f', $connectionList->getSessionId());
+
+        $connections = $connectionList->getItems();
+        $this->assertCount(3, $connections);
+        $this->assertInstanceOf('OpenTok\Connection', $connections[0]);
+        $this->assertEquals('8b732909-0a06-46a2-8ea8-074e64d43422', $connections[0]->connectionId);
+        $this->assertEquals('Connected', $connections[0]->connectionState);
+        $this->assertEquals('1384221730000', $connections[0]->createdAt);
+    }
+
+    public function testListConnectionsWithInvalidSessionId(): void
+    {
+        // Arrange
+        $this->setupOT();
+
+        // Assert
+        $this->expectException('OpenTok\Exception\InvalidArgumentException');
+
+        // Act
+        $this->opentok->listConnections('invalid-session-id');
+    }
+
+    public function testListConnectionsIteration(): void
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => '/v2/project/APIKEY/session/SESSIONID/connection/get'
+        ]]);
+
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+
+        // Act
+        $connectionList = $this->opentok->listConnections($sessionId);
+
+        // Assert - Test direct iteration over ConnectionList
+        $iteratedConnections = [];
+        foreach ($connectionList as $index => $connection) {
+            $iteratedConnections[$index] = $connection;
+            $this->assertInstanceOf('OpenTok\Connection', $connection);
+        }
+
+        $this->assertCount(3, $iteratedConnections);
+        $this->assertEquals('8b732909-0a06-46a2-8ea8-074e64d43422', $iteratedConnections[0]->connectionId);
+        $this->assertEquals('Connected', $iteratedConnections[0]->connectionState);
+        $this->assertEquals('ab732909-0a06-46a2-8ea8-074e64d43412', $iteratedConnections[1]->connectionId);
+        $this->assertEquals('Connecting', $iteratedConnections[1]->connectionState);
+        $this->assertEquals('cd732909-0a06-46a2-8ea8-074e64d43433', $iteratedConnections[2]->connectionId);
+        $this->assertEquals('Connected', $iteratedConnections[2]->connectionState);
+
+        // Assert - Test that getItems() still works as before
+        $itemsConnections = $connectionList->getItems();
+        $this->assertCount(3, $itemsConnections);
+        $this->assertEquals($iteratedConnections[0]->connectionId, $itemsConnections[0]->connectionId);
+        $this->assertEquals($iteratedConnections[1]->connectionId, $itemsConnections[1]->connectionId);
+        $this->assertEquals($iteratedConnections[2]->connectionId, $itemsConnections[2]->connectionId);
+    }
+
     public function testsSetArchiveLayoutWithPredefined(): void
     {
         // Arrange
