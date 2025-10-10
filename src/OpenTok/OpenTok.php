@@ -546,6 +546,19 @@ class OpenTok
      *    (HD portrait), or "1080x1920" (FHD portrait). This property only applies to composed archives. If you set
      *    this property and set the outputMode property to "individual", a call to the method
      *    results in an error.</li>
+     *
+     *    <li><code>'hasTranscription'</code> (Boolean) &mdash; Whether the archive will have a transcription of the audio
+     *    of the session (true) or not (false, the default).</li>
+     *
+     *    <li><code>'transcriptionProperties'</code> (Array) &mdash; An array defining transcription properties. This array
+     *    includes the following keys:
+     *    <ul>
+     *       <li><code>'primaryLanguageCode'</code> (String) &mdash; The primary language spoken in the archive to be
+     *       transcribed, in BCP-47 format (e.g., "en-US", "es-ES", "pt-BR").</li>
+     *       <li><code>'hasSummary'</code> (Boolean) &mdash; Whether the transcription should include a summary of the
+     *       session (true) or not (false, the default).</li>
+     *    </ul>
+     *    </li>
      * </ul>
      *
      * @return Archive The Archive object, which includes properties defining the archive, including
@@ -570,6 +583,8 @@ class OpenTok
             'outputMode' => OutputMode::COMPOSED,
             'resolution' => null,
             'streamMode' => StreamMode::AUTO,
+            'hasTranscription' => false,
+            'transcriptionProperties' => null,
         );
 
         // Horrible hack to workaround the defaults behaviour
@@ -577,8 +592,27 @@ class OpenTok
             $maxBitrate = $options['maxBitrate'];
         }
 
+        // Preserve transcription fields from user input
+        $hasTranscription = isset($options['hasTranscription']) ? $options['hasTranscription'] : false;
+        $transcriptionProperties = isset($options['transcriptionProperties']) ? $options['transcriptionProperties'] : null;
+
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
         list($name, $hasVideo, $hasAudio, $outputMode, $resolution, $streamMode) = array_values($options);
+
+        // Re-add transcription options to options array for API call
+        $options['hasTranscription'] = $hasTranscription;
+        if ($hasTranscription && $transcriptionProperties !== null) {
+            $options['transcriptionProperties'] = $transcriptionProperties;
+        }
+
+        if (isset($maxBitrate)) {
+            $options['maxBitrate'] = $maxBitrate;
+        }
+
+        // Remove null values before sending to API
+        $options = array_filter($options, function($value) {
+            return $value !== null;
+        });
 
         if (isset($maxBitrate)) {
             $options['maxBitrate'] = $maxBitrate;
@@ -595,6 +629,8 @@ class OpenTok
         Validators::validateArchiveHasAudio($hasAudio);
         Validators::validateArchiveOutputMode($outputMode);
         Validators::validateHasStreamMode($streamMode);
+        Validators::validateArchiveHasTranscription($hasTranscription);
+        Validators::validateArchiveTranscriptionProperties($transcriptionProperties);
 
         if ((is_null($resolution) || empty($resolution)) && $outputMode === OutputMode::COMPOSED) {
             $options['resolution'] = "640x480";
