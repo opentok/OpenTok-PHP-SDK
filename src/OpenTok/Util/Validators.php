@@ -78,7 +78,7 @@ class Validators
             if (!isset($options[$optionName])) {
                 continue;
             }
-            if (getType($options[$optionName]) === $optionType) {
+            if (gettype($options[$optionName]) === $optionType) {
                 continue;
             }
             throw new InvalidArgumentException('Invalid type given in options for: ' . $options[$optionName]);
