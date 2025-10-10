@@ -9,7 +9,7 @@ class RenderTest extends TestCase
 {
     public function testCannotHydrateWithWrongPayload(): void
     {
-        $this->expectError(\TypeError::class);
+        $this->expectError();
         $payload = [
             'id' => '1248e7070b81464c9789f46ad10e7764',
             'sessionId' => '2_MX4xMDBfjE0Mzc2NzY1NDgwMTJ-TjMzfn4',
@@ -22,7 +22,7 @@ class RenderTest extends TestCase
             'streamId' => 'e32445b743678c98230f238'
         ];
 
-        $render = new Render($payload);
+        new Render($payload);
     }
 
     public function testCanHydrateFromPayload(): void

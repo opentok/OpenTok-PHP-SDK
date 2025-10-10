@@ -2,26 +2,25 @@
 
 namespace OpenTok;
 
+use Iterator;
+
 /**
  * An object, returned by the <a href="OpenTok.OpenTok.html#method_listConnections">OpenTok.listConnections()</a>
  * method, representing a list of connections in an OpenTok session.
  */
-class ConnectionList implements \Iterator
+class ConnectionList implements Iterator
 {
     /** @ignore */
-    private $data;
+    private ?array $items = null;
 
     /** @ignore */
-    private $items;
+    private int $position = 0;
 
     /** @ignore */
-    private $position = 0;
-
-    /** @ignore */
-    public function __construct($connectionListData)
-    {
-        $this->data = $connectionListData;
-        $this->position = 0;
+    public function __construct(
+        /** @ignore */
+        private $data
+    ) {
     }
 
     /**
@@ -62,7 +61,7 @@ class ConnectionList implements \Iterator
     public function getItems()
     {
         if (!is_array($this->items)) {
-            $items = array();
+            $items = [];
             foreach ($this->data['items'] as $connectionData) {
                 $items[] = new Connection($connectionData);
             }
@@ -91,8 +90,6 @@ class ConnectionList implements \Iterator
 
     /**
      * Return the current element
-     * 
-     * @return Connection
      */
     public function current(): Connection
     {
@@ -102,8 +99,6 @@ class ConnectionList implements \Iterator
 
     /**
      * Return the key of the current element
-     * 
-     * @return int
      */
     public function key(): int
     {
@@ -120,8 +115,6 @@ class ConnectionList implements \Iterator
 
     /**
      * Checks if current position is valid
-     * 
-     * @return bool
      */
     public function valid(): bool
     {

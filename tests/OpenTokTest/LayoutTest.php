@@ -2,13 +2,15 @@
 
 namespace OpenTokTest;
 
+use InvalidArgumentException;
+use RuntimeException;
 use OpenTok\Layout;
 use OpenTok\Util\Validators;
-use PHPStan\Testing\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class LayoutTest extends TestCase
 {
-    public function testStylesheetIsNotInSerializedArrayIfNotCustom()
+    public function testStylesheetIsNotInSerializedArrayIfNotCustom(): void
     {
         $layouts = [
             Layout::LAYOUT_BESTFIT => Layout::getBestFit(),
@@ -24,20 +26,20 @@ class LayoutTest extends TestCase
 
     public function testWillValidateLayout(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $object = ['bestFit' => true];
 
         Validators::validateLayout($object);
     }
 
-    public function testStylesheetIsInSerializedArrayIfCustom()
+    public function testStylesheetIsInSerializedArrayIfCustom(): void
     {
         $layout = Layout::createCustom(['stylesheet' => 'foo']);
 
         $this->assertSame(['type' => LAYOUT::LAYOUT_CUSTOM, 'stylesheet' => 'foo'], $layout->toArray());
     }
 
-    public function testScreenshareTypeSerializesProperly()
+    public function testScreenshareTypeSerializesProperly(): void
     {
         $layout = Layout::getBestFit();
         $layout->setScreenshareType(Layout::LAYOUT_PIP);
@@ -50,18 +52,18 @@ class LayoutTest extends TestCase
         $this->assertSame($expected, $layout->toArray());
     }
 
-    public function testScreenshareTypeCannotBeSetToInvalidValue()
+    public function testScreenshareTypeCannotBeSetToInvalidValue(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Screenshare type must be of a valid layout type');
 
         $layout = Layout::getBestFit();
         $layout->setScreenshareType('bar');
     }
 
-    public function testScreenshareTypeCannotBeSetOnInvalidLayoutType()
+    public function testScreenshareTypeCannotBeSetOnInvalidLayoutType(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Screenshare type cannot be set on a layout type other than bestFit');
 
         $layout = Layout::createCustom(['stylesheet' => 'foo']);

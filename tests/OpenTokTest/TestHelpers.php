@@ -2,6 +2,7 @@
 
 namespace OpenTokTest;
 
+use Exception;
 use Firebase\JWT\Key;
 use GuzzleHttp\Psr7\Response;
 use \Firebase\JWT\JWT;
@@ -9,11 +10,14 @@ use \Firebase\JWT\JWT;
 class TestHelpers
 {
     // TODO: untested, unused
-    public static function decodeSessionId($sessionId)
+    /**
+     * @return mixed[]
+     */
+    public static function decodeSessionId($sessionId): array
     {
-        $trimmedSessionId = substr($sessionId, 2);
+        $trimmedSessionId = substr((string) $sessionId, 2);
         $parts = explode('-', $trimmedSessionId);
-        $data = array();
+        $data = [];
         foreach ($parts as $part) {
             $decodedPart = base64_decode($part);
             $dataItems = explode('~', $decodedPart);
@@ -22,16 +26,14 @@ class TestHelpers
         return $data;
     }
 
-    public static function decodeToken($token)
+    public static function decodeToken($token): array
     {
-        $trimmedToken = substr($token, 4); // removes T1==
+        $trimmedToken = substr((string) $token, 4); // removes T1==
         $decodedToken = base64_decode($trimmedToken);
         $parts = explode(':', $decodedToken); // splits into partner info and data string
         parse_str($parts[0], $parsedPartnerInfo);
         parse_str($parts[1], $parsedDataString);
-        return array_merge($parsedPartnerInfo, $parsedDataString, array(
-            'dataString' => $parts[1]
-        ));
+        return array_merge($parsedPartnerInfo, $parsedDataString, ['dataString' => $parts[1]]);
     }
 
     public static function validateOpenTokAuthHeader($apiKey, $apiSecret, $token)
@@ -42,7 +44,7 @@ class TestHelpers
 
         try {
             $decodedToken = JWT::decode($token, new Key($apiSecret, 'HS256'));
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return false;
         }
 
@@ -57,19 +59,14 @@ class TestHelpers
         if (!property_exists($decodedToken, 'exp') || time() >= $decodedToken->exp) {
             return false;
         }
-
-        if (!property_exists($decodedToken, 'jti')) {
-            return false;
-        }
-
-        return true;
+        return property_exists($decodedToken, 'jti');
     }
 
-    public static function mocksToResponses($mocks, $basePath)
+    public static function mocksToResponses($mocks, $basePath): array
     {
-        return array_map(function ($mock) use ($basePath) {
-            $code = !empty($mock['code']) ? $mock['code'] : 200;
-            $headers = !empty($mock['headers']) ? $mock['headers'] : [];
+        return array_map(function ($mock) use ($basePath): Response {
+            $code = empty($mock['code']) ? 200 : $mock['code'];
+            $headers = empty($mock['headers']) ? [] : $mock['headers'];
             $body = null;
             if (!empty($mock['body'])) {
                 $body = $mock['body'];

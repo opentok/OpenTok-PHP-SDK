@@ -9,15 +9,13 @@ namespace OpenTok;
 class StreamList
 {
     /** @ignore */
-    private $data;
+    private ?array $items = null;
 
     /** @ignore */
-    private $items;
-
-    /** @ignore */
-    public function __construct($streamListData)
-    {
-        $this->data = $streamListData;
+    public function __construct(
+        /** @ignore */
+        private $data
+    ) {
     }
 
     /**
@@ -38,7 +36,7 @@ class StreamList
     public function getItems()
     {
         if (!is_array($this->items)) {
-            $items = array();
+            $items = [];
             foreach ($this->data['items'] as $streamData) {
                 $items[] = new Stream($streamData);
             }

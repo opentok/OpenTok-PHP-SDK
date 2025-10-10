@@ -79,7 +79,7 @@ class Broadcast
     /** @ignore */
     private $client;
     /** @ignore */
-    private $isHls;
+    private readonly bool $isHls;
     /** @ignore */
     private $isLowLatency;
     /** @ignore */
@@ -97,24 +97,12 @@ class Broadcast
     /** @ignore */
     private $maxBitRate;
 
-    public function __construct($broadcastData, $options = array())
+    public function __construct($broadcastData, $options = [])
     {
         // unpack optional arguments (merging with default values) into named variables
         // when adding these properties like this, it's worth noting that the method that
         // starts a broadcast ALSO sets a load of defaults
-        $defaults = array(
-            'apiKey' => null,
-            'apiSecret' => null,
-            'apiUrl' => 'https://api.opentok.com',
-            'client' => null,
-            'isStopped' => false,
-            'streamMode' => StreamMode::AUTO,
-            'isHls' => true,
-            'isLowLatency' => false,
-            'isDvr' => false,
-            'hasAudio' => true,
-            'hasVideo' => true
-        );
+        $defaults = ['apiKey' => null, 'apiSecret' => null, 'apiUrl' => 'https://api.opentok.com', 'client' => null, 'isStopped' => false, 'streamMode' => StreamMode::AUTO, 'isHls' => true, 'isLowLatency' => false, 'isDvr' => false, 'hasAudio' => true, 'hasVideo' => true];
 
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
 
@@ -156,47 +144,27 @@ class Broadcast
     /** @ignore */
     public function __get($name)
     {
-        switch ($name) {
-            case 'createdAt':
-            case 'updatedAt':
-            case 'id':
-            case 'partnerId':
-            case 'sessionId':
-            case 'broadcastUrls':
-            case 'maxDuration':
-            case 'streamMode':
-                return $this->data[$name];
-            case 'resolution':
-                return $this->resolution;
-            case 'hlsUrl':
-                return $this->data['broadcastUrls']['hls'];
-            case 'isStopped':
-                return $this->isStopped;
-            case 'isHls':
-                return $this->isHls;
-            case 'isLowLatency':
-                return $this->isLowLatency;
-            case 'isDvr':
-                return $this->isDvr;
-            case 'multiBroadcastTag':
-                return $this->multiBroadcastTag;
-            case 'hasAudio':
-                return $this->hasAudio;
-            case 'hasVideo':
-                return $this->hasVideo;
-            case 'status':
-                return $this->status;
-            case 'maxBitRate':
-                return $this->maxBitRate;
-            default:
-                return null;
-        }
+        return match ($name) {
+            'createdAt', 'updatedAt', 'id', 'partnerId', 'sessionId', 'broadcastUrls', 'maxDuration', 'streamMode' => $this->data[$name],
+            'resolution' => $this->resolution,
+            'hlsUrl' => $this->data['broadcastUrls']['hls'],
+            'isStopped' => $this->isStopped,
+            'isHls' => $this->isHls,
+            'isLowLatency' => $this->isLowLatency,
+            'isDvr' => $this->isDvr,
+            'multiBroadcastTag' => $this->multiBroadcastTag,
+            'hasAudio' => $this->hasAudio,
+            'hasVideo' => $this->hasVideo,
+            'status' => $this->status,
+            'maxBitRate' => $this->maxBitRate,
+            default => null,
+        };
     }
 
     /**
      * Stops the broadcast.
      */
-    public function stop()
+    public function stop(): static
     {
         if ($this->isStopped) {
             throw new BroadcastDomainException(
@@ -231,7 +199,7 @@ class Broadcast
      *
      * @param Layout $layout An object defining the layout type for the broadcast.
      */
-    public function updateLayout($layout)
+    public function updateLayout($layout): void
     {
         Validators::validateLayout($layout);
 
@@ -246,7 +214,7 @@ class Broadcast
      * Adds a stream to a currently running broadcast that was started with the
      * the streamMode set to StreamMode.Manual. You can call the method
      * repeatedly with the same stream ID, to toggle the stream's audio or video in the broadcast.
-     * 
+     *
      * @param String $streamId The stream ID.
      * @param Boolean $hasAudio Whether the broadcast should include the stream's audio (true, the default)
      * or not (false).
@@ -264,23 +232,18 @@ class Broadcast
         if ($hasAudio === false && $hasVideo === false) {
             throw new InvalidArgumentException('Both hasAudio and hasVideo cannot be false');
         }
-
-        if ($this->client->addStreamToBroadcast(
+        return (bool) $this->client->addStreamToBroadcast(
             $this->data['id'],
             $streamId,
             $hasVideo,
             $hasVideo
-        )) {
-            return true;
-        }
-
-        return false;
+        );
     }
 
     /**
      * Removes a stream from a currently running broadcast that was started with the
      * the streamMode set to StreamMode.Manual.
-     * 
+     *
      * @param String $streamId The stream ID.
      *
      * @return Boolean Returns true on success.
@@ -290,15 +253,10 @@ class Broadcast
         if ($this->streamMode === StreamMode::AUTO) {
             throw new InvalidArgumentException('Cannot remove stream from a Broadcast in auto stream mode');
         }
-
-        if ($this->client->removeStreamFromBroadcast(
+        return (bool) $this->client->removeStreamFromBroadcast(
             $this->data['id'],
             $streamId
-        )) {
-            return true;
-        }
-
-        return false;
+        );
     }
 
     public function jsonSerialize()

@@ -2,22 +2,24 @@
 
 namespace OpenTok\Util;
 
+use ReflectionClass;
+
 /**
 * @internal
 */
 abstract class BasicEnum
 {
-    private static $constCacheArray;
+    private static ?array $constCacheArray = null;
 
     private static function getConstants()
     {
         if (self::$constCacheArray === null) {
-            self::$constCacheArray = array();
+            self::$constCacheArray = [];
         }
 
-        $calledClass = get_called_class();
+        $calledClass = static::class;
         if (!array_key_exists($calledClass, self::$constCacheArray)) {
-            $reflect = new \ReflectionClass($calledClass);
+            $reflect = new ReflectionClass($calledClass);
             self::$constCacheArray[$calledClass] = $reflect->getConstants();
         }
 
@@ -33,7 +35,7 @@ abstract class BasicEnum
         }
 
         $keys = array_map('strtolower', array_keys($constants));
-        return in_array(strtolower($name), $keys);
+        return in_array(strtolower((string) $name), $keys);
     }
 
     public static function isValidValue($value)

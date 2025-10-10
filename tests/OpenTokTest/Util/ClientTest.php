@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 
 class ClientTest extends TestCase
 {
-    public function testCanAddAudioStreamToWebsocket()
+    public function testCanAddAudioStreamToWebsocket(): void
     {
         $mock = new MockHandler([
             $this->getResponse('connect')
@@ -34,7 +34,7 @@ class ClientTest extends TestCase
         $this->assertEquals('7aebb3a4-3d86-4962-b317-afb73e05439d', $response['connectionId']);
     }
 
-    public function testHandlesSignalErrorHandles400Response()
+    public function testHandlesSignalErrorHandles400Response(): void
     {
         $this->expectException(SignalUnexpectedValueException::class);
 
@@ -49,7 +49,7 @@ class ClientTest extends TestCase
         $client->signal('sessionabcd', ['type' => 'foo', 'data' => 'bar'], 'connection1234');
     }
 
-    public function testHandlesSignalErrorHandles403Response()
+    public function testHandlesSignalErrorHandles403Response(): void
     {
         $this->expectException(SignalAuthenticationException::class);
 
@@ -64,7 +64,7 @@ class ClientTest extends TestCase
         $client->signal('sessionabcd', ['type' => 'foo', 'data' => 'bar'], 'connection1234');
     }
 
-    public function testHandlesSignalErrorHandles404Response()
+    public function testHandlesSignalErrorHandles404Response(): void
     {
         $this->expectException(SignalConnectionException::class);
         $this->expectExceptionMessage('The client specified by the connectionId property is not connected to the session.');
@@ -80,7 +80,7 @@ class ClientTest extends TestCase
         $client->signal('sessionabcd', ['type' => 'foo', 'data' => 'bar'], 'connection1234');
     }
 
-    public function testHandlesSignalErrorHandles413Response()
+    public function testHandlesSignalErrorHandles413Response(): void
     {
         $this->expectException(SignalUnexpectedValueException::class);
         $this->expectExceptionMessage('The type string exceeds the maximum length (128 bytes), or the data string exceeds the maximum size (8 kB).');
