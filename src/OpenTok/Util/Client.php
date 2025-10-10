@@ -670,6 +670,24 @@ class Client
         return $streamListJson;
     }
 
+    public function listConnections($sessionId)
+    {
+        $request = new Request(
+            'GET',
+            '/v2/project/' . $this->apiKey . '/session/' . $sessionId . '/connection/'
+        );
+        try {
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug(),
+            ]);
+            $connectionListJson = json_decode($response->getBody(), true);
+        } catch (\Exception $e) {
+            $this->handleException($e);
+            return;
+        }
+        return $connectionListJson;
+    }
+
     public function setStreamClassLists($sessionId, $payload)
     {
         $itemsPayload = array(

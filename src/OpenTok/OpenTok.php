@@ -1141,6 +1141,25 @@ class OpenTok
     }
 
     /**
+     * Returns a ConnectionList object for the given session ID.
+     *
+     * Use this method to list the connections from an OpenTok session associated with an application.
+     *
+     * @param String $sessionId The session ID.
+     *
+     * @return ConnectionList A ConnectionList object. Call the getItems() method of the ConnectionList object
+     * to return an array of Connection objects.
+     */
+    public function listConnections($sessionId)
+    {
+        Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
+
+        // make API call
+        $connectionListData = $this->client->listConnections($sessionId);
+        return new ConnectionList($connectionListData);
+    }
+
+    /**
      * Initiates an outgoing SIP call.
      * <p>
      * For more information, see the
