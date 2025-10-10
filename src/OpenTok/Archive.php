@@ -92,6 +92,13 @@ use OpenTok\Exception\ArchiveUnexpectedValueException;
 * "available"; for other archives, (including archives with the status "uploaded") this property is
 * set to null. The download URL is obfuscated, and the file is only available from the URL for
 * 10 minutes. To generate a new URL, call the Archive.listArchives() or OpenTok.getArchive() method.
+*
+* @property bool $hasTranscription
+* Whether the archive has a transcription of the audio of the session (true) or not (false).
+*
+* @property array $transcription
+* Properties of the transcription attached to this archive, including status, url, reason,
+* primaryLanguageCode, and hasSummary.
 */
 class Archive
 {
@@ -184,6 +191,8 @@ class Archive
             case 'streamMode':
             case 'maxBitrate':
             case 'quantizationParameter':
+            case 'hasTranscription':
+            case 'transcription':
                 return $this->data[$name];
             case 'multiArchiveTag':
                 return $this->multiArchiveTag;

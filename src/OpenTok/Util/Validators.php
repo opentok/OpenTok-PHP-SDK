@@ -525,4 +525,43 @@ class Validators
             throw new \OutOfBoundsException('Max Bitrate must be between 400000 and 2000000');
         }
     }
+
+    public static function validateArchiveHasTranscription($hasTranscription)
+    {
+        if (!is_bool($hasTranscription)) {
+            throw new InvalidArgumentException(
+                'hasTranscription must be either true or false.'
+            );
+        }
+    }
+
+    public static function validateArchiveTranscriptionProperties($transcriptionProperties)
+    {
+        if ($transcriptionProperties === null) {
+            return;
+        }
+
+        if (!is_array($transcriptionProperties)) {
+            throw new InvalidArgumentException(
+                'transcriptionProperties must be an array.'
+            );
+        }
+
+        if (isset($transcriptionProperties['primaryLanguageCode'])) {
+            if (!is_string($transcriptionProperties['primaryLanguageCode']) || 
+                empty($transcriptionProperties['primaryLanguageCode'])) {
+                throw new InvalidArgumentException(
+                    'primaryLanguageCode must be a non-empty string in BCP-47 format.'
+                );
+            }
+        }
+
+        if (isset($transcriptionProperties['hasSummary'])) {
+            if (!is_bool($transcriptionProperties['hasSummary'])) {
+                throw new InvalidArgumentException(
+                    'hasSummary must be either true or false.'
+                );
+            }
+        }
+    }
 }

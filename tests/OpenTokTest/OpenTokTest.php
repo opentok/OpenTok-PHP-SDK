@@ -1617,6 +1617,207 @@ class OpenTokTest extends TestCase
         $this->assertEquals("expired", $archive->status);
     }
 
+    public function testStartsArchiveWithTranscription(): void
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/archive/session_hasTranscription-true'
+        ]]);
+
+        // This sessionId was generated using a different apiKey, but this method doesn't do any
+        // decoding to check, so it's fine.
+        $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
+
+        // Act
+        $archive = $this->opentok->startArchive($sessionId, [
+            'hasTranscription' => true,
+            'transcriptionProperties' => [
+                'primaryLanguageCode' => 'en-US',
+                'hasSummary' => false
+            ]
+        ]);
+
+        // Assert
+        $this->assertCount(1, $this->historyContainer);
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive', $request->getUri()->getPath());
+        $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
+        $this->assertEquals('https', $request->getUri()->getScheme());
+
+        $contentType = $request->getHeaderLine('Content-Type');
+        $this->assertNotEmpty($contentType);
+        $this->assertEquals('application/json', $contentType);
+
+        $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        // Test request body contains transcription fields
+        $body = json_decode($request->getBody());
+        $this->assertEquals(true, $body->hasTranscription);
+        $this->assertEquals('en-US', $body->transcriptionProperties->primaryLanguageCode);
+        $this->assertEquals(false, $body->transcriptionProperties->hasSummary);
+
+        // Test response properties
+        $this->assertInstanceOf('OpenTok\Archive', $archive);
+        $this->assertEquals(true, $archive->hasTranscription);
+        $this->assertIsArray($archive->transcription);
+        $this->assertEquals('requested', $archive->transcription['status']);
+        $this->assertEquals('en-US', $archive->transcription['primaryLanguageCode']);
+        $this->assertEquals(false, $archive->transcription['hasSummary']);
+    }
+
+    public function testStartsArchiveWithTranscriptionAndSummary(): void
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/archive/session_transcription-with-summary'
+        ]]);
+
+        $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
+
+        // Act
+        $archive = $this->opentok->startArchive($sessionId, [
+            'hasTranscription' => true,
+            'transcriptionProperties' => [
+                'primaryLanguageCode' => 'es-ES',
+                'hasSummary' => true
+            ]
+        ]);
+
+        // Assert
+        $this->assertCount(1, $this->historyContainer);
+
+        $request = $this->historyContainer[0]['request'];
+        
+        // Test request body contains transcription fields
+        $body = json_decode($request->getBody());
+        $this->assertEquals(true, $body->hasTranscription);
+        $this->assertEquals('es-ES', $body->transcriptionProperties->primaryLanguageCode);
+        $this->assertEquals(true, $body->transcriptionProperties->hasSummary);
+
+        // Test response properties
+        $this->assertInstanceOf('OpenTok\Archive', $archive);
+        $this->assertEquals(true, $archive->hasTranscription);
+        $this->assertIsArray($archive->transcription);
+        $this->assertEquals('requested', $archive->transcription['status']);
+        $this->assertEquals('es-ES', $archive->transcription['primaryLanguageCode']);
+        $this->assertEquals(true, $archive->transcription['hasSummary']);
+    }
+
+    public function testStartsArchiveWithoutTranscription(): void
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/archive/session'
+        ]]);
+
+        $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
+
+        // Act - explicitly set hasTranscription to false
+        $archive = $this->opentok->startArchive($sessionId, [
+            'hasTranscription' => false
+        ]);
+
+        // Assert
+        $this->assertCount(1, $this->historyContainer);
+
+        $request = $this->historyContainer[0]['request'];
+        
+        // Test request body
+        $body = json_decode($request->getBody());
+        $this->assertEquals(false, $body->hasTranscription);
+        $this->assertObjectNotHasAttribute('transcriptionProperties', $body);
+
+        // Test response properties (archive without transcription)
+        $this->assertInstanceOf('OpenTok\Archive', $archive);
+        // The hasTranscription property should not be set in response if transcription is disabled
+    }
+
+    public function testCannotStartArchiveWithInvalidTranscriptionProperties(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('transcriptionProperties must be an array.');
+
+        // Set up the OpenTok instance first
+        $this->setupOTWithMocks([]);
+
+        $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
+
+        // Act - pass invalid transcriptionProperties (not an array)
+        $this->opentok->startArchive($sessionId, [
+            'hasTranscription' => true,
+            'transcriptionProperties' => 'invalid'
+        ]);
+    }
+
+    public function testCannotStartArchiveWithInvalidHasTranscription(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('hasTranscription must be either true or false.');
+
+        // Set up the OpenTok instance first
+        $this->setupOTWithMocks([]);
+
+        $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
+
+        // Act - pass invalid hasTranscription (not a boolean)
+        $this->opentok->startArchive($sessionId, [
+            'hasTranscription' => 'invalid'
+        ]);
+    }
+
+    public function testCannotStartArchiveWithInvalidPrimaryLanguageCode(): void
+    {
+        $this->setupOT();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('primaryLanguageCode must be a non-empty string in BCP-47 format.');
+
+        $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
+
+        // Act - pass empty primaryLanguageCode
+        $this->opentok->startArchive($sessionId, [
+            'hasTranscription' => true,
+            'transcriptionProperties' => [
+                'primaryLanguageCode' => '',
+                'hasSummary' => false
+            ]
+        ]);
+    }
+
+    public function testCannotStartArchiveWithInvalidHasSummary(): void
+    {
+        $this->setupOT();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('hasSummary must be either true or false.');
+
+        $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
+
+        // Act - pass invalid hasSummary (not a boolean)
+        $this->opentok->startArchive($sessionId, [
+            'hasTranscription' => true,
+            'transcriptionProperties' => [
+                'primaryLanguageCode' => 'en-US',
+                'hasSummary' => 'invalid'
+            ]
+        ]);
+    }
+
     public function testForceDisconnect(): void
     {
         // Arrange
