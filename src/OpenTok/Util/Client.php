@@ -23,6 +23,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\ServerException;
 use OpenTok\Exception\BroadcastException;
 use GuzzleHttp\Exception\RequestException;
+use InvalidArgumentException;
 use OpenTok\Exception\ArchiveDomainException;
 use OpenTok\Exception\AuthenticationException;
 use OpenTok\Exception\BroadcastDomainException;
@@ -123,9 +124,18 @@ class Client
 
     private function createAuthHeader(): string
     {
-        if (Validators::isVonageKeypair($this->apiKey, $this->apiSecret)) {
-            $tokenGenerator = new TokenGenerator($this->apiKey, file_get_contents($this->apiSecret));
-            return $tokenGenerator->generate();
+        try {
+            if (Validators::isVonageKeypair($this->apiKey, $this->apiSecret)) {
+                $secret = $this->apiSecret;
+                if (file_exists($this->apiSecret)) {
+                    $secret = file_get_contents($this->apiSecret);
+                }
+
+                $tokenGenerator = new TokenGenerator($this->apiKey, $secret);
+                return $tokenGenerator->generate();
+            }
+        } catch (InvalidArgumentException) {
+            // Do nothing, fall back to legacy token generation
         }
 
         $token = [
@@ -1083,5 +1093,15 @@ class Client
     private function isDebug(): bool
     {
         return defined('OPENTOK_DEBUG');
+    }
+
+    public function getApiKey(): string
+    {
+        return $this->apiKey;
+    }
+
+    public function getApiSecret(): string
+    {
+        return $this->apiSecret;
     }
 }

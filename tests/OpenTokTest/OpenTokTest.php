@@ -3419,4 +3419,24 @@ class OpenTokTest extends TestCase
 
         $this->opentok->connectAudio('9999', 'wrwetg', $badPayload);
     }
+
+    public function testCanCreateClientWithOpenTokCreds(): void
+    {
+        $client = new OpenTok('12345678', 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f');
+        $this->assertInstanceOf(OpenTok::class, $client);
+    }
+
+    public function testCanCreateClientWithOpenTokCredsWithIntKey(): void
+    {
+        $client = new OpenTok(12345678, 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f');
+        $this->assertInstanceOf(OpenTok::class, $client);
+    }
+
+    public function testCanCreateClientWithVonageCreds(): void
+    {
+        $key = file_get_contents(__DIR__ . '/test.key');
+        $client = new OpenTok('1ab38a10-ed9d-4e2b-8b14-95e52d76a13c', $key);
+        $this->assertInstanceOf(OpenTok::class, $client);
+        $this->assertEquals($client->getClient()->getApiSecret(), $key);
+    }
 }
