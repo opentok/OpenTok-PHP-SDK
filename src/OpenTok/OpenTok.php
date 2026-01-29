@@ -52,8 +52,12 @@ class OpenTok
     {
         $apiUrl = 'https://api.opentok.com';
 
-        if (Validators::isVonageKeypair($apiKey, $apiSecret)) {
-            $apiUrl = 'https://video.api.vonage.com';
+        try {
+            if (Validators::isVonageKeypair($apiKey, $apiSecret)) {
+                $apiUrl = 'https://video.api.vonage.com';
+            }
+        } catch (InvalidArgumentException) {
+            // Not a Vonage Keypair, continue
         }
 
         // unpack optional arguments (merging with default values) into named variables
@@ -1404,5 +1408,10 @@ class OpenTok
     private function signString(string $string, $secret): string
     {
         return hash_hmac("sha1", $string, (string) $secret);
+    }
+
+    public function getClient(): Client
+    {
+        return $this->client;
     }
 }
