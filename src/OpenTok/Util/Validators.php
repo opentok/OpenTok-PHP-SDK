@@ -2,6 +2,7 @@
 
 namespace OpenTok\Util;
 
+use OutOfBoundsException;
 use OpenTok\Archive;
 use OpenTok\Util\Client;
 use OpenTok\Layout;
@@ -66,7 +67,7 @@ class Validators
         return (bool) preg_match('/^-----BEGIN PRIVATE KEY-----[\s\S]+-----END PRIVATE KEY-----$/m', trim($keyContents));
     }
 
-    public static function validateForceMuteAllOptions(array $options)
+    public static function validateForceMuteAllOptions(array $options): void
     {
         $validOptions = [
             'excludedStreams' => 'array',
@@ -74,11 +75,13 @@ class Validators
         ];
 
         foreach ($validOptions as $optionName => $optionType) {
-            if (isset($options[$optionName])) {
-                if (getType($options[$optionName]) !== $optionType) {
-                    throw new InvalidArgumentException('Invalid type given in options for: ' . $options[$optionName]);
-                }
+            if (!isset($options[$optionName])) {
+                continue;
             }
+            if (gettype($options[$optionName]) === $optionType) {
+                continue;
+            }
+            throw new InvalidArgumentException('Invalid type given in options for: ' . $options[$optionName]);
         }
 
         if (isset($options['excludedStreams'])) {
@@ -88,7 +91,7 @@ class Validators
         }
     }
 
-    public static function validateApiUrl($apiUrl)
+    public static function validateApiUrl($apiUrl): void
     {
         if (!(is_string($apiUrl) && filter_var($apiUrl, FILTER_VALIDATE_URL))) {
             throw new InvalidArgumentException(
@@ -97,7 +100,7 @@ class Validators
         }
     }
 
-    public static function validateClient($client)
+    public static function validateClient($client): void
     {
         if (isset($client) && !($client instanceof Client)) {
             throw new InvalidArgumentException(
@@ -105,24 +108,24 @@ class Validators
             );
         }
     }
-    public static function validateSessionId($sessionId)
+    public static function validateSessionId($sessionId): void
     {
-        if (!is_string($sessionId) || empty($sessionId)) {
+        if (!is_string($sessionId) || ($sessionId === '' || $sessionId === '0')) {
             throw new InvalidArgumentException(
                 'Null or empty session ID is not valid: ' . print_r($sessionId, true)
             );
         }
     }
-    public static function validateConnectionId($connectionId)
+    public static function validateConnectionId($connectionId): void
     {
-        if (!is_string($connectionId) || empty($connectionId)) {
+        if (!is_string($connectionId) || ($connectionId === '' || $connectionId === '0')) {
             throw new InvalidArgumentException(
                 'Null or empty connection ID is not valid: ' . print_r($connectionId, true)
             );
         }
     }
 
-    public static function validateHasStreamMode($streamMode)
+    public static function validateHasStreamMode($streamMode): void
     {
         if (!is_string($streamMode)) {
             throw new InvalidArgumentException(
@@ -137,22 +140,22 @@ class Validators
         }
     }
 
-    public static function validateSignalPayload($payload)
+    public static function validateSignalPayload($payload): void
     {
-        list($type, $data) = array_values($payload);
+        [$type, $data] = array_values($payload);
         if (!is_string($data) || is_null($data || is_null($type))) {
             throw new InvalidArgumentException(
                 'Signal Payload cannot be null: ' . print_r($payload, true)
             );
         }
     }
-    public static function validateRole($role)
+    public static function validateRole($role): void
     {
         if (!Role::isValidValue($role)) {
             throw new InvalidArgumentException('Unknown role: ' . print_r($role, true));
         }
     }
-    public static function validateExpireTime($expireTime, $createTime)
+    public static function validateExpireTime($expireTime, $createTime): void
     {
         if (!is_null($expireTime)) {
             if (!is_numeric($expireTime)) {
@@ -173,7 +176,7 @@ class Validators
             }
         }
     }
-    public static function validateData($data)
+    public static function validateData($data): void
     {
         if ($data != null) {
             if (!is_string($data)) {
@@ -181,7 +184,7 @@ class Validators
                     'Connection data must be a string. data:' . print_r($data, true)
                 );
             }
-            if (!empty($data)) {
+            if ($data !== '0') {
                 $dataLength = strlen($data);
                 if ($dataLength > 1000) {
                     throw new InvalidArgumentException(
@@ -191,7 +194,7 @@ class Validators
             }
         }
     }
-    public static function validateArchiveName($name)
+    public static function validateArchiveName($name): void
     {
         if ($name != null && !is_string($name) /* TODO: length? */) {
             throw new InvalidArgumentException(
@@ -199,7 +202,7 @@ class Validators
             );
         }
     }
-    public static function validateArchiveHasVideo($hasVideo)
+    public static function validateArchiveHasVideo($hasVideo): void
     {
         if (!is_bool($hasVideo)) {
             throw new InvalidArgumentException(
@@ -207,7 +210,7 @@ class Validators
             );
         }
     }
-    public static function validateArchiveHasAudio($hasAudio)
+    public static function validateArchiveHasAudio($hasAudio): void
     {
         if (!is_bool($hasAudio)) {
             throw new InvalidArgumentException(
@@ -215,13 +218,13 @@ class Validators
             );
         }
     }
-    public static function validateArchiveOutputMode($outputMode)
+    public static function validateArchiveOutputMode($outputMode): void
     {
         if (!OutputMode::isValidValue($outputMode)) {
             throw new InvalidArgumentException('Unknown output mode: ' . print_r($outputMode, true));
         }
     }
-    public static function validateArchiveId($archiveId)
+    public static function validateArchiveId($archiveId): void
     {
         if (!is_string($archiveId) || preg_match(self::$guidRegEx, $archiveId)) {
             throw new InvalidArgumentException(
@@ -229,7 +232,7 @@ class Validators
             );
         }
     }
-    public static function validateArchiveData($archiveData)
+    public static function validateArchiveData($archiveData): void
     {
         if (!self::$archiveSchemaUri) {
             self::$archiveSchemaUri = __DIR__ . '/archive-schema.json';
@@ -247,7 +250,7 @@ class Validators
             );
         }
     }
-    public static function validateArchiveListData($archiveListData)
+    public static function validateArchiveListData($archiveListData): void
     {
         if (!self::$archiveSchemaUri) {
             self::$archiveSchemaUri = __DIR__ . '/archive-schema.json';
@@ -263,7 +266,7 @@ class Validators
             );
         }
     }
-    public static function validateOffsetAndCount($offset, $count)
+    public static function validateOffsetAndCount($offset, $count): void
     {
         if (
             (!is_numeric($offset) || $offset < 0 ) ||
@@ -274,7 +277,7 @@ class Validators
             );
         }
     }
-    public static function validateSessionIdBelongsToKey($sessionId, $apiKey)
+    public static function validateSessionIdBelongsToKey($sessionId, $apiKey): void
     {
         self::validateSessionId($sessionId);
         $sessionIdParts = self::decodeSessionId($sessionId);
@@ -284,7 +287,7 @@ class Validators
             );
         }
     }
-    public static function validateMediaMode($mediaMode)
+    public static function validateMediaMode($mediaMode): void
     {
         if (!MediaMode::isValidValue($mediaMode)) {
             throw new InvalidArgumentException(
@@ -293,7 +296,7 @@ class Validators
         }
     }
 
-    public static function validateArchiveMode($archiveMode)
+    public static function validateArchiveMode($archiveMode): void
     {
         if (!ArchiveMode::isValidValue($archiveMode)) {
             throw new InvalidArgumentException(
@@ -302,7 +305,7 @@ class Validators
         }
     }
 
-    public static function validateAutoArchiveMode($archiveMode, $options)
+    public static function validateAutoArchiveMode($archiveMode, array $options): void
     {
         if ($archiveMode === ArchiveMode::MANUAL) {
             foreach (['archiveName', 'archiveResolution'] as $key) {
@@ -317,7 +320,7 @@ class Validators
         }
     }
 
-    public static function validateLocation($location)
+    public static function validateLocation($location): void
     {
         if ($location != null && !filter_var($location, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
             throw new InvalidArgumentException(
@@ -325,7 +328,7 @@ class Validators
             );
         }
     }
-    public static function validateOpenTok($opentok)
+    public static function validateOpenTok($opentok): void
     {
         if (!($opentok instanceof OpenTok)) {
             throw new InvalidArgumentException(
@@ -334,7 +337,7 @@ class Validators
         }
     }
 
-    public static function validateBroadcastData($broadcastData)
+    public static function validateBroadcastData($broadcastData): void
     {
         if (!self::$broadcastSchemaUri) {
             self::$broadcastSchemaUri = __DIR__ . '/broadcast-schema.json';
@@ -351,14 +354,14 @@ class Validators
         }
     }
 
-    public static function validateRtmpStreams(array $rtmpData)
+    public static function validateRtmpStreams(array $rtmpData): void
     {
         if (count($rtmpData) > 5) {
             throw new InvalidArgumentException('The maximum permitted RTMP Streams is set to 5');
         }
     }
 
-    public static function validateBroadcastId($broadcastId)
+    public static function validateBroadcastId($broadcastId): void
     {
         if (!is_string($broadcastId) || preg_match(self::$guidRegEx, $broadcastId)) {
             throw new InvalidArgumentException(
@@ -367,18 +370,18 @@ class Validators
         }
     }
 
-	public static function validateBroadcastOutputOptions(array $outputOptions)
-	{
-		if (
-			isset($outputOptions['lowLatency'], $outputOptions['dvr'])
-			&& $outputOptions['lowLatency'] === true && $outputOptions['dvr'] === true
-		) {
-			throw new InvalidArgumentException('When starting in HLS mode, DVR AND lowLatency
+    public static function validateBroadcastOutputOptions(array $outputOptions): void
+    {
+        if (
+            isset($outputOptions['lowLatency'], $outputOptions['dvr'])
+            && $outputOptions['lowLatency'] === true && $outputOptions['dvr'] === true
+        ) {
+            throw new InvalidArgumentException('When starting in HLS mode, DVR AND lowLatency
 			cannot both be true');
-		}
-	}
+        }
+    }
 
-    public static function validateLayout($layout)
+    public static function validateLayout($layout): void
     {
         if (!($layout instanceof Layout)) {
             throw new InvalidArgumentException(
@@ -387,14 +390,14 @@ class Validators
         }
     }
 
-    public static function validateLayoutStylesheet($stylesheet)
+    public static function validateLayoutStylesheet($stylesheet): void
     {
         if (!(is_string($stylesheet))) {
             throw new InvalidArgumentException('The stylesheet was not a string: ' . print_r($stylesheet, true));
         }
     }
 
-    public static function validateResolution($resolution)
+    public static function validateResolution($resolution): void
     {
         if (!(is_string($resolution))) {
             throw new InvalidArgumentException('The resolution was not a string: ' . print_r($resolution, true));
@@ -414,23 +417,21 @@ class Validators
         }
     }
 
-    public static function validateStreamId($streamId)
+    public static function validateStreamId($streamId): void
     {
-        if (!(is_string($streamId)) || empty($streamId)) {
+        if (!(is_string($streamId)) || ($streamId === '' || $streamId === '0')) {
             throw new InvalidArgumentException('The streamId was not a string: ' . print_r($streamId, true));
         }
     }
 
-    public static function validateLayoutClassList($layoutClassList, $format = 'JSON')
+    public static function validateLayoutClassList($layoutClassList, $format = 'JSON'): void
     {
-        if ($format === 'JSON') {
-            if (!is_array($layoutClassList) || self::isAssoc($layoutClassList)) {
-                throw new InvalidArgumentException('The layoutClassList was not a valid JSON array: ' . print_r($layoutClassList, true));
-            }
+        if ($format === 'JSON' && (!is_array($layoutClassList) || self::isAssoc($layoutClassList))) {
+            throw new InvalidArgumentException('The layoutClassList was not a valid JSON array: ' . print_r($layoutClassList, true));
         }
     }
 
-    public static function validateWebsocketOptions(array $websocketOptions)
+    public static function validateWebsocketOptions(array $websocketOptions): void
     {
         if (!array_key_exists('uri', $websocketOptions)) {
             throw new InvalidArgumentException('Websocket configuration must have a uri');
@@ -440,14 +441,14 @@ class Validators
         }
     }
 
-    public static function validateAutoArchiveResolution($archiveResolution)
+    public static function validateAutoArchiveResolution(string $archiveResolution): void
     {
         if (! in_array($archiveResolution, Archive::getPermittedResolutions(), true)) {
             throw new InvalidArgumentException($archiveResolution . ' is not a valid resolution');
         }
     }
 
-    public static function validateLayoutClassListItem($layoutClassList)
+    public static function validateLayoutClassListItem($layoutClassList): void
     {
         if (!is_array($layoutClassList)) {
             throw new InvalidArgumentException('Each element in the streamClassArray must have a layoutClassList array.');
@@ -466,7 +467,7 @@ class Validators
         }
     }
 
-    public static function validateDefaultTimeout($timeout)
+    public static function validateDefaultTimeout($timeout): void
     {
         // Guzzle defaults to "null" instead of 0, so allowing that through
         if (is_null($timeout)) {
@@ -502,11 +503,14 @@ class Validators
         return !array_is_list($arr);
     }
 
-    protected static function decodeSessionId($sessionId)
+    /**
+     * @return mixed[]
+     */
+    protected static function decodeSessionId($sessionId): array
     {
-        $trimmedSessionId = substr($sessionId, 2);
+        $trimmedSessionId = substr((string) $sessionId, 2);
         $parts = explode('-', $trimmedSessionId);
-        $data = array();
+        $data = [];
         foreach ($parts as $part) {
             $decodedPart = base64_decode($part);
             $dataItems = explode('~', $decodedPart);
@@ -522,7 +526,44 @@ class Validators
         }
 
         if ($maxBitRate < 400000 && $maxBitRate > 2000000) {
-            throw new \OutOfBoundsException('Max Bitrate must be between 400000 and 2000000');
+            throw new OutOfBoundsException('Max Bitrate must be between 400000 and 2000000');
+        }
+    }
+
+    public static function validateArchiveHasTranscription($hasTranscription): void
+    {
+        if (!is_bool($hasTranscription)) {
+            throw new InvalidArgumentException(
+                'hasTranscription must be either true or false.'
+            );
+        }
+    }
+
+    public static function validateArchiveTranscriptionProperties($transcriptionProperties): void
+    {
+        if ($transcriptionProperties === null) {
+            return;
+        }
+
+        if (!is_array($transcriptionProperties)) {
+            throw new InvalidArgumentException(
+                'transcriptionProperties must be an array.'
+            );
+        }
+
+        if (
+            isset($transcriptionProperties['primaryLanguageCode']) && (!is_string($transcriptionProperties['primaryLanguageCode']) ||
+            empty($transcriptionProperties['primaryLanguageCode']))
+        ) {
+            throw new InvalidArgumentException(
+                'primaryLanguageCode must be a non-empty string in BCP-47 format.'
+            );
+        }
+
+        if (isset($transcriptionProperties['hasSummary']) && !is_bool($transcriptionProperties['hasSummary'])) {
+            throw new InvalidArgumentException(
+                'hasSummary must be either true or false.'
+            );
         }
     }
 }

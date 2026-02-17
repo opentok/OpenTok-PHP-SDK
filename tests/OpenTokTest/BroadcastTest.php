@@ -21,10 +21,7 @@ class BroadcastTest extends TestCase
     protected $client;
 
     protected static $mockBasePath;
-    /**
-     * @var array
-     */
-    private $historyContainer;
+    private ?array $historyContainer = null;
 
     public function setUp(): void
     {
@@ -54,28 +51,20 @@ class BroadcastTest extends TestCase
         self::$mockBasePath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'mock' . DIRECTORY_SEPARATOR;
     }
 
-    public function setupBroadcasts($streamMode)
+    public function setupBroadcasts($streamMode): void
     {
         $data = $this->broadcastData;
         $data['streamMode'] = $streamMode;
 
-        $this->broadcast = new Broadcast($data, array(
-            'apiKey' => $this->API_KEY,
-            'apiSecret' => $this->API_SECRET,
-            'client' => $this->client
-        ));
+        $this->broadcast = new Broadcast($data, ['apiKey' => $this->API_KEY, 'apiSecret' => $this->API_SECRET, 'client' => $this->client]);
     }
 
-    private function setupOTWithMocks($mocks)
+    private function setupOTWithMocks(array $mocks): void
     {
         $this->API_KEY = defined('API_KEY') ? API_KEY : '12345678';
         $this->API_SECRET = defined('API_SECRET') ? API_SECRET : 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
 
-        if (is_array($mocks)) {
-            $responses = TestHelpers::mocksToResponses($mocks, self::$mockBasePath);
-        } else {
-            $responses = [];
-        }
+        $responses = is_array($mocks) ? TestHelpers::mocksToResponses($mocks, self::$mockBasePath) : [];
 
         $mock = new MockHandler($responses);
         $handlerStack = HandlerStack::create($mock);
@@ -203,7 +192,7 @@ class BroadcastTest extends TestCase
 
         $this->setupBroadcasts(StreamMode::AUTO);
 
-        $return = $this->broadcast->removeStreamFromBroadcast(
+        $this->broadcast->removeStreamFromBroadcast(
             '5dfds4-asdda4asf4'
         );
     }

@@ -2,6 +2,7 @@
 
 namespace OpenTokTest\Validators;
 
+use stdClass;
 use OpenTok\Exception\InvalidArgumentException;
 use OpenTok\Util\Client;
 use OpenTok\Util\Validators;
@@ -163,7 +164,7 @@ class ValidatorsTest extends TestCase
     /**
      * @dataProvider resolutionProvider
      */
-    public function testValidResolutions($resolution, $isValid): void
+    public function testValidResolutions(string $resolution, bool $isValid): void
     {
         if ( ! $isValid) {
             $this->expectException(InvalidArgumentException::class);
@@ -234,7 +235,7 @@ class ValidatorsTest extends TestCase
     public function testExceptionOnInvalidClient(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $client = new \stdClass();
+        $client = new stdClass();
         Validators::validateClient($client);
     }
 
@@ -270,7 +271,7 @@ class ValidatorsTest extends TestCase
     /**
      * @dataProvider connectionIdProvider
      */
-    public function testConnectionId($input, $expectException): void
+    public function testConnectionId(string|array $input, bool $expectException): void
     {
         if ($expectException) {
             $this->expectException(\InvalidArgumentException::class);

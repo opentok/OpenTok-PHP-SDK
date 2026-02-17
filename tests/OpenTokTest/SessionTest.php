@@ -28,7 +28,7 @@ class SessionTest extends TestCase
         $this->opentok = new OpenTok($this->API_KEY, $this->API_SECRET);
     }
 
-    public function testSessionWithId()
+    public function testSessionWithId(): void
     {
         $sessionId = 'SESSIONID';
         $session = new Session($this->opentok, $sessionId);
@@ -37,59 +37,59 @@ class SessionTest extends TestCase
         $this->assertEmpty($session->getLocation());
     }
 
-    public function testSessionWithIdAndLocation()
+    public function testSessionWithIdAndLocation(): void
     {
         $sessionId = 'SESSIONID';
         $location = '12.34.56.78';
-        $session = new Session($this->opentok, $sessionId, array( 'location' => $location ));
+        $session = new Session($this->opentok, $sessionId, ['location' => $location]);
         $this->assertEquals($sessionId, $session->getSessionId());
         $this->assertEquals(MediaMode::ROUTED, $session->getMediaMode());
         $this->assertEquals($location, $session->getLocation());
     }
 
-    public function testSessionWithIdAndMediaMode()
+    public function testSessionWithIdAndMediaMode(): void
     {
         $sessionId = 'SESSIONID';
         $mediaMode = MediaMode::RELAYED;
-        $session = new Session($this->opentok, $sessionId, array( 'mediaMode' => $mediaMode ));
+        $session = new Session($this->opentok, $sessionId, ['mediaMode' => $mediaMode]);
         $this->assertEquals($sessionId, $session->getSessionId());
         $this->assertEquals($mediaMode, $session->getMediaMode());
         $this->assertEmpty($session->getLocation());
 
         $mediaMode = MediaMode::ROUTED;
-        $session = new Session($this->opentok, $sessionId, array( 'mediaMode' => $mediaMode ));
+        $session = new Session($this->opentok, $sessionId, ['mediaMode' => $mediaMode]);
         $this->assertEquals($sessionId, $session->getSessionId());
         $this->assertEquals($mediaMode, $session->getMediaMode());
         $this->assertEmpty($session->getLocation());
     }
 
-    public function testSessionWithIdAndLocationAndMediaMode()
+    public function testSessionWithIdAndLocationAndMediaMode(): void
     {
         $sessionId = 'SESSIONID';
         $location = '12.34.56.78';
         $mediaMode = MediaMode::RELAYED;
-        $session = new Session($this->opentok, $sessionId, array( 'location' => $location, 'mediaMode' => $mediaMode ));
+        $session = new Session($this->opentok, $sessionId, ['location' => $location, 'mediaMode' => $mediaMode]);
         $this->assertEquals($sessionId, $session->getSessionId());
         $this->assertEquals($mediaMode, $session->getMediaMode());
         $this->assertEquals($location, $session->getLocation());
 
         $mediaMode = MediaMode::ROUTED;
-        $session = new Session($this->opentok, $sessionId, array( 'location' => $location, 'mediaMode' => $mediaMode ));
+        $session = new Session($this->opentok, $sessionId, ['location' => $location, 'mediaMode' => $mediaMode]);
         $this->assertEquals($sessionId, $session->getSessionId());
         $this->assertEquals($mediaMode, $session->getMediaMode());
         $this->assertEquals($location, $session->getLocation());
     }
 
-    public function testSessionWithArchiveMode()
+    public function testSessionWithArchiveMode(): void
     {
         $sessionId = 'SESSIONID';
         $archiveMode = ArchiveMode::ALWAYS;
-        $session = new Session($this->opentok, $sessionId, array( 'archiveMode' => $archiveMode ));
+        $session = new Session($this->opentok, $sessionId, ['archiveMode' => $archiveMode]);
         $this->assertEquals($sessionId, $session->getSessionId());
         $this->assertEquals($archiveMode, $session->getArchiveMode());
 
         $archiveMode = ArchiveMode::MANUAL;
-        $session = new Session($this->opentok, $sessionId, array( 'archiveMode' => $archiveMode ));
+        $session = new Session($this->opentok, $sessionId, ['archiveMode' => $archiveMode]);
         $this->assertEquals($sessionId, $session->getSessionId());
         $this->assertEquals($archiveMode, $session->getArchiveMode());
     }
@@ -97,58 +97,52 @@ class SessionTest extends TestCase
     /**
      * @dataProvider badParameterProvider
      */
-    public function testInitializationWithBadParams($sessionId, $props)
+    public function testInitializationWithBadParams(string|array $sessionId, array $props): void
     {
         $this->expectException('InvalidArgumentException');
-        if (!$props || empty($props)) {
+        if (!$props || $props === []) {
             $session = new Session($this->opentok, $sessionId);
         } else {
             $session = new Session($this->opentok, $sessionId, $props);
         }
     }
 
-    public function badParameterProvider()
+    public function badParameterProvider(): array
     {
-        return array(
-            array(array(), array()),
-            array('SESSIONID', array( 'location' => 'NOTALOCATION') ),
-            array('SESSIONID', array( 'mediaMode' => 'NOTAMODE' ) ),
-            array('SESSIONID', array( 'location' => '127.0.0.1', 'mediaMode' => 'NOTAMODE' ) ),
-            array('SESSIONID', array( 'location' => 'NOTALOCATION', 'mediaMode' => MediaMode::RELAYED ) )
-        );
+        return [[[], []], ['SESSIONID', ['location' => 'NOTALOCATION']], ['SESSIONID', ['mediaMode' => 'NOTAMODE']], ['SESSIONID', ['location' => '127.0.0.1', 'mediaMode' => 'NOTAMODE']], ['SESSIONID', ['location' => 'NOTALOCATION', 'mediaMode' => MediaMode::RELAYED]]];
     }
 
-    public function testInitialzationWithoutE2ee()
+    public function testInitialzationWithoutE2ee(): void
     {
         $sessionId = 'SESSIONID';
         $session = new Session($this->opentok, $sessionId);
         $this->assertEquals(false, $session->getE2EE());
     }
 
-    public function testInitialzationWithE2ee()
+    public function testInitialzationWithE2ee(): void
     {
         $sessionId = 'SESSIONID';
         $session = new Session($this->opentok, $sessionId, ['e2ee' => true]);
         $this->assertEquals(true, $session->getE2EE());
     }
 
-    public function testInitializationWithExtraneousParams()
+    public function testInitializationWithExtraneousParams(): void
     {
         $sessionId = 'SESSIONID';
-        $session = new Session($this->opentok, $sessionId, array( 'notrealproperty' => 'notrealvalue' ));
+        $session = new Session($this->opentok, $sessionId, ['notrealproperty' => 'notrealvalue']);
         $this->assertEquals($sessionId, $session->getSessionId());
         $this->assertEmpty($session->getLocation());
         $this->assertEquals(MediaMode::ROUTED, $session->getMediaMode());
     }
 
-    public function testCastingToString()
+    public function testCastingToString(): void
     {
         $sessionId = 'SESSIONID';
         $session = new Session($this->opentok, $sessionId);
         $this->assertEquals($sessionId, (string)$session);
     }
 
-    public function testGeneratesToken()
+    public function testGeneratesToken(): void
     {
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $bogusApiKey = '12345678';
@@ -171,6 +165,6 @@ class SessionTest extends TestCase
         //$this->assertNotEmpty($decodedToken['expire_time']);
 
         $this->assertNotEmpty($decodedToken['sig']);
-        $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
+        $this->assertEquals(hash_hmac('sha1', (string) $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
     }
 }

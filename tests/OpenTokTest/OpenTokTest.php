@@ -2,6 +2,20 @@
 
 namespace OpenTokTest;
 
+use OpenTok\Archive;
+use OpenTok\ArchiveList;
+use OpenTok\Exception\ForceDisconnectConnectionException;
+use OpenTok\Broadcast;
+use TypeError;
+use OpenTok\Stream;
+use OpenTok\SipCall;
+use Exception;
+use OpenTok\Exception\SignalConnectionException;
+use OpenTok\Exception\SignalUnexpectedValueException;
+use OpenTok\StreamList;
+use OpenTok\ConnectionList;
+use OpenTok\Connection;
+use ReflectionClass;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Lcobucci\JWT\Configuration;
@@ -48,16 +62,12 @@ class OpenTokTest extends TestCase
         self::$mockBasePath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'mock' . DIRECTORY_SEPARATOR;
     }
 
-    private function setupOTWithMocks($mocks, $customAgent = false, $vonageVideo = false): void
+    private function setupOTWithMocks(array $mocks, $customAgent = false, bool $vonageVideo = false): void
     {
         $this->API_KEY = defined('API_KEY') ? API_KEY : '12345678';
         $this->API_SECRET = defined('API_SECRET') ? API_SECRET : 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
 
-        if (is_array($mocks)) {
-            $responses = TestHelpers::mocksToResponses($mocks, self::$mockBasePath);
-        } else {
-            $responses = [];
-        }
+        $responses = is_array($mocks) ? TestHelpers::mocksToResponses($mocks, self::$mockBasePath) : [];
 
         $mock = new MockHandler($responses);
         $handlerStack = HandlerStack::create($mock);
@@ -71,7 +81,7 @@ class OpenTokTest extends TestCase
 
         $apiUrl = 'https://api.opentok.com';
 
-        if ($vonageVideo === true) {
+        if ($vonageVideo) {
             $apiUrl = 'https://video.vonage.com';
             $this->API_KEY = '1ab38a10-ed9d-4e2b-8b14-95e52d76a13c';
             $this->API_SECRET = __DIR__ . '/test.key';
@@ -91,7 +101,7 @@ class OpenTokTest extends TestCase
         $history = Middleware::history($this->historyContainer);
         $handlerStack->push($history);
 
-        $this->opentok = new OpenTok($this->API_KEY, $this->API_SECRET, array('client' => $this->client));
+        $this->opentok = new OpenTok($this->API_KEY, $this->API_SECRET, ['client' => $this->client]);
     }
 
     private function setupOT(): void
@@ -102,7 +112,7 @@ class OpenTokTest extends TestCase
     public function testCanBeInitialized(): void
     {
         $this->setupOT();
-        $this->assertInstanceOf('OpenTok\OpenTok', $this->opentok);
+        $this->assertInstanceOf(OpenTok::class, $this->opentok);
     }
 
     public function testFailsOnInvalidInitialization(): void
@@ -114,7 +124,7 @@ class OpenTokTest extends TestCase
         } else {
             $this->expectException(PHPUnit_Framework_Error_Warning::class);
         }
-        $opentok = new OpenTok();
+        new OpenTok();
     }
 
     public function testCanStartRender(): void
@@ -133,10 +143,7 @@ class OpenTokTest extends TestCase
             'https://webapp.customer.com',
             2900,
             '1280x720',
-            'https://sendcallbacks.to.me',
-            [
-                'name' => 'Composed stream for live event'
-            ]
+            'https://sendcallbacks.to.me'
         );
         $this->assertInstanceOf(Render::class, $render);
         $this->assertEquals('2_MX4xMDBfjE0Mzc2NzY1NDgwMTJ-TjMzfn4', $render->sessionId);
@@ -159,10 +166,7 @@ class OpenTokTest extends TestCase
             'https://webapp.customer.com',
             2900,
             '1280x720',
-            'https://sendcallbacks.to.me',
-            [
-                'name' => 'Composed stream for live event'
-            ]
+            'https://sendcallbacks.to.me'
         );
 
         $this->assertInstanceOf(Render::class, $render);
@@ -265,7 +269,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('POST', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/session/create', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -279,7 +283,7 @@ class OpenTokTest extends TestCase
         $e2ee = $this->getPostField($request, 'e2ee');
         $this->assertEquals('false', $e2ee);
 
-        $this->assertInstanceOf('OpenTok\Session', $session);
+        $this->assertInstanceOf(Session::class, $session);
         // NOTE: this is an actual sessionId from the recorded response, this doesn't correspond to
         // the API Key and API Secret used to create the session.
         $this->assertEquals(
@@ -312,7 +316,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('POST', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/session/create', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -325,7 +329,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('640x480', $this->getPostField($request, 'archiveResolution'));
 
 
-        $this->assertInstanceOf('OpenTok\Session', $session);
+        $this->assertInstanceOf(Session::class, $session);
     }
 
     public function testCannotStartSessionWithArchiveNameInManualMode(): void
@@ -346,7 +350,7 @@ class OpenTokTest extends TestCase
         ];
 
         // Act
-        $session = $this->opentok->createSession($options);
+        $this->opentok->createSession($options);
     }
 
     public function testCannotStartSessionWithArchiveResolutionInManualMode(): void
@@ -367,7 +371,7 @@ class OpenTokTest extends TestCase
         ];
 
         // Act
-        $session = $this->opentok->createSession($options);
+        $this->opentok->createSession($options);
     }
 
     public function testCannotStartSessionWithInvalidResolutionInAutoArchive(): void
@@ -389,7 +393,7 @@ class OpenTokTest extends TestCase
         ];
 
         // Act
-        $session = $this->opentok->createSession($options);
+        $this->opentok->createSession($options);
     }
 
     public function testCreatesE2EESession(): void
@@ -408,7 +412,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('POST', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/session/create', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -442,7 +446,7 @@ class OpenTokTest extends TestCase
             'path' => 'session/create/relayed'
         ]]);
 
-        $session = $this->opentok->createSession(
+        $this->opentok->createSession(
             [
                 'mediaMode' => MediaMode::RELAYED,
                 'e2ee' => true
@@ -463,7 +467,7 @@ class OpenTokTest extends TestCase
             'path' => 'session/create/relayed'
         ]]);
 
-        $session = $this->opentok->createSession(
+        $this->opentok->createSession(
             [
                 'archiveMode' => ArchiveMode::ALWAYS,
                 'e2ee' => true
@@ -471,18 +475,14 @@ class OpenTokTest extends TestCase
         );
     }
 
-    private function getPostField($request, $targetKey)
+    private function getPostField($request, string $targetKey)
     {
-        $params = array_map(function ($item) {
-            return explode('=', $item);
-        }, explode('&', (string) $request->getBody()));
+        $params = array_map(fn($item): array => explode('=', (string) $item), explode('&', (string) $request->getBody()));
         $found = array_values(array_filter(
             $params,
-            function ($item) use ($targetKey) {
-                return is_array($item) ? $item[0] === $targetKey : false;
-            }
+            fn($item): bool => is_array($item) && $item[0] === $targetKey
         ));
-        return count($found) > 0 ? $found[0][1] : '';
+        return $found !== [] ? $found[0][1] : '';
     }
 
     public function testCreatesMediaRoutedAndLocationSession(): void
@@ -497,16 +497,13 @@ class OpenTokTest extends TestCase
         ]]);
 
         // Act
-        $session = $this->opentok->createSession(array(
-            'location' => '12.34.56.78',
-            'mediaMode' => MediaMode::ROUTED
-        ));
+        $session = $this->opentok->createSession(['location' => '12.34.56.78', 'mediaMode' => MediaMode::ROUTED]);
 
         // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('POST', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/session/create', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -520,7 +517,7 @@ class OpenTokTest extends TestCase
         $p2p_preference = $this->getPostField($request, 'p2p.preference');
         $this->assertEquals('disabled', $p2p_preference);
 
-        $this->assertInstanceOf('OpenTok\Session', $session);
+        $this->assertInstanceOf(Session::class, $session);
         // NOTE: this is an actual sessionId from the recorded response, this doesn't correspond to
         // the API Key and API Secret used to create the session.
         $this->assertEquals(
@@ -541,15 +538,13 @@ class OpenTokTest extends TestCase
         ]]);
 
         // Act
-        $session = $this->opentok->createSession(array(
-            'mediaMode' => MediaMode::RELAYED
-        ));
+        $session = $this->opentok->createSession(['mediaMode' => MediaMode::RELAYED]);
 
         // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('POST', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/session/create', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -560,7 +555,7 @@ class OpenTokTest extends TestCase
         $p2p_preference = $this->getPostField($request, 'p2p.preference');
         $this->assertEquals('enabled', $p2p_preference);
 
-        $this->assertInstanceOf('OpenTok\Session', $session);
+        $this->assertInstanceOf(Session::class, $session);
         // NOTE: this is an actual sessionId from the recorded response, this doesn't correspond to
         // the API Key and API Secret used to create the session.
         $this->assertEquals(
@@ -581,15 +576,13 @@ class OpenTokTest extends TestCase
         ]]);
 
         // Act
-        $session = $this->opentok->createSession(array(
-            'archiveMode' => ArchiveMode::ALWAYS
-        ));
+        $session = $this->opentok->createSession(['archiveMode' => ArchiveMode::ALWAYS]);
 
         // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('POST', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/session/create', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -603,7 +596,7 @@ class OpenTokTest extends TestCase
         $mediaMode = $this->getPostField($request, 'p2p.preference');
         $this->assertNotEquals('enabled', $mediaMode);
 
-        $this->assertInstanceOf('OpenTok\Session', $session);
+        $this->assertInstanceOf(Session::class, $session);
         // NOTE: this is an actual sessionId from the recorded response, this doesn't correspond to
         // the API Key and API Secret used to create the session.
         $this->assertEquals(
@@ -619,10 +612,7 @@ class OpenTokTest extends TestCase
         $this->setupOT();
 
         // Act
-        $session = $this->opentok->createSession(array(
-            'mediaMode' => MediaMode::RELAYED,
-            'archiveMode' => ArchiveMode::ALWAYS
-        ));
+        $this->opentok->createSession(['mediaMode' => MediaMode::RELAYED, 'archiveMode' => ArchiveMode::ALWAYS]);
 
         // Assert
     }
@@ -655,7 +645,7 @@ class OpenTokTest extends TestCase
         //$this->assertNotEmpty($decodedToken['expire_time']);
 
         $this->assertNotEmpty($decodedToken['sig']);
-        $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
+        $this->assertEquals(hash_hmac('sha1', (string) $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
     }
 
     public function testGeneratesTokenWithRole(): void
@@ -669,7 +659,7 @@ class OpenTokTest extends TestCase
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
         // Act
-        $token = $opentok->generateToken($sessionId, array('role' => Role::MODERATOR), true);
+        $token = $opentok->generateToken($sessionId, ['role' => Role::MODERATOR], true);
 
         // Assert
         $this->assertIsString($token);
@@ -685,7 +675,7 @@ class OpenTokTest extends TestCase
         //$this->assertNotEmpty($decodedToken['expire_time']);
 
         $this->assertNotEmpty($decodedToken['sig']);
-        $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
+        $this->assertEquals(hash_hmac('sha1', (string) $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
     }
 
     public function testGeneratesTokenWithExpireTime(): void
@@ -701,7 +691,7 @@ class OpenTokTest extends TestCase
         // Act
         // expires in one hour (60 seconds * 60 minutes)
         $inOneHour = time() + (60 * 60);
-        $token = $opentok->generateToken($sessionId, array('expireTime' => $inOneHour ), true);
+        $token = $opentok->generateToken($sessionId, ['expireTime' => $inOneHour], true);
 
         // Assert
         $this->assertIsString($token);
@@ -716,7 +706,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals($inOneHour, $decodedToken['expire_time']);
 
         $this->assertNotEmpty($decodedToken['sig']);
-        $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
+        $this->assertEquals(hash_hmac('sha1', (string) $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
     }
 
     public function testGeneratesTokenWithData(): void
@@ -731,7 +721,7 @@ class OpenTokTest extends TestCase
 
         // Act
         $userStatus = '{nick:"johnny",status:"hey there fellas!"}';
-        $token = $opentok->generateToken($sessionId, array('data' => $userStatus), true);
+        $token = $opentok->generateToken($sessionId, ['data' => $userStatus], true);
 
         // Assert
         $this->assertIsString($token);
@@ -747,7 +737,7 @@ class OpenTokTest extends TestCase
         //$this->assertNotEmpty($decodedToken['expire_time']);
 
         $this->assertNotEmpty($decodedToken['sig']);
-        $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
+        $this->assertEquals(hash_hmac('sha1', (string) $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
     }
 
     // TODO: write tests for passing invalid $expireTime and $data to generateToken
@@ -763,12 +753,10 @@ class OpenTokTest extends TestCase
         $bogusApiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
         $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
 
-        $initialLayouClassList = array('focus', 'main');
+        $initialLayouClassList = ['focus', 'main'];
 
         // Act
-        $token = $opentok->generateToken($sessionId, array(
-            'initialLayoutClassList' => $initialLayouClassList
-        ), true);
+        $token = $opentok->generateToken($sessionId, ['initialLayoutClassList' => $initialLayouClassList], true);
 
         // Assert
         $this->assertIsString($token);
@@ -780,20 +768,20 @@ class OpenTokTest extends TestCase
         $this->assertNotEmpty($decodedToken['create_time']);
         $this->assertArrayNotHasKey('connection_data', $decodedToken);
         $this->assertEquals('publisher', $decodedToken['role']);
-        $this->assertEquals(join(" ", $initialLayouClassList), $decodedToken['initial_layout_class_list']);
+        $this->assertEquals(implode(" ", $initialLayouClassList), $decodedToken['initial_layout_class_list']);
 
         // TODO: should all tokens have a default expire time even if it wasn't specified?
         //$this->assertNotEmpty($decodedToken['expire_time']);
 
         $this->assertNotEmpty($decodedToken['sig']);
-        $this->assertEquals(hash_hmac('sha1', $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
+        $this->assertEquals(hash_hmac('sha1', (string) $decodedToken['dataString'], $bogusApiSecret), $decodedToken['sig']);
     }
 
     public function testFailsWhenGeneratingTokenUsingInvalidRole(): void
     {
         $this->expectException('InvalidArgumentException');
         $this->setupOT();
-        $token = $this->opentok->generateToken('SESSIONID', array('role' => 'notarole'), true);
+        $this->opentok->generateToken('SESSIONID', ['role' => 'notarole'], true);
     }
 
     public function testWillCreateLegacyT1WhenRequested(): void
@@ -926,7 +914,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('POST', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -938,7 +926,7 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        $this->assertInstanceOf('OpenTok\Archive', $archive);
+        $this->assertInstanceOf(Archive::class, $archive);
         $this->assertEquals(0, $archive->duration);
         $this->assertEquals('', $archive->reason);
         $this->assertEquals('started', $archive->status);
@@ -972,7 +960,7 @@ class OpenTokTest extends TestCase
         // decoding to check, so it's fine.
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
-        $archive = $this->opentok->startArchive($sessionId);
+        $this->opentok->startArchive($sessionId);
 
         $this->assertCount(1, $this->historyContainer);
 
@@ -999,12 +987,12 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('POST', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
-        $this->assertInstanceOf('OpenTok\Archive', $archive);
+        $this->assertInstanceOf(Archive::class, $archive);
         $this->assertEquals(0, $archive->duration);
         $this->assertEquals('', $archive->reason);
         $this->assertEquals('started', $archive->status);
@@ -1038,7 +1026,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('POST', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -1050,7 +1038,7 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        $this->assertInstanceOf('OpenTok\Archive', $archive);
+        $this->assertInstanceOf(Archive::class, $archive);
         $this->assertEquals(0, $archive->duration);
         $this->assertEquals('', $archive->reason);
         $this->assertEquals('started', $archive->status);
@@ -1080,7 +1068,7 @@ class OpenTokTest extends TestCase
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
         // Act
-        $archive = $this->opentok->startArchive($sessionId, ['streamMode' => 'broadcast']);
+        $this->opentok->startArchive($sessionId, ['streamMode' => 'broadcast']);
     }
 
     public function testStartsArchiveNamed(): void
@@ -1099,13 +1087,13 @@ class OpenTokTest extends TestCase
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
         // Act
-        $archive = $this->opentok->startArchive($sessionId, array( 'name' => 'showtime' ));
+        $archive = $this->opentok->startArchive($sessionId, ['name' => 'showtime']);
 
         // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('POST', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -1117,11 +1105,11 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        $body = json_decode($request->getBody());
+        $body = json_decode((string) $request->getBody());
         $this->assertEquals($sessionId, $body->sessionId);
         $this->assertEquals('showtime', $body->name);
 
-        $this->assertInstanceOf('OpenTok\Archive', $archive);
+        $this->assertInstanceOf(Archive::class, $archive);
         // TODO: test the properties of the actual archive object
     }
 
@@ -1151,7 +1139,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('POST', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -1163,11 +1151,11 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        $body = json_decode($request->getBody());
+        $body = json_decode((string) $request->getBody());
         $this->assertEquals($sessionId, $body->sessionId);
         $this->assertEquals('showtime', $body->name);
 
-        $this->assertInstanceOf('OpenTok\Archive', $archive);
+        $this->assertInstanceOf(Archive::class, $archive);
         // TODO: test the properties of the actual archive object
     }
 
@@ -1187,13 +1175,13 @@ class OpenTokTest extends TestCase
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
         // Act
-        $archive = $this->opentok->startArchive($sessionId, array( 'hasVideo' => false ));
+        $archive = $this->opentok->startArchive($sessionId, ['hasVideo' => false]);
 
         // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('POST', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -1205,12 +1193,12 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        $body = json_decode($request->getBody());
+        $body = json_decode((string) $request->getBody());
         $this->assertEquals($sessionId, $body->sessionId);
         $this->assertEquals(false, $body->hasVideo);
         $this->assertEquals(true, $body->hasAudio);
 
-        $this->assertInstanceOf('OpenTok\Archive', $archive);
+        $this->assertInstanceOf(Archive::class, $archive);
         // TODO: test the properties of the actual archive object
     }
 
@@ -1230,15 +1218,13 @@ class OpenTokTest extends TestCase
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
         // Act
-        $archive = $this->opentok->startArchive($sessionId, array(
-            'outputMode' => OutputMode::INDIVIDUAL
-        ));
+        $archive = $this->opentok->startArchive($sessionId, ['outputMode' => OutputMode::INDIVIDUAL]);
 
         // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('POST', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -1250,11 +1236,11 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        $body = json_decode($request->getBody());
+        $body = json_decode((string) $request->getBody());
         $this->assertEquals($sessionId, $body->sessionId);
         $this->assertEquals('individual', $body->outputMode);
 
-        $this->assertInstanceOf('OpenTok\Archive', $archive);
+        $this->assertInstanceOf(Archive::class, $archive);
         $this->assertEquals(OutputMode::INDIVIDUAL, $archive->outputMode);
     }
 
@@ -1274,15 +1260,13 @@ class OpenTokTest extends TestCase
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
         // Act
-        $archive = $this->opentok->startArchive($sessionId, array(
-            'resolution' => '640x480'
-        ));
+        $archive = $this->opentok->startArchive($sessionId, ['resolution' => '640x480']);
 
         // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('POST', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -1294,11 +1278,11 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        $body = json_decode($request->getBody());
+        $body = json_decode((string) $request->getBody());
         $this->assertEquals($sessionId, $body->sessionId);
         $this->assertEquals('640x480', $body->resolution);
 
-        $this->assertInstanceOf('OpenTok\Archive', $archive);
+        $this->assertInstanceOf(Archive::class, $archive);
     }
 
     public function testStartsArchiveResolutionHD(): void
@@ -1317,15 +1301,13 @@ class OpenTokTest extends TestCase
         $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
 
         // Act
-        $archive = $this->opentok->startArchive($sessionId, array(
-            'resolution' => '1280x720'
-        ));
+        $archive = $this->opentok->startArchive($sessionId, ['resolution' => '1280x720']);
 
         // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('POST', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -1337,11 +1319,11 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        $body = json_decode($request->getBody());
+        $body = json_decode((string) $request->getBody());
         $this->assertEquals($sessionId, $body->sessionId);
         $this->assertEquals('1280x720', $body->resolution);
 
-        $this->assertInstanceOf('OpenTok\Archive', $archive);
+        $this->assertInstanceOf(Archive::class, $archive);
     }
 
     public function testStopsArchive(): void
@@ -1364,7 +1346,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('POST', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive/' . $archiveId . '/stop', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -1376,7 +1358,7 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        $this->assertInstanceOf('OpenTok\Archive', $archive);
+        $this->assertInstanceOf(Archive::class, $archive);
         // TODO: test the properties of the actual archive object
     }
 
@@ -1400,7 +1382,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('GET', strtoupper($request->getMethod()));
+        $this->assertEquals('GET', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive/' . $archiveId, $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -1410,7 +1392,7 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        $this->assertInstanceOf('OpenTok\Archive', $archive);
+        $this->assertInstanceOf(Archive::class, $archive);
     }
 
     public function testGetsArchiveWithMaxBitrate(): void
@@ -1433,7 +1415,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('GET', strtoupper($request->getMethod()));
+        $this->assertEquals('GET', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive/' . $archiveId, $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -1441,7 +1423,7 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        $this->assertInstanceOf('OpenTok\Archive', $archive);
+        $this->assertInstanceOf(Archive::class, $archive);
         $this->assertEquals(2000000, $archive->maxBitrate);
     }
 
@@ -1461,7 +1443,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('DELETE', strtoupper($request->getMethod()));
+        $this->assertEquals('DELETE', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive/' . $archiveId, $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -1495,7 +1477,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('GET', strtoupper($request->getMethod()));
+        $this->assertEquals('GET', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -1503,7 +1485,7 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        $this->assertInstanceOf('OpenTok\ArchiveList', $archiveList);
+        $this->assertInstanceOf(ArchiveList::class, $archiveList);
         // TODO: test the properties of the actual archiveList object and its contained archive
         // objects
     }
@@ -1526,14 +1508,14 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('GET', strtoupper($request->getMethod()));
+        $this->assertEquals('GET', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
-        $this->assertInstanceOf('OpenTok\ArchiveList', $archiveList);
+        $this->assertInstanceOf(ArchiveList::class, $archiveList);
         $this->assertEquals(1, $archiveList->totalCount());
         $this->assertEquals('832641bf-5dbf-41a1-ad94-fea213e59a92', $archiveList->getItems()[0]->id);
     }
@@ -1552,7 +1534,7 @@ class OpenTokTest extends TestCase
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $bogusApiKey = '12345678';
         $bogusApiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
-        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+        new OpenTok($bogusApiKey, $bogusApiSecret);
 
         // Act
         $archiveList = $this->opentok->listArchives(0, null, $sessionId);
@@ -1561,14 +1543,14 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('GET', strtoupper($request->getMethod()));
+        $this->assertEquals('GET', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
-        $this->assertInstanceOf('OpenTok\ArchiveList', $archiveList);
+        $this->assertInstanceOf(ArchiveList::class, $archiveList);
         $this->assertEquals(2, $archiveList->totalCount());
         $this->assertEquals($sessionId, $archiveList->getItems()[0]->sessionId);
         $this->assertEquals($sessionId, $archiveList->getItems()[1]->sessionId);
@@ -1589,7 +1571,7 @@ class OpenTokTest extends TestCase
         ]]);
 
         // Act
-        $archiveList = $this->opentok->listArchives(0, 1001);
+        $this->opentok->listArchives(0, 1001);
 
         // Assert
         $this->assertCount(0, $this->historyContainer);
@@ -1613,8 +1595,209 @@ class OpenTokTest extends TestCase
         $archive = $this->opentok->getArchive($archiveId);
 
         // Assert
-        $this->assertInstanceOf('OpenTok\Archive', $archive);
+        $this->assertInstanceOf(Archive::class, $archive);
         $this->assertEquals("expired", $archive->status);
+    }
+
+    public function testStartsArchiveWithTranscription(): void
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/archive/session_hasTranscription-true'
+        ]]);
+
+        // This sessionId was generated using a different apiKey, but this method doesn't do any
+        // decoding to check, so it's fine.
+        $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
+
+        // Act
+        $archive = $this->opentok->startArchive($sessionId, [
+            'hasTranscription' => true,
+            'transcriptionProperties' => [
+                'primaryLanguageCode' => 'en-US',
+                'hasSummary' => false
+            ]
+        ]);
+
+        // Assert
+        $this->assertCount(1, $this->historyContainer);
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertEquals('POST', strtoupper((string) $request->getMethod()));
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive', $request->getUri()->getPath());
+        $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
+        $this->assertEquals('https', $request->getUri()->getScheme());
+
+        $contentType = $request->getHeaderLine('Content-Type');
+        $this->assertNotEmpty($contentType);
+        $this->assertEquals('application/json', $contentType);
+
+        $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        // Test request body contains transcription fields
+        $body = json_decode((string) $request->getBody());
+        $this->assertEquals(true, $body->hasTranscription);
+        $this->assertEquals('en-US', $body->transcriptionProperties->primaryLanguageCode);
+        $this->assertEquals(false, $body->transcriptionProperties->hasSummary);
+
+        // Test response properties
+        $this->assertInstanceOf(Archive::class, $archive);
+        $this->assertEquals(true, $archive->hasTranscription);
+        $this->assertIsArray($archive->transcription);
+        $this->assertEquals('requested', $archive->transcription['status']);
+        $this->assertEquals('en-US', $archive->transcription['primaryLanguageCode']);
+        $this->assertEquals(false, $archive->transcription['hasSummary']);
+    }
+
+    public function testStartsArchiveWithTranscriptionAndSummary(): void
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/archive/session_transcription-with-summary'
+        ]]);
+
+        $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
+
+        // Act
+        $archive = $this->opentok->startArchive($sessionId, [
+            'hasTranscription' => true,
+            'transcriptionProperties' => [
+                'primaryLanguageCode' => 'es-ES',
+                'hasSummary' => true
+            ]
+        ]);
+
+        // Assert
+        $this->assertCount(1, $this->historyContainer);
+
+        $request = $this->historyContainer[0]['request'];
+        
+        // Test request body contains transcription fields
+        $body = json_decode((string) $request->getBody());
+        $this->assertEquals(true, $body->hasTranscription);
+        $this->assertEquals('es-ES', $body->transcriptionProperties->primaryLanguageCode);
+        $this->assertEquals(true, $body->transcriptionProperties->hasSummary);
+
+        // Test response properties
+        $this->assertInstanceOf(Archive::class, $archive);
+        $this->assertEquals(true, $archive->hasTranscription);
+        $this->assertIsArray($archive->transcription);
+        $this->assertEquals('requested', $archive->transcription['status']);
+        $this->assertEquals('es-ES', $archive->transcription['primaryLanguageCode']);
+        $this->assertEquals(true, $archive->transcription['hasSummary']);
+    }
+
+    public function testStartsArchiveWithoutTranscription(): void
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => 'v2/project/APIKEY/archive/session'
+        ]]);
+
+        $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
+
+        // Act - explicitly set hasTranscription to false
+        $archive = $this->opentok->startArchive($sessionId, [
+            'hasTranscription' => false
+        ]);
+
+        // Assert
+        $this->assertCount(1, $this->historyContainer);
+
+        $request = $this->historyContainer[0]['request'];
+
+        // Test request body
+        $body = json_decode((string) $request->getBody());
+        $this->assertEquals(false, $body->hasTranscription);
+        $this->assertObjectNotHasAttribute('transcriptionProperties', $body);
+
+        // Test response properties (archive without transcription)
+        $this->assertInstanceOf(Archive::class, $archive);
+        // The hasTranscription property should not be set in response if transcription is disabled
+    }
+
+    public function testCannotStartArchiveWithInvalidTranscriptionProperties(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('transcriptionProperties must be an array.');
+
+        // Set up the OpenTok instance first
+        $this->setupOTWithMocks([]);
+
+        $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
+
+        // Act - pass invalid transcriptionProperties (not an array)
+        $this->opentok->startArchive($sessionId, [
+            'hasTranscription' => true,
+            'transcriptionProperties' => 'invalid'
+        ]);
+    }
+
+    public function testCannotStartArchiveWithInvalidHasTranscription(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('hasTranscription must be either true or false.');
+
+        // Set up the OpenTok instance first
+        $this->setupOTWithMocks([]);
+
+        $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
+
+        // Act - pass invalid hasTranscription (not a boolean)
+        $this->opentok->startArchive($sessionId, [
+            'hasTranscription' => 'invalid'
+        ]);
+    }
+
+    public function testCannotStartArchiveWithInvalidPrimaryLanguageCode(): void
+    {
+        $this->setupOT();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('primaryLanguageCode must be a non-empty string in BCP-47 format.');
+
+        $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
+
+        // Act - pass empty primaryLanguageCode
+        $this->opentok->startArchive($sessionId, [
+            'hasTranscription' => true,
+            'transcriptionProperties' => [
+                'primaryLanguageCode' => '',
+                'hasSummary' => false
+            ]
+        ]);
+    }
+
+    public function testCannotStartArchiveWithInvalidHasSummary(): void
+    {
+        $this->setupOT();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('hasSummary must be either true or false.');
+
+        $sessionId = '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-';
+
+        // Act - pass invalid hasSummary (not a boolean)
+        $this->opentok->startArchive($sessionId, [
+            'hasTranscription' => true,
+            'transcriptionProperties' => [
+                'primaryLanguageCode' => 'en-US',
+                'hasSummary' => 'invalid'
+            ]
+        ]);
     }
 
     public function testForceDisconnect(): void
@@ -1635,7 +1818,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('DELETE', strtoupper($request->getMethod()));
+        $this->assertEquals('DELETE', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/session/' . $sessionId . '/connection/' . $connectionId, $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -1661,13 +1844,13 @@ class OpenTokTest extends TestCase
 
         $connectionId = '063e72a4-64b4-43c8-9da5-eca071daab89';
 
-        $this->expectException('OpenTok\Exception\ForceDisconnectConnectionException');
+        $this->expectException(ForceDisconnectConnectionException::class);
 
         // Act
         $this->opentok->forceDisconnect($sessionId, $connectionId);
     }
 
-    public function testCannotConnectAudioStreamWithInvalidSessionId()
+    public function testCannotConnectAudioStreamWithInvalidSessionId(): void
     {
         $this->setupOTWithMocks([[
             'code' => 200
@@ -1678,7 +1861,7 @@ class OpenTokTest extends TestCase
         $this->opentok->connectAudio('', '2398523', []);
     }
 
-    public function testCannotConnectAudioStreamWithoutWebsocketUri()
+    public function testCannotConnectAudioStreamWithoutWebsocketUri(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectErrorMessage('Websocket configuration must have a uri');
@@ -1694,7 +1877,7 @@ class OpenTokTest extends TestCase
         $this->opentok->connectAudio('9999', 'wrwetg', $badPayload);
     }
 
-    public function testCanConnectAudioStreamWithWebsocket()
+    public function testCanConnectAudioStreamWithWebsocket(): void
     {
         $this->setupOTWithMocks([[
             'code' => 200,
@@ -1722,7 +1905,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('7aebb3a4-3d86-4962-b317-afb73e05439d', $response['connectionId']);
     }
 
-    public function testCanStartBroadcastWithRmtp()
+    public function testCanStartBroadcastWithRmtp(): void
     {
         $this->setupOTWithMocks([[
             'code' => 200,
@@ -1817,7 +2000,7 @@ class OpenTokTest extends TestCase
             ]
         ];
 
-        $broadcast = $this->opentok->startBroadcast($sessionId, $options);
+        $this->opentok->startBroadcast($sessionId, $options);
     }
 
     public function testCanStartBroadcastWithDefaultHlsOptions(): void
@@ -1916,7 +2099,7 @@ class OpenTokTest extends TestCase
             ]
         ];
 
-        $broadcast = $this->opentok->startBroadcast($sessionId, $options);
+        $this->opentok->startBroadcast($sessionId, $options);
     }
 
     public function testStartsBroadcast(): void
@@ -1936,7 +2119,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('POST', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/broadcast', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -1947,7 +2130,7 @@ class OpenTokTest extends TestCase
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
-        $this->assertInstanceOf('OpenTok\Broadcast', $broadcast);
+        $this->assertInstanceOf(Broadcast::class, $broadcast);
         $this->assertIsString($broadcast->id);
         $this->assertEquals($sessionId, $broadcast->sessionId);
         $this->assertIsArray($broadcast->broadcastUrls);
@@ -2001,7 +2184,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('POST', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/broadcast', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -2013,7 +2196,7 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        $this->assertInstanceOf('OpenTok\Broadcast', $broadcast);
+        $this->assertInstanceOf(Broadcast::class, $broadcast);
         $this->assertIsString($broadcast->id);
         $this->assertEquals($sessionId, $broadcast->sessionId);
         $this->assertIsArray($broadcast->broadcastUrls);
@@ -2041,7 +2224,7 @@ class OpenTokTest extends TestCase
         $sessionId = '2_MX44NTQ1MTF-fjE0NzI0MzU2MDUyMjN-eVgwNFJhZmR6MjdockFHanpxNzBXaEFXfn4';
 
         // Act
-        $broadcast = $this->opentok->startBroadcast($sessionId, ['streamMode' => 'stop']);
+        $this->opentok->startBroadcast($sessionId, ['streamMode' => 'stop']);
     }
 
     public function testStartsBroadcastInManualStreamMode(): void
@@ -2066,7 +2249,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('POST', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/broadcast', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -2078,7 +2261,7 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        $this->assertInstanceOf('OpenTok\Broadcast', $broadcast);
+        $this->assertInstanceOf(Broadcast::class, $broadcast);
         $this->assertIsString($broadcast->id);
         $this->assertEquals($sessionId, $broadcast->sessionId);
         $this->assertIsArray($broadcast->broadcastUrls);
@@ -2118,7 +2301,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('POST', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/broadcast', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -2129,7 +2312,7 @@ class OpenTokTest extends TestCase
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
-        $this->assertInstanceOf('OpenTok\Broadcast', $broadcast);
+        $this->assertInstanceOf(Broadcast::class, $broadcast);
         $this->assertIsString($broadcast->id);
         $this->assertEquals($sessionId, $broadcast->sessionId);
         $this->assertEquals($maxDuration, $broadcast->maxDuration);
@@ -2163,7 +2346,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('POST', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/broadcast/' . $broadcastId . '/stop', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -2171,7 +2354,7 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        $this->assertInstanceOf('OpenTok\Broadcast', $broadcast);
+        $this->assertInstanceOf(Broadcast::class, $broadcast);
         $this->assertTrue($broadcast->isStopped);
     }
 
@@ -2195,14 +2378,14 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('GET', strtoupper($request->getMethod()));
+        $this->assertEquals('GET', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/broadcast/' . $broadcastId, $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
-        $this->assertInstanceOf('OpenTok\Broadcast', $broadcast);
+        $this->assertInstanceOf(Broadcast::class, $broadcast);
     }
 
     public function testCanMuteStream(): void
@@ -2275,7 +2458,7 @@ class OpenTokTest extends TestCase
 
     public function testCannotMuteStreamsWithWrongTypePayload(): void
     {
-        $this->expectException(\TypeError::class);
+        $this->expectException(TypeError::class);
 
         $this->setupOTWithMocks([[
             'code' => 200,
@@ -2313,7 +2496,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('PUT', strtoupper($request->getMethod()));
+        $this->assertEquals('PUT', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/broadcast/' . $broadcastId . '/layout', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -2325,7 +2508,7 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        $body = json_decode($request->getBody());
+        $body = json_decode((string) $request->getBody());
         $this->assertEquals('pip', $body->type);
     }
 
@@ -2342,9 +2525,7 @@ class OpenTokTest extends TestCase
 
         $broadcastId = 'BROADCASTID';
         $stylesheet = '.classname { height: 1px; width: 1px }';
-        $layout = Layout::createCustom(array(
-            'stylesheet' => $stylesheet
-        ));
+        $layout = Layout::createCustom(['stylesheet' => $stylesheet]);
 
         // Act
         $this->opentok->updateBroadcastLayout($broadcastId, $layout);
@@ -2353,7 +2534,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('PUT', strtoupper($request->getMethod()));
+        $this->assertEquals('PUT', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/broadcast/' . $broadcastId . '/layout', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -2365,7 +2546,7 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        $body = json_decode($request->getBody());
+        $body = json_decode((string) $request->getBody());
         $this->assertEquals('custom', $body->type);
         $this->assertEquals($stylesheet, $body->stylesheet);
     }
@@ -2383,18 +2564,16 @@ class OpenTokTest extends TestCase
 
         $sessionId = 'SESSIONID';
         $streamId = 'STREAMID';
-        $layoutClassList = array('foo', 'bar');
+        $layoutClassList = ['foo', 'bar'];
 
         // Act
-        $this->opentok->updateStream($sessionId, $streamId, array(
-            'layoutClassList' => $layoutClassList
-        ));
+        $this->opentok->updateStream($sessionId, $streamId, ['layoutClassList' => $layoutClassList]);
 
         // Assert
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('PUT', strtoupper($request->getMethod()));
+        $this->assertEquals('PUT', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/session/' . $sessionId . '/stream/' . $streamId, $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -2406,7 +2585,7 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        $body = json_decode($request->getBody());
+        $body = json_decode((string) $request->getBody());
         $this->assertEquals($layoutClassList, $body->layoutClassList);
     }
 
@@ -2430,7 +2609,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('GET', strtoupper($request->getMethod()));
+        $this->assertEquals('GET', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/session/' . $sessionId . '/stream/' . $streamId, $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -2438,7 +2617,7 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        $this->assertInstanceOf('OpenTok\Stream', $streamData);
+        $this->assertInstanceOf(Stream::class, $streamData);
         $this->assertNotNull($streamData->id);
         $this->assertNotNull($streamData->name);
         $this->assertNotNull($streamData->videoType);
@@ -2461,13 +2640,13 @@ class OpenTokTest extends TestCase
         $bogusApiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
         $bogusToken = 'T1==TEST';
         $bogusSipUri = 'sip:john@doe.com';
-        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+        new OpenTok($bogusApiKey, $bogusApiSecret);
 
         // Act
         $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri);
 
         // Assert
-        $this->assertInstanceOf('OpenTok\SipCall', $sipCall);
+        $this->assertInstanceOf(SipCall::class, $sipCall);
         $this->assertNotNull($sipCall->id);
         $this->assertNotNull($sipCall->connectionId);
         $this->assertNotNull($sipCall->streamId);
@@ -2486,20 +2665,15 @@ class OpenTokTest extends TestCase
         $bogusApiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
         $bogusToken = 'T1==TEST';
         $bogusSipUri = 'sip:john@doe.com';
-        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+        new OpenTok($bogusApiKey, $bogusApiSecret);
 
-        $auth = array(
-            'username' => 'john',
-            'password' => 'doe'
-        );
+        $auth = ['username' => 'john', 'password' => 'doe'];
 
         // Act
-        $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri, array(
-            'auth' => $auth
-        ));
+        $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri, ['auth' => $auth]);
 
         // Assert
-        $this->assertInstanceOf('OpenTok\SipCall', $sipCall);
+        $this->assertInstanceOf(SipCall::class, $sipCall);
         $this->assertNotNull($sipCall->id);
         $this->assertNotNull($sipCall->connectionId);
         $this->assertNotNull($sipCall->streamId);
@@ -2507,7 +2681,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
         $request = $this->historyContainer[0]['request'];
 
-        $body = json_decode($request->getBody());
+        $body = json_decode((string) $request->getBody());
         $this->assertEquals($auth['username'], $body->sip->auth->username);
         $this->assertEquals($auth['password'], $body->sip->auth->password);
     }
@@ -2524,14 +2698,14 @@ class OpenTokTest extends TestCase
         $bogusApiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
         $bogusToken = 'T1==TEST';
         $bogusSipUri = 'sip:john@doe.com';
-        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+        new OpenTok($bogusApiKey, $bogusApiSecret);
 
         $sipCall = null;
         // Act
         try {
             $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri);
             $this->assertNull($sipCall);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             $this->assertNull($sipCall);
         }
     }
@@ -2559,7 +2733,7 @@ class OpenTokTest extends TestCase
         ]);
 
         // Assert
-        $this->assertInstanceOf('OpenTok\SipCall', $sipCall);
+        $this->assertInstanceOf(SipCall::class, $sipCall);
         $this->assertNotNull($sipCall->id);
         $this->assertNotNull($sipCall->connectionId);
         $this->assertNotNull($sipCall->streamId);
@@ -2567,7 +2741,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
         $request = $this->historyContainer[0]['request'];
 
-        $body = json_decode($request->getBody());
+        $body = json_decode((string) $request->getBody());
         $this->assertEquals($from, $body->sip->from);
     }
 
@@ -2586,7 +2760,7 @@ class OpenTokTest extends TestCase
         $bogusSipUri = 'sip:john@doe.com';
         $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri, ['video' => true]);
 
-        $this->assertInstanceOf('OpenTok\SipCall', $sipCall);
+        $this->assertInstanceOf(SipCall::class, $sipCall);
         $this->assertNotNull($sipCall->id);
         $this->assertNotNull($sipCall->connectionId);
         $this->assertNotNull($sipCall->streamId);
@@ -2594,7 +2768,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
         $request = $this->historyContainer[0]['request'];
 
-        $body = json_decode($request->getBody());
+        $body = json_decode((string) $request->getBody());
         $this->assertEquals(true, $body->sip->video);
     }
 
@@ -2619,7 +2793,7 @@ class OpenTokTest extends TestCase
 
         $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri, $options);
 
-        $this->assertInstanceOf('OpenTok\SipCall', $sipCall);
+        $this->assertInstanceOf(SipCall::class, $sipCall);
         $this->assertNotNull($sipCall->id);
         $this->assertNotNull($sipCall->connectionId);
         $this->assertNotNull($sipCall->streamId);
@@ -2627,7 +2801,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
         $request = $this->historyContainer[0]['request'];
 
-        $body = json_decode($request->getBody());
+        $body = json_decode((string) $request->getBody());
         $this->assertEquals(true, $body->sip->video);
         $this->assertEquals('stream1', $body->sip->streams[0]);
     }
@@ -2653,7 +2827,7 @@ class OpenTokTest extends TestCase
 
         $sipCall = $this->opentok->dial($sessionId, $bogusToken, $bogusSipUri, $optionsPayload);
 
-        $this->assertInstanceOf('OpenTok\SipCall', $sipCall);
+        $this->assertInstanceOf(SipCall::class, $sipCall);
         $this->assertNotNull($sipCall->id);
         $this->assertNotNull($sipCall->connectionId);
         $this->assertNotNull($sipCall->streamId);
@@ -2661,7 +2835,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
         $request = $this->historyContainer[0]['request'];
 
-        $body = json_decode($request->getBody());
+        $body = json_decode((string) $request->getBody());
         $this->assertEquals(true, $body->sip->video);
     }
 
@@ -2683,7 +2857,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
         $request = $this->historyContainer[0]['request'];
 
-        $body = json_decode($request->getBody());
+        $body = json_decode((string) $request->getBody());
         $this->assertEquals($digits, $body->digits);
     }
 
@@ -2706,7 +2880,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
         $request = $this->historyContainer[0]['request'];
 
-        $body = json_decode($request->getBody());
+        $body = json_decode((string) $request->getBody());
         $this->assertEquals($digits, $body->digits);
     }
 
@@ -2757,12 +2931,9 @@ class OpenTokTest extends TestCase
         $bogusApiKey = '12345678';
         $bogusApiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
 
-        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+        new OpenTok($bogusApiKey, $bogusApiSecret);
 
-        $payload = array(
-            'data' => 'apple',
-            'type' => 'signal type sample'
-        );
+        $payload = ['data' => 'apple', 'type' => 'signal type sample'];
 
         // Act
         $this->opentok->signal($sessionId, $payload);
@@ -2771,14 +2942,14 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('POST', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/session/' . $sessionId . '/signal', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
-        $body = json_decode($request->getBody());
+        $body = json_decode((string) $request->getBody());
         $this->assertEquals('apple', $body->data);
         $this->assertEquals('signal type sample', $body->type);
     }
@@ -2794,12 +2965,9 @@ class OpenTokTest extends TestCase
         $bogusApiKey = '12345678';
         $bogusApiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
         $connectionId = 'da9cb410-e29b-4c2d-ab9e-fe65bf83fcaf';
-        $payload = array(
-            'type' => 'rest',
-            'data' => 'random message'
-        );
+        $payload = ['type' => 'rest', 'data' => 'random message'];
 
-        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+        new OpenTok($bogusApiKey, $bogusApiSecret);
 
         // Act
         $this->opentok->signal($sessionId, $payload, $connectionId);
@@ -2807,14 +2975,14 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('POST', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/session/' . $sessionId . '/connection/' . $connectionId . '/signal', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
 
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
-        $body = json_decode($request->getBody());
+        $body = json_decode((string) $request->getBody());
         $this->assertEquals('random message', $body->data);
         $this->assertEquals('rest', $body->type);
     }
@@ -2832,15 +3000,15 @@ class OpenTokTest extends TestCase
         $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
         $bogusApiKey = '12345678';
         $bogusApiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
-        $payload = array();
+        $payload = [];
 
-        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+        new OpenTok($bogusApiKey, $bogusApiSecret);
 
         // Act
         try {
             $this->opentok->signal($sessionId, $payload);
             $this->assertTrue(true);
-        } catch (\Exception $e) {
+        } catch (Exception) {
         }
     }
 
@@ -2855,14 +3023,11 @@ class OpenTokTest extends TestCase
         $bogusApiKey = '12345678';
         $bogusApiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
         $connectionId = 'da9cb410-e29b-4c2d-ab9e-fe65bf83fcaf';
-        $payload = array(
-            'type' => 'rest',
-            'data' => 'random message'
-        );
+        $payload = ['type' => 'rest', 'data' => 'random message'];
 
-        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+        new OpenTok($bogusApiKey, $bogusApiSecret);
 
-        $this->expectException('OpenTok\Exception\SignalConnectionException');
+        $this->expectException(SignalConnectionException::class);
         // Act
         $this->opentok->signal($sessionId, $payload, $connectionId);
     }
@@ -2878,14 +3043,11 @@ class OpenTokTest extends TestCase
         $bogusApiKey = '12345678';
         $bogusApiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
         $connectionId = 'da9cb410-e29b-4c2d-ab9e-fe65bf83fcaf';
-        $payload = array(
-            'type' => 'rest',
-            'data' => 'more than 128 bytes'
-        );
+        $payload = ['type' => 'rest', 'data' => 'more than 128 bytes'];
 
-        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+        new OpenTok($bogusApiKey, $bogusApiSecret);
 
-        $this->expectException('OpenTok\Exception\SignalUnexpectedValueException');
+        $this->expectException(SignalUnexpectedValueException::class);
 
         // Act
         $this->opentok->signal($sessionId, $payload, $connectionId);
@@ -2906,7 +3068,7 @@ class OpenTokTest extends TestCase
         $bogusApiKey = '12345678';
         $bogusApiSecret = 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
 
-        $opentok = new OpenTok($bogusApiKey, $bogusApiSecret);
+        new OpenTok($bogusApiKey, $bogusApiSecret);
 
         // Act
         $streamList = $this->opentok->listStreams($sessionId);
@@ -2915,7 +3077,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('GET', strtoupper($request->getMethod()));
+        $this->assertEquals('GET', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/session/' . $sessionId . '/stream/', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -2923,7 +3085,99 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        $this->assertInstanceOf('OpenTok\StreamList', $streamList);
+        $this->assertInstanceOf(StreamList::class, $streamList);
+    }
+
+    public function testListConnections(): void
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => '/v2/project/APIKEY/session/SESSIONID/connection/get'
+        ]]);
+
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+
+        // Act
+        $connectionList = $this->opentok->listConnections($sessionId);
+
+        // Assert
+        $this->assertCount(1, $this->historyContainer);
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertEquals('GET', strtoupper((string) $request->getMethod()));
+        $this->assertEquals('/v2/project/' . $this->API_KEY . '/session/' . $sessionId . '/connection/', $request->getUri()->getPath());
+        $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
+        $this->assertEquals('https', $request->getUri()->getScheme());
+
+        $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
+        $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
+
+        $this->assertInstanceOf(ConnectionList::class, $connectionList);
+        $this->assertEquals(3, $connectionList->totalCount());
+        $this->assertEquals('e9f8c166-6c67-440d-994a-04fb6dfed007', $connectionList->getProjectId());
+        $this->assertEquals('b40ef09b-3811-4726-b508-e41a0f96c68f', $connectionList->getSessionId());
+
+        $connections = $connectionList->getItems();
+        $this->assertCount(3, $connections);
+        $this->assertInstanceOf(Connection::class, $connections[0]);
+        $this->assertEquals('8b732909-0a06-46a2-8ea8-074e64d43422', $connections[0]->connectionId);
+        $this->assertEquals('Connected', $connections[0]->connectionState);
+        $this->assertEquals('1384221730000', $connections[0]->createdAt);
+    }
+
+    public function testListConnectionsWithInvalidSessionId(): void
+    {
+        // Arrange
+        $this->setupOT();
+
+        // Assert
+        $this->expectException(InvalidArgumentException::class);
+
+        // Act
+        $this->opentok->listConnections('invalid-session-id');
+    }
+
+    public function testListConnectionsIteration(): void
+    {
+        // Arrange
+        $this->setupOTWithMocks([[
+            'code' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'path' => '/v2/project/APIKEY/session/SESSIONID/connection/get'
+        ]]);
+
+        $sessionId = '1_MX4xMjM0NTY3OH4-VGh1IEZlYiAyNyAwNDozODozMSBQU1QgMjAxNH4wLjI0NDgyMjI';
+
+        // Act
+        $connectionList = $this->opentok->listConnections($sessionId);
+
+        // Assert - Test direct iteration over ConnectionList
+        $iteratedConnections = [];
+        foreach ($connectionList as $index => $connection) {
+            $iteratedConnections[$index] = $connection;
+            $this->assertInstanceOf(Connection::class, $connection);
+        }
+
+        $this->assertCount(3, $iteratedConnections);
+        $this->assertEquals('8b732909-0a06-46a2-8ea8-074e64d43422', $iteratedConnections[0]->connectionId);
+        $this->assertEquals('Connected', $iteratedConnections[0]->connectionState);
+        $this->assertEquals('ab732909-0a06-46a2-8ea8-074e64d43412', $iteratedConnections[1]->connectionId);
+        $this->assertEquals('Connecting', $iteratedConnections[1]->connectionState);
+        $this->assertEquals('cd732909-0a06-46a2-8ea8-074e64d43433', $iteratedConnections[2]->connectionId);
+        $this->assertEquals('Connected', $iteratedConnections[2]->connectionState);
+
+        // Assert - Test that getItems() still works as before
+        $itemsConnections = $connectionList->getItems();
+        $this->assertCount(3, $itemsConnections);
+        $this->assertEquals($iteratedConnections[0]->connectionId, $itemsConnections[0]->connectionId);
+        $this->assertEquals($iteratedConnections[1]->connectionId, $itemsConnections[1]->connectionId);
+        $this->assertEquals($iteratedConnections[2]->connectionId, $itemsConnections[2]->connectionId);
     }
 
     public function testsSetArchiveLayoutWithPredefined(): void
@@ -2946,7 +3200,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('PUT', strtoupper($request->getMethod()));
+        $this->assertEquals('PUT', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive/' . $archiveId . '/layout', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -2958,7 +3212,7 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        $body = json_decode($request->getBody());
+        $body = json_decode((string) $request->getBody());
         $this->assertEquals('pip', $body->type);
     }
 
@@ -2974,9 +3228,7 @@ class OpenTokTest extends TestCase
 
         $archiveId = 'ARCHIVEID';
         $stylesheet = '.classname { height: 1px; width: 1px }';
-        $options = array(
-            'stylesheet' => $stylesheet
-        );
+        $options = ['stylesheet' => $stylesheet];
         $layout = Layout::createCustom($options);
 
         // Act
@@ -2986,7 +3238,7 @@ class OpenTokTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('PUT', strtoupper($request->getMethod()));
+        $this->assertEquals('PUT', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/' . $this->API_KEY . '/archive/' . $archiveId . '/layout', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -2998,7 +3250,7 @@ class OpenTokTest extends TestCase
         $authString = $request->getHeaderLine('X-OPENTOK-AUTH');
         $this->assertEquals(true, TestHelpers::validateOpenTokAuthHeader($this->API_KEY, $this->API_SECRET, $authString));
 
-        $body = json_decode($request->getBody());
+        $body = json_decode((string) $request->getBody());
         $this->assertEquals('custom', $body->type);
         $this->assertEquals($stylesheet, $body->stylesheet);
     }
@@ -3011,11 +3263,11 @@ class OpenTokTest extends TestCase
     {
         $this->setupOT();
 
-        $opentokReflection = new \ReflectionClass($this->opentok);
+        $opentokReflection = new ReflectionClass($this->opentok);
         $opentokClient = $opentokReflection->getProperty('client');
         $opentokClient->setAccessible(true);
         $opentokClient = $opentokClient->getValue($this->opentok);
-        $opentokClientReflection = new \ReflectionClass($opentokClient);
+        $opentokClientReflection = new ReflectionClass($opentokClient);
 
         /** @var \GuzzleHttp\Client $guzzleClient */
         $guzzleClient = $opentokClientReflection->getProperty('client');
@@ -3032,11 +3284,11 @@ class OpenTokTest extends TestCase
     {
         $opentok = new OpenTok('4349501', 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f', ['timeout' => 400]);
 
-        $opentokReflection = new \ReflectionClass($opentok);
+        $opentokReflection = new ReflectionClass($opentok);
         $opentokClient = $opentokReflection->getProperty('client');
         $opentokClient->setAccessible(true);
         $opentokClient = $opentokClient->getValue($opentok);
-        $opentokClientReflection = new \ReflectionClass($opentokClient);
+        $opentokClientReflection = new ReflectionClass($opentokClient);
 
         /** @var \GuzzleHttp\Client $guzzleClient */
         $guzzleClient = $opentokClientReflection->getProperty('client');
@@ -3094,7 +3346,7 @@ class OpenTokTest extends TestCase
         $this->assertTrue($result);
     }
 
-    public function testCanConnectAudioStreamWithBidirectionalWebsocketTrue()
+    public function testCanConnectAudioStreamWithBidirectionalWebsocketTrue(): void
     {
         $this->setupOTWithMocks([[
             'code' => 200,
@@ -3123,7 +3375,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('7aebb3a4-3d86-4962-b317-afb73e05439d', $response['connectionId']);
     }
 
-    public function testCanConnectAudioStreamWithBidirectionalWebsocketFalse()
+    public function testCanConnectAudioStreamWithBidirectionalWebsocketFalse(): void
     {
         $this->setupOTWithMocks([[
             'code' => 200,
@@ -3152,7 +3404,7 @@ class OpenTokTest extends TestCase
         $this->assertEquals('7aebb3a4-3d86-4962-b317-afb73e05439d', $response['connectionId']);
     }
 
-    public function testConnectAudioStreamWithInvalidBidirectionalThrows()
+    public function testConnectAudioStreamWithInvalidBidirectionalThrows(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectErrorMessage('Websocket configuration bidirectional option must be a boolean');
@@ -3166,5 +3418,25 @@ class OpenTokTest extends TestCase
         ];
 
         $this->opentok->connectAudio('9999', 'wrwetg', $badPayload);
+    }
+
+    public function testCanCreateClientWithOpenTokCreds(): void
+    {
+        $client = new OpenTok('12345678', 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f');
+        $this->assertInstanceOf(OpenTok::class, $client);
+    }
+
+    public function testCanCreateClientWithOpenTokCredsWithIntKey(): void
+    {
+        $client = new OpenTok(12345678, 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f');
+        $this->assertInstanceOf(OpenTok::class, $client);
+    }
+
+    public function testCanCreateClientWithVonageCreds(): void
+    {
+        $key = file_get_contents(__DIR__ . '/test.key');
+        $client = new OpenTok('1ab38a10-ed9d-4e2b-8b14-95e52d76a13c', $key);
+        $this->assertInstanceOf(OpenTok::class, $client);
+        $this->assertEquals($client->getClient()->getApiSecret(), $key);
     }
 }

@@ -23,27 +23,17 @@ namespace OpenTok;
 
 class Stream
 {
-
-    private $data;
-
-    public function __construct($streamData)
+    public function __construct(private $data)
     {
-
-        $this->data = $streamData;
     }
 
     /** @ignore */
     public function __get($name)
     {
-        switch ($name) {
-            case 'id':
-            case 'videoType':
-            case 'name':
-            case 'layoutClassList':
-                return $this->data[$name];
-            default:
-                return null;
-        }
+        return match ($name) {
+            'id', 'videoType', 'name', 'layoutClassList' => $this->data[$name],
+            default => null,
+        };
     }
 
     public function jsonSerialize()

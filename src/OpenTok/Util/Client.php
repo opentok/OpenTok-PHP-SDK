@@ -2,9 +2,12 @@
 
 namespace OpenTok\Util;
 
+use Psr\Http\Message\MessageInterface;
+use RuntimeException;
+use SimpleXMLElement;
+use Throwable;
 use Composer\InstalledVersions;
 use Exception as GlobalException;
-use GuzzleHttp\Utils;
 use OpenTok\Layout;
 use Firebase\JWT\JWT;
 use OpenTok\MediaMode;
@@ -20,6 +23,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\ServerException;
 use OpenTok\Exception\BroadcastException;
 use GuzzleHttp\Exception\RequestException;
+use InvalidArgumentException;
 use OpenTok\Exception\ArchiveDomainException;
 use OpenTok\Exception\AuthenticationException;
 use OpenTok\Exception\BroadcastDomainException;
@@ -33,7 +37,6 @@ use OpenTok\Exception\BroadcastAuthenticationException;
 use OpenTok\Exception\SignalNetworkConnectionException;
 use OpenTok\Exception\BroadcastUnexpectedValueException;
 use OpenTok\Exception\ForceDisconnectConnectionException;
-
 use OpenTok\Exception\ForceDisconnectAuthenticationException;
 use OpenTok\Exception\ForceDisconnectUnexpectedValueException;
 use Vonage\JWT\TokenGenerator;
@@ -59,7 +62,7 @@ class Client
      */
     public $options;
 
-    public function configure($apiKey, $apiSecret, $apiUrl, $options = array())
+    public function configure($apiKey, $apiSecret, $apiUrl, array $options = []): void
     {
         $this->options = $options;
         $this->apiKey = $apiKey;
@@ -79,14 +82,10 @@ class Client
                 $clientOptions['timeout'] = $options['timeout'];
             }
 
-            if (empty($options['handler'])) {
-                $handlerStack = HandlerStack::create();
-            } else {
-                $handlerStack = $options['handler'];
-            }
+            $handlerStack = empty($options['handler']) ? HandlerStack::create() : $options['handler'];
             $clientOptions['handler'] = $handlerStack;
 
-            $handler = Middleware::mapRequest(function (RequestInterface $request) {
+            $handler = Middleware::mapRequest(function (RequestInterface $request): MessageInterface {
                 $authHeader = $this->createAuthHeader();
                 return $request->withHeader('X-OPENTOK-AUTH', $authHeader);
             });
@@ -123,20 +122,30 @@ class Client
         return $this->configured;
     }
 
-    private function createAuthHeader()
+    private function createAuthHeader(): string
     {
-        if (Validators::isVonageKeypair($this->apiKey, $this->apiSecret)) {
-            $tokenGenerator = new TokenGenerator($this->apiKey, file_get_contents($this->apiSecret));
-            return $tokenGenerator->generate();
+        try {
+            if (Validators::isVonageKeypair($this->apiKey, $this->apiSecret)) {
+                $secret = $this->apiSecret;
+                if (file_exists($this->apiSecret)) {
+                    $secret = file_get_contents($this->apiSecret);
+                }
+
+                $tokenGenerator = new TokenGenerator($this->apiKey, $secret);
+                return $tokenGenerator->generate();
+            }
+        } catch (InvalidArgumentException) {
+            // Do nothing, fall back to legacy token generation
         }
 
-        $token = array(
+        $token = [
             'ist' => 'project',
             'iss' => $this->apiKey,
-            'iat' => time(), // this is in seconds
+            'iat' => time(),
+            // this is in seconds
             'exp' => time() + (5 * 60),
             'jti' => uniqid('', true),
-        );
+        ];
 
         return JWT::encode($token, $this->apiSecret, 'HS256');
     }
@@ -152,12 +161,12 @@ class Client
                 'form_params' => $this->postFieldsForOptions($options)
             ]);
             $sessionXml = $this->getResponseXml($response);
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             // TODO: test if we have a parse exception and handle it, otherwise throw again
             throw $e;
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleException($e);
-            return;
+            return null;
         }
         return $sessionXml;
     }
@@ -167,26 +176,20 @@ class Client
     {
         $errorMessage = null;
         $internalErrors = libxml_use_internal_errors(true);
-        if (\PHP_VERSION_ID < 80000) {
-            $disableEntities = libxml_disable_entity_loader(true);
-        }
         libxml_clear_errors();
         try {
             $body = $response->getBody();
-            $xml = new \SimpleXMLElement((string) $body ?: '<root />', LIBXML_NONET);
+            $xml = new SimpleXMLElement((string) $body ?: '<root />', LIBXML_NONET);
             if ($error = libxml_get_last_error()) {
                 $errorMessage = $error->message;
             }
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $errorMessage = $e->getMessage();
         }
         libxml_clear_errors();
         libxml_use_internal_errors($internalErrors);
-        if (\PHP_VERSION_ID < 80000) {
-            libxml_disable_entity_loader($disableEntities);
-        }
         if ($errorMessage) {
-            throw new \RuntimeException('Unable to parse response body into XML: ' . $errorMessage);
+            throw new RuntimeException('Unable to parse response body into XML: ' . $errorMessage);
         }
         return $xml;
     }
@@ -198,47 +201,47 @@ class Client
         try {
             $response = $this->client->send($request, $payload);
             $renderJson = $response->getBody()->getContents();
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleRenderException($e);
         }
 
         return $renderJson;
     }
 
-    public  function stopRender($renderId): bool
+    public function stopRender(string $renderId): bool
     {
         $request = new Request('DELETE', '/v2/project/' . $this->apiKey . '/render/' . $renderId);
 
         try {
             $response = $this->client->send($request);
             return $response->getStatusCode() === 200;
-        } catch (\Exception $e) {
+        } catch (GlobalException) {
             return false;
         }
     }
 
-    public function getRender($renderId): string
+    public function getRender(string $renderId): string
     {
         $request = new Request('POST', '/v2/project/' . $this->apiKey . '/render/' . $renderId);
 
         try {
             $response = $this->client->send($request);
             $renderJson = $response->getBody()->getContents();
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleRenderException($e);
         }
 
         return $renderJson;
     }
 
-    public function listRenders($query)
+    public function listRenders($query): mixed
     {
         $request = new Request('GET', '/v2/project/' . $this->apiKey . '/render?' . http_build_query($query));
 
         try {
             $response = $this->client->send($request);
             $renderJson = $response->getBody()->getContents();
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleRenderException($e);
         }
 
@@ -258,13 +261,13 @@ class Client
                 )
             ]);
             $archiveJson = json_decode($response->getBody(), true);
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleArchiveException($e);
         }
         return $archiveJson;
     }
 
-    public function stopArchive($archiveId)
+    public function stopArchive(string $archiveId)
     {
         // set up the request
         $request = new Request(
@@ -278,14 +281,14 @@ class Client
                 'debug' => $this->isDebug()
             ]);
             $archiveJson = json_decode($response->getBody(), true);
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             // TODO: what happens with JSON parse errors?
             $this->handleArchiveException($e);
         }
         return $archiveJson;
     }
 
-    public function getArchive($archiveId)
+    public function getArchive(string $archiveId)
     {
         $request = new Request(
             'GET',
@@ -296,9 +299,9 @@ class Client
                 'debug' => $this->isDebug()
             ]);
             $archiveJson = json_decode($response->getBody(), true);
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleException($e);
-            return;
+            return null;
         }
         return $archiveJson;
     }
@@ -329,7 +332,7 @@ class Client
             if ($response->getStatusCode() !== 204) {
                 json_decode($response->getBody(), true);
             }
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleException($e);
             return false;
         }
@@ -361,7 +364,7 @@ class Client
             if ($response->getStatusCode() !== 204) {
                 json_decode($response->getBody(), true);
             }
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleException($e);
             return false;
         }
@@ -369,7 +372,7 @@ class Client
         return true;
     }
 
-    public function deleteArchive($archiveId)
+    public function deleteArchive(string $archiveId): bool
     {
         $request = new Request(
             'DELETE',
@@ -383,14 +386,14 @@ class Client
             if ($response->getStatusCode() != 204) {
                 json_decode($response->getBody(), true);
             }
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleException($e);
             return false;
         }
         return true;
     }
 
-    public function forceDisconnect($sessionId, $connectionId)
+    public function forceDisconnect(string $sessionId, string $connectionId): bool
     {
         $request = new Request(
             'DELETE',
@@ -404,7 +407,7 @@ class Client
             if ($response->getStatusCode() != 204) {
                 json_decode($response->getBody(), true);
             }
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleForceDisconnectException($e);
             return false;
         }
@@ -430,9 +433,9 @@ class Client
                 'query' => $queryParams
             ]);
             $archiveListJson = json_decode($response->getBody(), true);
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleException($e);
-            return;
+            return null;
         }
         return $archiveListJson;
     }
@@ -457,13 +460,13 @@ class Client
                 'json' => $optionsJson
             ]);
             $broadcastJson = json_decode($response->getBody(), true);
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleBroadcastException($e);
         }
         return $broadcastJson;
     }
 
-    public function stopBroadcast($broadcastId)
+    public function stopBroadcast(string $broadcastId)
     {
         $request = new Request(
             'POST',
@@ -476,13 +479,13 @@ class Client
                 'debug' => $this->isDebug()
             ]);
             $broadcastJson = json_decode($response->getBody(), true);
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleBroadcastException($e);
         }
         return $broadcastJson;
     }
 
-    public function getBroadcast($broadcastId)
+    public function getBroadcast(string $broadcastId)
     {
         $request = new Request(
             'GET',
@@ -493,7 +496,7 @@ class Client
                 'debug' => $this->isDebug()
             ]);
             $broadcastJson = json_decode($response->getBody(), true);
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleBroadcastException($e);
         }
         return $broadcastJson;
@@ -525,7 +528,7 @@ class Client
             if ($response->getStatusCode() !== 204) {
                 json_decode($response->getBody(), true);
             }
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleException($e);
             return false;
         }
@@ -557,7 +560,7 @@ class Client
             if ($response->getStatusCode() !== 204) {
                 json_decode($response->getBody(), true);
             }
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleException($e);
             return false;
         }
@@ -565,7 +568,7 @@ class Client
         return true;
     }
 
-    public function getLayout($resourceId, $resourceType = 'broadcast')
+    public function getLayout(string $resourceId, string $resourceType = 'broadcast')
     {
         $request = new Request(
             'GET',
@@ -576,7 +579,7 @@ class Client
                 'debug' => $this->isDebug()
             ]);
             $layoutJson = json_decode($response->getBody(), true);
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleException($e);
         }
         return $layoutJson;
@@ -593,7 +596,7 @@ class Client
                 'debug' => $this->isDebug(),
                 'json' => $layout->toArray()
             ]);
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleException($e);
         }
     }
@@ -609,12 +612,12 @@ class Client
                 'debug' => $this->isDebug(),
                 'json' => $layout->toArray()
             ]);
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleException($e);
         }
     }
 
-    public function updateStream($sessionId, $streamId, $properties)
+    public function updateStream(string $sessionId, string $streamId, $properties): void
     {
         $request = new Request(
             'PUT',
@@ -628,12 +631,12 @@ class Client
             if ($response->getStatusCode() != 204) {
                 json_decode($response->getBody(), true);
             }
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleException($e);
         }
     }
 
-    public function getStream($sessionId, $streamId)
+    public function getStream(string $sessionId, string $streamId)
     {
         $request = new Request(
             'GET',
@@ -645,14 +648,14 @@ class Client
                 'debug' => $this->isDebug()
             ]);
             $streamJson = json_decode($response->getBody(), true);
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleException($e);
-            return;
+            return null;
         }
         return $streamJson;
     }
 
-    public function listStreams($sessionId)
+    public function listStreams(string $sessionId)
     {
         $request = new Request(
             'GET',
@@ -663,18 +666,34 @@ class Client
                 'debug' => $this->isDebug(),
             ]);
             $streamListJson = json_decode($response->getBody(), true);
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleException($e);
-            return;
+            return null;
         }
         return $streamListJson;
     }
 
-    public function setStreamClassLists($sessionId, $payload)
+    public function listConnections(string $sessionId)
     {
-        $itemsPayload = array(
-            'items' => $payload
+        $request = new Request(
+            'GET',
+            '/v2/project/' . $this->apiKey . '/session/' . $sessionId . '/connection/'
         );
+        try {
+            $response = $this->client->send($request, [
+                'debug' => $this->isDebug(),
+            ]);
+            $connectionListJson = json_decode($response->getBody(), true);
+        } catch (GlobalException $e) {
+            $this->handleException($e);
+            return null;
+        }
+        return $connectionListJson;
+    }
+
+    public function setStreamClassLists(string $sessionId, $payload): void
+    {
+        $itemsPayload = ['items' => $payload];
         $request = new Request(
             'PUT',
             'v2/project/' . $this->apiKey . '/session/' . $sessionId . '/stream'
@@ -688,7 +707,7 @@ class Client
             if ($response->getStatusCode() != 200) {
                 json_decode($response->getBody(), true);
             }
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleException($e);
         }
     }
@@ -705,19 +724,11 @@ class Client
      * @throws GlobalException
      * @throws GuzzleException
      */
-    public function dial($sessionId, $token, $sipUri, $options)
+    public function dial($sessionId, $token, $sipUri, array $options)
     {
-        $body = array(
-            'sessionId' => $sessionId,
-            'token' => $token,
-            'sip' => array(
-                'uri' => $sipUri,
-                'secure' => $options['secure'],
-                'observeForceMute' => $options['observeForceMute']
-            )
-        );
+        $body = ['sessionId' => $sessionId, 'token' => $token, 'sip' => ['uri' => $sipUri, 'secure' => $options['secure'], 'observeForceMute' => $options['observeForceMute']]];
 
-        if (array_key_exists('headers', $options) && count($options['headers']) > 0) {
+        if (array_key_exists('headers', $options) && $options['headers'] !== []) {
             $body['sip']['headers'] = $options['headers'];
         }
 
@@ -730,7 +741,7 @@ class Client
         }
 
         if (array_key_exists('video', $options)) {
-            $body['sip']['video'] = (bool) $options['video'];
+            $body['sip']['video'] = $options['video'];
         }
 
         if (array_key_exists('streams', $options)) {
@@ -746,7 +757,7 @@ class Client
                 'json' => $body
             ]);
             $sipJson = json_decode($response->getBody(), true);
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleException($e);
         }
 
@@ -773,7 +784,7 @@ class Client
                     'digits' => $digits
                 ]
             ]);
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleException($e);
         }
     }
@@ -790,7 +801,7 @@ class Client
      * @throws SignalNetworkConnectionException
      * @throws \Exception
      */
-    public function signal($sessionId, $payload = [], $connectionId = null)
+    public function signal(string $sessionId, $payload = [], $connectionId = null): void
     {
         // set up the request
         $requestRoot = '/v2/project/' . $this->apiKey . '/session/' . $sessionId;
@@ -812,7 +823,7 @@ class Client
             $this->handleSignalingException($e);
         } catch (RequestException $e) {
             throw new SignalNetworkConnectionException('Unable to communicate with host', -1, $e);
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             throw $e;
         }
     }
@@ -842,7 +853,7 @@ class Client
                 'debug' => $this->isDebug(),
             ]);
             $jsonResponse = json_decode($response->getBody(), true);
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleException($e);
             return false;
         }
@@ -862,7 +873,7 @@ class Client
                 'json' => $options
             ]);
             $jsonResponse = json_decode($response->getBody(), true);
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleException($e);
             return false;
         }
@@ -888,7 +899,7 @@ class Client
                 'json' => $body
             ]);
             $jsonResponse = json_decode($response->getBody(), true);
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleException($e);
             return false;
         }
@@ -903,8 +914,7 @@ class Client
         ?int $maxDuration,
         ?bool $partialCaptions,
         ?string $statusCallbackUrl
-    )
-    {
+    ) {
         $request = new Request(
             'POST',
             '/v2/project/' . $this->apiKey . '/captions'
@@ -937,14 +947,14 @@ class Client
                 'json' => $body
             ]);
             $jsonResponse = json_decode($response->getBody(), true);
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleException($e);
         }
 
         return $jsonResponse;
     }
 
-    public function stopCaptions(string $captionsId)
+    public function stopCaptions(string $captionsId): ?bool
     {
         $request = new Request(
             'POST',
@@ -956,12 +966,13 @@ class Client
                 'debug' => $this->isDebug(),
             ]);
             return true;
-        } catch (\Exception $e) {
+        } catch (GlobalException $e) {
             $this->handleException($e);
         }
+        return null;
     }
 
-    private function handleException($e)
+    private function handleException($e): void
     {
         // TODO: test coverage
         if ($e instanceof ClientException) {
@@ -970,17 +981,18 @@ class Client
                 throw new AuthenticationException(
                     $this->apiKey,
                     $this->apiSecret,
-                    null,
-                    $e
-                );
-            } else {
-                throw new DomainException(
-                    'The OpenTok API request failed: ' . json_decode($e->getResponse()->getBody(true))->message,
-                    null,
-                    $e
+                    $e,
+                    null
                 );
             }
-        } elseif ($e instanceof ServerException) {
+            throw new DomainException(
+                'The OpenTok API request failed: ' . json_decode($e->getResponse()->getBody(true))->message,
+                null,
+                $e
+            );
+        }
+        // TODO: test coverage
+        if ($e instanceof ServerException) {
             // will catch all 5xx errors
             throw new UnexpectedValueException(
                 'The OpenTok API server responded with an error: ' . json_decode($e->getResponse()->getBody(true))->message,
@@ -989,16 +1001,16 @@ class Client
             );
         } else {
             // TODO: check if this works because Exception is an interface not a class
-            throw new \Exception('An unexpected error occurred');
+            throw new GlobalException('An unexpected error occurred');
         }
     }
 
-    private function handleArchiveException($e)
+    private function handleArchiveException(Throwable $e): void
     {
         try {
             $this->handleException($e);
         } catch (AuthenticationException $ae) {
-            throw new ArchiveAuthenticationException($this->apiKey, $this->apiSecret, null, $ae->getPrevious());
+            throw new ArchiveAuthenticationException($this->apiKey, $this->apiSecret, $ae->getPrevious(), null);
         } catch (DomainException $de) {
             throw new ArchiveDomainException($e->getMessage(), null, $de->getPrevious());
         } catch (UnexpectedValueException $uve) {
@@ -1009,12 +1021,12 @@ class Client
         }
     }
 
-    private function handleBroadcastException($e)
+    private function handleBroadcastException(Throwable $e): void
     {
         try {
             $this->handleException($e);
         } catch (AuthenticationException $ae) {
-            throw new BroadcastAuthenticationException($this->apiKey, $this->apiSecret, null, $ae->getPrevious());
+            throw new BroadcastAuthenticationException($this->apiKey, $this->apiSecret, $ae->getPrevious(), null);
         } catch (DomainException $de) {
             throw new BroadcastDomainException($e->getMessage(), null, $de->getPrevious());
         } catch (UnexpectedValueException $uve) {
@@ -1025,7 +1037,7 @@ class Client
         }
     }
 
-    private function handleSignalingException(ClientException $e)
+    private function handleSignalingException(ClientException $e): void
     {
         $responseCode = $e->getResponse()->getStatusCode();
         switch ($responseCode) {
@@ -1033,7 +1045,7 @@ class Client
                 $message = 'One of the signal properties — data, type, sessionId or connectionId — is invalid.';
                 throw new SignalUnexpectedValueException($message, $responseCode);
             case 403:
-                throw new SignalAuthenticationException($this->apiKey, $this->apiSecret, null, $e);
+                throw new SignalAuthenticationException($this->apiKey, $this->apiSecret, $e, null);
             case 404:
                 $message = 'The client specified by the connectionId property is not connected to the session.';
                 throw new SignalConnectionException($message, $responseCode);
@@ -1046,7 +1058,7 @@ class Client
         }
     }
 
-    private function handleForceDisconnectException($e): void
+    private function handleForceDisconnectException(Throwable $e): void
     {
         $responseCode = $e->getResponse()->getStatusCode();
         switch ($responseCode) {
@@ -1054,7 +1066,7 @@ class Client
                 $message = 'One of the arguments — sessionId or connectionId — is invalid.';
                 throw new ForceDisconnectUnexpectedValueException($message, $responseCode);
             case 403:
-                throw new ForceDisconnectAuthenticationException($this->apiKey, $this->apiSecret, null, $e);
+                throw new ForceDisconnectAuthenticationException($this->apiKey, $this->apiSecret, $e, null);
             case 404:
                 $message = 'The client specified by the connectionId property is not connected to the session.';
                 throw new ForceDisconnectConnectionException($message, $responseCode);
@@ -1063,23 +1075,33 @@ class Client
         }
     }
 
-    private function handleRenderException($e): void
+    private function handleRenderException(Throwable $e): void
     {
         $responseCode = $e->getResponse()->getStatusCode();
         switch ($responseCode) {
             case 400:
                 throw new InvalidArgumentException('There was an error with the parameters supplied.');
             case 403:
-                throw new AuthenticationException($this->apiKey, $this->apiSecret, null, $e);
+                throw new AuthenticationException($this->apiKey, $this->apiSecret, $e, null);
             case 500:
-                throw new \Exception('There is an error with the Video Platform');
+                throw new GlobalException('There is an error with the Video Platform');
             default:
                 break;
         }
     }
 
-    private function isDebug()
+    private function isDebug(): bool
     {
         return defined('OPENTOK_DEBUG');
+    }
+
+    public function getApiKey(): string
+    {
+        return $this->apiKey;
+    }
+
+    public function getApiSecret(): string
+    {
+        return $this->apiSecret;
     }
 }

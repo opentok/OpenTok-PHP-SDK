@@ -21,10 +21,10 @@ namespace OpenTok;
 class SipCall
 {
     /** @internal */
-    private $data;
+    private array $data;
 
     /** @internal */
-    public function __construct($sipCallData)
+    public function __construct(array $sipCallData)
     {
         $this->data['id'] = $sipCallData['id'];
         $this->data['connectionId'] = $sipCallData['connectionId'];
@@ -37,14 +37,10 @@ class SipCall
     /** @internal */
     public function __get($name)
     {
-        switch ($name) {
-            case 'id':
-            case 'connectionId':
-            case 'streamId':
-                return $this->data[$name];
-            default:
-                return null;
-        }
+        return match ($name) {
+            'id', 'connectionId', 'streamId' => $this->data[$name],
+            default => null,
+        };
     }
 
 

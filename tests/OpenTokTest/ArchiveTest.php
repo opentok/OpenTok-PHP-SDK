@@ -15,6 +15,7 @@ use PHPUnit\Framework\TestCase;
 class ArchiveTest extends TestCase
 {
 
+    public $historyContainer;
     // Fixtures
     protected $archiveData;
     protected $API_KEY;
@@ -30,51 +31,25 @@ class ArchiveTest extends TestCase
         self::$mockBasePath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'mock' . DIRECTORY_SEPARATOR;
     }
 
-    public function setupArchives($streamMode, $quantization = false)
+    public function setupArchives($streamMode, $quantization = false): void
     {
         // Set up fixtures
-        $this->archiveData = array(
-            'createdAt' => 1394394801000,
-            'duration' => 0,
-            'id' => '063e72a4-64b4-43c8-9da5-eca071daab89',
-            'name' => 'showtime',
-            'partnerId' => 854511,
-            'reason' => '',
-            'sessionId' => '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-',
-            'size' => 0,
-            'status' => 'started',
-            'url' => null,
-            'hasVideo' => false,
-            'hasAudio' => true,
-            'outputMode' => 'composed',
-            'resolution' => '640x480',
-            'streamMode' => $streamMode,
-            'multiArchiveTag' => true,
-            'maxBitrate' => 400000,
-        );
+        $this->archiveData = ['createdAt' => 1394394801000, 'duration' => 0, 'id' => '063e72a4-64b4-43c8-9da5-eca071daab89', 'name' => 'showtime', 'partnerId' => 854511, 'reason' => '', 'sessionId' => '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-', 'size' => 0, 'status' => 'started', 'url' => null, 'hasVideo' => false, 'hasAudio' => true, 'outputMode' => 'composed', 'resolution' => '640x480', 'streamMode' => $streamMode, 'multiArchiveTag' => true, 'maxBitrate' => 400000];
 
         if ($quantization) {
             unset($this->archiveData['maxBitrate']);
             $this->archiveData['quantizationParameter'] = 40;
         }
 
-        $this->archive = new Archive($this->archiveData, array(
-            'apiKey' => $this->API_KEY,
-            'apiSecret' => $this->API_SECRET,
-            'client' => $this->client
-        ));
+        $this->archive = new Archive($this->archiveData, ['apiKey' => $this->API_KEY, 'apiSecret' => $this->API_SECRET, 'client' => $this->client]);
     }
 
-    private function setupOTWithMocks($mocks)
+    private function setupOTWithMocks(array $mocks): void
     {
         $this->API_KEY = defined('API_KEY') ? API_KEY : '12345678';
         $this->API_SECRET = defined('API_SECRET') ? API_SECRET : 'b60d0b2568f3ea9731bd9d3f71be263ce19f802f';
 
-        if (is_array($mocks)) {
-            $responses = TestHelpers::mocksToResponses($mocks, self::$mockBasePath);
-        } else {
-            $responses = [];
-        }
+        $responses = is_array($mocks) ? TestHelpers::mocksToResponses($mocks, self::$mockBasePath) : [];
 
         $mock = new MockHandler($responses);
         $handlerStack = HandlerStack::create($mock);
@@ -102,7 +77,7 @@ class ArchiveTest extends TestCase
         return $this->setupOTWithMocks([]);
     }
 
-    public function testInitializes()
+    public function testInitializes(): void
     {
         // Arrange
         $this->setupOT();
@@ -112,7 +87,7 @@ class ArchiveTest extends TestCase
         $this->assertInstanceOf(Archive::class, $this->archive);
     }
 
-    public function testReadsProperties()
+    public function testReadsProperties(): void
     {
         $this->setupOT();
         $this->setupArchives(StreamMode::AUTO);
@@ -139,7 +114,7 @@ class ArchiveTest extends TestCase
        $this->assertEquals($this->archiveData['quantizationParameter'], $this->archive->quantizationParameter);
     }
 
-    public function testStopsArchive()
+    public function testStopsArchive(): void
     {
         // Arrange
         $this->setupOTWithMocks([[
@@ -158,7 +133,7 @@ class ArchiveTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('POST', strtoupper($request->getMethod()));
+        $this->assertEquals('POST', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive/'.$this->archiveData['id'].'/stop', $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -253,7 +228,7 @@ class ArchiveTest extends TestCase
         $this->assertTrue($return);
     }
 
-    public function testDeletesArchive()
+    public function testDeletesArchive(): void
     {
         // Arrange
         $this->setupOTWithMocks([[
@@ -270,7 +245,7 @@ class ArchiveTest extends TestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $this->assertEquals('DELETE', strtoupper($request->getMethod()));
+        $this->assertEquals('DELETE', strtoupper((string) $request->getMethod()));
         $this->assertEquals('/v2/project/'.$this->API_KEY.'/archive/'.$this->archiveData['id'], $request->getUri()->getPath());
         $this->assertEquals('api.opentok.com', $request->getUri()->getHost());
         $this->assertEquals('https', $request->getUri()->getScheme());
@@ -286,89 +261,43 @@ class ArchiveTest extends TestCase
         // TODO: assert that all properties of the archive object were cleared
     }
 
-    public function testAllowsUnknownProperties()
+    public function testAllowsUnknownProperties(): void
     {
         $this->setupOT();
 
         // Set up fixtures
-        $archiveData = array(
-            'createdAt' => 1394394801000,
-            'duration' => 0,
-            'id' => '063e72a4-64b4-43c8-9da5-eca071daab89',
-            'name' => 'showtime',
-            'partnerId' => 854511,
-            'reason' => '',
-            'sessionId' => '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-',
-            'size' => 0,
-            'status' => 'started',
-            'url' => null,
-            'notarealproperty' => 'not a real value'
-        );
+        $archiveData = ['createdAt' => 1394394801000, 'duration' => 0, 'id' => '063e72a4-64b4-43c8-9da5-eca071daab89', 'name' => 'showtime', 'partnerId' => 854511, 'reason' => '', 'sessionId' => '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-', 'size' => 0, 'status' => 'started', 'url' => null, 'notarealproperty' => 'not a real value'];
 
-        $archive = new Archive($archiveData, array(
-            'apiKey' => $this->API_KEY,
-            'apiSecret' => $this->API_SECRET,
-            'client' => $this->client
-        ));
+        $archive = new Archive($archiveData, ['apiKey' => $this->API_KEY, 'apiSecret' => $this->API_SECRET, 'client' => $this->client]);
 
-        $this->assertInstanceOf('OpenTok\Archive', $archive);
+        $this->assertInstanceOf(Archive::class, $archive);
     }
 
-    public function testRejectsBadArchiveData()
+    public function testRejectsBadArchiveData(): void
     {
         $this->expectException('InvalidArgumentException');
         $this->setupOT();
 
         // Set up fixtures
-        $badArchiveData = array(
-            'createdAt' => 'imnotanumber',
-            'duration' => 0,
-            'id' => '063e72a4-64b4-43c8-9da5-eca071daab89',
-            'name' => 'showtime',
-            'partnerId' => 854511,
-            'reason' => '',
-            'sessionId' => '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-',
-            'size' => 0,
-            'status' => 'started',
-            'url' => null
-        );
+        $badArchiveData = ['createdAt' => 'imnotanumber', 'duration' => 0, 'id' => '063e72a4-64b4-43c8-9da5-eca071daab89', 'name' => 'showtime', 'partnerId' => 854511, 'reason' => '', 'sessionId' => '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-', 'size' => 0, 'status' => 'started', 'url' => null];
 
-        $archive = new Archive($badArchiveData, array(
-            'apiKey' => $this->API_KEY,
-            'apiSecret' => $this->API_SECRET,
-            'client' => $this->client
-        ));
+        new Archive($badArchiveData, ['apiKey' => $this->API_KEY, 'apiSecret' => $this->API_SECRET, 'client' => $this->client]);
     }
 
-    public function testAllowsPausedStatus()
+    public function testAllowsPausedStatus(): void
     {
         $this->setupOT();
 
         // Set up fixtures
-        $archiveData = array(
-            'createdAt' => 1394394801000,
-            'duration' => 0,
-            'id' => '063e72a4-64b4-43c8-9da5-eca071daab89',
-            'name' => 'showtime',
-            'partnerId' => 854511,
-            'reason' => '',
-            'sessionId' => '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-',
-            'size' => 0,
-            'status' => 'paused',
-            'url' => null,
-        );
+        $archiveData = ['createdAt' => 1394394801000, 'duration' => 0, 'id' => '063e72a4-64b4-43c8-9da5-eca071daab89', 'name' => 'showtime', 'partnerId' => 854511, 'reason' => '', 'sessionId' => '2_MX44NTQ1MTF-flR1ZSBOb3YgMTIgMDk6NDA6NTkgUFNUIDIwMTN-MC43NjU0Nzh-', 'size' => 0, 'status' => 'paused', 'url' => null];
 
-        $archive = new Archive($archiveData, array(
-            'apiKey' => $this->API_KEY,
-            'apiSecret' => $this->API_SECRET,
-            'client' => $this->client
-        ));
+        $archive = new Archive($archiveData, ['apiKey' => $this->API_KEY, 'apiSecret' => $this->API_SECRET, 'client' => $this->client]);
 
-        $this->assertInstanceOf('OpenTok\Archive', $archive);
+        $this->assertInstanceOf(Archive::class, $archive);
         $this->assertEquals($archiveData['status'], $archive->status);
     }
 
-    public function testSerializesToJson()
+    public function testSerializesToJson(): void
     {
         // Arrange
         $this->setupOT();
@@ -382,7 +311,7 @@ class ArchiveTest extends TestCase
         $this->assertNotNull(json_encode($archiveJson));
     }
 
-    public function testSerializedToArray()
+    public function testSerializedToArray(): void
     {
         // Arrange
         $this->setupOT();

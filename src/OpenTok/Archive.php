@@ -2,6 +2,7 @@
 
 namespace OpenTok;
 
+use DomainException;
 use OpenTok\Util\Client;
 use OpenTok\Util\Validators;
 use OpenTok\Exception\InvalidArgumentException;
@@ -92,6 +93,13 @@ use OpenTok\Exception\ArchiveUnexpectedValueException;
 * "available"; for other archives, (including archives with the status "uploaded") this property is
 * set to null. The download URL is obfuscated, and the file is only available from the URL for
 * 10 minutes. To generate a new URL, call the Archive.listArchives() or OpenTok.getArchive() method.
+*
+* @property bool $hasTranscription
+* Whether the archive has a transcription of the audio of the session (true) or not (false).
+*
+* @property array $transcription
+* Properties of the transcription attached to this archive, including status, url, reason,
+* primaryLanguageCode, and hasSummary.
 */
 class Archive
 {
@@ -100,7 +108,7 @@ class Archive
     /** @internal */
     private $data;
     /** @internal */
-    private $isDeleted;
+    private ?bool $isDeleted = null;
     /** @internal */
     private $client;
     /** @internal */
@@ -118,18 +126,12 @@ class Archive
     ];
 
     /** @internal */
-    public function __construct($archiveData, $options = array())
+    public function __construct($archiveData, $options = [])
     {
         // unpack optional arguments (merging with default values) into named variables
-        $defaults = array(
-            'apiKey' => null,
-            'apiSecret' => null,
-            'apiUrl' => 'https://api.opentok.com',
-            'client' => null,
-            'streamMode' => StreamMode::AUTO
-        );
+        $defaults = ['apiKey' => null, 'apiSecret' => null, 'apiUrl' => 'https://api.opentok.com', 'client' => null, 'streamMode' => StreamMode::AUTO];
         $options = array_merge($defaults, array_intersect_key($options, $defaults));
-        list($apiKey, $apiSecret, $apiUrl, $client, $streamMode) = array_values($options);
+        [$apiKey, $apiSecret, $apiUrl, $client, $streamMode] = array_values($options);
 
         // validate params
         Validators::validateArchiveData($archiveData);
@@ -137,7 +139,7 @@ class Archive
         Validators::validateHasStreamMode($streamMode);
 
         if (isset($archiveData['maxBitrate']) && isset($archiveData['quantizationParameter'])) {
-            throw new \DomainException('Max Bitrate cannot be set with QuantizationParameter ');
+            throw new DomainException('Max Bitrate cannot be set with QuantizationParameter ');
         }
 
         $this->data = $archiveData;
@@ -146,7 +148,7 @@ class Archive
             $this->multiArchiveTag = $this->data['multiArchiveTag'];
         }
 
-        $this->client = isset($client) ? $client : new Client();
+        $this->client = $client ?? new Client();
         if (!$this->client->isConfigured()) {
             Validators::validateApiUrl($apiUrl);
 
@@ -154,7 +156,7 @@ class Archive
         }
     }
 
-    public static function getPermittedResolutions()
+    public static function getPermittedResolutions(): array
     {
         return self::PERMITTED_AUTO_RESOLUTIONS;
     }
@@ -166,30 +168,11 @@ class Archive
             // TODO: throw an logic error about not being able to stop an archive thats deleted
         }
 
-        switch ($name) {
-            case 'createdAt':
-            case 'duration':
-            case 'id':
-            case 'name':
-            case 'partnerId':
-            case 'reason':
-            case 'sessionId':
-            case 'size':
-            case 'status':
-            case 'url':
-            case 'hasVideo':
-            case 'hasAudio':
-            case 'outputMode':
-            case 'resolution':
-            case 'streamMode':
-            case 'maxBitrate':
-            case 'quantizationParameter':
-                return $this->data[$name];
-            case 'multiArchiveTag':
-                return $this->multiArchiveTag;
-            default:
-                return null;
-        }
+        return match ($name) {
+            'createdAt', 'duration', 'id', 'name', 'partnerId', 'reason', 'sessionId', 'size', 'status', 'url', 'hasVideo', 'hasAudio', 'outputMode', 'resolution', 'streamMode', 'maxBitrate', 'quantizationParameter', 'hasTranscription', 'transcription' => $this->data[$name],
+            'multiArchiveTag' => $this->multiArchiveTag,
+            default => null,
+        };
     }
 
     /**
@@ -200,7 +183,7 @@ class Archive
      *
      * @throws Exception\ArchiveException The archive is not being recorded.
      */
-    public function stop()
+    public function stop(): static
     {
         if ($this->isDeleted) {
             // TODO: throw an logic error about not being able to stop an archive thats deleted
@@ -229,14 +212,14 @@ class Archive
      * @throws Exception\ArchiveException There archive status is not "available", "updated",
      * or "deleted".
      */
-    public function delete()
+    public function delete(): bool
     {
         if ($this->isDeleted) {
             // TODO: throw an logic error about not being able to stop an archive thats deleted
         }
 
         if ($this->client->deleteArchive($this->data['id'])) {
-            $this->data = array();
+            $this->data = [];
             $this->isDeleted = true;
             return true;
         }
@@ -255,7 +238,7 @@ class Archive
      * Adds a stream to a currently running archive that was started with the
      * the streamMode set to StreamMode.Manual. You can call the method
      * repeatedly with the same stream ID, to toggle the stream's audio or video in the archive.
-     * 
+     *
      * @param String $streamId The stream ID.
      * @param Boolean $hasAudio Whether the archive should include the stream's audio (true, the default)
      * or not (false).
@@ -273,23 +256,18 @@ class Archive
         if ($hasAudio === false && $hasVideo === false) {
             throw new InvalidArgumentException('Both hasAudio and hasVideo cannot be false');
         }
-
-        if ($this->client->addStreamToArchive(
+        return $this->client->addStreamToArchive(
             $this->data['id'],
             $streamId,
             $hasVideo,
             $hasVideo
-        )) {
-            return true;
-        }
-
-        return false;
+        );
     }
 
     /**
      * Removes a stream from a currently running archive that was started with the
      * the streamMode set to StreamMode.Manual.
-     * 
+     *
      * @param String $streamId The stream ID.
      *
      * @return Boolean Returns true on success.
@@ -299,15 +277,10 @@ class Archive
         if ($this->streamMode === StreamMode::AUTO) {
             throw new InvalidArgumentException('Cannot remove stream to an Archive in auto stream mode');
         }
-
-        if ($this->client->removeStreamFromArchive(
+        return $this->client->removeStreamFromArchive(
             $this->data['id'],
             $streamId
-        )) {
-            return true;
-        }
-
-        return false;
+        );
     }
 
     /**
