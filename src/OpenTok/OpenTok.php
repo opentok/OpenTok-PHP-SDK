@@ -1260,7 +1260,7 @@ class OpenTok
      *
      * @param string $connectionId An optional parameter used to send the DTMF tones to a specific connection in a session.
      */
-    public function playDTMF(string $sessionId, string $digits, string $connectionId = null): void
+    public function playDTMF(string $sessionId, string $digits, ?string $connectionId = null): void
     {
         Validators::validateSessionIdBelongsToKey($sessionId, $this->apiKey);
         Validators::validateDTMFDigits($digits);

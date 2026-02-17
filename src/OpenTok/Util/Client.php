@@ -764,7 +764,7 @@ class Client
         return $sipJson;
     }
 
-    public function playDTMF(string $sessionId, string $digits, string $connectionId = null): void
+    public function playDTMF(string $sessionId, string $digits, ?string $connectionId = null): void
     {
         $route = sprintf('/v2/project/%s/session/%s/play-dtmf', $this->apiKey, $sessionId);
         if ($connectionId) {
