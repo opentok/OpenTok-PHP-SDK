@@ -32,7 +32,7 @@
         "ext-xml": "*",
         "johnstevenson/json-works": "~1.1",
         "firebase/php-jwt": "^7.0",
-        "guzzlehttp/guzzle": "~6.0|~7.0",
+        "guzzlehttp/guzzle": "^6.0 || ^7.0 || ^8.0",
         "ext-json": "*",
         "vonage/jwt": "^0.5.1"
     },
@@ -41,7 +41,6 @@
         "php-http/mock-client": "^1.4",
         "helmich/phpunit-json-assert": "^3.0.0",
         "squizlabs/php_codesniffer": "^3.1",
-        "php-http/guzzle7-adapter": "^1.0",
         "phpstan/phpstan": "^1.10",
         "phing/phing": "~2.16.0",
         "rector/rector": "^1.0"

@@ -7,6 +7,7 @@ jobs:
         strategy:
             matrix:
                 php: ['8.1', '8.2', '8.3', '8.4', '8.5']
+                guzzle: ['^6.0', '^7.0', '^8.0']
         steps:
             - name: Configure Git
               if: ${{ matrix.os == 'windows-latest' }}
@@ -37,7 +38,8 @@ jobs:
                 restore-keys: ${{ runner.os }}-composer-
 
             - name: Install dependencies
-              run: composer install --no-interaction --prefer-dist --no-progress --no-suggest ${{ matrix.composer-options }}
+              # Guzzle 6 is end-of-life; retain its test coverage for legacy users.
+              run: composer update --with guzzlehttp/guzzle:${{ matrix.guzzle }} --no-interaction --prefer-dist --no-progress --no-suggest --no-security-blocking ${{ matrix.composer-options }}
 
             - name: Analyze & test
               run: |
